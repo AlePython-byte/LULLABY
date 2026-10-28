@@ -16,10 +16,10 @@ public partial class PlayerController : CharacterBody3D
 	{
 		_mesh = GetNode<Node3D>("Mesh");
 
-		RegisterAction(MoveLeft, Key.A, Key.Left);
-		RegisterAction(MoveRight, Key.D, Key.Right);
-		RegisterAction(MoveUp, Key.W, Key.Up);
-		RegisterAction(MoveDown, Key.S, Key.Down);
+		InputActions.Register(MoveLeft, Key.A);
+		InputActions.Register(MoveRight, Key.D);
+		InputActions.Register(MoveUp, Key.W);
+		InputActions.Register(MoveDown, Key.S);
 	}
 
 	public override void _PhysicsProcess(double delta)
@@ -36,19 +36,6 @@ public partial class PlayerController : CharacterBody3D
 			float targetYaw = Mathf.Atan2(-direction.X, -direction.Z);
 			float yaw = Mathf.LerpAngle(_mesh.Rotation.Y, targetYaw, TurnSpeed * (float)delta);
 			_mesh.Rotation = new Vector3(0.0f, yaw, 0.0f);
-		}
-	}
-
-	private static void RegisterAction(string action, params Key[] keys)
-	{
-		if (!InputMap.HasAction(action))
-		{
-			InputMap.AddAction(action);
-		}
-
-		foreach (Key key in keys)
-		{
-			InputMap.ActionAddEvent(action, new InputEventKey { PhysicalKeycode = key });
 		}
 	}
 }

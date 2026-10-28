@@ -1,0 +1,27 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/Tear.cs" id="1_tear"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_tear"]
+radius = 0.15
+height = 0.3
+
+[sub_resource type="StandardMaterial3D" id="Material_tear"]
+albedo_color = Color(0.6, 0.85, 1, 1)
+emission_enabled = true
+emission = Color(0.4, 0.7, 1, 1)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_tear"]
+radius = 0.15
+
+[node name="Tear" type="Area3D"]
+collision_layer = 4
+collision_mask = 9
+script = ExtResource("1_tear")
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+mesh = SubResource("SphereMesh_tear")
+surface_material_override/0 = SubResource("Material_tear")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_tear")
