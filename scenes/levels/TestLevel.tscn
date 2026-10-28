@@ -1,12 +1,14 @@
 [gd_scene format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/rooms/Room.tscn" id="1_room"]
-[ext_resource type="Resource" path="res://resources/rooms/TestMap.tres" id="2_map"]
+[ext_resource type="Resource" path="res://resources/rooms/templates/Catalog.tres" id="2_catalog"]
 [ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="3_player"]
 [ext_resource type="PackedScene" path="res://scenes/ui/HealthHud.tscn" id="4_hud"]
 [ext_resource type="PackedScene" path="res://scenes/ui/ScreenFade.tscn" id="5_fade"]
 [ext_resource type="Script" path="res://scripts/systems/RoomCamera.cs" id="6_camera"]
 [ext_resource type="Script" path="res://scripts/systems/RoomManager.cs" id="7_manager"]
+[ext_resource type="PackedScene" path="res://scenes/ui/SeedHud.tscn" id="8_seed"]
+[ext_resource type="Script" path="res://scripts/systems/RunManager.cs" id="9_run"]
 
 [sub_resource type="Environment" id="Environment_dark"]
 background_mode = 1
@@ -35,6 +37,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 
 [node name="HealthHud" parent="." instance=ExtResource("4_hud")]
 
+[node name="SeedHud" parent="." instance=ExtResource("8_seed")]
+
 [node name="ScreenFade" parent="." instance=ExtResource("5_fade")]
 
 [node name="CameraRig" type="Node3D" parent="."]
@@ -48,8 +52,13 @@ current = true
 
 [node name="RoomManager" type="Node3D" parent="." node_paths=PackedStringArray("Player", "Camera", "Fade")]
 script = ExtResource("7_manager")
-Map = ExtResource("2_map")
 RoomScene = ExtResource("1_room")
 Player = NodePath("../Player")
 Camera = NodePath("../CameraRig")
 Fade = NodePath("../ScreenFade")
+
+[node name="RunManager" type="Node" parent="." node_paths=PackedStringArray("Rooms", "SeedHud")]
+script = ExtResource("9_run")
+Catalog = ExtResource("2_catalog")
+Rooms = NodePath("../RoomManager")
+SeedHud = NodePath("../SeedHud")

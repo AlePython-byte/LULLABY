@@ -5,6 +5,9 @@ using Godot;
 /// Gestiona el mapa de salas: carga una sala cada vez, deriva sus puertas de las salas vecinas y hace la
 /// transición al cruzar una puerta. Jugador, HUD, luz, entorno y cámara viven en el nivel y no se recrean.
 ///
+/// El mapa llega por Begin (normalmente desde RunManager, con un nivel generado). Si Map está asignado en el
+/// inspector, arranca solo con ese mapa fijo.
+///
 /// Convención de ejes (ver LevelMap): Norte = y-1 = -Z (arriba en pantalla), Este = x+1 = +X.
 /// Todas las salas se centran en el origen del mundo; solo hay una cargada a la vez.
 ///
@@ -21,10 +24,11 @@ public partial class RoomManager : Node3D
 	[Export] public ScreenFade Fade { get; set; }
 
 	// Distancia del centro del jugador al interior de la pared de la puerta por la que aparece.
-	[Export] public float ArrivalOffset { get; set; } = 2.5f;
+	// El LevelValidator asume RoomRules.ArrivalOffset: si se cambia aquí, cambia también la regla.
+	[Export] public float ArrivalOffset { get; set; } = RoomRules.ArrivalOffset;
 
 	// Separación mínima entre un punto de aparición y las paredes.
-	[Export] public float SpawnMargin { get; set; } = 1.5f;
+	[Export] public float SpawnMargin { get; set; } = RoomRules.SpawnWallMargin;
 	[Export] public float FadeDuration { get; set; } = 0.15f;
 
 	private readonly Dictionary<Vector2I, RoomData> _rooms = new();
@@ -36,6 +40,18 @@ public partial class RoomManager : Node3D
 
 	public override void _Ready()
 	{
+		if (Map != null)
+		{
+			Begin(Map);
+		}
+	}
+
+	public void Begin(LevelMap map)
+	{
+		Map = map;
+		_rooms.Clear();
+		_cleared.Clear();
+
 		if (!ValidateMap())
 		{
 			return;
@@ -48,30 +64,6 @@ public partial class RoomManager : Node3D
 	private bool ValidateMap()
 	{
 		List<string> errors = new();
-
-		if (Map == null || Map.Rooms.Count == 0)
-		{
-			errors.Add("el mapa no tiene salas (Map vacío o sin Rooms).");
-		}
-		else
-		{
-			foreach (RoomData room in Map.Rooms)
-			{
-				if (room == null)
-				{
-					errors.Add("hay una entrada nula en Rooms.");
-				}
-				else if (!_rooms.TryAdd(room.Cell, room))
-				{
-					errors.Add($"dos salas comparten la celda {room.Cell}.");
-				}
-			}
-
-			if (!_rooms.ContainsKey(Map.StartCell))
-			{
-				errors.Add($"la celda inicial {Map.StartCell} no tiene sala.");
-			}
-		}
 
 		if (Player == null)
 		{
@@ -93,6 +85,19 @@ public partial class RoomManager : Node3D
 			errors.Add("falta asignar RoomScene.");
 		}
 
+		if (Map != null && Map.Rooms != null)
+		{
+			foreach (RoomData room in Map.Rooms)
+			{
+				if (room != null)
+				{
+					ClampSpawnPoints(room);
+				}
+			}
+		}
+
+		errors.AddRange(LevelValidator.Validate(Map));
+
 		if (errors.Count > 0)
 		{
 			foreach (string error in errors)
@@ -103,9 +108,9 @@ public partial class RoomManager : Node3D
 			return false;
 		}
 
-		foreach (RoomData room in _rooms.Values)
+		foreach (RoomData room in Map.Rooms)
 		{
-			ClampSpawnPoints(room);
+			_rooms[room.Cell] = room;
 		}
 
 		return true;

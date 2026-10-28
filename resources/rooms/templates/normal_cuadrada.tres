@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="RoomTemplate" format=3]
+
+[ext_resource type="Script" path="res://scripts/generation/RoomTemplate.cs" id="1_template"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/BasicEnemy.tscn" id="2_enemy"]
+
+[resource]
+script = ExtResource("1_template")
+Id = "normal_cuadrada"
+Size = Vector2(18, 18)
+EnemyScene = ExtResource("2_enemy")
+SpawnPoints = PackedVector2Array(-6.5, -6.5, 6.5, -6.5, 6.5, 6.5)

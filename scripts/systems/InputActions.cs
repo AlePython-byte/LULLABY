@@ -2,6 +2,7 @@ using Godot;
 
 public static class InputActions
 {
+	// Es seguro llamarlo en cada recarga de escena: no duplica teclas ya registradas.
 	public static void Register(string action, params Key[] keys)
 	{
 		if (!InputMap.HasAction(action))
@@ -11,7 +12,11 @@ public static class InputActions
 
 		foreach (Key key in keys)
 		{
-			InputMap.ActionAddEvent(action, new InputEventKey { PhysicalKeycode = key });
+			InputEventKey keyEvent = new() { PhysicalKeycode = key };
+			if (!InputMap.ActionHasEvent(action, keyEvent))
+			{
+				InputMap.ActionAddEvent(action, keyEvent);
+			}
 		}
 	}
 }

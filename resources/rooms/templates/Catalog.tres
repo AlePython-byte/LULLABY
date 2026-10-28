@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="RoomCatalog" format=3]
+
+[ext_resource type="Script" path="res://scripts/generation/RoomCatalog.cs" id="1_catalog"]
+[ext_resource type="Script" path="res://scripts/generation/RoomTemplate.cs" id="2_template"]
+[ext_resource type="Resource" path="res://resources/rooms/templates/normal_cuadrada.tres" id="3_normal_cuadrada"]
+[ext_resource type="Resource" path="res://resources/rooms/templates/normal_pequena.tres" id="4_normal_pequena"]
+[ext_resource type="Resource" path="res://resources/rooms/templates/normal_ancha.tres" id="5_normal_ancha"]
+[ext_resource type="Resource" path="res://resources/rooms/templates/normal_alta.tres" id="6_normal_alta"]
+[ext_resource type="Resource" path="res://resources/rooms/templates/normal_grande.tres" id="7_normal_grande"]
+[ext_resource type="Resource" path="res://resources/rooms/templates/normal_esquinas.tres" id="8_normal_esquinas"]
+[ext_resource type="Resource" path="res://resources/rooms/templates/inicio.tres" id="9_inicio"]
+[ext_resource type="Resource" path="res://resources/rooms/templates/jefe.tres" id="10_jefe"]
+[ext_resource type="Resource" path="res://resources/rooms/templates/tesoro.tres" id="11_tesoro"]
+
+[resource]
+script = ExtResource("1_catalog")
+StartTemplates = Array[ExtResource("2_template")]([ExtResource("9_inicio")])
+NormalTemplates = Array[ExtResource("2_template")]([ExtResource("3_normal_cuadrada"), ExtResource("4_normal_pequena"), ExtResource("5_normal_ancha"), ExtResource("6_normal_alta"), ExtResource("7_normal_grande"), ExtResource("8_normal_esquinas")])
+BossTemplates = Array[ExtResource("2_template")]([ExtResource("10_jefe")])
+TreasureTemplates = Array[ExtResource("2_template")]([ExtResource("11_tesoro")])

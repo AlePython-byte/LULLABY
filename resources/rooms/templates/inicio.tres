@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="RoomTemplate" format=3]
+
+[ext_resource type="Script" path="res://scripts/generation/RoomTemplate.cs" id="1_template"]
+
+[resource]
+script = ExtResource("1_template")
+Id = "inicio"
+Size = Vector2(16, 16)
+SpawnPoints = PackedVector2Array()

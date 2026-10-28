@@ -7,6 +7,7 @@
 [sub_resource type="Resource" id="Resource_a"]
 script = ExtResource("2_room")
 Cell = Vector2i(0, 0)
+Type = 1
 Size = Vector2(16, 16)
 SpawnPoints = PackedVector2Array()
 
@@ -15,21 +16,22 @@ script = ExtResource("2_room")
 Cell = Vector2i(1, 0)
 Size = Vector2(20, 20)
 EnemyScene = ExtResource("3_enemy")
-SpawnPoints = PackedVector2Array(-6, -6, 6, -6, 0, 6)
+SpawnPoints = PackedVector2Array(-7.5, -7.5, 7.5, -7.5, 0, 0)
 
 [sub_resource type="Resource" id="Resource_c"]
 script = ExtResource("2_room")
 Cell = Vector2i(0, -1)
 Size = Vector2(20, 20)
 EnemyScene = ExtResource("3_enemy")
-SpawnPoints = PackedVector2Array(-6, -6, 6, -6)
+SpawnPoints = PackedVector2Array(-7.5, -7.5, 7.5, -7.5)
 
 [sub_resource type="Resource" id="Resource_d"]
 script = ExtResource("2_room")
 Cell = Vector2i(2, 0)
+Type = 2
 Size = Vector2(32, 24)
 EnemyScene = ExtResource("3_enemy")
-SpawnPoints = PackedVector2Array(0, -8, 10, -8, 0, 8, 10, 8)
+SpawnPoints = PackedVector2Array(-7, -5, 7, -5, -7, 5, 7, 5)
 
 [sub_resource type="Resource" id="Resource_e"]
 script = ExtResource("2_room")

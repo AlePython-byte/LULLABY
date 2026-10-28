@@ -7,6 +7,7 @@ using Godot;
 ///   Size                               interior jugable en metros (X, Z). Suelo y paredes se construyen por código.
 ///   SpawnPoints                        un enemigo por punto (X, Z relativo al centro de la sala).
 ///   EnemyScene                         escena del enemigo. Sin ella o sin puntos, la sala nace despejada.
+///   Type                               Start, Normal, Boss o Treasure; por ahora solo cambia el color del suelo.
 ///
 /// Y de quien la carga (RoomManager), mediante Setup:
 ///
@@ -50,6 +51,11 @@ public partial class RoomController : Node3D
 
 	[Export] public Color FloorColor { get; set; } = new Color(0.18f, 0.15f, 0.15f, 1.0f);
 	[Export] public Color WallColor { get; set; } = new Color(0.25f, 0.2f, 0.22f, 1.0f);
+
+	// Aspecto provisional de los tipos especiales hasta que tengan contenido propio.
+	[Export] public Color StartFloorColor { get; set; } = new Color(0.13f, 0.15f, 0.22f, 1.0f);
+	[Export] public Color BossFloorColor { get; set; } = new Color(0.32f, 0.07f, 0.07f, 1.0f);
+	[Export] public Color TreasureFloorColor { get; set; } = new Color(0.32f, 0.26f, 0.08f, 1.0f);
 
 	public RoomState State { get; private set; } = RoomState.Unvisited;
 
@@ -118,7 +124,14 @@ public partial class RoomController : Node3D
 
 	private void BuildGeometry()
 	{
-		StandardMaterial3D floorMaterial = new() { AlbedoColor = FloorColor };
+		Color floorColor = _data.Type switch
+		{
+			RoomType.Start => StartFloorColor,
+			RoomType.Boss => BossFloorColor,
+			RoomType.Treasure => TreasureFloorColor,
+			_ => FloorColor,
+		};
+		StandardMaterial3D floorMaterial = new() { AlbedoColor = floorColor };
 		StandardMaterial3D wallMaterial = new() { AlbedoColor = WallColor };
 
 		float margin = WallThickness * 2.0f;
