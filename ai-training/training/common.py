@@ -42,6 +42,7 @@ LABEL_META = "levels_v1_labels.meta.json"
 # (CSV de características, CSV de etiquetas, meta de características)
 TRAIN_FILES = ("levels_v1.csv", "levels_v1_labels.csv", "levels_v1.meta.json")
 TEST_FILES = ("levels_v1_test.csv", "levels_v1_test_labels.csv", "levels_v1_test.meta.json")
+CONFIRM_FILES = ("levels_v1_confirm.csv", "levels_v1_confirm_labels.csv", "levels_v1_confirm.meta.json")
 
 
 def use_utf8_console() -> None:
@@ -127,6 +128,11 @@ def load_train() -> Split:
 def load_test() -> Split:
     """Solo para evaluate.py y export_model.py."""
     return _load(TEST_FILES, "prueba")
+
+
+def load_confirm() -> Split:
+    """Solo para evaluate_confirmation.py (conjunto de confirmación, semillas 200001..201000)."""
+    return _load(CONFIRM_FILES, "confirmación")
 
 
 def check_no_overlap(train: Split, test: Split) -> dict:
