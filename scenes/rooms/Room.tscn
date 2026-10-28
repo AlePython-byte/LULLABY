@@ -1,0 +1,22 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/systems/RoomController.cs" id="1_room"]
+[ext_resource type="PackedScene" path="res://scenes/rooms/Door.tscn" id="2_door"]
+
+[node name="Room" type="Node3D"]
+script = ExtResource("1_room")
+DoorScene = ExtResource("2_door")
+
+[node name="Geometry" type="Node3D" parent="."]
+
+[node name="Doors" type="Node3D" parent="."]
+
+[node name="SpawnPoints" type="Node3D" parent="."]
+
+[node name="Enemies" type="Node3D" parent="."]
+
+[node name="EntryArea" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="EntryArea"]
