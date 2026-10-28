@@ -8,6 +8,7 @@ public partial class Tear : Area3D
 
 	private Vector3 _direction = Vector3.Zero;
 	private float _age;
+	private bool _spent;
 
 	public override void _Ready()
 	{
@@ -30,9 +31,16 @@ public partial class Tear : Area3D
 		}
 	}
 
-	// La máscara solo detecta World y Enemies; aplicar Damage a los enemigos llegará con ellos.
+	// La máscara solo detecta World y Enemies: las paredes no tienen vida, los enemigos sí.
 	private void OnBodyEntered(Node3D body)
 	{
+		if (_spent)
+		{
+			return;
+		}
+
+		_spent = true;
+		HealthComponent.FindIn(body)?.TakeDamage(Damage);
 		QueueFree();
 	}
 }

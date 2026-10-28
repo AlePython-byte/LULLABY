@@ -1,6 +1,8 @@
 [gd_scene format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="1_player"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/BasicEnemy.tscn" id="2_enemy"]
+[ext_resource type="PackedScene" path="res://scenes/ui/HealthHud.tscn" id="3_hud"]
 
 [sub_resource type="Environment" id="Environment_dark"]
 background_mode = 1
@@ -110,6 +112,17 @@ shape = SubResource("BoxShape3D_wall_ew")
 
 [node name="Player" parent="." instance=ExtResource("1_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+
+[node name="Enemy1" parent="." instance=ExtResource("2_enemy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0.5, -8)
+
+[node name="Enemy2" parent="." instance=ExtResource("2_enemy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.5, -8)
+
+[node name="Enemy3" parent="." instance=ExtResource("2_enemy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 8)
+
+[node name="HealthHud" parent="." instance=ExtResource("3_hud")]
 
 [node name="CameraRig" type="Node3D" parent="."]
 rotation_degrees = Vector3(-60, 0, 0)

@@ -3,6 +3,8 @@
 [ext_resource type="Script" path="res://scripts/player/PlayerController.cs" id="1_ctrl"]
 [ext_resource type="Script" path="res://scripts/player/PlayerShooter.cs" id="2_shooter"]
 [ext_resource type="PackedScene" path="res://scenes/combat/Tear.tscn" id="3_tear"]
+[ext_resource type="Script" path="res://scripts/systems/HealthComponent.cs" id="4_health"]
+[ext_resource type="Script" path="res://scripts/player/PlayerHealth.cs" id="5_phealth"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_noah"]
 
@@ -11,7 +13,7 @@ albedo_color = Color(0.85, 0.75, 0.7, 1)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_noah"]
 
-[node name="Player" type="CharacterBody3D"]
+[node name="Player" type="CharacterBody3D" groups=["player"]]
 collision_layer = 2
 collision_mask = 9
 motion_mode = 1
@@ -27,3 +29,10 @@ shape = SubResource("BoxShape3D_noah")
 [node name="Shooter" type="Node3D" parent="."]
 script = ExtResource("2_shooter")
 TearScene = ExtResource("3_tear")
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("4_health")
+MaxHealth = 5.0
+
+[node name="PlayerHealth" type="Node" parent="."]
+script = ExtResource("5_phealth")
