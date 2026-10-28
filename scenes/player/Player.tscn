@@ -1,0 +1,21 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/player/PlayerController.cs" id="1_ctrl"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_noah"]
+
+[sub_resource type="StandardMaterial3D" id="Material_noah"]
+albedo_color = Color(0.85, 0.75, 0.7, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_noah"]
+
+[node name="Player" type="CharacterBody3D"]
+motion_mode = 1
+script = ExtResource("1_ctrl")
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_noah")
+surface_material_override/0 = SubResource("Material_noah")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_noah")
