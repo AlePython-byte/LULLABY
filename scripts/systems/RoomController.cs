@@ -58,6 +58,7 @@ public partial class RoomController : Node3D
 	[Export] public Color TreasureFloorColor { get; set; } = new Color(0.32f, 0.26f, 0.08f, 1.0f);
 
 	public RoomState State { get; private set; } = RoomState.Unvisited;
+	public RoomData Data => _data;
 
 	private readonly Dictionary<DoorSide, Door> _doors = new();
 	private readonly List<Marker3D> _spawnPoints = new();
@@ -103,7 +104,6 @@ public partial class RoomController : Node3D
 		}
 
 		BuildGeometry();
-		BuildEntryArea();
 
 		foreach (Door door in _doors.Values)
 		{
@@ -134,121 +134,67 @@ public partial class RoomController : Node3D
 		StandardMaterial3D floorMaterial = new() { AlbedoColor = floorColor };
 		StandardMaterial3D wallMaterial = new() { AlbedoColor = WallColor };
 
-		float margin = WallThickness * 2.0f;
-		CreateBox(_geometry, "Floor", new Vector3(_data.Size.X + margin, 1.0f, _data.Size.Y + margin),
-			new Vector3(0.0f, -0.5f, 0.0f), floorMaterial);
+		RoomLayout layout = RoomLayout.Build(_data.Size, _connectedDoors, WallHeight, WallThickness, DoorWidth,
+			EntryMargin);
 
-		foreach (DoorSide side in System.Enum.GetValues<DoorSide>())
+		CreateBox(_geometry, layout.Floor, floorMaterial);
+		foreach (RoomLayout.Box wall in layout.Walls)
 		{
-			BuildWall(side, wallMaterial);
+			CreateBox(_geometry, wall, wallMaterial);
 		}
+
+		foreach (RoomLayout.DoorLayout door in layout.Doors)
+		{
+			AddDoor(door);
+		}
+
+		BuildEntryArea(layout.EntryArea);
 	}
 
-	private void BuildWall(DoorSide side, StandardMaterial3D material)
+	private void AddDoor(RoomLayout.DoorLayout layout)
 	{
-		float t = WallThickness;
-		float hx = _data.Size.X / 2.0f;
-		float hz = _data.Size.Y / 2.0f;
-
-		// Norte y Sur recorren el eje X e incluyen las esquinas; Este y Oeste cubren solo el tramo interior.
-		bool alongX = side == DoorSide.North || side == DoorSide.South;
-		float sign = side == DoorSide.North || side == DoorSide.West ? -1.0f : 1.0f;
-		float half = alongX ? hx + t : hz;
-		float fixedCoord = sign * ((alongX ? hz : hx) + t / 2.0f);
-		float doorHalf = DoorWidth / 2.0f;
-
-		if (_connectedDoors.Contains(side))
-		{
-			AddWallSegment(side, "A", -half, -doorHalf, fixedCoord, alongX, material);
-			AddWallSegment(side, "B", doorHalf, half, fixedCoord, alongX, material);
-			AddDoor(side, fixedCoord, alongX);
-		}
-		else
-		{
-			AddWallSegment(side, "", -half, half, fixedCoord, alongX, material);
-		}
-	}
-
-	private void AddWallSegment(DoorSide side, string suffix, float from, float to, float fixedCoord,
-		bool alongX, StandardMaterial3D material)
-	{
-		float length = to - from;
-		float center = (from + to) / 2.0f;
-		Vector3 size = alongX
-			? new Vector3(length, WallHeight, WallThickness)
-			: new Vector3(WallThickness, WallHeight, length);
-		Vector3 position = alongX
-			? new Vector3(center, WallHeight / 2.0f, fixedCoord)
-			: new Vector3(fixedCoord, WallHeight / 2.0f, center);
-
-		CreateBox(_geometry, $"Wall{side}{suffix}", size, position, material);
-	}
-
-	private void AddDoor(DoorSide side, float fixedCoord, bool alongX)
-	{
+		DoorSide side = layout.Side;
 		Door door = DoorScene.Instantiate<Door>();
-		door.Name = $"Door{side}";
+		door.Name = layout.Door.Name;
 		_doorsRoot.AddChild(door);
-		door.Position = DoorPosition(fixedCoord, alongX);
-		door.Configure(DoorSize(alongX));
+		door.Position = layout.Door.Center;
+		door.Configure(layout.Door.Size);
 		_doors[side] = door;
 
-		// Disparador dentro del grosor de la pared: el jugador solo lo alcanza si la puerta está abierta.
-		Vector3 triggerSize = alongX
-			? new Vector3(DoorWidth, 2.0f, WallThickness)
-			: new Vector3(WallThickness, 2.0f, DoorWidth);
 		Area3D trigger = new()
 		{
-			Name = $"DoorTrigger{side}",
-			Position = DoorPosition(fixedCoord, alongX) with { Y = 1.0f },
+			Name = layout.Trigger.Name,
+			Position = layout.Trigger.Center,
 			CollisionLayer = 0,
 			CollisionMask = CollisionLayers.Player,
 		};
-		trigger.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = triggerSize } });
+		trigger.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = layout.Trigger.Size } });
 		trigger.BodyEntered += body => OnDoorTriggerEntered(side, body);
 		_doorsRoot.AddChild(trigger);
 	}
 
-	private Vector3 DoorSize(bool alongX)
-	{
-		return alongX
-			? new Vector3(DoorWidth, WallHeight, WallThickness)
-			: new Vector3(WallThickness, WallHeight, DoorWidth);
-	}
-
-	private Vector3 DoorPosition(float fixedCoord, bool alongX)
-	{
-		return alongX
-			? new Vector3(0.0f, WallHeight / 2.0f, fixedCoord)
-			: new Vector3(fixedCoord, WallHeight / 2.0f, 0.0f);
-	}
-
-	private static StaticBody3D CreateBox(Node parent, string name, Vector3 size, Vector3 position,
-		StandardMaterial3D material)
+	private static StaticBody3D CreateBox(Node parent, RoomLayout.Box box, StandardMaterial3D material)
 	{
 		StaticBody3D body = new()
 		{
-			Name = name,
-			Position = position,
+			Name = box.Name,
+			Position = box.Center,
 			CollisionLayer = CollisionLayers.World,
 			CollisionMask = 0,
 		};
-		body.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = size } });
-		body.AddChild(new MeshInstance3D { Mesh = new BoxMesh { Size = size }, MaterialOverride = material });
+		body.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = box.Size } });
+		body.AddChild(new MeshInstance3D { Mesh = new BoxMesh { Size = box.Size }, MaterialOverride = material });
 
 		parent.AddChild(body);
 		return body;
 	}
 
-	private void BuildEntryArea()
+	private void BuildEntryArea(RoomLayout.Box entry)
 	{
 		Area3D area = GetNode<Area3D>("EntryArea");
 		CollisionShape3D shape = area.GetNode<CollisionShape3D>("CollisionShape3D");
-
-		float sizeX = Mathf.Max(0.5f, _data.Size.X - 2.0f * EntryMargin);
-		float sizeZ = Mathf.Max(0.5f, _data.Size.Y - 2.0f * EntryMargin);
-		shape.Shape = new BoxShape3D { Size = new Vector3(sizeX, 2.0f, sizeZ) };
-		shape.Position = new Vector3(0.0f, 1.0f, 0.0f);
+		shape.Shape = new BoxShape3D { Size = entry.Size };
+		shape.Position = entry.Center;
 
 		area.BodyEntered += OnBodyEntered;
 		area.BodyExited += OnBodyExited;

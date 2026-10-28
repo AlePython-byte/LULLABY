@@ -2,12 +2,13 @@ using Godot;
 
 public partial class PlayerShooter : Node3D
 {
-	private const string ShootLeft = "shoot_left";
-	private const string ShootRight = "shoot_right";
-	private const string ShootUp = "shoot_up";
-	private const string ShootDown = "shoot_down";
+	public const string ShootLeft = "shoot_left";
+	public const string ShootRight = "shoot_right";
+	public const string ShootUp = "shoot_up";
+	public const string ShootDown = "shoot_down";
 
-	private static readonly string[] Actions = { ShootLeft, ShootRight, ShootUp, ShootDown };
+	// Orden fijo: izquierda, derecha, arriba (-Z), abajo (+Z).
+	public static readonly string[] Actions = { ShootLeft, ShootRight, ShootUp, ShootDown };
 
 	[Export] public PackedScene TearScene { get; set; }
 	[Export] public float ShotsPerSecond { get; set; } = 3.0f;

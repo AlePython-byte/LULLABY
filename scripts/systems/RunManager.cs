@@ -86,6 +86,18 @@ public partial class RunManager : Node
 		}
 	}
 
+	/// <summary>Fija la semilla de la próxima partida que se cargue. Solo en compilaciones de depuración.</summary>
+	public static void SetNextSeed(int seed)
+	{
+		if (!OS.IsDebugBuild())
+		{
+			GD.PushWarning("RunManager.SetNextSeed solo funciona en compilaciones de depuración.");
+			return;
+		}
+
+		_pendingSeed = seed;
+	}
+
 	private int ChooseSeed()
 	{
 		if (_pendingSeed.HasValue)

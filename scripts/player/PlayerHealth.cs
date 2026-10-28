@@ -29,15 +29,17 @@ public partial class PlayerHealth : Node
 		_mesh.Visible = _invulnerableTimer <= 0.0f || (int)(_invulnerableTimer * 10.0f) % 2 == 0;
 	}
 
-	public void TakeHit(float damage)
+	/// <summary>Devuelve true si el golpe hizo daño (false si estaba en invulnerabilidad o muerto).</summary>
+	public bool TakeHit(float damage)
 	{
 		if (_invulnerableTimer > 0.0f || _health.IsDead)
 		{
-			return;
+			return false;
 		}
 
 		_health.TakeDamage(damage);
 		_invulnerableTimer = InvulnerabilityTime;
+		return true;
 	}
 
 	private void OnDied()

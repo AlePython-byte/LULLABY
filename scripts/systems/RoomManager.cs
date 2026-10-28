@@ -38,6 +38,8 @@ public partial class RoomManager : Node3D
 	private Vector2I _currentCell;
 	private bool _transitioning;
 
+	public RoomController CurrentRoom => _room;
+
 	public override void _Ready()
 	{
 		if (Map != null)

@@ -2,10 +2,10 @@ using Godot;
 
 public partial class PlayerController : CharacterBody3D
 {
-	private const string MoveLeft = "move_left";
-	private const string MoveRight = "move_right";
-	private const string MoveUp = "move_up";
-	private const string MoveDown = "move_down";
+	public const string MoveLeft = "move_left";
+	public const string MoveRight = "move_right";
+	public const string MoveUp = "move_up";
+	public const string MoveDown = "move_down";
 
 	[Export] public float Speed { get; set; } = 6.0f;
 	[Export] public float TurnSpeed { get; set; } = 12.0f;
