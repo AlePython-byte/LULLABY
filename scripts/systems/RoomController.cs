@@ -2,21 +2,23 @@ using System.Collections.Generic;
 using Godot;
 
 /// <summary>
-/// Datos que definen una sala (contrato que usará el generador de niveles):
+/// Datos que definen una sala (contrato que usa el generador de niveles). Vienen de un RoomData:
 ///
-///   RoomSize                           interior jugable en metros (X, Z). Suelo y paredes se construyen por código.
-///   WallHeight / WallThickness         altura y grosor de las paredes.
-///   HasDoorNorth/East/South/West       qué puertas existen. Un lado sin puerta es pared completa.
-///   DoorWidth                          ancho del hueco de cada puerta.
-///   Nodos Marker3D bajo "SpawnPoints"  un enemigo por marcador (se usa su GlobalPosition).
-///   EnemyScene                         escena del enemigo que aparece en cada marcador.
-///   StartDelay                         segundos entre entrar y que aparezcan los enemigos.
-///   DoorPlugsActive                    tapones de colisión fuera de cada hueco (temporal).
-///   FloorColor / WallColor             aspecto provisional.
+///   Size                               interior jugable en metros (X, Z). Suelo y paredes se construyen por código.
+///   SpawnPoints                        un enemigo por punto (X, Z relativo al centro de la sala).
+///   EnemyScene                         escena del enemigo. Sin ella o sin puntos, la sala nace despejada.
 ///
-/// Estados: Unvisited → Combat → Cleared. Una sala sin enemigos nace Cleared.
-/// Señal RoomCleared: se emite al morir el último enemigo.
-/// Los nodos Geometry, Doors, SpawnPoints, Enemies y EntryArea vienen de Room.tscn.
+/// Y de quien la carga (RoomManager), mediante Setup:
+///
+///   puertas conectadas                 solo existen puertas hacia las salas vecinas; el resto es pared completa.
+///   ya despejada                       si es así, no hay enemigos y las puertas están abiertas.
+///
+/// Parámetros propios (inspector de Room.tscn): WallHeight, WallThickness, DoorWidth, EntryMargin,
+/// StartDelay, DoorScene, FloorColor, WallColor.
+///
+/// Estados: Unvisited → Combat → Cleared. Señales: RoomCleared (murió el último enemigo) y
+/// DoorCrossed (el jugador cruzó una puerta abierta; el lado va como int de DoorSide).
+/// La sala no reacciona al jugador hasta que se llama a Activate (al terminar el fundido de entrada).
 /// </summary>
 public enum RoomState
 {
@@ -36,24 +38,15 @@ public enum DoorSide
 public partial class RoomController : Node3D
 {
 	[Signal] public delegate void RoomClearedEventHandler();
+	[Signal] public delegate void DoorCrossedEventHandler(int side);
 
-	[Export] public Vector2 RoomSize { get; set; } = new Vector2(20.0f, 20.0f);
 	[Export] public float WallHeight { get; set; } = 3.0f;
 	[Export] public float WallThickness { get; set; } = 1.0f;
 	[Export] public float DoorWidth { get; set; } = 3.0f;
 	[Export] public float EntryMargin { get; set; } = 1.5f;
-
-	[Export] public bool HasDoorNorth { get; set; }
-	[Export] public bool HasDoorEast { get; set; }
-	[Export] public bool HasDoorSouth { get; set; }
-	[Export] public bool HasDoorWest { get; set; }
-
-	[Export] public PackedScene DoorScene { get; set; }
-	[Export] public PackedScene EnemyScene { get; set; }
 	[Export] public float StartDelay { get; set; }
 
-	// Temporal hasta conectar salas: sin sala vecina, el hueco de la puerta daría al vacío.
-	[Export] public bool DoorPlugsActive { get; set; } = true;
+	[Export] public PackedScene DoorScene { get; set; }
 
 	[Export] public Color FloorColor { get; set; } = new Color(0.18f, 0.15f, 0.15f, 1.0f);
 	[Export] public Color WallColor { get; set; } = new Color(0.25f, 0.2f, 0.22f, 1.0f);
@@ -63,23 +56,44 @@ public partial class RoomController : Node3D
 	private readonly Dictionary<DoorSide, Door> _doors = new();
 	private readonly List<Marker3D> _spawnPoints = new();
 
+	private RoomData _data;
+	private HashSet<DoorSide> _connectedDoors = new();
+	private bool _alreadyCleared;
+
 	private Node3D _geometry;
 	private Node3D _doorsRoot;
 	private Node3D _enemiesRoot;
 	private int _enemiesAlive;
+	private bool _active;
+	private bool _playerInside;
+
+	// Debe llamarse antes de añadir la sala al árbol.
+	public void Setup(RoomData data, IEnumerable<DoorSide> connectedDoors, bool alreadyCleared)
+	{
+		_data = data;
+		_connectedDoors = new HashSet<DoorSide>(connectedDoors);
+		_alreadyCleared = alreadyCleared;
+	}
 
 	public override void _Ready()
 	{
+		if (_data == null)
+		{
+			GD.PushError("RoomController: falta llamar a Setup antes de añadir la sala al árbol.");
+			return;
+		}
+
 		_geometry = GetNode<Node3D>("Geometry");
 		_doorsRoot = GetNode<Node3D>("Doors");
 		_enemiesRoot = GetNode<Node3D>("Enemies");
+		Node spawnRoot = GetNode("SpawnPoints");
 
-		foreach (Node child in GetNode("SpawnPoints").GetChildren())
+		for (int i = 0; i < _data.SpawnPoints.Length; i++)
 		{
-			if (child is Marker3D marker)
-			{
-				_spawnPoints.Add(marker);
-			}
+			Vector2 point = _data.SpawnPoints[i];
+			Marker3D marker = new() { Name = $"Spawn{i + 1}", Position = new Vector3(point.X, 0.5f, point.Y) };
+			spawnRoot.AddChild(marker);
+			_spawnPoints.Add(marker);
 		}
 
 		BuildGeometry();
@@ -90,21 +104,16 @@ public partial class RoomController : Node3D
 			door.SetOpen(true);
 		}
 
-		if (EnemyScene == null || _spawnPoints.Count == 0)
+		if (_alreadyCleared || _data.EnemyScene == null || _spawnPoints.Count == 0)
 		{
 			State = RoomState.Cleared;
 		}
 	}
 
-	private bool HasDoor(DoorSide side)
+	public void Activate()
 	{
-		return side switch
-		{
-			DoorSide.North => HasDoorNorth,
-			DoorSide.East => HasDoorEast,
-			DoorSide.South => HasDoorSouth,
-			_ => HasDoorWest,
-		};
+		_active = true;
+		TryStartCombat();
 	}
 
 	private void BuildGeometry()
@@ -112,9 +121,8 @@ public partial class RoomController : Node3D
 		StandardMaterial3D floorMaterial = new() { AlbedoColor = FloorColor };
 		StandardMaterial3D wallMaterial = new() { AlbedoColor = WallColor };
 
-		float t = WallThickness;
-		float margin = t * 2.0f;
-		CreateBox(_geometry, "Floor", new Vector3(RoomSize.X + margin, 1.0f, RoomSize.Y + margin),
+		float margin = WallThickness * 2.0f;
+		CreateBox(_geometry, "Floor", new Vector3(_data.Size.X + margin, 1.0f, _data.Size.Y + margin),
 			new Vector3(0.0f, -0.5f, 0.0f), floorMaterial);
 
 		foreach (DoorSide side in System.Enum.GetValues<DoorSide>())
@@ -126,8 +134,8 @@ public partial class RoomController : Node3D
 	private void BuildWall(DoorSide side, StandardMaterial3D material)
 	{
 		float t = WallThickness;
-		float hx = RoomSize.X / 2.0f;
-		float hz = RoomSize.Y / 2.0f;
+		float hx = _data.Size.X / 2.0f;
+		float hz = _data.Size.Y / 2.0f;
 
 		// Norte y Sur recorren el eje X e incluyen las esquinas; Este y Oeste cubren solo el tramo interior.
 		bool alongX = side == DoorSide.North || side == DoorSide.South;
@@ -136,18 +144,11 @@ public partial class RoomController : Node3D
 		float fixedCoord = sign * ((alongX ? hz : hx) + t / 2.0f);
 		float doorHalf = DoorWidth / 2.0f;
 
-		if (HasDoor(side))
+		if (_connectedDoors.Contains(side))
 		{
 			AddWallSegment(side, "A", -half, -doorHalf, fixedCoord, alongX, material);
 			AddWallSegment(side, "B", doorHalf, half, fixedCoord, alongX, material);
 			AddDoor(side, fixedCoord, alongX);
-
-			if (DoorPlugsActive)
-			{
-				float plugCoord = fixedCoord + sign * t;
-				Vector3 plugSize = DoorSize(alongX);
-				CreateBox(_geometry, $"DoorPlug{side}", plugSize, DoorPosition(plugCoord, alongX), null);
-			}
 		}
 		else
 		{
@@ -178,6 +179,21 @@ public partial class RoomController : Node3D
 		door.Position = DoorPosition(fixedCoord, alongX);
 		door.Configure(DoorSize(alongX));
 		_doors[side] = door;
+
+		// Disparador dentro del grosor de la pared: el jugador solo lo alcanza si la puerta está abierta.
+		Vector3 triggerSize = alongX
+			? new Vector3(DoorWidth, 2.0f, WallThickness)
+			: new Vector3(WallThickness, 2.0f, DoorWidth);
+		Area3D trigger = new()
+		{
+			Name = $"DoorTrigger{side}",
+			Position = DoorPosition(fixedCoord, alongX) with { Y = 1.0f },
+			CollisionLayer = 0,
+			CollisionMask = CollisionLayers.Player,
+		};
+		trigger.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = triggerSize } });
+		trigger.BodyEntered += body => OnDoorTriggerEntered(side, body);
+		_doorsRoot.AddChild(trigger);
 	}
 
 	private Vector3 DoorSize(bool alongX)
@@ -205,11 +221,7 @@ public partial class RoomController : Node3D
 			CollisionMask = 0,
 		};
 		body.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = size } });
-
-		if (material != null)
-		{
-			body.AddChild(new MeshInstance3D { Mesh = new BoxMesh { Size = size }, MaterialOverride = material });
-		}
+		body.AddChild(new MeshInstance3D { Mesh = new BoxMesh { Size = size }, MaterialOverride = material });
 
 		parent.AddChild(body);
 		return body;
@@ -220,22 +232,50 @@ public partial class RoomController : Node3D
 		Area3D area = GetNode<Area3D>("EntryArea");
 		CollisionShape3D shape = area.GetNode<CollisionShape3D>("CollisionShape3D");
 
-		float sizeX = Mathf.Max(0.5f, RoomSize.X - 2.0f * EntryMargin);
-		float sizeZ = Mathf.Max(0.5f, RoomSize.Y - 2.0f * EntryMargin);
+		float sizeX = Mathf.Max(0.5f, _data.Size.X - 2.0f * EntryMargin);
+		float sizeZ = Mathf.Max(0.5f, _data.Size.Y - 2.0f * EntryMargin);
 		shape.Shape = new BoxShape3D { Size = new Vector3(sizeX, 2.0f, sizeZ) };
 		shape.Position = new Vector3(0.0f, 1.0f, 0.0f);
 
 		area.BodyEntered += OnBodyEntered;
+		area.BodyExited += OnBodyExited;
 	}
 
-	private void OnBodyEntered(Node3D body)
+	private void OnDoorTriggerEntered(DoorSide side, Node3D body)
 	{
-		if (State != RoomState.Unvisited || !body.IsInGroup("player"))
+		if (!body.IsInGroup("player") || !_doors[side].IsOpen)
 		{
 			return;
 		}
 
-		StartCombat();
+		EmitSignal(SignalName.DoorCrossed, (int)side);
+	}
+
+	private void OnBodyEntered(Node3D body)
+	{
+		if (!body.IsInGroup("player"))
+		{
+			return;
+		}
+
+		_playerInside = true;
+		TryStartCombat();
+	}
+
+	private void OnBodyExited(Node3D body)
+	{
+		if (body.IsInGroup("player"))
+		{
+			_playerInside = false;
+		}
+	}
+
+	private void TryStartCombat()
+	{
+		if (_active && _playerInside && State == RoomState.Unvisited)
+		{
+			StartCombat();
+		}
 	}
 
 	private async void StartCombat()
@@ -261,7 +301,7 @@ public partial class RoomController : Node3D
 
 		foreach (Marker3D marker in _spawnPoints)
 		{
-			Node3D enemy = EnemyScene.Instantiate<Node3D>();
+			Node3D enemy = _data.EnemyScene.Instantiate<Node3D>();
 			_enemiesRoot.AddChild(enemy);
 			enemy.GlobalPosition = marker.GlobalPosition;
 			HealthComponent.FindIn(enemy).Died += OnEnemyDied;

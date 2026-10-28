@@ -5,6 +5,7 @@
 
 [node name="Room" type="Node3D"]
 script = ExtResource("1_room")
+StartDelay = 1.0
 DoorScene = ExtResource("2_door")
 
 [node name="Geometry" type="Node3D" parent="."]

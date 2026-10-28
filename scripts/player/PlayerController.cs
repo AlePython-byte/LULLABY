@@ -38,4 +38,15 @@ public partial class PlayerController : CharacterBody3D
 			_mesh.Rotation = new Vector3(0.0f, yaw, 0.0f);
 		}
 	}
+
+	// Orienta el cubo de inmediato (por ejemplo, al aparecer en una sala nueva).
+	public void FaceDirection(Vector3 direction)
+	{
+		if (direction.LengthSquared() < 0.0001f)
+		{
+			return;
+		}
+
+		_mesh.Rotation = new Vector3(0.0f, Mathf.Atan2(-direction.X, -direction.Z), 0.0f);
+	}
 }

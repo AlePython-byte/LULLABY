@@ -12,6 +12,7 @@ public partial class Tear : Area3D
 
 	public override void _Ready()
 	{
+		AddToGroup("tears");
 		BodyEntered += OnBodyEntered;
 	}
 
