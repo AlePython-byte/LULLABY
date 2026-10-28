@@ -27,8 +27,8 @@ import sys
 
 import numpy as np
 
-from common import (MAIN, MODELS, RANDOM_STATE, REPORTS, TARGETS, feature_meta, load_test, load_train, read_json,
-                    use_utf8_console, write_json)
+from common import (MAIN, MODELS, RANDOM_STATE, REPORTS, ROOT, SECONDARY, TARGETS, feature_meta, load_test, load_train,
+                    read_json, use_utf8_console, write_json)
 from models import make_estimator
 
 TOLERANCE = 1e-9
@@ -128,6 +128,31 @@ def verify_tree_export(train) -> None:
             raise SystemExit(f"La exportación de {family} no reproduce a scikit-learn (diferencia {difference:.2e}).")
 
 
+def write_tree_fixture(train, version: int, names: list[str]) -> None:
+    """Fixture para probar en C# el código de árboles (los modelos elegidos hoy son lineales): un documento con el mismo
+    formato que difficulty_v1.json, con un Gradient Boosting pequeño para la etiqueta principal y un Random Forest
+    pequeño para la secundaria, más 200 filas y las predicciones de scikit-learn. No es un modelo del juego."""
+    rows = train.X[:200]  # valores del CSV de entrenamiento (ya redondeados a 6 decimales)
+    boosting = make_estimator("gradient_boosting", n_estimators=20, max_depth=3, learning_rate=0.1).fit(
+        train.X, train.y[MAIN])
+    forest = make_estimator("random_forest", n_estimators=10, min_samples_leaf=20, max_features=0.7).fit(
+        train.X, train.y[SECONDARY])
+
+    path = ROOT.parent / "tests" / "fixtures" / "tree_model_fixture.json"
+    write_json(path, {
+        "format_version": FORMAT_VERSION,
+        "feature_set_version": version,
+        "feature_names": names,
+        "tree_feature_dtype": "float32",
+        "main_target": MAIN,
+        "difficulty_targets": {"easy": 0.0, "normal": 1.0, "hard": 2.0, "source": "fixture de prueba, no es un modelo del juego"},
+        "models": {MAIN: export_model("gradient_boosting", boosting, names),
+                   SECONDARY: export_model("random_forest", forest, names)},
+        "fixture": {"rows": rows, "expected": {MAIN: boosting.predict(rows), SECONDARY: forest.predict(rows)}},
+    }, digits=15, indent=None)
+    print(f"Escrito {path.relative_to(ROOT.parent)} ({path.stat().st_size / 1024:.1f} KiB, fixture de árboles).")
+
+
 def main() -> int:
     use_utf8_console()
     version, names = feature_meta()
@@ -137,6 +162,7 @@ def main() -> int:
 
     train, test = load_train(), load_test()
     verify_tree_export(train)
+    write_tree_fixture(train, version, names)
     exported, sklearn_predictions, json_predictions = {}, {}, {}
     for target in TARGETS:
         selection = cv["targets"][target]["selection"]
@@ -152,6 +178,9 @@ def main() -> int:
         if difference >= TOLERANCE:
             raise SystemExit(f"La exportación de {target} no reproduce a scikit-learn (diferencia {difference:.2e}).")
 
+    # Objetivos de dificultad del director: percentiles 25, 50 y 75 de la etiqueta principal en el ENTRENAMIENTO.
+    percentiles = {percentile: float(np.percentile(train.y[MAIN], percentile)) for percentile in (25, 50, 75)}
+
     path = MODELS / "difficulty_v1.json"
     write_json(path, {
         "format_version": FORMAT_VERSION,
@@ -160,9 +189,23 @@ def main() -> int:
         "tree_feature_dtype": "float32",
         "trained_on": {"file": "levels_v1.csv + levels_v1_labels.csv", "rows": len(train), "random_state": RANDOM_STATE},
         "main_target": MAIN,
+        "difficulty_targets": {
+            "easy": percentiles[25],
+            "normal": percentiles[50],
+            "hard": percentiles[75],
+            "source": f"percentiles 25, 50 y 75 de {MAIN} en el entrenamiento (levels_v1_labels.csv)",
+        },
         "models": exported,
     }, digits=15, indent=None)
     print(f"Escrito {path.relative_to(path.parents[2])} ({path.stat().st_size / 1024:.1f} KiB).")
+    print("  objetivos de dificultad: " + ", ".join(f"{name} = {value:.3f}" for name, value in
+                                                    zip(("easy", "normal", "hard"), percentiles.values())))
+
+    # Copia que lee el juego (ai-training tiene .gdignore: Godot no la ve). Siempre idéntica a la de models/.
+    game_copy = ROOT.parent / "resources" / "ai" / "difficulty_v1.json"
+    game_copy.parent.mkdir(parents=True, exist_ok=True)
+    game_copy.write_bytes(path.read_bytes())
+    print(f"Escrito {game_copy.relative_to(ROOT.parent)} (copia idéntica).")
 
     lines = ["effective_seed," + ",".join(f"pred_{target}" for target in TARGETS)]
     for index, seed in enumerate(test.seeds):

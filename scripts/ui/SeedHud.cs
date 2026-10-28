@@ -9,19 +9,15 @@ public partial class SeedHud : CanvasLayer
 		_label = GetNode<Label>("Label");
 	}
 
-	public void ShowSeed(int requested, int effective, bool success)
+	/// <summary>Dos líneas pequeñas: semilla de partida y nivel, y dificultad objetivo frente a la predicha.</summary>
+	public void ShowRun(int gameSeed, int levelSeed, DifficultyTarget target, double targetValue, double predicted)
 	{
-		if (!success)
-		{
-			_label.Text = $"Semilla {requested}: sin nivel válido";
-		}
-		else if (requested == effective)
-		{
-			_label.Text = $"Semilla {requested}";
-		}
-		else
-		{
-			_label.Text = $"Semilla {requested} (efectiva {effective})";
-		}
+		_label.Text = $"Semilla {gameSeed} · nivel {levelSeed}\n" +
+			$"Dificultad {target} (objetivo {targetValue:0.0}) · predicha {predicted:0.0}";
+	}
+
+	public void ShowError(int gameSeed, string message)
+	{
+		_label.Text = $"Semilla {gameSeed}: {message}";
 	}
 }

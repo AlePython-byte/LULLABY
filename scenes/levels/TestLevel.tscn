@@ -9,6 +9,7 @@
 [ext_resource type="Script" path="res://scripts/systems/RoomManager.cs" id="7_manager"]
 [ext_resource type="PackedScene" path="res://scenes/ui/SeedHud.tscn" id="8_seed"]
 [ext_resource type="Script" path="res://scripts/systems/RunManager.cs" id="9_run"]
+[ext_resource type="JSON" path="res://resources/ai/difficulty_v1.json" id="10_model"]
 
 [sub_resource type="Environment" id="Environment_dark"]
 background_mode = 1
@@ -60,5 +61,6 @@ Fade = NodePath("../ScreenFade")
 [node name="RunManager" type="Node" parent="." node_paths=PackedStringArray("Rooms", "SeedHud")]
 script = ExtResource("9_run")
 Catalog = ExtResource("2_catalog")
+ModelFile = ExtResource("10_model")
 Rooms = NodePath("../RoomManager")
 SeedHud = NodePath("../SeedHud")

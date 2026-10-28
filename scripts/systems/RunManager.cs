@@ -1,26 +1,45 @@
+using System;
+using System.IO;
 using Godot;
 
 /// <summary>
-/// Administra una partida: elige la semilla, genera el nivel con el DungeonGenerator y se lo pasa a RoomManager.
+/// Administra una partida: elige la semilla de partida y la dificultad objetivo, le pide el nivel al AIDungeonDirector
+/// (que genera candidatos, predice su dificultad y elige uno) y se lo pasa a RoomManager.
 ///
-/// Prioridad de la semilla:
+/// La semilla que se muestra y se repite es la SEMILLA DE PARTIDA: con el director, una misma semilla de partida y una
+/// misma dificultad dan siempre el mismo nivel, pero ya no el mismo que daría el generador solo con esa semilla.
+///
+/// Prioridad de la semilla de partida:
 ///   1. La que dejó una tecla de depuración antes de recargar la escena.
 ///   2. El argumento de línea de comandos --seed=N (en Godot: godot -- --seed=12345).
 ///   3. FixedSeed, si UseFixedSeed está activo en el inspector.
 ///   4. Una semilla aleatoria.
+/// La dificultad sale, por este orden, de la tecla de depuración, del argumento --difficulty=Easy|Normal|Hard o del
+/// [Export] Difficulty.
 ///
-/// Teclas de depuración (solo si OS.IsDebugBuild()): N reinicia con una semilla nueva; R repite la actual.
-/// Al morir, la escena se recarga sin semilla pendiente, así que empieza una partida nueva (o la fija).
+/// Teclas de depuración (solo si OS.IsDebugBuild()): N reinicia con una semilla nueva; R repite la actual; T cambia la
+/// dificultad (Easy → Normal → Hard) con la misma semilla.
+/// Al morir, la escena se recarga sin estado pendiente, así que empieza una partida nueva (o la fija).
 /// </summary>
 public partial class RunManager : Node
 {
 	private const string NewSeedAction = "debug_new_seed";
 	private const string RepeatSeedAction = "debug_repeat_seed";
+	private const string NextDifficultyAction = "debug_next_difficulty";
 	private const string SeedArgument = "--seed=";
+	private const string DifficultyArgument = "--difficulty=";
 
 	[Export] public RoomCatalog Catalog { get; set; }
 	[Export] public RoomManager Rooms { get; set; }
 	[Export] public SeedHud SeedHud { get; set; }
+
+	// El modelo viaja como recurso Json referenciado desde la escena, así el exportador lo incluye como dependencia.
+	// Si no se asigna, se lee de DifficultyModel.DefaultPath.
+	[Export] public Json ModelFile { get; set; }
+
+	[Export] public DifficultyTarget Difficulty { get; set; } = DifficultyTarget.Normal;
+	[Export] public int Candidates { get; set; } = 30;
+	[Export] public int TopCount { get; set; } = 5;
 
 	[Export] public int MinRooms { get; set; } = 8;
 	[Export] public int MaxRooms { get; set; } = 12;
@@ -31,10 +50,12 @@ public partial class RunManager : Node
 	[Export] public bool UseFixedSeed { get; set; }
 	[Export] public int FixedSeed { get; set; }
 
-	// Sobrevive a la recarga de escena: así las teclas de depuración pasan la semilla a la siguiente partida.
+	// Sobreviven a la recarga de escena: así las teclas de depuración pasan su estado a la siguiente partida.
 	private static int? _pendingSeed;
+	private static DifficultyTarget? _pendingDifficulty;
 
 	private int _seed;
+	private DifficultyTarget _difficulty;
 
 	public override void _Ready()
 	{
@@ -42,10 +63,25 @@ public partial class RunManager : Node
 		{
 			InputActions.Register(NewSeedAction, Key.N);
 			InputActions.Register(RepeatSeedAction, Key.R);
+			InputActions.Register(NextDifficultyAction, Key.T);
 		}
 
 		_seed = ChooseSeed();
+		_difficulty = _pendingDifficulty ?? ArgumentDifficulty() ?? Difficulty;
 		_pendingSeed = null;
+		_pendingDifficulty = null;
+
+		DifficultyModel model;
+		try
+		{
+			model = ModelFile != null ? DifficultyModel.FromJsonResource(ModelFile, ModelFile.ResourcePath) : DifficultyModel.Load();
+		}
+		catch (Exception exception) when (exception is InvalidDataException or FileNotFoundException)
+		{
+			GD.PushError(exception.Message);
+			SeedHud?.ShowError(_seed, "modelo de dificultad no válido (ver la salida)");
+			return;
+		}
 
 		DungeonGenerator.Settings settings = new()
 		{
@@ -55,17 +91,23 @@ public partial class RunManager : Node
 			MinBossDistance = MinBossDistance,
 			MaxAttempts = MaxAttempts,
 		};
-		DungeonGenerator.Result result = new DungeonGenerator(Catalog).Generate(_seed, settings);
-		SeedHud?.ShowSeed(result.RequestedSeed, result.EffectiveSeed, result.Success);
+		AIDungeonDirector director = new(new DungeonGenerator(Catalog), model, settings)
+		{
+			CandidateCount = Candidates,
+			TopCount = TopCount,
+		};
 
+		AIDungeonDirector.Result result = director.Select(_seed, _difficulty);
 		if (!result.Success)
 		{
-			GD.PushError($"RunManager: no hay nivel para la semilla {_seed}.");
+			GD.PushError($"RunManager: el director no encontró ningún nivel para la semilla {_seed}.");
+			SeedHud?.ShowError(_seed, "sin nivel válido");
 			return;
 		}
 
-		GD.Print($"Semilla: {_seed} (efectiva {result.EffectiveSeed}, intentos {result.Attempts}, " +
-			$"salas {result.Map.Rooms.Count}, jefe a {LevelValidator.BossDistance(result.Map)} pasos)");
+		SeedHud?.ShowRun(_seed, result.Chosen.EffectiveSeed, _difficulty, result.TargetValue, result.Chosen.Predicted);
+		GD.Print(result.Describe());
+		GD.Print($"Nivel elegido: salas {result.Map.Rooms.Count}, jefe a {LevelValidator.BossDistance(result.Map)} pasos.");
 		Rooms.Begin(result.Map);
 	}
 
@@ -78,15 +120,19 @@ public partial class RunManager : Node
 
 		if (@event.IsActionPressed(NewSeedAction))
 		{
-			Restart(RandomSeed());
+			Restart(RandomSeed(), _difficulty);
 		}
 		else if (@event.IsActionPressed(RepeatSeedAction))
 		{
-			Restart(_seed);
+			Restart(_seed, _difficulty);
+		}
+		else if (@event.IsActionPressed(NextDifficultyAction))
+		{
+			Restart(_seed, (DifficultyTarget)(((int)_difficulty + 1) % Enum.GetValues<DifficultyTarget>().Length));
 		}
 	}
 
-	/// <summary>Fija la semilla de la próxima partida que se cargue. Solo en compilaciones de depuración.</summary>
+	/// <summary>Fija la semilla de partida de la próxima partida que se cargue. Solo en compilaciones de depuración.</summary>
 	public static void SetNextSeed(int seed)
 	{
 		if (!OS.IsDebugBuild())
@@ -116,6 +162,20 @@ public partial class RunManager : Node
 		return UseFixedSeed ? FixedSeed : RandomSeed();
 	}
 
+	private static DifficultyTarget? ArgumentDifficulty()
+	{
+		foreach (string argument in OS.GetCmdlineUserArgs())
+		{
+			if (argument.StartsWith(DifficultyArgument)
+				&& Enum.TryParse(argument[DifficultyArgument.Length..], true, out DifficultyTarget target))
+			{
+				return target;
+			}
+		}
+
+		return null;
+	}
+
 	private static int RandomSeed()
 	{
 		RandomNumberGenerator rng = new();
@@ -123,9 +183,10 @@ public partial class RunManager : Node
 		return (int)(rng.Randi() & int.MaxValue);
 	}
 
-	private void Restart(int seed)
+	private void Restart(int seed, DifficultyTarget difficulty)
 	{
 		_pendingSeed = seed;
+		_pendingDifficulty = difficulty;
 		GetTree().CallDeferred(SceneTree.MethodName.ReloadCurrentScene);
 	}
 }
