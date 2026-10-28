@@ -6,3 +6,7 @@ bin/
 obj/
 .vs/
 *.user
+ai-training/.venv/
+__pycache__/
+*.pyc
+ai-training/reports/.test_evaluated
