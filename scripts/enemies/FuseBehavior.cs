@@ -40,6 +40,7 @@ public partial class FuseBehavior : EnemyBehavior
 				_lit = true;
 				_timer = FuseTime;
 				enemy.SpeedScale = FuseSpeedScale;
+				enemy.Visual?.SetHighlight(true); // destello al encender; el parpadeo sigue desde el fotograma siguiente
 				EmitSignal(SignalName.FuseLit);
 			}
 
