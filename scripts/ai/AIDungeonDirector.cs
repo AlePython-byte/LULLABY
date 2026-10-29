@@ -16,6 +16,8 @@ using Godot;
 ///   3. Ordena los candidatos por |predicción - dificultad objetivo| (empates por índice) y elige AL AZAR uno de los
 ///      TopCount (5) más cercanos. El azar sale de un RandomNumberGenerator sembrado desde la misma semilla de partida:
 ///      la misma semilla de partida y la misma dificultad dan siempre el mismo nivel.
+///      Con PreferEnemyVariety, solo entre esos mismos candidatos se priorizan los tipos de enemigo distintos;
+///      los empates se resuelven por distancia al objetivo y después por índice, sin azar adicional.
 /// Devuelve el LevelMap elegido y un resumen (semillas, predicciones y cuál se eligió).
 ///
 /// El director solo depende del generador, de LevelMetrics y del modelo: no usa el simulador ni el bot.
@@ -36,6 +38,25 @@ public sealed class AIDungeonDirector
 
 		/// <summary>damage_total_mean predicho por el modelo.</summary>
 		public double Predicted { get; init; }
+
+		/// <summary>Tipos presentes realmente en los puntos de aparición del nivel, sin modificar sus datos.</summary>
+		public int EnemyKindCount
+		{
+			get
+			{
+				HashSet<EnemyKind> kinds = new();
+				if (Map != null)
+				{
+					foreach (RoomData room in Map.Rooms)
+					{
+						if (room.EnemyScene == null) continue;
+						for (int spawn = 0; spawn < room.SpawnPoints.Length; spawn++)
+							kinds.Add(LevelMetricsV2.KindAt(room, spawn));
+					}
+				}
+				return kinds.Count;
+			}
+		}
 	}
 
 	public sealed class Result
@@ -72,7 +93,7 @@ public sealed class AIDungeonDirector
 			StringBuilder text = new();
 			text.Append($"Director: semilla {GameSeed}, objetivo {Target} ({TargetValue:0.0}), {Candidates.Count} candidatos; ");
 			text.Append($"elegido el #{ChosenRank + 1} de {Math.Min(TopCount, Ranking.Count)} mejores: nivel {Chosen.EffectiveSeed}, ");
-			text.Append($"predicción {Chosen.Predicted:0.0}");
+			text.Append($"predicción {Chosen.Predicted:0.0}, tipos de enemigo {Chosen.EnemyKindCount}");
 
 			IEnumerable<Candidate> shown = all ? Ranking : Ranking.Take(TopCount);
 			foreach (Candidate candidate in shown)
@@ -91,6 +112,12 @@ public sealed class AIDungeonDirector
 
 	public int CandidateCount { get; set; } = 30;
 	public int TopCount { get; set; } = 5;
+
+	/// <summary>
+	/// Prioriza la variedad solo dentro de los TopCount candidatos más cercanos. Desactivado por defecto para conservar
+	/// la selección histórica de pruebas y benchmarks; no cambia el generador, las características ni el modelo.
+	/// </summary>
+	public bool PreferEnemyVariety { get; set; } = false;
 
 	public AIDungeonDirector(DungeonGenerator generator, DifficultyModel model, DungeonGenerator.Settings settings)
 	{
@@ -143,8 +170,19 @@ public sealed class AIDungeonDirector
 		Candidate chosen = null;
 		if (ranking.Count > 0)
 		{
-			RandomNumberGenerator random = new() { Seed = SelectionSeed(gameSeed) };
-			chosen = ranking[random.RandiRange(0, Math.Min(TopCount, ranking.Count) - 1)];
+			if (PreferEnemyVariety)
+			{
+				chosen = ranking.Take(TopCount)
+					.OrderByDescending(candidate => candidate.EnemyKindCount)
+					.ThenBy(candidate => Math.Abs(candidate.Predicted - targetValue))
+					.ThenBy(candidate => candidate.Index)
+					.First();
+			}
+			else
+			{
+				RandomNumberGenerator random = new() { Seed = SelectionSeed(gameSeed) };
+				chosen = ranking[random.RandiRange(0, Math.Min(TopCount, ranking.Count) - 1)];
+			}
 		}
 
 		return new Result
