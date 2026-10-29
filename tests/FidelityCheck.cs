@@ -78,6 +78,8 @@ public partial class FidelityCheck : Node
 				}
 				else
 				{
+					// El defecto de RunManager es la v2: este modo mide el juego con la v1, así que la pide.
+					RunManager.SetNextGeneratorVersion(DungeonGenerator.OriginalVersion);
 					RunManager.SetNextSeed(seed);
 				}
 				Node level = levelScene.Instantiate();
