@@ -14,7 +14,7 @@ public partial class PlayerController : CharacterBody3D
 
 	public override void _Ready()
 	{
-		_mesh = GetNode<Node3D>("Mesh");
+		_mesh = GetNode<Node3D>("Visual");
 
 		InputActions.Register(MoveLeft, Key.A);
 		InputActions.Register(MoveRight, Key.D);
@@ -39,7 +39,7 @@ public partial class PlayerController : CharacterBody3D
 		}
 	}
 
-	// Orienta el cubo de inmediato (por ejemplo, al aparecer en una sala nueva).
+	// Orienta el modelo de inmediato (por ejemplo, al aparecer en una sala nueva).
 	public void FaceDirection(Vector3 direction)
 	{
 		if (direction.LengthSquared() < 0.0001f)

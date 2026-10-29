@@ -5,11 +5,8 @@
 [ext_resource type="PackedScene" path="res://scenes/combat/Tear.tscn" id="3_tear"]
 [ext_resource type="Script" path="res://scripts/systems/HealthComponent.cs" id="4_health"]
 [ext_resource type="Script" path="res://scripts/player/PlayerHealth.cs" id="5_phealth"]
-
-[sub_resource type="BoxMesh" id="BoxMesh_noah"]
-
-[sub_resource type="StandardMaterial3D" id="Material_noah"]
-albedo_color = Color(0.85, 0.75, 0.7, 1)
+[ext_resource type="PackedScene" path="res://assets/models/noah.glb" id="6_noah"]
+[ext_resource type="Script" path="res://scripts/player/PlayerVisualAnimator.cs" id="7_anim"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_noah"]
 
@@ -19,12 +16,17 @@ collision_mask = 9
 motion_mode = 1
 script = ExtResource("1_ctrl")
 
-[node name="Mesh" type="MeshInstance3D" parent="."]
-mesh = SubResource("BoxMesh_noah")
-surface_material_override/0 = SubResource("Material_noah")
+[node name="Visual" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="Noah" parent="Visual" instance=ExtResource("6_noah")]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("BoxShape3D_noah")
+
+[node name="VisualAnimator" type="Node" parent="." node_paths=PackedStringArray("Model")]
+script = ExtResource("7_anim")
+Model = NodePath("../Visual/Noah")
 
 [node name="Shooter" type="Node3D" parent="."]
 script = ExtResource("2_shooter")

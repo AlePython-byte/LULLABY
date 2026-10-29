@@ -12,7 +12,7 @@ public partial class PlayerHealth : Node
 	{
 		Node player = GetParent();
 		_health = HealthComponent.FindIn(player);
-		_mesh = player.GetNode<Node3D>("Mesh");
+		_mesh = player.GetNode<Node3D>("Visual");
 		_health.Died += OnDied;
 	}
 
