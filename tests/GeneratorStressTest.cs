@@ -10,7 +10,9 @@ using Godot;
 /// Genera SeedCount semillas, valida cada nivel, comprueba el determinismo y sale con código 0 si todo pasa. Sin
 /// --generator usa la versión 1 (pedida explícitamente: no depende del defecto de RunManager). Con --generator=2 añade un
 /// bloque de variedad de enemigos (VarietyReport): niveles según los tipos de enemigo distintos que tienen, plantillas
-/// mixtas por nivel, enemigos de cada tipo en total y porcentaje de salas con enemigos que son solo de básicos.
+/// mixtas por nivel, enemigos de cada tipo en total y porcentaje de salas con enemigos que son solo de básicos. Con
+/// --generator=3 comprueba además que LevelMetricsV2 calcula las 22 características (finitas) en todos los niveles, que
+/// incluyen los tipos nuevos (Huidor y Excavador); el validador ya revisa cada nivel, incluidos sus SpawnKinds.
 /// </summary>
 public partial class GeneratorStressTest : Node
 {
@@ -55,7 +57,7 @@ public partial class GeneratorStressTest : Node
 		SortedDictionary<int, int> bossDistances = new();
 		SortedDictionary<string, int> templateUse = new();
 		HashSet<string> distinctLevels = new();
-		VarietyReport variety = new(catalog);
+		VarietyReport variety = new(catalog, settings.GeneratorVersion);
 
 		Stopwatch clock = Stopwatch.StartNew();
 
@@ -136,7 +138,7 @@ public partial class GeneratorStressTest : Node
 			GD.Print($"Fallo: {failure}");
 		}
 
-		return passed == SeedCount && nondeterministic == 0 && replayMismatches == 0 && testMapProblems.Count == 0;
+		return passed == SeedCount && nondeterministic == 0 && replayMismatches == 0 && testMapProblems.Count == 0 && variety.MetricsOk;
 	}
 
 	/// <summary>
@@ -156,18 +158,40 @@ public partial class GeneratorStressTest : Node
 		private int _normalRoomsWithEnemies;
 		private int _normalRoomsOnlyBasic;
 		private int _levels;
+		private readonly int _version;
+		private readonly bool _checkMetrics;
+		private int _metricsFailures;
 
-		public VarietyReport(RoomCatalog catalog)
+		// Plantilla mixta = la que declara el tipo de cada enemigo (SpawnKinds). En la v2 son las de NormalTemplatesV2.
+		public VarietyReport(RoomCatalog catalog, int version)
 		{
-			foreach (RoomTemplate template in catalog.NormalTemplatesV2)
+			_version = version;
+			_checkMetrics = version >= 3;
+			foreach (RoomTemplate template in catalog.NormalTemplatesV2.Concat(catalog.NormalTemplatesV3))
 			{
-				_mixedTemplates.Add(template.Id);
+				if (template.SpawnKinds.Length > 0)
+				{
+					_mixedTemplates.Add(template.Id);
+				}
 			}
 		}
 
 		public void Add(LevelMap map)
 		{
 			_levels++;
+			if (_checkMetrics)
+			{
+				try
+				{
+					double[] values = LevelMetricsV2.Compute(map);
+					_metricsFailures += values.Length == LevelMetricsV2.Names.Length && values.All(double.IsFinite) ? 0 : 1;
+				}
+				catch (System.Exception)
+				{
+					_metricsFailures++;
+				}
+			}
+
 			HashSet<EnemyKind> kinds = new();
 			int mixedTemplates = 0;
 
@@ -205,7 +229,7 @@ public partial class GeneratorStressTest : Node
 		public void Print()
 		{
 			GD.Print("");
-			GD.Print($"=== Variedad de enemigos (generador v2, {_levels} niveles) ===");
+			GD.Print($"=== Variedad de enemigos (generador v{_version}, {_levels} niveles) ===");
 			GD.Print("Niveles según los tipos de enemigo distintos que tienen: " +
 				$"0: {Share(_levelsByKinds[0])}  1: {Share(_levelsByKinds[1])}  2: {Share(_levelsByKinds[2])}  3 o más: {Share(_levelsByKinds[3])}");
 			GD.Print("Plantillas mixtas por nivel (niveles con n): " +
@@ -224,7 +248,14 @@ public partial class GeneratorStressTest : Node
 			GD.Print($"Salas normales con enemigos (sin la sala del jefe): {_normalRoomsWithEnemies}; solo de básicos: {_normalRoomsOnlyBasic} " +
 				$"({(double)_normalRoomsOnlyBasic / System.Math.Max(_normalRoomsWithEnemies, 1):P1}); con algún tipo especial: " +
 				$"{_normalRoomsWithEnemies - _normalRoomsOnlyBasic} ({(double)(_normalRoomsWithEnemies - _normalRoomsOnlyBasic) / System.Math.Max(_normalRoomsWithEnemies, 1):P1})");
+			if (_checkMetrics)
+			{
+				GD.Print($"LevelMetricsV2 sobre estos niveles (con los tipos nuevos): {_levels - _metricsFailures} de {_levels} con " +
+					$"{LevelMetricsV2.Names.Length} valores finitos ({_metricsFailures} fallos)");
+			}
 		}
+
+		public bool MetricsOk => _metricsFailures == 0;
 
 		private string Share(int levels)
 		{
