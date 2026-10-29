@@ -126,6 +126,7 @@ public partial class RunManager : Node
 		{
 			CandidateCount = Candidates,
 			TopCount = TopCount,
+			PreferEnemyVariety = _generatorVersion == 2,
 		};
 
 		AIDungeonDirector.Result result = director.Select(_seed, _difficulty);
