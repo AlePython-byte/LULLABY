@@ -14,6 +14,10 @@ public partial class BotDriver : Node
 {
 	private readonly BotInputApplier _input = new();
 	private readonly List<Vector2> _enemies = new();
+	private readonly List<EnemyKind> _kinds = new();
+	private readonly List<bool> _lit = new();
+	private readonly List<Vector2> _projectiles = new();
+	private readonly List<Vector2> _projectileVelocities = new();
 
 	private RoomManager _manager;
 	private PlayerController _player;
@@ -85,11 +89,27 @@ public partial class BotDriver : Node
 		}
 
 		_enemies.Clear();
+		_kinds.Clear();
+		_lit.Clear();
 		foreach (Node child in room.GetNode("Enemies").GetChildren())
 		{
 			if (child is Node3D enemy && IsInstanceValid(enemy) && !enemy.IsQueuedForDeletion())
 			{
 				_enemies.Add(new Vector2(enemy.GlobalPosition.X, enemy.GlobalPosition.Z));
+				EnemyBase typed = enemy as EnemyBase;
+				_kinds.Add(typed?.Kind ?? EnemyKind.Chaser);
+				_lit.Add(typed?.Behavior<FuseBehavior>()?.IsLit ?? false);
+			}
+		}
+
+		_projectiles.Clear();
+		_projectileVelocities.Clear();
+		foreach (Node child in room.ProjectilesRoot.GetChildren())
+		{
+			if (child is EnemyProjectile projectile && IsInstanceValid(projectile) && !projectile.IsQueuedForDeletion())
+			{
+				_projectiles.Add(new Vector2(projectile.GlobalPosition.X, projectile.GlobalPosition.Z));
+				_projectileVelocities.Add(new Vector2(projectile.Velocity.X, projectile.Velocity.Z));
 			}
 		}
 
@@ -100,12 +120,67 @@ public partial class BotDriver : Node
 			RoomSize = room.Data.Size,
 			Player = new Vector2(_player.GlobalPosition.X, _player.GlobalPosition.Z),
 			Enemies = _enemies,
+			EnemyKinds = _kinds,
+			FuseLit = _lit,
+			Projectiles = _projectiles,
+			ProjectileVelocities = _projectileVelocities,
 		}));
 	}
 
 	private void OnDamaged(float amount, float current)
 	{
-		_recorder.Damage(amount);
+		DamageSource source = SourceOfCurrentHit();
+		_recorder.Damage(amount, source, source == DamageSource.Contact ? NearestEnemyKind() : EnemyKind.Chaser);
+	}
+
+	// Diagnóstico: en un golpe por contacto el enemigo que golpea está tocando al jugador; se toma el más cercano.
+	private EnemyKind NearestEnemyKind()
+	{
+		EnemyKind kind = EnemyKind.Chaser;
+		float best = float.MaxValue;
+		if (_room == null || !IsInstanceValid(_room))
+		{
+			return kind;
+		}
+
+		foreach (Node child in _room.GetNode("Enemies").GetChildren())
+		{
+			if (child is EnemyBase enemy && IsInstanceValid(enemy))
+			{
+				float distance = enemy.GlobalPosition.DistanceSquaredTo(_player.GlobalPosition);
+				if (distance < best)
+				{
+					best = distance;
+					kind = enemy.Kind;
+				}
+			}
+		}
+
+		return kind;
+	}
+
+	// Diagnóstico: quién llamó a PlayerHealth.TakeHit, mirando la pila (la señal Damaged se emite dentro de esa llamada).
+	// Solo para el desglose por fuente de la prueba de fidelidad; no cambia ninguna medida.
+	private static DamageSource SourceOfCurrentHit()
+	{
+		foreach (System.Diagnostics.StackFrame frame in new System.Diagnostics.StackTrace(false).GetFrames())
+		{
+			Type type = frame.GetMethod()?.DeclaringType;
+			for (; type != null; type = type.DeclaringType)
+			{
+				if (type == typeof(EnemyProjectile))
+				{
+					return DamageSource.Projectile;
+				}
+
+				if (type == typeof(FuseBehavior))
+				{
+					return DamageSource.Explosion;
+				}
+			}
+		}
+
+		return DamageSource.Contact;
 	}
 
 	private void Stop(float time, bool timedOut)

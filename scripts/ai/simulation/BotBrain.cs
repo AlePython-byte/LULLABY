@@ -33,9 +33,30 @@ public sealed class BotSettings
 	/// <summary>Desalineación lateral máxima con el centro de una puerta antes de cruzarla en línea recta.</summary>
 	public float DoorAlignTolerance { get; init; } = 0.25f;
 
-	public SortedDictionary<string, double> ToDictionary()
+	// Habilidades para los tipos de enemigo del generador v2. Con solo enemigos básicos y sin proyectiles no intervienen.
+
+	/// <summary>Un explosivo a esta distancia o menos es el objetivo prioritario.</summary>
+	public float ExploderPriorityRadius { get; init; } = 6.0f;
+
+	/// <summary>Huye de un explosivo con la mecha encendida que perciba a menos de esta distancia.</summary>
+	public float FleeRadius { get; init; } = 4.0f;
+	public float FleeStrength { get; init; } = 3.0f;
+
+	/// <summary>
+	/// Esquiva un proyectil que, según su trayectoria percibida, pasará a menos de DodgeRadius de él dentro de
+	/// DodgeHorizon segundos.
+	/// </summary>
+	public float DodgeHorizon { get; init; } = 0.8f;
+	public float DodgeRadius { get; init; } = 1.0f;
+	public float DodgeStrength { get; init; } = 2.5f;
+
+	/// <summary>
+	/// Parámetros en orden alfabético (para el meta.json). Con typedSkills = false solo salen los de la versión 1, así el
+	/// meta.json de las etiquetas v1 no cambia.
+	/// </summary>
+	public SortedDictionary<string, double> ToDictionary(bool typedSkills = false)
 	{
-		return new SortedDictionary<string, double>
+		SortedDictionary<string, double> values = new()
 		{
 			["reaction_frames"] = ReactionFrames,
 			["reaction_jitter"] = ReactionJitter,
@@ -49,6 +70,18 @@ public sealed class BotSettings
 			["move_deadband"] = MoveDeadband,
 			["door_align_tolerance"] = DoorAlignTolerance,
 		};
+
+		if (typedSkills)
+		{
+			values["exploder_priority_radius"] = ExploderPriorityRadius;
+			values["flee_radius"] = FleeRadius;
+			values["flee_strength"] = FleeStrength;
+			values["dodge_horizon"] = DodgeHorizon;
+			values["dodge_radius"] = DodgeRadius;
+			values["dodge_strength"] = DodgeStrength;
+		}
+
+		return values;
 	}
 }
 
@@ -60,6 +93,16 @@ public readonly struct BotObservation
 	public Vector2 RoomSize { get; init; }
 	public Vector2 Player { get; init; }
 	public IReadOnlyList<Vector2> Enemies { get; init; }
+
+	/// <summary>Tipo de cada enemigo, en el orden de Enemies. Null = todos básicos.</summary>
+	public IReadOnlyList<EnemyKind> EnemyKinds { get; init; }
+
+	/// <summary>Si cada enemigo tiene la mecha encendida, en el orden de Enemies. Null = ninguno.</summary>
+	public IReadOnlyList<bool> FuseLit { get; init; }
+
+	/// <summary>Proyectiles enemigos en vuelo: posición y velocidad (m/s). Null = ninguno.</summary>
+	public IReadOnlyList<Vector2> Projectiles { get; init; }
+	public IReadOnlyList<Vector2> ProjectileVelocities { get; init; }
 }
 
 /// <summary>
@@ -86,6 +129,19 @@ public readonly struct BotAction
 ///     algún enemigo queda alineado en una de las 4 direcciones (el juego solo dispara en cardinales).
 ///   - Ruido: ve a los enemigos con un retraso de reacción y apunta con un pequeño error, ambos sorteados cada
 ///     ResampleFrames fotogramas con su propio PCG32.
+///
+/// Tipos de enemigo del generador v2 (con solo básicos y sin proyectiles nada de esto cambia una sola decisión):
+///   - Prioridad fija de objetivos: 1) un explosivo a ExploderPriorityRadius o menos; 2) tirador; 3) volador; 4) básico
+///     o explosivo lejano. Dentro de la misma prioridad, el más cercano (empates: el primero de la lista, como antes).
+///   - Huye de los explosivos con la mecha encendida a menos de FleeRadius (empuje que crece al acercarse).
+///   - Esquiva los proyectiles cuya trayectoria pasa a menos de DodgeRadius dentro de DodgeHorizon segundos, apartándose
+///     en perpendicular a ella.
+///   - Huida y esquiva usan lo MISMO que percibe para todo lo demás: la observación retrasada ReactionFrames
+///     (±ReactionJitter) fotogramas. Ve la mecha encendida y los proyectiles tarde, así que no es perfecto.
+///
+/// El bot es la vara de medir: "difícil" significa "difícil para ESTE bot". Su habilidad (reacción, puntería, distancias,
+/// cuánto esquiva) decide qué se mide como dificultad. Un bot que esquivara todo haría inofensivo al tirador; uno que no
+/// esquivara nada lo haría el enemigo más peligroso. Por eso sus parámetros son fijos y se guardan en el meta.json.
 /// Herramienta de desarrollo: el juego no depende de esta clase.
 /// </summary>
 public sealed class BotBrain
@@ -98,12 +154,22 @@ public sealed class BotBrain
 
 	private const int HistorySize = 32;
 
+	// Lo que el bot recuerda de un fotograma (para percibirlo con retraso).
+	private sealed class Snapshot
+	{
+		public Vector2[] Enemies;
+		public EnemyKind[] Kinds;
+		public bool[] Lit;
+		public Vector2[] Projectiles;
+		public Vector2[] ProjectileVelocities;
+	}
+
 	private static readonly BotAction Idle = new() { Move = Vector2.Zero, Shoot = ShootNone };
 
 	private readonly SimLevel _level;
 	private readonly BotSettings _settings;
 	private readonly Pcg32 _random;
-	private readonly Vector2[][] _history = new Vector2[HistorySize][];
+	private readonly Snapshot[] _history = new Snapshot[HistorySize];
 
 	private int _routeIndex;
 	private Vector2I _cell;
@@ -141,7 +207,7 @@ public sealed class BotBrain
 		}
 
 		Resample();
-		Remember(observation.Enemies);
+		Remember(observation);
 
 		if (observation.State == RoomState.Combat)
 		{
@@ -171,20 +237,47 @@ public sealed class BotBrain
 			(_random.NextFloat() * 2.0f - 1.0f) * _settings.AimNoise);
 	}
 
-	private void Remember(IReadOnlyList<Vector2> enemies)
+	private void Remember(in BotObservation observation)
 	{
-		Vector2[] copy = new Vector2[enemies.Count];
-		for (int i = 0; i < copy.Length; i++)
+		int count = observation.Enemies.Count;
+		Snapshot snapshot = new()
 		{
-			copy[i] = enemies[i];
+			Enemies = new Vector2[count],
+			Kinds = new EnemyKind[count],
+			Lit = new bool[count],
+			Projectiles = Copy(observation.Projectiles),
+			ProjectileVelocities = Copy(observation.ProjectileVelocities),
+		};
+
+		for (int i = 0; i < count; i++)
+		{
+			snapshot.Enemies[i] = observation.Enemies[i];
+			snapshot.Kinds[i] = observation.EnemyKinds?[i] ?? EnemyKind.Chaser;
+			snapshot.Lit[i] = observation.FuseLit?[i] ?? false;
 		}
 
 		_historyHead = (_historyHead + 1) % HistorySize;
-		_history[_historyHead] = copy;
+		_history[_historyHead] = snapshot;
 		_historyCount = Mathf.Min(_historyCount + 1, HistorySize);
 	}
 
-	private Vector2[] Perceived()
+	private static Vector2[] Copy(IReadOnlyList<Vector2> values)
+	{
+		if (values == null || values.Count == 0)
+		{
+			return System.Array.Empty<Vector2>();
+		}
+
+		Vector2[] copy = new Vector2[values.Count];
+		for (int i = 0; i < copy.Length; i++)
+		{
+			copy[i] = values[i];
+		}
+
+		return copy;
+	}
+
+	private Snapshot Perceived()
 	{
 		int delay = Mathf.Min(_delay, _historyCount - 1);
 		return _history[(_historyHead - delay + HistorySize) % HistorySize];
@@ -206,8 +299,9 @@ public sealed class BotBrain
 		return new BotAction { Move = Quantize(target - observation.Player), Shoot = ShootNone };
 	}
 
-	private BotAction Fight(in BotObservation observation, Vector2[] enemies)
+	private BotAction Fight(in BotObservation observation, Snapshot seen)
 	{
+		Vector2[] enemies = seen.Enemies;
 		if (enemies.Length == 0)
 		{
 			return Idle;
@@ -217,7 +311,10 @@ public sealed class BotBrain
 		int targetIndex = 0;
 		for (int i = 1; i < enemies.Length; i++)
 		{
-			if (player.DistanceSquaredTo(enemies[i]) < player.DistanceSquaredTo(enemies[targetIndex]))
+			int priority = Priority(seen, i, player);
+			int best = Priority(seen, targetIndex, player);
+			if (priority < best
+				|| (priority == best && player.DistanceSquaredTo(enemies[i]) < player.DistanceSquaredTo(enemies[targetIndex])))
 			{
 				targetIndex = i;
 			}
@@ -248,7 +345,78 @@ public sealed class BotBrain
 		steer.X += WallPush(player.X + inner.X) - WallPush(inner.X - player.X);
 		steer.Y += WallPush(player.Y + inner.Y) - WallPush(inner.Y - player.Y);
 
+		// Solo suman algo con explosivos encendidos o proyectiles a la vista (con solo básicos, las decisiones de v1).
+		steer += FleeLitExploders(player, seen) + DodgeProjectiles(player, seen);
+
 		return new BotAction { Move = Quantize(steer), Shoot = Aim(player, enemies, targetIndex) };
+	}
+
+	// 0 = la más alta. Con solo básicos todos tienen la misma y gana el más cercano, como en la versión 1.
+	private int Priority(Snapshot seen, int index, Vector2 player)
+	{
+		return seen.Kinds[index] switch
+		{
+			EnemyKind.Exploder when player.DistanceTo(seen.Enemies[index]) <= _settings.ExploderPriorityRadius => 0,
+			EnemyKind.Shooter => 1,
+			EnemyKind.Flyer => 2,
+			_ => 3,
+		};
+	}
+
+	private Vector2 FleeLitExploders(Vector2 player, Snapshot seen)
+	{
+		Vector2 push = Vector2.Zero;
+		for (int i = 0; i < seen.Enemies.Length; i++)
+		{
+			if (!seen.Lit[i])
+			{
+				continue;
+			}
+
+			Vector2 away = player - seen.Enemies[i];
+			float distance = away.Length();
+			if (distance > 0.0001f && distance < _settings.FleeRadius)
+			{
+				push += away / distance * ((_settings.FleeRadius - distance) / _settings.FleeRadius) * _settings.FleeStrength;
+			}
+		}
+
+		return push;
+	}
+
+	// Para cada proyectil percibido: momento de máximo acercamiento a lo largo de su recta; si llega pronto y pasa cerca,
+	// se aparta en perpendicular (hacia el lado en que ya está).
+	private Vector2 DodgeProjectiles(Vector2 player, Snapshot seen)
+	{
+		Vector2 push = Vector2.Zero;
+		for (int i = 0; i < seen.Projectiles.Length; i++)
+		{
+			Vector2 velocity = seen.ProjectileVelocities[i];
+			float speedSquared = velocity.LengthSquared();
+			if (speedSquared < 0.0001f)
+			{
+				continue;
+			}
+
+			Vector2 relative = player - seen.Projectiles[i];
+			float time = relative.Dot(velocity) / speedSquared;
+			if (time <= 0.0f || time > _settings.DodgeHorizon)
+			{
+				continue;
+			}
+
+			Vector2 offset = relative - velocity * time;
+			float miss = offset.Length();
+			if (miss >= _settings.DodgeRadius)
+			{
+				continue;
+			}
+
+			Vector2 side = miss > 0.0001f ? offset / miss : new Vector2(-velocity.Y, velocity.X).Normalized();
+			push += side * _settings.DodgeStrength;
+		}
+
+		return push;
 	}
 
 	private float WallPush(float distance)

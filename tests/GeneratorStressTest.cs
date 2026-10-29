@@ -6,6 +6,7 @@ using Godot;
 /// <summary>
 /// Prueba de estrés del DungeonGenerator. Ejecutar en modo headless:
 ///   godot --headless --path . res://tests/GeneratorStressTest.tscn
+///   godot --headless --path . res://tests/GeneratorStressTest.tscn -- --generator=2   (versión 2 del generador)
 /// Genera SeedCount semillas, valida cada nivel, comprueba el determinismo y sale con código 0 si todo pasa.
 /// </summary>
 public partial class GeneratorStressTest : Node
@@ -28,6 +29,14 @@ public partial class GeneratorStressTest : Node
 		RoomCatalog catalog = GD.Load<RoomCatalog>(CatalogPath);
 		DungeonGenerator generator = new(catalog);
 		DungeonGenerator.Settings settings = new();
+		foreach (string argument in OS.GetCmdlineUserArgs())
+		{
+			if (argument.StartsWith("--generator=") && int.TryParse(argument["--generator=".Length..], out int version))
+			{
+				settings.GeneratorVersion = version;
+				GD.Print($"Versión del generador: {version}");
+			}
+		}
 
 		int passed = 0;
 		int firstTry = 0;

@@ -11,7 +11,8 @@ using Godot;
 /// Algoritmo (todo determinista dada la semilla de partida):
 ///   1. Genera CandidateCount candidatos (30) con el DungeonGenerator. La semilla del candidato i sale de la semilla de
 ///      partida con un hash propio (CandidateSeed), que no coincide con las semillas de reintento del generador.
-///   2. Calcula sus características (LevelMetrics) y predice damage_total_mean con el modelo.
+///   2. Calcula las características que pide el modelo (LevelMetrics para el modelo v1, LevelMetricsV2 para el v2) y
+///      predice damage_total_mean.
 ///   3. Ordena los candidatos por |predicción - dificultad objetivo| (empates por índice) y elige AL AZAR uno de los
 ///      TopCount (5) más cercanos. El azar sale de un RandomNumberGenerator sembrado desde la misma semilla de partida:
 ///      la misma semilla de partida y la misma dificultad dan siempre el mismo nivel.
@@ -122,7 +123,7 @@ public sealed class AIDungeonDirector
 				Seed = seed,
 				EffectiveSeed = result.EffectiveSeed,
 				Map = result.Map,
-				Predicted = _model.PredictMain(LevelMetrics.Compute(result.Map)),
+				Predicted = _model.PredictMain(_model.Features(result.Map)),
 			});
 		}
 

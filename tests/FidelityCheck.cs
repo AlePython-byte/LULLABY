@@ -11,16 +11,40 @@ using Godot;
 /// simulador y en el juego real (TestLevel, con BotDriver controlando al jugador y vida ilimitada) y compara.
 /// Ejecutar en headless a velocidad fija y sin límite de tiempo real:
 ///   godot --headless --fixed-fps 60 --path . res://tests/FidelityCheck.tscn
-/// Argumentos (tras "--"): --count=N (30), --first-seed=N (1), --runs=N (3).
+/// Argumentos (tras "--"): --count=N (30), --first-seed=N (1), --runs=N (3), --version=N (1).
 /// Puerta de calidad: Spearman ≥ Threshold (0.7) en daño total y en tiempo total; sale con código 0 si se supera.
+///
+/// --version=2 (o --generator=2): los niveles son los del GENERADOR v2 con las semillas FirstSeed.. (sin director: se
+/// fijan en el juego real con RunManager.SetNextMap). Se añaden el desglose por fuente de daño (contacto, proyectil,
+/// explosión: golpes, daño, sesgo relativo e intervalo del 95 % por bootstrap sobre niveles) y por composición de sala.
+/// Criterio de aprobación v2, fijado ANTES de ver los datos de la prueba de 90 niveles:
+///   a) Spearman de daño total y de tiempo total ≥ Threshold (0.7).
+///   b) Explosión y proyectiles: con al menos MinHitsForEvidence (30) golpes reales de esa fuente, |sesgo| ≤ 30 %; con
+///      menos, "sin evidencia suficiente" (no bloquea; se documenta como limitación).
+///   c) Contacto: el sesgo no puede ser peor que el de v1 (V1ContactBias, aprox. −15 %) en más de 10 puntos: |sesgo| ≤ 25 %.
+///   d) Sesgo de TIEMPO por sala en cada composición dentro de ±30 % (el sesgo de daño por composición es informativo).
+/// sesgo = (total simulador − total real) / total real. Sin --version, la prueba es la de siempre (niveles del juego con
+/// el director y RunManager.SetNextSeed).
 /// </summary>
 public partial class FidelityCheck : Node
 {
+	private const string CatalogPath = "res://resources/rooms/templates/Catalog.tres";
+
 	[Export] public int LevelCount { get; set; } = 30;
 	[Export] public int FirstSeed { get; set; } = 1;
 	[Export] public int BotRuns { get; set; } = 3;
 	[Export] public float MaxSeconds { get; set; } = 600.0f;
 	[Export] public double Threshold { get; set; } = 0.7;
+	[Export] public int Version { get; set; } = 1;
+
+	// Criterio de aprobación v2 (ver el resumen de la clase). Fijado antes de ver los datos de la prueba de 90 niveles.
+	private const double MaxCompositionTimeBias = 0.30;
+	private const int MinHitsForEvidence = 30;
+	private const double MaxNewSourceBias = 0.30;
+	private const double V1ContactBias = -0.15;
+	private const double MaxContactWorsening = 0.10;
+	private const int BootstrapResamples = 2000;
+	private const int BootstrapSeed = 20261029;
 
 	private sealed class LevelComparison
 	{
@@ -38,6 +62,8 @@ public partial class FidelityCheck : Node
 		BotSettings settings = new();
 		List<LevelComparison> levels = new();
 		Stopwatch clock = Stopwatch.StartNew();
+		DungeonGenerator generator = new(GD.Load<RoomCatalog>(CatalogPath));
+		DungeonGenerator.Settings generatorSettings = new() { GeneratorVersion = Version };
 
 		for (int seed = FirstSeed; seed < FirstSeed + LevelCount; seed++)
 		{
@@ -46,7 +72,14 @@ public partial class FidelityCheck : Node
 
 			for (int run = 0; run < BotRuns; run++)
 			{
-				RunManager.SetNextSeed(seed);
+				if (Version >= 2)
+				{
+					RunManager.SetNextMap(generator.Generate(seed, generatorSettings).Map);
+				}
+				else
+				{
+					RunManager.SetNextSeed(seed);
+				}
 				Node level = levelScene.Instantiate();
 				HealthComponent.FindIn(level.GetNode("Player")).MaxHealth = 1.0e9f;
 				AddChild(level);
@@ -132,6 +165,14 @@ public partial class FidelityCheck : Node
 			{
 				BotRuns = runs;
 			}
+			else if (argument.StartsWith("--version=") && int.TryParse(argument["--version=".Length..], out int version))
+			{
+				Version = version;
+			}
+			else if (argument.StartsWith("--generator=") && int.TryParse(argument["--generator=".Length..], out int generator))
+			{
+				Version = generator;
+			}
 		}
 	}
 
@@ -176,6 +217,17 @@ public partial class FidelityCheck : Node
 		GD.Print("");
 		GD.Print($"PUERTA DE CALIDAD (Spearman ≥ {F(Threshold)} en daño y tiempo): {(passed ? "SUPERADA" : "NO SUPERADA")} " +
 			$"(daño {F(damageSpearman)}, tiempo {F(timeSpearman)})");
+
+		if (Version >= 2)
+		{
+			GD.Print($"  criterio a) Spearman ≥ {F(Threshold)}: {(passed ? "CUMPLE" : "NO CUMPLE")}");
+			bool compositionPassed = PrintCompositionBreakdown(levels);
+			bool sourcesPassed = PrintSourceBreakdown(levels);
+			GD.Print("");
+			GD.Print($"  criterio d) |sesgo de tiempo| ≤ {MaxCompositionTimeBias:P0} en cada composición: {(compositionPassed ? "CUMPLE" : "NO CUMPLE")}");
+			passed &= compositionPassed && sourcesPassed;
+			GD.Print($"CRITERIO DE APROBACIÓN v2 (a, b, c, d): {(passed ? "SUPERADO" : "NO SUPERADO")}");
+		}
 
 		if (!passed || simTimeouts > 0 || realTimeouts > 0)
 		{
@@ -227,6 +279,208 @@ public partial class FidelityCheck : Node
 				$"{F(lists.SimDamage.Average()),10}{F(lists.RealDamage.Average()),11}" +
 				$"{F(SampleStatistics.Spearman(lists.SimTime, lists.RealTime)),10}{F(SampleStatistics.Spearman(lists.SimDamage, lists.RealDamage)),9}");
 		}
+	}
+
+	// Por composición de sala: primera visita, misma repetición del bot en simulador y juego real.
+	private bool PrintCompositionBreakdown(List<LevelComparison> levels)
+	{
+		Dictionary<string, (List<double> SimTime, List<double> RealTime, List<double> SimDamage, List<double> RealDamage)> rows = new();
+		Dictionary<string, (double[] Sim, double[] Real)> sources = new();
+		Dictionary<string, (double[] Sim, double[] Real)> contactKinds = new();
+		foreach (LevelComparison level in levels)
+		{
+			for (int run = 0; run < level.Simulated.Count; run++)
+			{
+				Dictionary<Vector2I, RoomVisit> real = level.Real[run].Visits.ToDictionary(visit => visit.Cell);
+				foreach (RoomVisit sim in level.Simulated[run].Visits)
+				{
+					if (!real.TryGetValue(sim.Cell, out RoomVisit match) || sim.ClearTime < 0.0f || match.ClearTime < 0.0f)
+					{
+						continue;
+					}
+
+					foreach (string category in RoomComposition.Of(level.Level[sim.Cell]))
+					{
+						if (!rows.TryGetValue(category, out var lists))
+						{
+							lists = (new List<double>(), new List<double>(), new List<double>(), new List<double>());
+							rows[category] = lists;
+						}
+
+						lists.SimTime.Add(sim.ClearTime - sim.EnterTime);
+						lists.RealTime.Add(match.ClearTime - match.EnterTime);
+						lists.SimDamage.Add(sim.Damage);
+						lists.RealDamage.Add(match.Damage);
+
+						if (!sources.TryGetValue(category, out var bySource))
+						{
+							bySource = (new double[3], new double[3]);
+							sources[category] = bySource;
+						}
+
+						for (int source = 0; source < 3; source++)
+						{
+							bySource.Sim[source] += sim.DamageBySource[source];
+							bySource.Real[source] += match.DamageBySource[source];
+						}
+
+						if (!contactKinds.TryGetValue(category, out var byKind))
+						{
+							byKind = (new double[4], new double[4]);
+							contactKinds[category] = byKind;
+						}
+
+						for (int kind = 0; kind < 4; kind++)
+						{
+							byKind.Sim[kind] += sim.ContactByKind[kind];
+							byKind.Real[kind] += match.ContactByKind[kind];
+						}
+					}
+				}
+			}
+		}
+
+		GD.Print("");
+		GD.Print("Daño por fuente y composición (total de las primeras visitas; sesgo relativo):");
+		GD.Print($"{"composición",-16}" + string.Concat(Enum.GetNames<DamageSource>().Select(name => $"{name + " sim/real",-26}")));
+		foreach (string category in RoomComposition.Categories)
+		{
+			if (sources.TryGetValue(category, out var bySource))
+			{
+				GD.Print($"{category,-16}" + string.Concat(Enumerable.Range(0, 3).Select(source =>
+					$"{$"{bySource.Sim[source]:0} / {bySource.Real[source]:0} ({Bias(bySource.Sim[source], bySource.Real[source])})",-26}")));
+			}
+		}
+
+		GD.Print("");
+		GD.Print("Daño por contacto según el tipo del enemigo que golpea (juego real: el enemigo más cercano en ese momento):");
+		GD.Print($"{"composición",-16}" + string.Concat(Enum.GetNames<EnemyKind>().Select(name => $"{name + " sim/real",-26}")));
+		foreach (string category in RoomComposition.Categories)
+		{
+			if (contactKinds.TryGetValue(category, out var byKind))
+			{
+				GD.Print($"{category,-16}" + string.Concat(Enumerable.Range(0, 4).Select(kind =>
+					$"{$"{byKind.Sim[kind]:0} / {byKind.Real[kind]:0} ({Bias(byKind.Sim[kind], byKind.Real[kind])})",-26}")));
+			}
+		}
+
+		GD.Print("");
+		GD.Print("Desglose por composición de sala (primera visita; una sala mixta cuenta en cada tipo que contiene;");
+		GD.Print("sesgo = (media sim − media real) / media real):");
+		GD.Print($"{"composición",-16}{"n",5}{"t sim",9}{"t real",9}{"sesgo t",10}{"daño sim",10}{"daño real",11}{"sesgo daño",12}{"ρ tiempo",10}{"ρ daño",9}");
+		bool passed = true;
+		foreach (string category in RoomComposition.Categories)
+		{
+			if (!rows.TryGetValue(category, out var lists))
+			{
+				GD.Print($"{category,-16}    0");
+				continue;
+			}
+
+			double timeBias = RelativeBias(lists.SimTime, lists.RealTime);
+			double damageBias = RelativeBias(lists.SimDamage, lists.RealDamage);
+			bool ok = Math.Abs(timeBias) <= MaxCompositionTimeBias;
+			passed &= ok;
+			GD.Print($"{category,-16}{lists.SimTime.Count,5}{F(lists.SimTime.Average()),9}{F(lists.RealTime.Average()),9}{timeBias,10:P1}" +
+				$"{F(lists.SimDamage.Average()),10}{F(lists.RealDamage.Average()),11}{damageBias,12:P1}" +
+				$"{F(SampleStatistics.Spearman(lists.SimTime, lists.RealTime)),10}{F(SampleStatistics.Spearman(lists.SimDamage, lists.RealDamage)),9}" +
+				(ok ? "" : "   <-- sesgo de tiempo excesivo"));
+		}
+
+		return passed;
+	}
+
+	// Por fuente de daño, partidas completas: golpes con daño y daño total en simulador y juego real, sesgo relativo e
+	// intervalo del 95 % por bootstrap sobre NIVELES (se remuestrean niveles con reemplazo; cada nivel aporta la suma de
+	// sus repeticiones del bot). Aplica los criterios b (explosión, proyectiles) y c (contacto).
+	private static bool PrintSourceBreakdown(List<LevelComparison> levels)
+	{
+		GD.Print("");
+		GD.Print($"Daño por fuente (partidas completas, {levels.Count} niveles; sesgo = (sim − real) / real; IC 95 % por bootstrap " +
+			$"sobre niveles, {BootstrapResamples} remuestreos):");
+		GD.Print($"{"fuente",-12}{"golpes sim",12}{"golpes real",13}{"daño sim",10}{"daño real",11}{"sesgo",9}{"IC 95 %",22}  criterio");
+		bool passed = true;
+		foreach (DamageSource source in Enum.GetValues<DamageSource>())
+		{
+			int index = (int)source;
+			double[] sim = levels.Select(level => level.Simulated.Sum(r => (double)r.DamageBySource[index])).ToArray();
+			double[] real = levels.Select(level => level.Real.Sum(r => (double)r.DamageBySource[index])).ToArray();
+			int simHits = levels.Sum(level => level.Simulated.Sum(r => r.HitsBySource[index]));
+			int realHits = levels.Sum(level => level.Real.Sum(r => r.HitsBySource[index]));
+			double bias = real.Sum() > 0.0 ? sim.Sum() / real.Sum() - 1.0 : double.NaN;
+			(double low, double high) = BootstrapBias(sim, real);
+
+			string verdict;
+			if (source == DamageSource.Contact)
+			{
+				double limit = Math.Abs(V1ContactBias) + MaxContactWorsening;
+				bool ok = !double.IsNaN(bias) && Math.Abs(bias) <= limit;
+				passed &= ok;
+				verdict = $"c) |sesgo| ≤ {limit:P0} (v1 ≈ {V1ContactBias:P0} + {MaxContactWorsening * 100:0} puntos): {(ok ? "CUMPLE" : "NO CUMPLE")}";
+			}
+			else if (realHits < MinHitsForEvidence)
+			{
+				verdict = $"b) {realHits} golpes reales < {MinHitsForEvidence}: SIN EVIDENCIA SUFICIENTE (no bloquea; limitación)";
+			}
+			else
+			{
+				bool ok = Math.Abs(bias) <= MaxNewSourceBias;
+				passed &= ok;
+				verdict = $"b) |sesgo| ≤ {MaxNewSourceBias:P0}: {(ok ? "CUMPLE" : "NO CUMPLE")}";
+			}
+
+			string interval = double.IsNaN(low) ? "—" : $"[{low:+0.0%;-0.0%;0.0%}, {high:+0.0%;-0.0%;0.0%}]";
+			string biasText = double.IsNaN(bias) ? "—" : $"{bias:+0.0%;-0.0%;0.0%}";
+			GD.Print($"{source,-12}{simHits,12}{realHits,13}{sim.Sum(),10:0}{real.Sum(),11:0}{biasText,9}{interval,22}  {verdict}");
+		}
+
+		return passed;
+	}
+
+	private static (double Low, double High) BootstrapBias(double[] sim, double[] real)
+	{
+		Random random = new(BootstrapSeed);
+		List<double> biases = new();
+		for (int sample = 0; sample < BootstrapResamples; sample++)
+		{
+			double simSum = 0.0, realSum = 0.0;
+			for (int i = 0; i < sim.Length; i++)
+			{
+				int pick = random.Next(sim.Length);
+				simSum += sim[pick];
+				realSum += real[pick];
+			}
+
+			if (realSum > 0.0)
+			{
+				biases.Add(simSum / realSum - 1.0);
+			}
+		}
+
+		if (biases.Count < BootstrapResamples / 2)
+		{
+			return (double.NaN, double.NaN);
+		}
+
+		biases.Sort();
+		return (biases[(int)(0.025 * (biases.Count - 1))], biases[(int)(0.975 * (biases.Count - 1))]);
+	}
+
+	private static string Bias(double simulated, double real)
+	{
+		return real > 0.0 ? $"{(simulated - real) / real:+0%;-0%;0%}" : simulated > 0.0 ? "real 0" : "—";
+	}
+
+	private static double RelativeBias(List<double> simulated, List<double> real)
+	{
+		double realMean = real.Average();
+		double simMean = simulated.Average();
+		if (Math.Abs(realMean) < 1e-9)
+		{
+			return Math.Abs(simMean) < 1e-9 ? 0.0 : double.PositiveInfinity;
+		}
+
+		return (simMean - realMean) / realMean;
 	}
 
 	private static void PrintWorstLevels(List<LevelComparison> levels)

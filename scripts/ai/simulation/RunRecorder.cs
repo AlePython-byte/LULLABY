@@ -1,6 +1,14 @@
 using System.Collections.Generic;
 using Godot;
 
+/// <summary>De dónde vino un golpe al jugador (diagnóstico de la prueba de fidelidad).</summary>
+public enum DamageSource
+{
+	Contact,
+	Projectile,
+	Explosion,
+}
+
 /// <summary>Primera visita a una sala dentro de una partida del bot.</summary>
 public sealed class RoomVisit
 {
@@ -11,6 +19,12 @@ public sealed class RoomVisit
 	public float ClearTime { get; set; } = -1.0f;
 
 	public float Damage { get; set; }
+
+	/// <summary>Daño de esta visita por fuente (índice = DamageSource).</summary>
+	public float[] DamageBySource { get; } = new float[3];
+
+	/// <summary>Daño por contacto de esta visita por tipo del enemigo que golpeó (índice = EnemyKind).</summary>
+	public float[] ContactByKind { get; } = new float[4];
 }
 
 /// <summary>Medidas de una partida del bot (en el simulador o en el juego real).</summary>
@@ -29,6 +43,10 @@ public sealed class SimulationResult
 	public bool WouldDie { get; set; }
 
 	public List<RoomVisit> Visits { get; } = new();
+
+	/// <summary>Daño y número de golpes con daño de toda la partida, por fuente (índice = DamageSource).</summary>
+	public float[] DamageBySource { get; } = new float[3];
+	public int[] HitsBySource { get; } = new int[3];
 }
 
 /// <summary>
@@ -76,12 +94,19 @@ public sealed class RunRecorder
 		}
 	}
 
-	public void Damage(float amount)
+	public void Damage(float amount, DamageSource source = DamageSource.Contact, EnemyKind contactKind = EnemyKind.Chaser)
 	{
 		Result.DamageTotal += amount;
+		Result.DamageBySource[(int)source] += amount;
+		Result.HitsBySource[(int)source]++;
 		if (_current != null)
 		{
 			_current.Damage += amount;
+			_current.DamageBySource[(int)source] += amount;
+			if (source == DamageSource.Contact)
+			{
+				_current.ContactByKind[(int)contactKind] += amount;
+			}
 		}
 
 		if (_level.CriticalPath.Contains(_cell))

@@ -18,6 +18,9 @@ public partial class EnemyProjectile : Area3D
 	private float _age;
 	private bool _spent;
 
+	/// <summary>Velocidad actual (m/s); cero hasta Launch.</summary>
+	public Vector3 Velocity => _direction * Speed;
+
 	public override void _Ready()
 	{
 		AddToGroup("enemy_projectiles");

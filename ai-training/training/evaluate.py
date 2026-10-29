@@ -2,6 +2,7 @@
 
     ai-training/.venv/Scripts/python.exe ai-training/training/evaluate.py
     ai-training/.venv/Scripts/python.exe ai-training/training/evaluate.py --force   # solo para reproducir el MISMO resultado
+    ai-training/.venv/Scripts/python.exe ai-training/training/evaluate.py --version 2   # IA v2 (marcador propio en reports/v2/)
 
 El conjunto de prueba no se usa para elegir nada: este script lee la elección de reports/cv_results.json, reajusta
 ese modelo con las 5000 filas de entrenamiento y mide en las 1000 filas de prueba. Deja un marcador
@@ -32,9 +33,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.inspection import permutation_importance
 
-from common import (DATASETS, MAIN, RANDOM_STATE, REPORTS, SECONDARY, TARGETS, check_no_overlap, clean, environment,
-                    feature_meta, load_test, load_train, read_json, regression_metrics, sha256, use_utf8_console,
-                    write_json)
+from common import (DATASETS, MAIN, RANDOM_STATE, REPORTS, ROOT, SECONDARY, TARGETS, VERSION, add_version_argument,
+                    check_no_overlap, clean, environment, feature_meta, load_test, load_train, read_json,
+                    regression_metrics, sha256, use_utf8_console, write_json)
 from models import LABELS, make_estimator
 
 MARKER = REPORTS / ".test_evaluated"
@@ -49,7 +50,32 @@ BIN_EDGES = (0.2, 0.4, 0.6, 0.8)
 
 # Estimación APROXIMADA (no un límite exacto) de la parte de la varianza que las 14 características pueden explicar, a
 # partir de la varianza dentro de los grupos de niveles con vector de características idéntico en el entrenamiento.
+# Versión 1: cifras fijas de aquel análisis (47 grupos). Versión 2: se calcula aquí con el mismo método
+# (ceiling_from_identical_vectors), o queda sin estimar si no hay grupos suficientes.
 R2_CEILING = {MAIN: 0.73, SECONDARY: 0.96}
+MIN_CEILING_GROUPS = 20
+
+
+def ceiling_from_identical_vectors(train) -> tuple[dict, int]:
+    """1 − (varianza dentro de los grupos de vector idéntico, ponderada) / (varianza total), por etiqueta."""
+    groups: dict[tuple, list[int]] = {}
+    for index, row in enumerate(np.round(train.X, 6)):
+        groups.setdefault(tuple(row), []).append(index)
+    repeated = [rows for rows in groups.values() if len(rows) >= 2]
+    if len(repeated) < MIN_CEILING_GROUPS:
+        return {target: None for target in TARGETS}, len(repeated)
+
+    ceiling = {}
+    for target in TARGETS:
+        y = train.y[target]
+        within = sum(float(np.sum((y[rows] - y[rows].mean()) ** 2)) for rows in repeated)
+        degrees = sum(len(rows) - 1 for rows in repeated)
+        ceiling[target] = 1.0 - (within / degrees) / float(np.var(y, ddof=1))
+    return ceiling, len(repeated)
+
+
+def ceiling_text(value) -> str:
+    return "sin estimar" if value is None else f"{value:.2f}"
 
 STRATEGIES = ("random", "model_top5_random", "model_best", "oracle")
 STRATEGY_LABELS = {
@@ -159,7 +185,7 @@ def plot_predicted_vs_actual(data: dict) -> None:
         axis.set_xlabel(f"{target} real (medido por el bot)")
         axis.set_ylabel(f"{target} predicho")
         axis.set_title(f"{LABELS[family]} en prueba (1000 niveles)\n"
-                       f"R²={metrics['r2']:.3f} (techo aprox. {R2_CEILING[target]})  "
+                       f"R²={metrics['r2']:.3f} (techo aprox. {ceiling_text(R2_CEILING[target])})  "
                        f"MAE={metrics['mae']:.2f}  Spearman={metrics['spearman']:.3f}", fontsize=10)
         axis.legend(loc="upper left")
     fig.tight_layout()
@@ -234,10 +260,11 @@ def main() -> int:
     use_utf8_console()
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--force", action="store_true", help="repetir aunque el conjunto de prueba ya se haya usado")
+    add_version_argument(parser)
     args = parser.parse_args()
 
     if MARKER.exists() and not args.force:
-        print("El conjunto de prueba ya se evaluó (marcador reports/.test_evaluated).\n"
+        print(f"El conjunto de prueba ya se evaluó (marcador {MARKER.relative_to(ROOT)}).\n"
               "Repetirlo para elegir otro modelo sería ajustar a la prueba. Usa --force solo para reproducir el mismo resultado.")
         return 2
 
@@ -248,6 +275,12 @@ def main() -> int:
         raise SystemExit("cv_results.json se generó con otras características: vuelve a ejecutar train.py.")
 
     train, test = load_train(), load_test()
+    ceiling_groups = 47
+    if VERSION != 1:
+        estimated, ceiling_groups = ceiling_from_identical_vectors(train)
+        R2_CEILING.update(estimated)
+        print(f"Techo aproximado de R² (grupos de vector idéntico en entrenamiento: {ceiling_groups}): "
+              + ", ".join(f"{target} {ceiling_text(R2_CEILING[target])}" for target in TARGETS))
     overlap = check_no_overlap(train, test)
     print(f"Datos: {len(train)} entrenamiento, {len(test)} prueba; semillas efectivas en común: 0; "
           f"filas de prueba con vector idéntico a alguno de entrenamiento: "
@@ -340,7 +373,9 @@ def main() -> int:
         "director": director,
         "permutation_importance": importance,
         "r2_ceiling_note": "Estimación aproximada, no un límite exacto: sale de la varianza dentro de los grupos de "
-                           "niveles con vector de características idéntico en el entrenamiento (47 grupos).",
+                           f"niveles con vector de características idéntico en el entrenamiento ({ceiling_groups} grupos)."
+                           + ("" if VERSION == 1 or R2_CEILING[MAIN] is not None else
+                              f" Con menos de {MIN_CEILING_GROUPS} grupos no se estima."),
     })
     MARKER.write_text(f"Conjunto de prueba evaluado con cv_results.json sha256={sha256(cv_path)}\n", encoding="utf-8")
     print("\nEscrito reports/metrics.json y las gráficas (predicted_vs_actual, error_by_difficulty, "

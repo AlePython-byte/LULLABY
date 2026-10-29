@@ -12,7 +12,11 @@ using Godot;
 /// Compara "niveles aleatorios" con "niveles seleccionados por el director de IA" midiendo la dificultad REAL
 /// (damage_total_mean) con el simulador y el bot. Modo headless:
 ///   godot --headless --path . res://tests/DirectorBenchmark.tscn
-/// Argumentos (tras "--"): --first-seed=N (300001), --count=N (300), --out=ruta del JSON de resultados.
+/// Argumentos (tras "--"): --first-seed=N (300001), --count=N (300), --out=ruta del JSON de resultados, --version=N (1).
+///   godot --headless --path . res://tests/DirectorBenchmark.tscn -- --version=2
+/// --version=2: generador v2, modelo difficulty_v2.json (22 características), semillas de partida 400001..400300 por
+/// defecto, solapamiento comprobado contra levels_v2*.csv y salida ai-training/reports/v2/director_benchmark_v2.json.
+/// Sin --version, todo es como siempre (el JSON v1 sale idéntico byte a byte).
 ///
 /// Por cada semilla de partida (300001..300300) y cada objetivo (Easy, Normal, Hard):
 ///   - se generan los 30 candidatos del director y se mide la dificultad real de TODOS con el mismo protocolo que las
@@ -40,12 +44,15 @@ public partial class DirectorBenchmark : Node
 	private const float MaxSeconds = 600.0f;
 	private const int BotRuns = 5;
 
-	private static readonly string[] SeedFiles =
+	private static string[] SeedFiles(int version)
 	{
-		"ai-training/datasets/levels_v1.csv",
-		"ai-training/datasets/levels_v1_test.csv",
-		"ai-training/datasets/levels_v1_confirm.csv",
-	};
+		return new[]
+		{
+			$"ai-training/datasets/levels_v{version}.csv",
+			$"ai-training/datasets/levels_v{version}_test.csv",
+			$"ai-training/datasets/levels_v{version}_confirm.csv",
+		};
+	}
 
 	private static readonly string[] Strategies = { "random", "director", "best", "oracle" };
 
@@ -61,6 +68,7 @@ public partial class DirectorBenchmark : Node
 	[Export] public int GameCount { get; set; } = 300;
 	[Export] public int CandidateCount { get; set; } = 30;
 	[Export] public int TopCount { get; set; } = 5;
+	[Export] public int Version { get; set; } = 1;
 
 	private string _outPath;
 
@@ -74,12 +82,22 @@ public partial class DirectorBenchmark : Node
 	private bool Run()
 	{
 		string root = ProjectSettings.GlobalizePath("res://");
-		_outPath = Path.Combine(root, "ai-training/reports/director_benchmark.json");
+		string outArgument = null;
+		bool firstSeedGiven = false;
+		foreach (string argument in OS.GetCmdlineUserArgs())
+		{
+			if (argument.StartsWith("--version=") && int.TryParse(argument["--version=".Length..], out int version))
+			{
+				Version = version;
+			}
+		}
+
 		foreach (string argument in OS.GetCmdlineUserArgs())
 		{
 			if (argument.StartsWith("--first-seed=") && int.TryParse(argument["--first-seed=".Length..], out int first))
 			{
 				FirstSeed = first;
+				firstSeedGiven = true;
 			}
 			else if (argument.StartsWith("--count=") && int.TryParse(argument["--count=".Length..], out int count))
 			{
@@ -87,15 +105,30 @@ public partial class DirectorBenchmark : Node
 			}
 			else if (argument.StartsWith("--out="))
 			{
-				_outPath = Path.IsPathRooted(argument["--out=".Length..]) ? argument["--out=".Length..] : Path.Combine(root, argument["--out=".Length..]);
+				outArgument = argument["--out=".Length..];
 			}
 		}
 
+		if (Version >= 2 && !firstSeedGiven)
+		{
+			FirstSeed = 400001;
+		}
+
+		string defaultOut = Version >= 2 ? $"ai-training/reports/v{Version}/director_benchmark_v{Version}.json" : "ai-training/reports/director_benchmark.json";
+		_outPath = outArgument == null ? Path.Combine(root, defaultOut)
+			: Path.IsPathRooted(outArgument) ? outArgument : Path.Combine(root, outArgument);
+
 		GameplayParameters parameters = GameplayParameters.FromScenes();
 		BotSettings botSettings = new();
-		DifficultyModel model = DifficultyModel.Load();
+		DifficultyModel model = DifficultyModel.Load(DifficultyModel.PathFor(Version));
+		if (model.GeneratorVersion != Version)
+		{
+			GD.PushError($"DirectorBenchmark: el modelo es del generador v{model.GeneratorVersion} y se pidió la versión {Version}.");
+			return false;
+		}
+
 		DungeonGenerator generator = new(GD.Load<RoomCatalog>(CatalogPath));
-		AIDungeonDirector director = new(generator, model, new DungeonGenerator.Settings())
+		AIDungeonDirector director = new(generator, model, new DungeonGenerator.Settings { GeneratorVersion = Version })
 		{
 			CandidateCount = CandidateCount,
 			TopCount = TopCount,
@@ -149,8 +182,14 @@ public partial class DirectorBenchmark : Node
 			["candidates_per_game"] = CandidateCount,
 			["top_count"] = TopCount,
 			["bot_runs_per_level"] = BotRuns,
-			["simulator_version"] = LevelSimulator.Version,
+			["simulator_version"] = LevelSimulator.VersionFor(Version),
 		};
+		if (Version >= 2)
+		{
+			json["ai_version"] = Version;
+			json["feature_set_version"] = model.FeatureSetVersion;
+			json["generator_version"] = Version;
+		}
 
 		GD.Print($"\n=== DirectorBenchmark: {GameCount} semillas de partida ({FirstSeed}..{FirstSeed + GameCount - 1}) × 3 objetivos × {CandidateCount} candidatos ===");
 		GD.Print($"Tiempo: {generating:0.0} s generando + {simulating:0.0} s simulando {flat.Count} niveles × {BotRuns} partidas del bot.");
@@ -208,7 +247,7 @@ public partial class DirectorBenchmark : Node
 
 		json["error"] = errorJson;
 		json["variety"] = ReportVariety(targets, choices, pools);
-		json["seed_overlap_checked_against"] = SeedFiles;
+		json["seed_overlap_checked_against"] = SeedFiles(Version);
 
 		Directory.CreateDirectory(Path.GetDirectoryName(_outPath));
 		File.WriteAllBytes(_outPath, new UTF8Encoding(false).GetBytes(
@@ -246,7 +285,7 @@ public partial class DirectorBenchmark : Node
 	private bool CheckSeedOverlap(string root, List<AIDungeonDirector.Candidate>[] pools)
 	{
 		HashSet<int> used = new();
-		foreach (string file in SeedFiles)
+		foreach (string file in SeedFiles(Version))
 		{
 			string path = Path.Combine(root, file);
 			if (!File.Exists(path))

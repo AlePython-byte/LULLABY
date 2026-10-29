@@ -23,6 +23,9 @@ public sealed class SimLevel
 		/// <summary>Null si la sala no tiene enemigos.</summary>
 		public GameplayParameters.EnemyStats Enemy { get; init; }
 
+		/// <summary>Estadísticas del enemigo de cada punto de aparición (su tipo, con SpawnKinds; si no, Enemy).</summary>
+		public GameplayParameters.EnemyStats[] SpawnStats { get; init; }
+
 		public List<DoorSide> Doors { get; } = new();
 
 		public bool StartsCleared => Enemy == null || SpawnPoints.Length == 0;
@@ -57,6 +60,14 @@ public sealed class SimLevel
 		foreach (RoomData data in map.Rooms)
 		{
 			GameplayParameters.EnemyStats enemy = data.EnemyScene != null ? parameters.EnemyFor(data.EnemyScene) : null;
+			GameplayParameters.EnemyStats[] spawnStats = new GameplayParameters.EnemyStats[data.SpawnPoints.Length];
+			bool typed = data.SpawnKinds.Length == data.SpawnPoints.Length;
+			for (int i = 0; enemy != null && i < spawnStats.Length; i++)
+			{
+				spawnStats[i] = typed ? parameters.EnemyFor(EnemyKinds.Scene((EnemyKind)data.SpawnKinds[i])) : enemy;
+				enemyHalf = Mathf.Max(enemyHalf, Mathf.Min(spawnStats[i].Size.X, spawnStats[i].Size.Y) / 2.0f);
+			}
+
 			if (enemy != null)
 			{
 				enemyHalf = Mathf.Max(enemyHalf, Mathf.Min(enemy.Size.X, enemy.Size.Y) / 2.0f);
@@ -70,6 +81,7 @@ public sealed class SimLevel
 				Size = data.Size,
 				SpawnPoints = (Vector2[])data.SpawnPoints.Clone(),
 				Enemy = enemy,
+				SpawnStats = spawnStats,
 			};
 			level.Rooms.Add(room);
 			level._rooms[room.Cell] = room;

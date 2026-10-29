@@ -1,6 +1,7 @@
 """Evaluación de CONFIRMACIÓN del modelo final, sobre semillas que no se usaron ni para entrenar ni para la prueba.
 
     ai-training/.venv/Scripts/python.exe ai-training/training/evaluate_confirmation.py
+    ai-training/.venv/Scripts/python.exe ai-training/training/evaluate_confirmation.py --version 2   # reports/v2/
 
 Se ejecuta UNA sola vez y no se ajusta nada con su resultado. Evalúa exactamente el JSON que usa el juego
 (resources/ai/difficulty_v1.json), no un reajuste en Python, con el evaluador de export_model.py que solo lee el JSON.
@@ -15,28 +16,23 @@ from __future__ import annotations
 import argparse
 import sys
 
-from common import (MAIN, REPORTS, ROOT, SECONDARY, TARGETS, DataError, environment, feature_meta, load_confirm,
+from common import (GAME_MODEL, MAIN, REPORTS, ROOT, SECONDARY, TARGETS, DataError, add_version_argument,
+                    environment, feature_meta, identical_vectors, load_confirm,
                     load_test, load_train, read_json, regression_metrics, sha256, use_utf8_console, write_json)
 from export_model import predict_from_json
 
 MARKER = REPORTS / ".confirmation_evaluated"
-GAME_MODEL = ROOT.parent / "resources" / "ai" / "difficulty_v1.json"
-
-
-def identical_vectors(left, right) -> int:
-    import numpy as np
-    known = {tuple(row) for row in np.round(right.X, 6)}
-    return int(sum(tuple(row) in known for row in np.round(left.X, 6)))
 
 
 def main() -> int:
     use_utf8_console()
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--force", action="store_true", help="repetir aunque la confirmación ya se haya evaluado")
+    add_version_argument(parser)
     args = parser.parse_args()
 
     if MARKER.exists() and not args.force:
-        print("La confirmación ya se evaluó (marcador reports/.confirmation_evaluated). No se repite: no se ajusta nada con ella.")
+        print(f"La confirmación ya se evaluó (marcador {MARKER.relative_to(ROOT)}). No se repite: no se ajusta nada con ella.")
         return 2
 
     version, names = feature_meta()

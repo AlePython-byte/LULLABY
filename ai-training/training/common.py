@@ -2,10 +2,16 @@
 
 Reglas:
   - Todo es reproducible: RANDOM_STATE fijo y ningún resultado depende del orden de diccionarios o de hilos.
-  - Los datos se validan contra los .meta.json: los nombres y el orden de las 14 características tienen que coincidir
+  - Los datos se validan contra los .meta.json: los nombres y el orden de las características tienen que coincidir
     exactamente con feature_names, o se aborta con DataError.
   - load_test() solo se llama desde evaluate.py y export_model.py. train.py no lo importa ni lee archivos de prueba:
     el conjunto de prueba no interviene en ninguna elección.
+
+Versiones de la IA: todos los scripts aceptan --version N (por defecto 1).
+  - 1: generador v1 y 14 características. Archivos levels_v1*, informes en reports/, modelo difficulty_v1.json. Es lo de
+       siempre: sin --version nada cambia.
+  - 2: generador v2 (tipos de enemigo) y 22 características. Archivos levels_v2*, informes en reports/v2/, modelo
+       difficulty_v2.json; marcadores de evaluación propios en reports/v2/.
 """
 
 from __future__ import annotations
@@ -14,6 +20,7 @@ import hashlib
 import json
 import math
 import platform
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -25,24 +32,54 @@ from scipy import stats
 from sklearn.metrics import r2_score
 
 RANDOM_STATE = 42
+KNOWN_VERSIONS = (1, 2)
+
+
+def _version_from_argv(argv: list[str]) -> int:
+    """--version N o --version=N en la línea de comandos (por defecto 1). Se lee al importar, así cada script elige
+    archivos, informes y modelo antes de nada."""
+    for index, argument in enumerate(argv):
+        value = None
+        if argument.startswith("--version="):
+            value = argument.split("=", 1)[1]
+        elif argument == "--version" and index + 1 < len(argv):
+            value = argv[index + 1]
+        if value is not None:
+            version = int(value)
+            if version not in KNOWN_VERSIONS:
+                raise SystemExit(f"--version {version} desconocida (válidas: {KNOWN_VERSIONS}).")
+            return version
+    return 1
+
+
+VERSION = _version_from_argv(sys.argv)
+TAG = f"v{VERSION}"
 
 ROOT = Path(__file__).resolve().parents[1]  # ai-training/
 DATASETS = ROOT / "datasets"
-REPORTS = ROOT / "reports"
+REPORTS = ROOT / "reports" if VERSION == 1 else ROOT / "reports" / TAG
 MODELS = ROOT / "models"
+MODEL_FILE = f"difficulty_{TAG}.json"
+GAME_MODEL = ROOT.parent / "resources" / "ai" / MODEL_FILE
 
 MAIN = "damage_total_mean"
 SECONDARY = "time_total_mean"
 TARGETS = (MAIN, SECONDARY)
 
 JOIN_KEY = "effective_seed"
-FEATURE_META = "levels_v1.meta.json"
-LABEL_META = "levels_v1_labels.meta.json"
+FEATURE_META = f"levels_{TAG}.meta.json"
+LABEL_META = f"levels_{TAG}_labels.meta.json"
 
 # (CSV de características, CSV de etiquetas, meta de características)
-TRAIN_FILES = ("levels_v1.csv", "levels_v1_labels.csv", "levels_v1.meta.json")
-TEST_FILES = ("levels_v1_test.csv", "levels_v1_test_labels.csv", "levels_v1_test.meta.json")
-CONFIRM_FILES = ("levels_v1_confirm.csv", "levels_v1_confirm_labels.csv", "levels_v1_confirm.meta.json")
+TRAIN_FILES = (f"levels_{TAG}.csv", f"levels_{TAG}_labels.csv", f"levels_{TAG}.meta.json")
+TEST_FILES = (f"levels_{TAG}_test.csv", f"levels_{TAG}_test_labels.csv", f"levels_{TAG}_test.meta.json")
+CONFIRM_FILES = (f"levels_{TAG}_confirm.csv", f"levels_{TAG}_confirm_labels.csv", f"levels_{TAG}_confirm.meta.json")
+
+
+def add_version_argument(parser) -> None:
+    """Para los scripts con argparse: --version ya lo leyó common al importarse; aquí solo se declara."""
+    parser.add_argument("--version", type=int, default=1, choices=KNOWN_VERSIONS,
+                        help="versión de la IA: 1 (generador v1, 14 características) o 2 (generador v2, 22)")
 
 
 def use_utf8_console() -> None:
@@ -133,6 +170,12 @@ def load_test() -> Split:
 def load_confirm() -> Split:
     """Solo para evaluate_confirmation.py (conjunto de confirmación, semillas 200001..201000)."""
     return _load(CONFIRM_FILES, "confirmación")
+
+
+def identical_vectors(left: Split, right: Split) -> int:
+    """Filas de left cuyo vector de características (a 6 decimales) aparece en right."""
+    known = {tuple(row) for row in np.round(right.X, 6)}
+    return int(sum(tuple(row) in known for row in np.round(left.X, 6)))
 
 
 def check_no_overlap(train: Split, test: Split) -> dict:

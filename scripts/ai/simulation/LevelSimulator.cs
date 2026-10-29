@@ -35,12 +35,50 @@ using Godot;
 ///     definido).
 ///   - Los enemigos muertos desaparecen al final del paso (en Godot, al final del fotograma siguiente).
 ///   - El disparo replica PlayerShooter suponiendo que el bot pulsa como mucho una flecha a la vez (siempre es así).
+///
+/// Tipos de enemigo (versión 3; los números salen de cada escena, ver GameplayParameters). El enemigo básico sigue por
+/// la MISMA rama de código que en la versión 2, así que un nivel con solo básicos da exactamente el mismo resultado. Los
+/// demás siguen el orden de EnemyBase: espera entre golpes; retroceso (sin comportamientos); velocidad del comportamiento;
+/// movimiento; daño por contacto si ContactDamage > 0; AfterMove de cada comportamiento en el orden de su escena.
+///   - Tirador (KeepDistanceBehavior + ShootBehavior): se acerca, se aleja o se queda quieto según la banda de distancia;
+///     si su desplazamiento real queda por debajo de BlockedFraction del deseado se desplaza en perpendicular al jugador
+///     (lado contrario a la normal del choque) con las mismas reglas de StrafeTime / MaxStrafeTime e inversión. Dispara
+///     con el mismo ciclo de temporizadores (FirstShotDelay, aviso de WarnTime, FireInterval) hacia la posición del
+///     jugador en ese momento; el proyectil nace a SpawnDistance.
+///   - Explosivo (ChaseBehavior + FuseBehavior): persigue a Speed × SpeedScale; enciende la mecha a TriggerRadius o
+///     menos (desde el fotograma siguiente va a FuseSpeedScale); el temporizador baja paso a paso como en el juego y al
+///     llegar a 0 daña al jugador (ExplosionDamage, respetando la invulnerabilidad) si está a ExplosionRadius o menos y
+///     muere. Muerto antes por las lágrimas, no explota. Sin daño por contacto (ContactDamage = 0).
+///   - Volador (FlyPatternBehavior): FlyPatternBehavior.PatternVelocity con la fase de FlyPatternBehavior.PhaseFor, las
+///     mismas funciones que usa el juego. Choca con paredes, puertas cerradas y el jugador, no con otros enemigos (los
+///     demás enemigos sí chocan con él, como en el juego).
+///   - Proyectiles: círculo de ProjectileRadius en línea recta; caducan a ProjectileLifetime; chocan con paredes,
+///     puertas cerradas y el jugador (gana el cuerpo de centro más cercano), nunca con enemigos; al jugador le hacen
+///     ProjectileDamage respetando la invulnerabilidad (el proyectil se gasta igual). Desaparecen al despejar la sala.
+/// Aproximaciones de los tipos nuevos:
+///   - La normal del choque del tirador es la suma de los ejes que frenaron su caja (GetLastSlideCollision en Godot da
+///     la del último choque del deslizamiento); solo importa su signo frente al lado izquierdo.
+///   - "Desplazamiento real" = cambio de posición / paso (GetRealVelocity), con las colisiones por ejes del simulador.
+///   - Un proyectil disparado se comprueba en su punto de salida y empieza a moverse en el paso siguiente, igual que las
+///     lágrimas; su choque se aplica en el mismo paso (en Godot llega al fotograma siguiente).
+///   - Si un explosivo despeja la sala al explotar, la sala se despeja al final del paso (en Godot, en el acto).
 /// Herramienta de desarrollo: el juego no depende de esta clase.
 /// </summary>
 public sealed class LevelSimulator
 {
-	/// <summary>2: añade el retroceso del enemigo tras un golpe que hace daño (v1 no lo tenía).</summary>
-	public const int Version = 2;
+	/// <summary>
+	/// 2: añade el retroceso del enemigo tras un golpe que hace daño (v1 no lo tenía).
+	/// 3: tipos de enemigo (tirador, explosivo, volador) y proyectiles. Para niveles con solo enemigos básicos da los
+	///    mismos resultados que la 2, por eso los artefactos v1 siguen declarando BasicOnlyVersion (VersionFor).
+	/// </summary>
+	public const int Version = 3;
+	public const int BasicOnlyVersion = 2;
+
+	/// <summary>Versión que declaran los artefactos de una versión de la IA (1: solo básicos; 2: tipos de enemigo).</summary>
+	public static int VersionFor(int aiVersion)
+	{
+		return aiVersion <= 1 ? BasicOnlyVersion : Version;
+	}
 
 	private const float Epsilon = 0.0001f;
 	private const int StaticTag = -1;
@@ -92,6 +130,22 @@ public sealed class LevelSimulator
 		public Vector2 RecoilVelocity;
 		public GameplayParameters.EnemyStats Stats;
 		public bool Dead;
+
+		// Tipos nuevos (estado de sus comportamientos).
+		public float SpeedScale = 1.0f;
+		public Vector2 Wanted;
+		public Vector2 StrafeDirection;
+		public bool Strafing;
+		public float StrafeElapsed;
+		public float ShotCooldown = float.NaN;
+		public float WarnTimer;
+		public bool Warning;
+		public bool Lit;
+		public bool Exploded;
+		public float FuseTimer;
+		public bool FlyStarted;
+		public float FlyTime;
+		public float FlyPhase;
 	}
 
 	private sealed class Tear
@@ -99,6 +153,14 @@ public sealed class LevelSimulator
 		public Vector2 Position;
 		public Vector2 Direction;
 		public float Age;
+	}
+
+	private sealed class Projectile
+	{
+		public Vector2 Position;
+		public Vector2 Direction;
+		public float Age;
+		public GameplayParameters.ShootStats Stats;
 	}
 
 	private enum Phase
@@ -126,6 +188,15 @@ public sealed class LevelSimulator
 	private readonly List<Box2> _obstacles = new();
 	private readonly List<int> _tags = new();
 	private readonly List<Vector2> _visibleEnemies = new();
+	private readonly List<EnemyKind> _visibleKinds = new();
+	private readonly List<bool> _visibleLit = new();
+	private readonly List<Projectile> _projectiles = new();
+	private readonly List<Projectile> _newProjectiles = new();
+	private readonly List<Vector2> _visibleProjectiles = new();
+	private readonly List<Vector2> _visibleProjectileVelocities = new();
+
+	// Ejes que frenaron la última caja movida (para la normal del choque del tirador).
+	private Vector2 _lastNormal;
 
 	private Vector2I _cell;
 	private SimLevel.Room _room;
@@ -189,9 +260,21 @@ public sealed class LevelSimulator
 		_frame++;
 
 		_visibleEnemies.Clear();
+		_visibleKinds.Clear();
+		_visibleLit.Clear();
 		foreach (Enemy enemy in _enemies)
 		{
 			_visibleEnemies.Add(enemy.Position);
+			_visibleKinds.Add(enemy.Stats.Kind);
+			_visibleLit.Add(enemy.Lit);
+		}
+
+		_visibleProjectiles.Clear();
+		_visibleProjectileVelocities.Clear();
+		foreach (Projectile projectile in _projectiles)
+		{
+			_visibleProjectiles.Add(projectile.Position);
+			_visibleProjectileVelocities.Add(projectile.Direction * projectile.Stats.ProjectileSpeed);
 		}
 
 		BotAction action = _bot.Decide(new BotObservation
@@ -201,6 +284,10 @@ public sealed class LevelSimulator
 			RoomSize = _room.Size,
 			Player = _player,
 			Enemies = _visibleEnemies,
+			EnemyKinds = _visibleKinds,
+			FuseLit = _visibleLit,
+			Projectiles = _visibleProjectiles,
+			ProjectileVelocities = _visibleProjectileVelocities,
 		});
 
 		if (_phase != Phase.FadeOut && _phase != Phase.FadeIn)
@@ -210,6 +297,7 @@ public sealed class LevelSimulator
 		}
 
 		MoveEnemies();
+		UpdateProjectiles();
 		UpdateTears();
 		RemoveDeadEnemies();
 
@@ -259,6 +347,12 @@ public sealed class LevelSimulator
 				continue;
 			}
 
+			if (enemy.Stats.Kind != EnemyKind.Chaser)
+			{
+				MoveTypedEnemy(i, enemy);
+				continue;
+			}
+
 			Vector2 toPlayer = _player - enemy.Position;
 			Vector2 velocity = toPlayer.LengthSquared() > 0.0001f ? toPlayer.Normalized() * enemy.Stats.Speed : Vector2.Zero;
 			if (velocity == Vector2.Zero)
@@ -271,7 +365,7 @@ public sealed class LevelSimulator
 
 			if (blockedByPlayer && enemy.HitTimer <= 0.0f)
 			{
-				bool damaged = PlayerTakeHit(enemy.Stats.ContactDamage);
+				bool damaged = PlayerTakeHit(enemy.Stats.ContactDamage, DamageSource.Contact, enemy.Stats.Kind);
 				enemy.HitTimer = enemy.Stats.HitCooldown;
 
 				if (damaged && enemy.Stats.RecoilDistance > 0.0f)
@@ -292,6 +386,288 @@ public sealed class LevelSimulator
 
 		enemy.RecoilFrames = Mathf.Max(1, Mathf.CeilToInt(enemy.Stats.RecoilDuration / _dt - 0.0001f));
 		enemy.RecoilVelocity = away.Normalized() * (enemy.Stats.RecoilDistance / (enemy.RecoilFrames * _dt));
+	}
+
+	// Tirador, explosivo y volador (orden de EnemyBase; el básico va por su rama de MoveEnemies).
+	private void MoveTypedEnemy(int index, Enemy enemy)
+	{
+		GameplayParameters.EnemyStats stats = enemy.Stats;
+		Vector2 velocity = DesiredVelocity(enemy);
+		Vector2 before = enemy.Position;
+		bool blockedByPlayer = false;
+		_lastNormal = Vector2.Zero;
+
+		if (velocity != Vector2.Zero)
+		{
+			BuildObstacles(includePlayer: true, excludedEnemy: index, includeEnemies: stats.CollidesWithEnemies);
+			blockedByPlayer = Move(ref enemy.Position, stats.Size / 2.0f, velocity * _dt, PlayerTag);
+		}
+
+		if (stats.ContactDamage > 0.0f && blockedByPlayer && enemy.HitTimer <= 0.0f)
+		{
+			bool damaged = PlayerTakeHit(stats.ContactDamage, DamageSource.Contact, stats.Kind);
+			enemy.HitTimer = stats.HitCooldown;
+
+			if (damaged && stats.RecoilDistance > 0.0f)
+			{
+				StartRecoil(enemy);
+			}
+		}
+
+		if (stats.KeepDistance != null)
+		{
+			KeepDistanceAfterMove(enemy, (enemy.Position - before) / _dt);
+		}
+
+		if (stats.Shoot != null)
+		{
+			ShootAfterMove(enemy);
+		}
+
+		if (stats.Fuse != null)
+		{
+			FuseAfterMove(enemy);
+		}
+	}
+
+	private Vector2 DesiredVelocity(Enemy enemy)
+	{
+		GameplayParameters.EnemyStats stats = enemy.Stats;
+		Vector2 toPlayer = _player - enemy.Position;
+		float speed = stats.Speed * enemy.SpeedScale;
+
+		if (stats.Fly != null)
+		{
+			if (!enemy.FlyStarted)
+			{
+				enemy.FlyStarted = true;
+				enemy.FlyPhase = FlyPatternBehavior.PhaseFor(new Vector3(enemy.Position.X, 0.5f, enemy.Position.Y));
+			}
+
+			Vector3 fly = FlyPatternBehavior.PatternVelocity(new Vector3(toPlayer.X, 0.0f, toPlayer.Y), enemy.FlyTime, speed,
+				stats.Fly.Amplitude, stats.Fly.Frequency, enemy.FlyPhase);
+			enemy.FlyTime += _dt;
+			return new Vector2(fly.X, fly.Z);
+		}
+
+		if (stats.KeepDistance != null)
+		{
+			return KeepDistanceVelocity(enemy, toPlayer, speed);
+		}
+
+		return toPlayer.LengthSquared() > 0.0001f ? toPlayer.Normalized() * speed : Vector2.Zero;
+	}
+
+	// KeepDistanceBehavior.TryGetVelocity.
+	private Vector2 KeepDistanceVelocity(Enemy enemy, Vector2 toPlayer, float speed)
+	{
+		GameplayParameters.KeepDistanceStats keep = enemy.Stats.KeepDistance;
+		float distance = toPlayer.Length();
+		bool tooClose = distance < keep.PreferredDistance - keep.Tolerance;
+
+		if (enemy.Strafing)
+		{
+			enemy.StrafeElapsed += _dt;
+			if (enemy.StrafeElapsed < keep.StrafeTime || (tooClose && enemy.StrafeElapsed < keep.MaxStrafeTime))
+			{
+				enemy.Wanted = enemy.StrafeDirection * speed;
+				return enemy.Wanted;
+			}
+
+			enemy.Strafing = false;
+		}
+
+		if (distance < 0.0001f)
+		{
+			enemy.Wanted = Vector2.Zero;
+			return Vector2.Zero;
+		}
+
+		Vector2 direction = toPlayer / distance;
+		Vector2 velocity = Vector2.Zero;
+		if (tooClose)
+		{
+			velocity = -direction * speed;
+		}
+		else if (distance > keep.PreferredDistance + keep.Tolerance)
+		{
+			velocity = direction * speed;
+		}
+
+		enemy.Wanted = velocity;
+		return velocity;
+	}
+
+	// KeepDistanceBehavior.AfterMove.
+	private void KeepDistanceAfterMove(Enemy enemy, Vector2 real)
+	{
+		if (enemy.Wanted == Vector2.Zero || real.Length() >= enemy.Wanted.Length() * enemy.Stats.KeepDistance.BlockedFraction)
+		{
+			return;
+		}
+
+		if (enemy.Strafing)
+		{
+			enemy.StrafeDirection = -enemy.StrafeDirection;
+			return;
+		}
+
+		Vector2 toPlayer = _player - enemy.Position;
+		if (toPlayer.LengthSquared() < 0.0001f)
+		{
+			return;
+		}
+
+		Vector2 forward = toPlayer.Normalized();
+		Vector2 left = new(-forward.Y, forward.X);
+		enemy.StrafeDirection = left.Dot(_lastNormal) >= 0.0f ? left : -left;
+		enemy.Strafing = true;
+		enemy.StrafeElapsed = 0.0f;
+	}
+
+	// ShootBehavior.AfterMove.
+	private void ShootAfterMove(Enemy enemy)
+	{
+		GameplayParameters.ShootStats shoot = enemy.Stats.Shoot;
+		if (float.IsNaN(enemy.ShotCooldown))
+		{
+			enemy.ShotCooldown = shoot.FirstShotDelay;
+		}
+
+		if (enemy.Warning)
+		{
+			enemy.WarnTimer -= _dt;
+			if (enemy.WarnTimer <= 0.0f)
+			{
+				enemy.Warning = false;
+				Vector2 toPlayer = _player - enemy.Position;
+				Vector2 direction = toPlayer.LengthSquared() > 0.0001f ? toPlayer.Normalized() : new Vector2(0.0f, -1.0f);
+				_newProjectiles.Add(new Projectile
+				{
+					Position = enemy.Position + direction * shoot.SpawnDistance,
+					Direction = direction,
+					Stats = shoot,
+				});
+				enemy.ShotCooldown = Mathf.Max(0.0f, shoot.FireInterval - shoot.WarnTime);
+			}
+
+			return;
+		}
+
+		enemy.ShotCooldown -= _dt;
+		if (enemy.ShotCooldown <= 0.0f)
+		{
+			enemy.Warning = true;
+			enemy.WarnTimer = shoot.WarnTime;
+		}
+	}
+
+	// FuseBehavior.AfterMove.
+	private void FuseAfterMove(Enemy enemy)
+	{
+		GameplayParameters.FuseStats fuse = enemy.Stats.Fuse;
+		if (enemy.Exploded)
+		{
+			return;
+		}
+
+		float distance = (_player - enemy.Position).Length();
+		if (!enemy.Lit)
+		{
+			if (distance <= fuse.TriggerRadius)
+			{
+				enemy.Lit = true;
+				enemy.FuseTimer = fuse.FuseTime;
+				enemy.SpeedScale = fuse.FuseSpeedScale;
+			}
+
+			return;
+		}
+
+		enemy.FuseTimer -= _dt;
+		if (enemy.FuseTimer <= 0.0f)
+		{
+			enemy.Exploded = true;
+			if (distance <= fuse.ExplosionRadius)
+			{
+				PlayerTakeHit(fuse.ExplosionDamage, DamageSource.Explosion);
+			}
+
+			enemy.Health = 0.0f;
+			enemy.Dead = true;
+		}
+	}
+
+	private void UpdateProjectiles()
+	{
+		for (int i = _projectiles.Count - 1; i >= 0; i--)
+		{
+			Projectile projectile = _projectiles[i];
+			projectile.Position += projectile.Direction * projectile.Stats.ProjectileSpeed * _dt;
+			projectile.Age += _dt;
+
+			if (projectile.Age >= projectile.Stats.ProjectileLifetime || Hit(projectile))
+			{
+				_projectiles.RemoveAt(i);
+			}
+		}
+
+		foreach (Projectile projectile in _newProjectiles)
+		{
+			if (!Hit(projectile))
+			{
+				_projectiles.Add(projectile);
+			}
+		}
+
+		_newProjectiles.Clear();
+	}
+
+	// El proyectil choca con el cuerpo solapado de centro más cercano (pared, puerta cerrada o jugador).
+	private bool Hit(Projectile projectile)
+	{
+		float radius = projectile.Stats.ProjectileRadius;
+		float best = float.MaxValue;
+		bool hit = false;
+		bool hitPlayer = false;
+
+		foreach (Box2 wall in _walls)
+		{
+			Consider(wall, false);
+		}
+
+		if (!_doorsOpen)
+		{
+			foreach ((DoorSide _, Box2 door, Box2 _) in _doors)
+			{
+				Consider(door, false);
+			}
+		}
+
+		Consider(Box2.Around(_player, _parameters.PlayerSize / 2.0f), true);
+
+		if (hitPlayer)
+		{
+			PlayerTakeHit(projectile.Stats.ProjectileDamage, DamageSource.Projectile);
+		}
+
+		return hit;
+
+		void Consider(Box2 box, bool isPlayer)
+		{
+			if (!box.Overlaps(projectile.Position, radius))
+			{
+				return;
+			}
+
+			float distance = projectile.Position.DistanceSquaredTo(box.Center);
+			if (distance < best)
+			{
+				best = distance;
+				hit = true;
+				hitPlayer = isPlayer;
+			}
+		}
 	}
 
 	private void UpdateTears()
@@ -392,19 +768,20 @@ public sealed class LevelSimulator
 				_state = RoomState.Cleared;
 				_doorsOpen = true;
 				_cleared.Add(_cell);
+				_projectiles.Clear();
 				_recorder.RoomCleared(Time);
 			}
 		}
 	}
 
-	private bool PlayerTakeHit(float damage)
+	private bool PlayerTakeHit(float damage, DamageSource source = DamageSource.Contact, EnemyKind kind = EnemyKind.Chaser)
 	{
 		if (_invulnerable > 0.0f)
 		{
 			return false;
 		}
 
-		_recorder.Damage(damage);
+		_recorder.Damage(damage, source, kind);
 		_invulnerable = _parameters.PlayerInvulnerability;
 		return true;
 	}
@@ -426,9 +803,10 @@ public sealed class LevelSimulator
 	private void SpawnEnemies()
 	{
 		_spawnPending = false;
-		foreach (Vector2 point in _room.SpawnPoints)
+		for (int i = 0; i < _room.SpawnPoints.Length; i++)
 		{
-			_enemies.Add(new Enemy { Position = point, Health = _room.Enemy.MaxHealth, Stats = _room.Enemy });
+			GameplayParameters.EnemyStats stats = _room.SpawnStats[i];
+			_enemies.Add(new Enemy { Position = _room.SpawnPoints[i], Health = stats.MaxHealth, Stats = stats });
 		}
 	}
 
@@ -533,6 +911,8 @@ public sealed class LevelSimulator
 		_enemies.Clear();
 		_tears.Clear();
 		_newTears.Clear();
+		_projectiles.Clear();
+		_newProjectiles.Clear();
 
 		_recorder.EnterRoom(cell, Time, _state == RoomState.Cleared);
 	}
@@ -545,7 +925,7 @@ public sealed class LevelSimulator
 		_player = -direction * (halfExtent - _parameters.ArrivalOffset);
 	}
 
-	private void BuildObstacles(bool includePlayer, int excludedEnemy)
+	private void BuildObstacles(bool includePlayer, int excludedEnemy, bool includeEnemies = true)
 	{
 		_obstacles.Clear();
 		_tags.Clear();
@@ -571,7 +951,7 @@ public sealed class LevelSimulator
 			_tags.Add(PlayerTag);
 		}
 
-		for (int i = 0; i < _enemies.Count; i++)
+		for (int i = 0; includeEnemies && i < _enemies.Count; i++)
 		{
 			if (i != excludedEnemy && !_enemies[i].Dead)
 			{
@@ -630,6 +1010,7 @@ public sealed class LevelSimulator
 
 			position.X = target;
 			blocked |= limiter == watchTag;
+			_lastNormal.X += limiter != NoTag ? -Mathf.Sign(motion.X) : 0.0f;
 		}
 
 		if (motion.Y != 0.0f)
@@ -676,6 +1057,7 @@ public sealed class LevelSimulator
 
 			position.Y = target;
 			blocked |= limiter == watchTag;
+			_lastNormal.Y += limiter != NoTag ? -Mathf.Sign(motion.Y) : 0.0f;
 		}
 
 		return blocked;

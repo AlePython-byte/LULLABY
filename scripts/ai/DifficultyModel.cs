@@ -5,15 +5,17 @@ using System.Linq;
 using Godot;
 
 /// <summary>
-/// Modelo que predice la dificultad de un nivel a partir de sus 14 características (LevelMetrics). Lee el JSON que
-/// exporta ai-training/training/export_model.py (copia en res://resources/ai/difficulty_v1.json). C# puro: no usa
-/// Python ni bibliotecas externas.
+/// Modelo que predice la dificultad de un nivel a partir de sus características. Lee el JSON que exporta
+/// ai-training/training/export_model.py. Hay uno por versión del generador: res://resources/ai/difficulty_v1.json
+/// (generador v1, las 14 características de LevelMetrics) y res://resources/ai/difficulty_v2.json (generador v2, las 22
+/// de LevelMetricsV2). C# puro: no usa Python ni bibliotecas externas.
 ///
 /// Validación al cargar (InvalidDataException con un mensaje claro si algo no cuadra):
 ///   - format_version soportada;
-///   - feature_set_version igual a LevelMetrics.Version;
-///   - feature_names idénticos, en nombre y orden, a LevelMetrics.Names;
+///   - feature_set_version conocida (LevelFeatureSet);
+///   - feature_names idénticos, en nombre y orden, a los de esa versión;
 ///   - existe el modelo de la etiqueta principal y los tres objetivos de dificultad.
+/// generator_version es opcional (el JSON v1 no lo tiene): por defecto 1.
 ///
 /// Modelos soportados (campo "kind"):
 ///   linear / ridge     intercept + sum_i coefficients[i] * (x[i] - mean[i]) / scale[i]
@@ -26,7 +28,14 @@ using Godot;
 public sealed class DifficultyModel
 {
 	public const string DefaultPath = "res://resources/ai/difficulty_v1.json";
+	public const string PathV2 = "res://resources/ai/difficulty_v2.json";
 	public const int SupportedFormatVersion = 1;
+
+	/// <summary>Ruta del modelo de una versión del generador.</summary>
+	public static string PathFor(int generatorVersion)
+	{
+		return generatorVersion >= 2 ? PathV2 : DefaultPath;
+	}
 
 	private abstract class Predictor
 	{
@@ -108,6 +117,15 @@ public sealed class DifficultyModel
 	public IReadOnlyList<string> FeatureNames { get; private set; }
 	public string MainTarget { get; private set; }
 
+	/// <summary>Versión del generador con cuyos niveles se entrenó.</summary>
+	public int GeneratorVersion { get; private set; } = DungeonGenerator.OriginalVersion;
+
+	/// <summary>Las características que espera este modelo, calculadas para un nivel.</summary>
+	public double[] Features(LevelMap map)
+	{
+		return LevelFeatureSet.Compute(FeatureSetVersion, map);
+	}
+
 	public double TargetValue(DifficultyTarget target)
 	{
 		return _targetValues[target];
@@ -181,15 +199,20 @@ public sealed class DifficultyModel
 		}
 
 		model.FeatureSetVersion = Required(root, "feature_set_version", origin).AsInt32();
-		if (model.FeatureSetVersion != LevelMetrics.Version)
+		if (!LevelFeatureSet.IsKnown(model.FeatureSetVersion))
 		{
 			throw new InvalidDataException($"DifficultyModel: {origin} es para las características versión {model.FeatureSetVersion}, " +
-				$"pero LevelMetrics.Version es {LevelMetrics.Version}. Hay que reentrenar y volver a exportar.");
+				$"que este código no conoce (conoce: {string.Join(", ", LevelFeatureSet.Versions)}). Hay que reentrenar y volver a exportar.");
 		}
 
 		string[] names = Required(root, "feature_names", origin).AsGodotArray().Select(item => item.AsString()).ToArray();
-		CheckFeatureNames(names, origin);
+		CheckFeatureNames(names, LevelFeatureSet.Names(model.FeatureSetVersion), model.FeatureSetVersion, origin);
 		model.FeatureNames = names;
+
+		if (root.ContainsKey("generator_version"))
+		{
+			model.GeneratorVersion = root["generator_version"].AsInt32();
+		}
 
 		model.MainTarget = Required(root, "main_target", origin).AsString();
 
@@ -215,19 +238,20 @@ public sealed class DifficultyModel
 		return model;
 	}
 
-	private static void CheckFeatureNames(string[] names, string origin)
+	private static void CheckFeatureNames(string[] names, string[] expected, int version, string origin)
 	{
-		if (names.Length != LevelMetrics.Names.Length)
+		if (names.Length != expected.Length)
 		{
-			throw new InvalidDataException($"DifficultyModel: {origin} tiene {names.Length} características y LevelMetrics tiene {LevelMetrics.Names.Length}.");
+			throw new InvalidDataException($"DifficultyModel: {origin} tiene {names.Length} características y la versión {version} " +
+				$"tiene {expected.Length}.");
 		}
 
 		for (int i = 0; i < names.Length; i++)
 		{
-			if (names[i] != LevelMetrics.Names[i])
+			if (names[i] != expected[i])
 			{
-				throw new InvalidDataException($"DifficultyModel: {origin}: la característica {i + 1} es '{names[i]}' pero LevelMetrics " +
-					$"espera '{LevelMetrics.Names[i]}'. El orden y los nombres tienen que coincidir exactamente.");
+				throw new InvalidDataException($"DifficultyModel: {origin}: la característica {i + 1} es '{names[i]}' pero la versión " +
+					$"{version} espera '{expected[i]}'. El orden y los nombres tienen que coincidir exactamente.");
 			}
 		}
 	}

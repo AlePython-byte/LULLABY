@@ -45,4 +45,18 @@ public static class EnemyKinds
 	{
 		return GD.Load<PackedScene>(Get(kind).ScenePath);
 	}
+
+	/// <summary>Tipo de una escena de enemigo por su ruta; una escena que no está en la lista cuenta como básica.</summary>
+	public static EnemyKind KindOfScene(PackedScene scene)
+	{
+		foreach (Info info in All)
+		{
+			if (scene != null && scene.ResourcePath == info.ScenePath)
+			{
+				return info.Kind;
+			}
+		}
+
+		return EnemyKind.Chaser;
+	}
 }

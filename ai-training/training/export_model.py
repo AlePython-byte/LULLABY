@@ -1,11 +1,14 @@
 """Exporta los modelos elegidos a JSON para C# y guarda las predicciones de Python sobre las filas de prueba.
 
     ai-training/.venv/Scripts/python.exe ai-training/training/export_model.py
+    ai-training/.venv/Scripts/python.exe ai-training/training/export_model.py --version 2
 
-Escribe:
-  - models/difficulty_v1.json: versión de las características, sus nombres en orden y un modelo por etiqueta.
+Escribe (con --version 2, los nombres v2 y reports/v2/):
+  - models/difficulty_v1.json: versión de las características, sus nombres en orden y un modelo por etiqueta; su copia
+    resources/ai/difficulty_v1.json. La v2 añade generator_version = 2.
   - reports/predictions_test_python.csv: predicciones de Python sobre las 1000 filas de prueba, con 17 cifras
     significativas, para compararlas luego con las de C#.
+  - (solo v1) tests/fixtures/tree_model_fixture.json, el fixture de árboles.
 
 Formato de cada modelo (campo "kind"):
   linear / ridge   prediction = intercept + sum_i coefficients[i] * (x[i] - normalization.mean[i]) / normalization.scale[i]
@@ -27,8 +30,8 @@ import sys
 
 import numpy as np
 
-from common import (MAIN, MODELS, RANDOM_STATE, REPORTS, ROOT, SECONDARY, TARGETS, feature_meta, load_test, load_train,
-                    read_json, use_utf8_console, write_json)
+from common import (GAME_MODEL, MAIN, MODEL_FILE, MODELS, RANDOM_STATE, REPORTS, ROOT, SECONDARY, TAG, TARGETS,
+                    VERSION, feature_meta, load_test, load_train, read_json, use_utf8_console, write_json)
 from models import make_estimator
 
 TOLERANCE = 1e-9
@@ -162,7 +165,8 @@ def main() -> int:
 
     train, test = load_train(), load_test()
     verify_tree_export(train)
-    write_tree_fixture(train, version, names)
+    if VERSION == 1:
+        write_tree_fixture(train, version, names)  # el fixture de árboles es de la versión 1 y no cambia
     exported, sklearn_predictions, json_predictions = {}, {}, {}
     for target in TARGETS:
         selection = cv["targets"][target]["selection"]
@@ -181,28 +185,31 @@ def main() -> int:
     # Objetivos de dificultad del director: percentiles 25, 50 y 75 de la etiqueta principal en el ENTRENAMIENTO.
     percentiles = {percentile: float(np.percentile(train.y[MAIN], percentile)) for percentile in (25, 50, 75)}
 
-    path = MODELS / "difficulty_v1.json"
-    write_json(path, {
+    path = MODELS / MODEL_FILE
+    document = {
         "format_version": FORMAT_VERSION,
         "feature_set_version": version,
         "feature_names": names,
         "tree_feature_dtype": "float32",
-        "trained_on": {"file": "levels_v1.csv + levels_v1_labels.csv", "rows": len(train), "random_state": RANDOM_STATE},
+        "trained_on": {"file": f"levels_{TAG}.csv + levels_{TAG}_labels.csv", "rows": len(train), "random_state": RANDOM_STATE},
         "main_target": MAIN,
         "difficulty_targets": {
             "easy": percentiles[25],
             "normal": percentiles[50],
             "hard": percentiles[75],
-            "source": f"percentiles 25, 50 y 75 de {MAIN} en el entrenamiento (levels_v1_labels.csv)",
+            "source": f"percentiles 25, 50 y 75 de {MAIN} en el entrenamiento (levels_{TAG}_labels.csv)",
         },
         "models": exported,
-    }, digits=15, indent=None)
+    }
+    if VERSION != 1:
+        document["generator_version"] = VERSION  # el JSON v1 no lo tiene (C# asume 1)
+    write_json(path, document, digits=15, indent=None)
     print(f"Escrito {path.relative_to(path.parents[2])} ({path.stat().st_size / 1024:.1f} KiB).")
     print("  objetivos de dificultad: " + ", ".join(f"{name} = {value:.3f}" for name, value in
                                                     zip(("easy", "normal", "hard"), percentiles.values())))
 
     # Copia que lee el juego (ai-training tiene .gdignore: Godot no la ve). Siempre idéntica a la de models/.
-    game_copy = ROOT.parent / "resources" / "ai" / "difficulty_v1.json"
+    game_copy = GAME_MODEL
     game_copy.parent.mkdir(parents=True, exist_ok=True)
     game_copy.write_bytes(path.read_bytes())
     print(f"Escrito {game_copy.relative_to(ROOT.parent)} (copia idéntica).")

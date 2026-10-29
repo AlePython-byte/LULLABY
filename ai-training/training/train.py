@@ -1,6 +1,7 @@
 """Entrena y compara modelos de dificultad con validación cruzada anidada. Solo usa el conjunto de ENTRENAMIENTO.
 
     ai-training/.venv/Scripts/python.exe ai-training/training/train.py
+    ai-training/.venv/Scripts/python.exe ai-training/training/train.py --version 2   # IA v2: levels_v2*, reports/v2/
 
 Para cada etiqueta (damage_total_mean y time_total_mean) y cada familia (media, lineal, Ridge, Gradient Boosting,
 Random Forest):
@@ -108,6 +109,7 @@ def main() -> int:
     warnings.filterwarnings("ignore", category=UserWarning)
     version, names = feature_meta()
     train = load_train()
+    REPORTS.mkdir(parents=True, exist_ok=True)
     print(f"Entrenamiento: {len(train)} niveles × {len(names)} características (versión {version}).")
 
     outer = list(KFold(OUTER_FOLDS, shuffle=True, random_state=RANDOM_STATE).split(train.X))
@@ -186,7 +188,8 @@ def main() -> int:
                   f"{entry['rmse_se']:11.3f}{parameters:>12}{marker}")
         print(f"  -> {results[target]['selection']['reason']}")
 
-    print(f"\nTiempo: {time.time() - started:.0f} s. Escrito reports/cv_results.json y cv_model_comparison.png.")
+    written = REPORTS.relative_to(REPORTS.parents[1] if REPORTS.name != "reports" else REPORTS.parent).as_posix()
+    print(f"\nTiempo: {time.time() - started:.0f} s. Escrito {written}/cv_results.json y cv_model_comparison.png.")
     return 0
 
 

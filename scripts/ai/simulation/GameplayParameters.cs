@@ -8,7 +8,9 @@ using Godot;
 ///   - El Player instanciado en el nivel: velocidad, vida, invulnerabilidad, caja de colisión y el disparador
 ///     (cadencia, distancia de salida y la escena de la lágrima: velocidad, vida, daño y radio).
 ///   - Room.tscn (RoomScene): altura y grosor de paredes, ancho de puerta, margen de entrada y StartDelay.
-///   - La EnemyScene de cada sala: velocidad, daño por contacto, espera entre golpes, vida y caja de colisión.
+///   - La escena de cada enemigo (EnemyScene o, en el generador v2, la de su tipo): velocidad, daño por contacto,
+///     espera entre golpes, retroceso, vida, caja de colisión, si choca con otros enemigos y los números de sus
+///     comportamientos (KeepDistance, Shoot con su proyectil, Fuse y FlyPattern).
 ///   - El paso de física: 1 / Engine.PhysicsTicksPerSecond.
 /// Se crea en el hilo principal (instancia escenas sin añadirlas al árbol y las libera); después es solo datos y
 /// se puede leer desde varios hilos.
@@ -21,6 +23,7 @@ public sealed class GameplayParameters
 	public sealed class EnemyStats
 	{
 		public string ScenePath { get; init; }
+		public EnemyKind Kind { get; init; }
 		public float Speed { get; init; }
 		public float ContactDamage { get; init; }
 		public float HitCooldown { get; init; }
@@ -30,6 +33,51 @@ public sealed class GameplayParameters
 
 		/// <summary>Tamaño de la caja de colisión en el plano (X, Z).</summary>
 		public Vector2 Size { get; init; }
+
+		/// <summary>Si choca con otros enemigos (su máscara incluye la capa Enemies; el Volador no).</summary>
+		public bool CollidesWithEnemies { get; init; } = true;
+
+		/// <summary>Null si la escena no tiene ese comportamiento.</summary>
+		public KeepDistanceStats KeepDistance { get; init; }
+		public ShootStats Shoot { get; init; }
+		public FuseStats Fuse { get; init; }
+		public FlyStats Fly { get; init; }
+	}
+
+	public sealed class KeepDistanceStats
+	{
+		public float PreferredDistance { get; init; }
+		public float Tolerance { get; init; }
+		public float BlockedFraction { get; init; }
+		public float StrafeTime { get; init; }
+		public float MaxStrafeTime { get; init; }
+	}
+
+	public sealed class ShootStats
+	{
+		public float FireInterval { get; init; }
+		public float WarnTime { get; init; }
+		public float FirstShotDelay { get; init; }
+		public float SpawnDistance { get; init; }
+		public float ProjectileSpeed { get; init; }
+		public float ProjectileDamage { get; init; }
+		public float ProjectileLifetime { get; init; }
+		public float ProjectileRadius { get; init; }
+	}
+
+	public sealed class FuseStats
+	{
+		public float TriggerRadius { get; init; }
+		public float FuseTime { get; init; }
+		public float FuseSpeedScale { get; init; }
+		public float ExplosionRadius { get; init; }
+		public float ExplosionDamage { get; init; }
+	}
+
+	public sealed class FlyStats
+	{
+		public float Amplitude { get; init; }
+		public float Frequency { get; init; }
 	}
 
 	public float PhysicsDelta { get; private set; }
@@ -111,10 +159,63 @@ public sealed class GameplayParameters
 			return cached;
 		}
 
-		BasicEnemy enemy = scene.Instantiate<BasicEnemy>();
+		EnemyBase enemy = scene.Instantiate<EnemyBase>();
+		KeepDistanceStats keepDistance = null;
+		ShootStats shoot = null;
+		FuseStats fuse = null;
+		FlyStats fly = null;
+		foreach (Node child in enemy.GetChildren())
+		{
+			switch (child)
+			{
+				case KeepDistanceBehavior behavior:
+					keepDistance = new KeepDistanceStats
+					{
+						PreferredDistance = behavior.PreferredDistance,
+						Tolerance = behavior.Tolerance,
+						BlockedFraction = behavior.BlockedFraction,
+						StrafeTime = behavior.StrafeTime,
+						MaxStrafeTime = behavior.MaxStrafeTime,
+					};
+					break;
+
+				case ShootBehavior behavior:
+					EnemyProjectile projectile = behavior.ProjectileScene.Instantiate<EnemyProjectile>();
+					shoot = new ShootStats
+					{
+						FireInterval = behavior.FireInterval,
+						WarnTime = behavior.WarnTime,
+						FirstShotDelay = behavior.FirstShotDelay,
+						SpawnDistance = behavior.SpawnDistance,
+						ProjectileSpeed = projectile.Speed,
+						ProjectileDamage = projectile.Damage,
+						ProjectileLifetime = projectile.Lifetime,
+						ProjectileRadius = ((SphereShape3D)projectile.GetNode<CollisionShape3D>("CollisionShape3D").Shape).Radius,
+					};
+					projectile.Free();
+					break;
+
+				case FuseBehavior behavior:
+					fuse = new FuseStats
+					{
+						TriggerRadius = behavior.TriggerRadius,
+						FuseTime = behavior.FuseTime,
+						FuseSpeedScale = behavior.FuseSpeedScale,
+						ExplosionRadius = behavior.ExplosionRadius,
+						ExplosionDamage = behavior.ExplosionDamage,
+					};
+					break;
+
+				case FlyPatternBehavior behavior:
+					fly = new FlyStats { Amplitude = behavior.Amplitude, Frequency = behavior.Frequency };
+					break;
+			}
+		}
+
 		EnemyStats stats = new()
 		{
 			ScenePath = scene.ResourcePath,
+			Kind = enemy.Kind,
 			Speed = enemy.Speed,
 			ContactDamage = enemy.ContactDamage,
 			HitCooldown = enemy.HitCooldown,
@@ -122,6 +223,11 @@ public sealed class GameplayParameters
 			RecoilDuration = enemy.RecoilDuration,
 			MaxHealth = HealthComponent.FindIn(enemy).MaxHealth,
 			Size = BoxSize(enemy),
+			CollidesWithEnemies = (enemy.CollisionMask & CollisionLayers.Enemies) != 0,
+			KeepDistance = keepDistance,
+			Shoot = shoot,
+			Fuse = fuse,
+			Fly = fly,
 		};
 		enemy.Free();
 
@@ -168,6 +274,50 @@ public sealed class GameplayParameters
 			values[prefix + "max_health"] = enemy.MaxHealth;
 			values[prefix + "size_x"] = enemy.Size.X;
 			values[prefix + "size_z"] = enemy.Size.Y;
+
+			// Solo en los tipos nuevos: así los meta.json de niveles con enemigos básicos no cambian.
+			if (enemy.Kind == EnemyKind.Chaser)
+			{
+				continue;
+			}
+
+			values[prefix + "kind"] = (int)enemy.Kind;
+			values[prefix + "collides_with_enemies"] = enemy.CollidesWithEnemies ? 1 : 0;
+			if (enemy.KeepDistance is { } keep)
+			{
+				values[prefix + "keep.preferred_distance"] = keep.PreferredDistance;
+				values[prefix + "keep.tolerance"] = keep.Tolerance;
+				values[prefix + "keep.blocked_fraction"] = keep.BlockedFraction;
+				values[prefix + "keep.strafe_time"] = keep.StrafeTime;
+				values[prefix + "keep.max_strafe_time"] = keep.MaxStrafeTime;
+			}
+
+			if (enemy.Shoot is { } shoot)
+			{
+				values[prefix + "shoot.fire_interval"] = shoot.FireInterval;
+				values[prefix + "shoot.warn_time"] = shoot.WarnTime;
+				values[prefix + "shoot.first_shot_delay"] = shoot.FirstShotDelay;
+				values[prefix + "shoot.spawn_distance"] = shoot.SpawnDistance;
+				values[prefix + "shoot.projectile_speed"] = shoot.ProjectileSpeed;
+				values[prefix + "shoot.projectile_damage"] = shoot.ProjectileDamage;
+				values[prefix + "shoot.projectile_lifetime"] = shoot.ProjectileLifetime;
+				values[prefix + "shoot.projectile_radius"] = shoot.ProjectileRadius;
+			}
+
+			if (enemy.Fuse is { } fuse)
+			{
+				values[prefix + "fuse.trigger_radius"] = fuse.TriggerRadius;
+				values[prefix + "fuse.fuse_time"] = fuse.FuseTime;
+				values[prefix + "fuse.fuse_speed_scale"] = fuse.FuseSpeedScale;
+				values[prefix + "fuse.explosion_radius"] = fuse.ExplosionRadius;
+				values[prefix + "fuse.explosion_damage"] = fuse.ExplosionDamage;
+			}
+
+			if (enemy.Fly is { } fly)
+			{
+				values[prefix + "fly.amplitude"] = fly.Amplitude;
+				values[prefix + "fly.frequency"] = fly.Frequency;
+			}
 		}
 
 		return values;

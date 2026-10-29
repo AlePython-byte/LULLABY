@@ -11,9 +11,12 @@ using Godot;
 /// Exporta un dataset de niveles generados con sus métricas (sin etiquetas). Modo headless:
 ///   godot --headless --path . res://tests/DatasetExport.tscn
 ///   godot --headless --path . res://tests/DatasetExport.tscn -- --count=2000 --first-seed=5001 --out=ai-training/datasets/levels_v1_b.csv
+///   godot --headless --path . res://tests/DatasetExport.tscn -- --version=2     (generador v2 y LevelMetricsV2 → levels_v2.csv)
 ///
-/// Argumentos (tras "--"): --count=N (5000), --first-seed=N (1), --out=ruta del CSV. Una ruta relativa se
+/// Argumentos (tras "--"): --count=N (5000), --first-seed=N (1), --out=ruta del CSV, --version=N (1). Una ruta relativa se
 /// resuelve desde la raíz del proyecto. Junto al CSV se escribe un .meta.json con el mismo nombre base.
+/// La versión elige a la vez el generador y el conjunto de características (1: v1 y LevelMetrics; 2: v2 y
+/// LevelMetricsV2). Sin --version la salida es la de siempre, byte a byte.
 ///
 /// Formato: CSV en UTF-8 sin BOM, saltos de línea LF, números con cultura invariante (punto decimal).
 /// Primera columna: effective_seed (la semilla con la que se reproduce el nivel al primer intento);
@@ -24,12 +27,14 @@ public partial class DatasetExport : Node
 {
 	private const string CatalogPath = "res://resources/rooms/templates/Catalog.tres";
 	private const string DefaultOutput = "res://ai-training/datasets/levels_v1.csv";
+	private const string DefaultOutputV2 = "res://ai-training/datasets/levels_v2.csv";
 	private const double ConstantThreshold = 1e-9;
 	private const double CorrelationThreshold = 0.98;
 	private const double HighCorrelationThreshold = 0.90;
 
 	[Export] public int LevelCount { get; set; } = 5000;
 	[Export] public int FirstSeed { get; set; } = 1;
+	[Export] public int Version { get; set; } = LevelMetrics.Version;
 
 	public override void _Ready()
 	{
@@ -43,9 +48,9 @@ public partial class DatasetExport : Node
 		string outPath = ResolveArguments();
 		RoomCatalog catalog = GD.Load<RoomCatalog>(CatalogPath);
 		DungeonGenerator generator = new(catalog);
-		DungeonGenerator.Settings settings = new();
+		DungeonGenerator.Settings settings = new() { GeneratorVersion = Version };
 
-		string[] names = LevelMetrics.Names;
+		string[] names = LevelFeatureSet.Names(Version);
 		List<int> seeds = new();
 		List<double[]> rows = new();
 		HashSet<int> seen = new();
@@ -68,7 +73,7 @@ public partial class DatasetExport : Node
 			}
 
 			seeds.Add(result.EffectiveSeed);
-			rows.Add(LevelMetrics.Compute(result.Map));
+			rows.Add(LevelFeatureSet.Compute(Version, result.Map));
 		}
 
 		string csv = BuildCsv(names, seeds, rows);
@@ -96,10 +101,14 @@ public partial class DatasetExport : Node
 
 	private string ResolveArguments()
 	{
-		string output = DefaultOutput;
+		string output = null;
 		foreach (string argument in OS.GetCmdlineUserArgs())
 		{
-			if (TryValue(argument, "--count=", out string count) && int.TryParse(count, out int parsedCount))
+			if (TryValue(argument, "--version=", out string version) && int.TryParse(version, out int parsedVersion))
+			{
+				Version = parsedVersion;
+			}
+			else if (TryValue(argument, "--count=", out string count) && int.TryParse(count, out int parsedCount))
 			{
 				LevelCount = parsedCount;
 			}
@@ -113,6 +122,7 @@ public partial class DatasetExport : Node
 			}
 		}
 
+		output ??= Version == LevelMetrics.Version ? DefaultOutput : DefaultOutputV2;
 		if (output.StartsWith("res://") || output.StartsWith("user://"))
 		{
 			return ProjectSettings.GlobalizePath(output);
@@ -149,6 +159,13 @@ public partial class DatasetExport : Node
 
 	private string BuildMeta(string[] names, int levelCount, DungeonGenerator.Settings settings)
 	{
+		string json = Version == LevelMetrics.Version ? MetaV1(names, levelCount, settings) : MetaV2(names, levelCount, settings);
+		return json.Replace("\r\n", "\n") + "\n";
+	}
+
+	// Igual que antes de existir la versión 2 (el meta.json de v1 no cambia).
+	private string MetaV1(string[] names, int levelCount, DungeonGenerator.Settings settings)
+	{
 		var meta = new
 		{
 			metrics_version = LevelMetrics.Version,
@@ -165,8 +182,29 @@ public partial class DatasetExport : Node
 			},
 		};
 
-		string json = JsonSerializer.Serialize(meta, new JsonSerializerOptions { WriteIndented = true });
-		return json.Replace("\r\n", "\n") + "\n";
+		return JsonSerializer.Serialize(meta, new JsonSerializerOptions { WriteIndented = true });
+	}
+
+	private string MetaV2(string[] names, int levelCount, DungeonGenerator.Settings settings)
+	{
+		var meta = new
+		{
+			metrics_version = Version,
+			feature_names = names,
+			level_count = levelCount,
+			first_seed = FirstSeed,
+			generator = new
+			{
+				GeneratorVersion = settings.GeneratorVersion,
+				MinRooms = settings.MinRooms,
+				MaxRooms = settings.MaxRooms,
+				MinBossDistance = settings.MinBossDistance,
+				BranchChance = settings.BranchChance,
+				MaxAttempts = settings.MaxAttempts,
+			},
+		};
+
+		return JsonSerializer.Serialize(meta, new JsonSerializerOptions { WriteIndented = true });
 	}
 
 	private static void PrintSummary(string[] names, List<double[]> rows)

@@ -15,7 +15,11 @@ using Godot;
 /// Modo headless:
 ///   godot --headless --path . res://tests/LabelExport.tscn
 ///   godot --headless --path . res://tests/LabelExport.tscn -- --first-seed=10001 --count=1000 --out=ai-training/datasets/levels_v1_test_labels.csv
-/// Argumentos (tras "--"): --count=N (5000), --first-seed=N (1), --runs=N (5), --out=ruta del CSV.
+///   godot --headless --path . res://tests/LabelExport.tscn -- --version=2     (generador v2 → levels_v2_labels.csv)
+/// Argumentos (tras "--"): --count=N (5000), --first-seed=N (1), --runs=N (5), --out=ruta del CSV, --version=N (1:
+/// generador v1 y LevelMetrics; 2: generador v2, LevelMetricsV2 y el desglose por composición de sala), --threads=N
+/// (hilos de simulación; por defecto todos los del procesador; el resultado no depende de este número).
+/// Sin --version la salida es la de siempre, byte a byte.
 ///
 /// Por nivel juega Runs partidas con semillas de bot distintas (BotBrain.SeedFor(semilla efectiva, i)), con vida
 /// ilimitada, y guarda media y desviación típica muestral de cada medida. Columnas:
@@ -31,6 +35,7 @@ public partial class LabelExport : Node
 {
 	private const string CatalogPath = "res://resources/rooms/templates/Catalog.tres";
 	private const string DefaultOutput = "res://ai-training/datasets/levels_v1_labels.csv";
+	private const string DefaultOutputV2 = "res://ai-training/datasets/levels_v2_labels.csv";
 	private const string MainLabel = "damage_total_mean";
 	private const string SecondaryLabel = "time_total_mean";
 
@@ -55,6 +60,8 @@ public partial class LabelExport : Node
 	[Export] public int FirstSeed { get; set; } = 1;
 	[Export] public int Runs { get; set; } = 5;
 	[Export] public float MaxSeconds { get; set; } = 600.0f;
+	[Export] public int Version { get; set; } = LevelMetrics.Version;
+	[Export] public int Threads { get; set; }
 
 	public override void _Ready()
 	{
@@ -69,7 +76,7 @@ public partial class LabelExport : Node
 		GameplayParameters parameters = GameplayParameters.FromScenes();
 		BotSettings botSettings = new();
 		DungeonGenerator generator = new(GD.Load<RoomCatalog>(CatalogPath));
-		DungeonGenerator.Settings generatorSettings = new();
+		DungeonGenerator.Settings generatorSettings = new() { GeneratorVersion = Version };
 
 		List<int> seeds = new();
 		List<SimLevel> levels = new();
@@ -88,12 +95,13 @@ public partial class LabelExport : Node
 
 			seeds.Add(result.EffectiveSeed);
 			levels.Add(SimLevel.From(result.Map, parameters));
-			features.Add(LevelMetrics.Compute(result.Map));
+			features.Add(LevelFeatureSet.Compute(Version, result.Map));
 		}
 
 		SimulationResult[][] runs = new SimulationResult[levels.Count][];
 		Stopwatch clock = Stopwatch.StartNew();
-		Parallel.For(0, levels.Count, i =>
+		ParallelOptions options = new() { MaxDegreeOfParallelism = Threads > 0 ? Threads : -1 };
+		Parallel.For(0, levels.Count, options, i =>
 		{
 			runs[i] = new SimulationResult[Runs];
 			for (int run = 0; run < Runs; run++)
@@ -123,6 +131,13 @@ public partial class LabelExport : Node
 		}
 
 		Report(runs, labels, features, clock.Elapsed.TotalSeconds);
+		if (Version != LevelMetrics.Version)
+		{
+			ReportComposition(levels, runs);
+		}
+
+		GD.Print($"Memoria del proceso al terminar: {System.Environment.WorkingSet / (1024.0 * 1024.0):0} MiB " +
+			$"({(Threads > 0 ? Threads : System.Environment.ProcessorCount)} hilos).");
 		return levels.Count > 0 && failed == 0;
 	}
 
@@ -143,10 +158,18 @@ public partial class LabelExport : Node
 
 	private string ResolveArguments()
 	{
-		string output = DefaultOutput;
+		string output = null;
 		foreach (string argument in OS.GetCmdlineUserArgs())
 		{
-			if (TryValue(argument, "--count=", out string count) && int.TryParse(count, out int parsedCount))
+			if (TryValue(argument, "--version=", out string version) && int.TryParse(version, out int parsedVersion))
+			{
+				Version = parsedVersion;
+			}
+			else if (TryValue(argument, "--threads=", out string threads) && int.TryParse(threads, out int parsedThreads))
+			{
+				Threads = parsedThreads;
+			}
+			else if (TryValue(argument, "--count=", out string count) && int.TryParse(count, out int parsedCount))
 			{
 				LevelCount = parsedCount;
 			}
@@ -164,6 +187,7 @@ public partial class LabelExport : Node
 			}
 		}
 
+		output ??= Version == LevelMetrics.Version ? DefaultOutput : DefaultOutputV2;
 		if (output.StartsWith("res://") || output.StartsWith("user://"))
 		{
 			return ProjectSettings.GlobalizePath(output);
@@ -205,9 +229,14 @@ public partial class LabelExport : Node
 	private string BuildMeta(int levelCount, GameplayParameters parameters, BotSettings bot,
 		DungeonGenerator.Settings generator)
 	{
+		if (Version != LevelMetrics.Version)
+		{
+			return BuildMetaV2(levelCount, parameters, bot, generator);
+		}
+
 		var meta = new
 		{
-			simulator_version = LevelSimulator.Version,
+			simulator_version = LevelSimulator.VersionFor(Version),
 			metrics_version = LevelMetrics.Version,
 			label_names = LabelNames,
 			main_label = MainLabel,
@@ -232,6 +261,60 @@ public partial class LabelExport : Node
 
 		string json = JsonSerializer.Serialize(meta, new JsonSerializerOptions { WriteIndented = true });
 		return json.Replace("\r\n", "\n") + "\n";
+	}
+
+	private string BuildMetaV2(int levelCount, GameplayParameters parameters, BotSettings bot,
+		DungeonGenerator.Settings generator)
+	{
+		var meta = new
+		{
+			simulator_version = LevelSimulator.VersionFor(Version),
+			metrics_version = Version,
+			label_names = LabelNames,
+			main_label = MainLabel,
+			secondary_label = SecondaryLabel,
+			auxiliary_labels = AuxiliaryLabels,
+			join_key = "effective_seed",
+			level_count = levelCount,
+			first_seed = FirstSeed,
+			runs_per_level = Runs,
+			max_seconds = MaxSeconds,
+			bot = bot.ToDictionary(typedSkills: true),
+			gameplay = parameters.ToDictionary(),
+			generator = new
+			{
+				GeneratorVersion = generator.GeneratorVersion,
+				MinRooms = generator.MinRooms,
+				MaxRooms = generator.MaxRooms,
+				MinBossDistance = generator.MinBossDistance,
+				BranchChance = generator.BranchChance,
+				MaxAttempts = generator.MaxAttempts,
+			},
+		};
+
+		string json = JsonSerializer.Serialize(meta, new JsonSerializerOptions { WriteIndented = true });
+		return json.Replace("\r\n", "\n") + "\n";
+	}
+
+	// Daño y duración medios de la primera visita a cada sala, por composición (todas las partidas de todos los niveles).
+	private static void ReportComposition(List<SimLevel> levels, SimulationResult[][] runs)
+	{
+		var summary = RoomComposition.Summarize(levels.SelectMany((level, i) => runs[i].Select(run => (level, run))));
+		GD.Print("");
+		GD.Print("Por composición de sala (primera visita; una sala mixta cuenta en cada tipo que contiene):");
+		GD.Print($"{"composición",-16}{"salas",9}{"daño medio",12}{"tiempo medio",14}");
+		foreach ((string category, (int rooms, double damage, double time)) in summary)
+		{
+			GD.Print($"{category,-16}{rooms,9}{F(damage),12}{F(time),14}");
+		}
+
+		foreach (string category in new[] { RoomComposition.WithShooter, RoomComposition.WithExploder })
+		{
+			bool measurable = summary.TryGetValue(category, out var row) && row.Damage > 0.0;
+			GD.Print(measurable
+				? $"Daño medible en '{category}': sí ({F(row.Damage)} por sala)."
+				: $"AVISO: el bot no recibe daño medible en '{category}'.");
+		}
 	}
 
 	private void Report(SimulationResult[][] runs, double[][] labels, List<double[]> features, double seconds)
@@ -310,10 +393,11 @@ public partial class LabelExport : Node
 		GD.Print("");
 		GD.Print($"Correlación de cada característica con la etiqueta principal ({MainLabel}) y la secundaria ({SecondaryLabel}):");
 		GD.Print($"{"característica",-30}{"principal P",13}{"principal S",13}{"secundaria P",14}{"secundaria S",14}");
-		for (int f = 0; f < LevelMetrics.Names.Length; f++)
+		string[] featureNames = LevelFeatureSet.Names(Version);
+		for (int f = 0; f < featureNames.Length; f++)
 		{
 			double[] column = features.Select(row => row[f]).ToArray();
-			GD.Print($"{LevelMetrics.Names[f],-30}{F(SampleStatistics.Pearson(column, main)),13}{F(SampleStatistics.Spearman(column, main)),13}" +
+			GD.Print($"{featureNames[f],-30}{F(SampleStatistics.Pearson(column, main)),13}{F(SampleStatistics.Spearman(column, main)),13}" +
 				$"{F(SampleStatistics.Pearson(column, secondary)),14}{F(SampleStatistics.Spearman(column, secondary)),14}");
 		}
 		GD.Print("  (P = Pearson, S = Spearman)");

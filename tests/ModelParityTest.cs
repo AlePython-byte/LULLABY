@@ -8,8 +8,10 @@ using Godot;
 /// <summary>
 /// Comprueba que el DifficultyModel de C# reproduce las predicciones de Python. Modo headless:
 ///   godot --headless --path . res://tests/ModelParityTest.tscn
+///   godot --headless --path . res://tests/ModelParityTest.tscn -- --version=2   (difficulty_v2.json, generador v2,
+///                                                                              reports/v2/predictions_test_python.csv)
 ///
-/// 1. Copia del juego (res://resources/ai/difficulty_v1.json) idéntica byte a byte a ai-training/models/difficulty_v1.json,
+/// 1. Copia del juego (res://resources/ai/difficulty_vN.json) idéntica byte a byte a ai-training/models/difficulty_vN.json,
 ///    y la misma predicción cargando el modelo como texto o como recurso Json.
 /// 2. El validador falla con un error claro (versión, nombres/orden de características y formato).
 /// 3. Árboles: tests/fixtures/tree_model_fixture.json (Gradient Boosting y Random Forest pequeños con predicciones de
@@ -28,8 +30,14 @@ public partial class ModelParityTest : Node
 {
 	private const string CatalogPath = "res://resources/rooms/templates/Catalog.tres";
 	private const string FixturePath = "res://tests/fixtures/tree_model_fixture.json";
-	private const string PredictionsPath = "ai-training/reports/predictions_test_python.csv";
-	private const string TrainingCopyPath = "ai-training/models/difficulty_v1.json";
+	[Export] public int Version { get; set; } = 1;
+
+	private string PredictionsPath => Version >= 2
+		? $"ai-training/reports/v{Version}/predictions_test_python.csv"
+		: "ai-training/reports/predictions_test_python.csv";
+
+	private string TrainingCopyPath => $"ai-training/models/difficulty_v{Version}.json";
+	private string GamePath => DifficultyModel.PathFor(Version);
 	private const double Tolerance = 1e-6;
 	private const double TreeTolerance = 1e-9;
 
@@ -45,20 +53,30 @@ public partial class ModelParityTest : Node
 
 	private bool Run()
 	{
+		foreach (string argument in OS.GetCmdlineUserArgs())
+		{
+			if (argument.StartsWith("--version=") && int.TryParse(argument["--version=".Length..], out int version))
+			{
+				Version = version;
+			}
+		}
+
 		bool ok = true;
 		string projectRoot = ProjectSettings.GlobalizePath("res://");
-		DifficultyModel model = DifficultyModel.Load();
+		DifficultyModel model = DifficultyModel.Load(GamePath);
+		GD.Print($"Modelo: {GamePath} (características versión {model.FeatureSetVersion}, {model.FeatureNames.Count}; generador v{model.GeneratorVersion})");
+		ok &= model.GeneratorVersion == Version;
 
 		GD.Print("=== 1. Copia del juego y vías de carga ===");
-		byte[] gameCopy = Godot.FileAccess.GetFileAsBytes(DifficultyModel.DefaultPath);
+		byte[] gameCopy = Godot.FileAccess.GetFileAsBytes(GamePath);
 		byte[] trainingCopy = File.ReadAllBytes(Path.Combine(projectRoot, TrainingCopyPath));
 		bool identical = gameCopy.AsSpan().SequenceEqual(trainingCopy);
 		GD.Print($"Copia de resources/ai idéntica a ai-training/models: {(identical ? "sí" : "NO")} ({gameCopy.Length} bytes)");
 		ok &= identical;
 
-		Json resource = GD.Load<Json>(DifficultyModel.DefaultPath);
-		DifficultyModel fromResource = DifficultyModel.FromJsonResource(resource, DifficultyModel.DefaultPath);
-		double[] sample = Enumerable.Range(0, LevelMetrics.Names.Length).Select(i => 1.0 + i * 0.37).ToArray();
+		Json resource = GD.Load<Json>(GamePath);
+		DifficultyModel fromResource = DifficultyModel.FromJsonResource(resource, GamePath);
+		double[] sample = Enumerable.Range(0, model.FeatureNames.Count).Select(i => 1.0 + i * 0.37).ToArray();
 		double fromText = model.PredictMain(sample);
 		double fromJsonResource = fromResource.PredictMain(sample);
 		GD.Print($"Predicción de muestra: texto {fromText:R}, recurso Json {fromJsonResource:R} (diferencia {Math.Abs(fromText - fromJsonResource):0.0e+00})");
@@ -66,18 +84,20 @@ public partial class ModelParityTest : Node
 		GD.Print($"Objetivos de dificultad: Easy {model.TargetValue(DifficultyTarget.Easy):0.###}, " +
 			$"Normal {model.TargetValue(DifficultyTarget.Normal):0.###}, Hard {model.TargetValue(DifficultyTarget.Hard):0.###}");
 
-		ok &= CheckValidator(Godot.FileAccess.GetFileAsString(DifficultyModel.DefaultPath));
+		ok &= CheckValidator(Godot.FileAccess.GetFileAsString(GamePath), model.FeatureSetVersion);
 		ok &= CheckTrees();
 		ok &= CheckParity(model, projectRoot);
 		return ok;
 	}
 
-	private static bool CheckValidator(string text)
+	private static bool CheckValidator(string text, int featureVersion)
 	{
 		GD.Print("\n=== 2. El validador falla con un error claro ===");
+		int otherVersion = featureVersion == 1 ? 2 : 1;
 		(string Name, string Broken)[] cases =
 		{
-			("versión de características distinta", text.Replace("\"feature_set_version\":1", "\"feature_set_version\":2")),
+			("versión de características distinta", text.Replace($"\"feature_set_version\":{featureVersion}", $"\"feature_set_version\":{otherVersion}")),
+			("versión de características desconocida", text.Replace($"\"feature_set_version\":{featureVersion}", "\"feature_set_version\":99")),
 			("nombre de característica cambiado", text.Replace("\"room_count\"", "\"room_countX\"")),
 			("orden de características alterado", text.Replace("\"boss_distance\",\"dead_end_count\"", "\"dead_end_count\",\"boss_distance\"")),
 			("format_version no soportada", text.Replace("\"format_version\":1", "\"format_version\":9")),
@@ -145,7 +165,7 @@ public partial class ModelParityTest : Node
 		}
 
 		DungeonGenerator generator = new(GD.Load<RoomCatalog>(CatalogPath));
-		DungeonGenerator.Settings settings = new();
+		DungeonGenerator.Settings settings = new() { GeneratorVersion = Version };
 		string[] labels = { "damage_total_mean", "time_total_mean" };
 		double[] strictMax = new double[2], exactMax = new double[2], exactSum = new double[2];
 		int matched = 0, missing = 0;
@@ -160,7 +180,7 @@ public partial class ModelParityTest : Node
 			}
 
 			matched++;
-			double[] exact = LevelMetrics.Compute(result.Map);
+			double[] exact = model.Features(result.Map);
 			double[] rounded = exact.Select(value => Math.Round(value, 6) + 0.0).ToArray();
 			for (int target = 0; target < 2; target++)
 			{
