@@ -20,11 +20,12 @@ using Godot;
 /// Versión del generador: GeneratorVersion (DefaultGeneratorVersion, la 2, por defecto), el argumento --generator=N
 /// (--generator=1 para la versión 1) o la tecla G. El HUD muestra siempre la versión en uso. Cada versión usa su
 /// modelo de dificultad: ModelFile (difficulty_v1.json, 14 características) para la 1 y ModelFileV2 (difficulty_v2.json,
-/// 22 características con tipos de enemigo) para la 2. Si no están asignados se leen de DifficultyModel.PathFor. Si el
-/// modelo v2 todavía no existe, la versión 2 usa el v1 y el HUD avisa de que no está entrenado para ella.
+/// 22 características con tipos de enemigo) para la 2; para la N siguiente, res://resources/ai/difficulty_vN.json. Si el
+/// modelo de una versión todavía no existe (la 3, con el Huidor y el Excavador, aún no tiene el suyo), se usa el de la
+/// versión anterior más reciente y el HUD avisa de que no está entrenado para ella.
 ///
 /// Teclas de depuración (solo si OS.IsDebugBuild()): N reinicia con una semilla nueva; R repite la actual; T cambia la
-/// dificultad (Easy → Normal → Hard) con la misma semilla; G alterna la versión del generador (1 ↔ 2).
+/// dificultad (Easy → Normal → Hard) con la misma semilla; G recorre las versiones del generador (1 → 2 → 3 → 1).
 /// Al morir, la escena se recarga sin estado pendiente, así que empieza una partida nueva (o la fija).
 /// </summary>
 public partial class RunManager : Node
@@ -213,16 +214,24 @@ public partial class RunManager : Node
 		_pendingMap = map;
 	}
 
-	// El modelo de la versión del generador. Si todavía no existe (generador v2 sin difficulty_v2.json), se usa el v1 con
-	// sus 14 características y el HUD avisa, como antes de existir el modelo v2.
+	// El modelo de la versión del generador. Si todavía no existe (por ejemplo, la v3 sin difficulty_v3.json), se usa el de
+	// la versión anterior (con sus características) y el HUD avisa, como pasó con la v2 antes de tener su modelo.
 	private DifficultyModel LoadModel(int generatorVersion)
 	{
-		Json file = generatorVersion >= 2 ? ModelFileV2 : ModelFile;
-		string path = DifficultyModel.PathFor(generatorVersion);
-		if (file == null && generatorVersion >= 2 && !Godot.FileAccess.FileExists(path))
+		Json file = generatorVersion switch
 		{
-			GD.PushWarning($"RunManager: no existe {path}; se usa el modelo de dificultad v1 (no está entrenado para el generador v{generatorVersion}).");
-			return LoadModel(DungeonGenerator.OriginalVersion);
+			1 => ModelFile,
+			2 => ModelFileV2,
+			_ => null,
+		};
+		string path = generatorVersion <= DungeonGenerator.OriginalVersion
+			? DifficultyModel.DefaultPath
+			: $"res://resources/ai/difficulty_v{generatorVersion}.json";
+		if (file == null && generatorVersion > DungeonGenerator.OriginalVersion && !Godot.FileAccess.FileExists(path))
+		{
+			GD.PushWarning($"RunManager: no existe {path}; se usa el modelo de dificultad de la versión {generatorVersion - 1} " +
+				$"(no está entrenado para el generador v{generatorVersion}).");
+			return LoadModel(generatorVersion - 1);
 		}
 
 		DifficultyModel model = file != null ? DifficultyModel.FromJsonResource(file, file.ResourcePath) : DifficultyModel.Load(path);
