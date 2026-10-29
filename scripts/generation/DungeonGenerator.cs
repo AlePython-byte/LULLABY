@@ -29,10 +29,11 @@ public sealed class DungeonGenerator
 	/// <summary>
 	/// Versiones del generador. 1: el contenido original (solo enemigos básicos); es la de los datasets y la del modelo de
 	/// dificultad, y con ella los niveles y las semillas no cambian. 2: añade las plantillas de RoomCatalog.NormalTemplatesV2,
-	/// que mezclan tipos de enemigo.
+	/// que mezclan tipos de enemigo. 3: usa RoomCatalog.NormalTemplatesV3 (con el Huidor y el Excavador y menos salas de
+	/// solo básicos). El algoritmo es el mismo en todas; solo cambia la lista de plantillas normales.
 	/// </summary>
 	public const int OriginalVersion = 1;
-	public const int LatestVersion = 2;
+	public const int LatestVersion = 3;
 
 	public sealed class Settings
 	{

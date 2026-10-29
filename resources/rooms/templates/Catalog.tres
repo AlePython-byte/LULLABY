@@ -15,6 +15,12 @@
 [ext_resource type="Resource" path="res://resources/rooms/templates/mixta_explosivos.tres" id="13_mixta_explosivos"]
 [ext_resource type="Resource" path="res://resources/rooms/templates/mixta_voladores.tres" id="14_mixta_voladores"]
 [ext_resource type="Resource" path="res://resources/rooms/templates/mixta_variada.tres" id="15_mixta_variada"]
+[ext_resource type="Resource" path="res://resources/rooms/templates/mixta_huidores.tres" id="16_mixta_huidores"]
+[ext_resource type="Resource" path="res://resources/rooms/templates/mixta_excavadores.tres" id="17_mixta_excavadores"]
+[ext_resource type="Resource" path="res://resources/rooms/templates/mixta_emboscada.tres" id="18_mixta_emboscada"]
+[ext_resource type="Resource" path="res://resources/rooms/templates/mixta_trinchera.tres" id="19_mixta_trinchera"]
+[ext_resource type="Resource" path="res://resources/rooms/templates/mixta_relampago.tres" id="20_mixta_relampago"]
+[ext_resource type="Resource" path="res://resources/rooms/templates/mixta_caos.tres" id="21_mixta_caos"]
 
 [resource]
 script = ExtResource("1_catalog")
@@ -23,3 +29,4 @@ NormalTemplates = Array[ExtResource("2_template")]([ExtResource("3_normal_cuadra
 BossTemplates = Array[ExtResource("2_template")]([ExtResource("10_jefe")])
 TreasureTemplates = Array[ExtResource("2_template")]([ExtResource("11_tesoro")])
 NormalTemplatesV2 = Array[ExtResource("2_template")]([ExtResource("12_mixta_tiradores"), ExtResource("13_mixta_explosivos"), ExtResource("14_mixta_voladores"), ExtResource("15_mixta_variada")])
+NormalTemplatesV3 = Array[ExtResource("2_template")]([ExtResource("4_normal_pequena"), ExtResource("3_normal_cuadrada"), ExtResource("6_normal_alta"), ExtResource("12_mixta_tiradores"), ExtResource("13_mixta_explosivos"), ExtResource("14_mixta_voladores"), ExtResource("15_mixta_variada"), ExtResource("16_mixta_huidores"), ExtResource("17_mixta_excavadores"), ExtResource("18_mixta_emboscada"), ExtResource("19_mixta_trinchera"), ExtResource("20_mixta_relampago"), ExtResource("21_mixta_caos")])
