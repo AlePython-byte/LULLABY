@@ -424,6 +424,8 @@ Abrir el proyecto en Godot y pulsar F5. En compilaciones de depuración: **N** c
 godot --path . -- --seed=42 --difficulty=Hard
 ```
 
+Desde la versión 2 de la IA (sección 11), el generador por defecto es el v2; para jugar con el que describe esta sección (v1) se añade `--generator=1` o se pulsa G en depuración.
+
 ### Determinismo
 
 Todo el flujo es reproducible: semillas fijas en el generador y el simulador, `random_state = 42` en el entrenamiento y salidas sin marcas de tiempo. Repetir cada paso con los mismos argumentos produce archivos idénticos byte a byte.
@@ -610,7 +612,7 @@ Mismo protocolo que en la versión 1: validación cruzada anidada (5 × 3), cinc
 - la **v1** usa `difficulty_v1.json` y las 14 características;
 - la **v2** usa `difficulty_v2.json` y las 22.
 
-La versión por defecto sigue siendo la 1. Los objetivos de la v2 salen de los percentiles 25, 50 y 75 del entrenamiento v2: **Easy 9.0, Normal 11.8 y Hard 15.4**. El aviso del HUD ("modelo no entrenado") ya no aparece con la versión 2; solo se mostraría si faltara el modelo v2.
+La versión por defecto es la 2: el juego arranca con el generador v2 y su modelo. En compilaciones de depuración, la tecla G y el argumento `--generator=1` permiten usar la v1, y el HUD muestra siempre la versión en uso. Los objetivos de la v2 salen de los percentiles 25, 50 y 75 del entrenamiento v2: **Easy 9.0, Normal 11.8 y Hard 15.4**. El aviso del HUD ("modelo no entrenado") ya no aparece con la versión 2; solo se mostraría si faltara el modelo v2.
 
 **Benchmark v2.** 300 semillas de partida nuevas (400001..400300) × 3 objetivos × 30 candidatos. Ninguna semilla efectiva de los candidatos aparece en los CSV v2. Error medio |dificultad real − objetivo|:
 
@@ -654,8 +656,8 @@ godot --headless --path . res://tests/ModelParityTest.tscn -- --version=2
 ai-training/.venv/Scripts/python.exe ai-training/training/evaluate_confirmation.py --version 2
 godot --headless --path . res://tests/DirectorBenchmark.tscn -- --version=2
 
-# jugar con el generador v2 (o pulsar G en depuración)
-godot --path . -- --generator=2
+# jugar: el generador por defecto es el v2; con --generator=1 (o la tecla G en depuración) se usa el v1
+godot --path . -- --generator=1
 ```
 
 Sin `--version` (o con `--version 1`), todos los comandos producen los artefactos v1 de siempre.
