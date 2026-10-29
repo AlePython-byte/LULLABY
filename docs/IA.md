@@ -16,6 +16,9 @@ Este documento explica qué hace la IA, cómo se construyó, qué resultados dio
 8. [Mejoras futuras](#8-mejoras-futuras)
 9. [Cómo reproducir todo](#9-cómo-reproducir-todo)
 10. [Anexo: glosario de métricas y archivos](#10-anexo-glosario-de-métricas-y-archivos)
+11. [Versión 2: tipos de enemigo](#11-versión-2-tipos-de-enemigo)
+
+Las secciones 1 a 10 describen la **versión 1** (generador v1, un solo tipo de enemigo). La sección 11 describe la **versión 2**, que añade el tirador, el explosivo y el volador. La versión 1 sigue intacta y reproducible.
 
 ---
 
@@ -452,3 +455,207 @@ Todo el flujo es reproducible: semillas fijas en el generador y el simulador, `r
 | `ai-training/datasets/` | características, etiquetas y sus `.meta.json` |
 | `ai-training/models/difficulty_v1.json` | modelo exportado (copia del juego en `resources/ai/`) |
 | `ai-training/reports/` | `metrics.json`, `cv_results.json`, `confirmation_metrics.json`, `director_benchmark.json` y gráficas |
+
+---
+
+## 11. Versión 2: tipos de enemigo
+
+La versión 2 del generador añade salas con varios tipos de enemigo:
+- el **tirador** mantiene la distancia, avisa antes de disparar y lanza proyectiles lentos;
+- el **explosivo** persigue, enciende una mecha al acercarse y explota con daño en área;
+- el **volador** se mueve con un patrón senoidal.
+
+El modelo v1 no distingue tipos de enemigo, así que la versión 2 de la IA repite todo el proceso con su propio conjunto de características, sus propios datos y su propio modelo.
+
+**Regla de oro.** Todo lo de la versión 1 queda intacto y reproducible. Se volvieron a generar el dataset de características, las etiquetas y el benchmark v1 con el código final, y sus SHA-256 son idénticos a los originales:
+
+| Archivo | SHA-256 |
+|---|---|
+| `levels_v1.csv` | `a30d3a36…` |
+| `levels_v1_labels.csv` | `54b79ccf…` |
+| `director_benchmark.json` | `5921a2fa…` |
+
+Todo lo nuevo lleva nombre propio: `LevelMetricsV2`, `levels_v2*.csv`, `difficulty_v2.json` y los informes en `ai-training/reports/v2/`.
+
+### 11.1 Características v2 (`scripts/ai/LevelMetricsV2.cs`)
+
+Son **22**: las 14 de la versión 1, en el mismo orden y calculadas por el mismo código, seguidas de 8 nuevas (`feature_set_version` = 2).
+
+| Característica | Qué mide |
+|---|---|
+| `shooter_count`, `exploder_count`, `flyer_count` | tiradores, explosivos y voladores del nivel |
+| `ranged_enemy_fraction` | tiradores / total de enemigos |
+| `special_enemy_fraction` | enemigos no básicos / total de enemigos |
+| `mixed_room_count` | salas con dos o más tipos de enemigo |
+| `critical_path_special_enemies` | enemigos no básicos en el camino al jefe |
+| `kind_variety` | tipos de enemigo distintos en el nivel |
+
+No hay un conteo de básicos, porque sería el total menos los otros tres. El resumen del dataset de entrenamiento (`DatasetExport`) **no marcó ninguna característica como constante ni como casi duplicada** (umbral de correlación 0.98), así que no se quitó ninguna. Las correlaciones más altas fueron:
+- `shooter_count` y `ranged_enemy_fraction`: 0.951;
+- `boss_distance` y `critical_path_enemies`: 0.914.
+
+### 11.2 Simulador y bot
+
+**Simulador (versión 3).** Replica los tres tipos nuevos y lee sus números de las mismas escenas que el juego:
+- **Tirador:** banda de distancia, desplazamiento lateral cuando queda bloqueado, aviso, disparo y proyectil.
+- **Explosivo:** mecha, movimiento reducido durante la mecha y explosión en área solo contra el jugador.
+- **Volador:** usa las mismas funciones del patrón que el juego y no choca con otros enemigos.
+- **Proyectiles:** chocan con paredes, puertas cerradas y el jugador, respetando su invulnerabilidad.
+
+El enemigo básico sigue por la misma rama de código que en la versión 2 del simulador. Por eso las etiquetas v1 salen idénticas byte a byte, y los artefactos v1 siguen declarando la versión 2 del simulador. Las aproximaciones nuevas están documentadas en la cabecera de `LevelSimulator.cs`.
+
+**Bot.** Con tipos de enemigo:
+- **Prioridad fija de objetivos:**
+  1. un explosivo a 6 m o menos;
+  2. un tirador;
+  3. un volador;
+  4. un básico o un explosivo lejano.
+
+  Los empates se resuelven por distancia.
+- **Huida:** se aleja de los explosivos con la mecha encendida.
+- **Esquiva:** se aparta de los proyectiles cuya trayectoria pasa cerca.
+
+La huida y la esquiva usan **la misma observación retrasada** (6 ± 3 fotogramas) y el mismo ruido que el resto de sus decisiones, para que no sea perfecto. Con solo enemigos básicos y sin proyectiles, el bot toma exactamente las mismas decisiones que en la versión 1.
+
+**El bot define qué es "difícil".** La dificultad que se mide es la de *este* bot: un bot que esquivara todo haría inofensivo al tirador, y uno que no esquivara nada lo haría el enemigo más peligroso.
+
+### 11.3 Fidelidad y criterio de aprobación
+
+Primera prueba: 30 niveles del generador v2 × 3 semillas de bot, simulador frente a juego real.
+- **Spearman:** superó la puerta, con 0.836 en daño y 0.980 en tiempo.
+- **Sesgo por composición:** falló la puerta adicional de ±30 %. En salas con explosivo el simulador daba un 33.3 % menos de daño.
+- **Diagnóstico por fuente:** la explosión dio 0 de daño en ambos lados, y todo el déficit era **daño por contacto de enemigos básicos** (23 frente a 36). No se etiquetó nada.
+
+Se decidió entonces repetir la prueba con 90 niveles (los 30 anteriores y 60 nuevos) y fijar un criterio **antes de ver esos datos**:
+- **a)** Spearman de daño y de tiempo ≥ 0.7.
+- **b)** Explosión y proyectiles: con al menos 30 golpes reales de esa fuente, sesgo dentro de ±30 %. Con menos, "sin evidencia suficiente": no bloquea, pero se documenta como limitación.
+- **c)** El sesgo del contacto no puede ser peor que el de v1 (aprox. −15 %) en más de 10 puntos.
+- **d)** Sesgo de tiempo por composición de sala dentro de ±30 %.
+
+Resultados con 90 niveles × 3 bots (270 partidas por lado):
+
+| Fuente | Golpes sim | Golpes reales | Sesgo | IC 95 % (bootstrap sobre niveles) | Criterio |
+|---|---|---|---|---|---|
+| Contacto | 3324 | 3817 | −12.9 % | [−16.6 %, −9.2 %] | c) cumple (límite ±25 %) |
+| Proyectiles | 9 | 3 | +200 % | [0 %, +1000 %] | b) sin evidencia suficiente |
+| Explosión | 1 | 0 | — | — | b) sin evidencia suficiente |
+
+| Composición de sala | Salas | Sesgo de tiempo | Sesgo de daño (informativo) |
+|---|---|---|---|
+| Solo básicos | 1497 | −3.2 % | −13.2 % |
+| Con tirador | 606 | −0.8 % | −11.0 % |
+| Con explosivo | 336 | −1.4 % | −27.8 % |
+| Con volador | 375 | −1.3 % | −19.4 % |
+
+- **Spearman:** 0.850 en daño total y 0.985 en tiempo total.
+- **Veredicto:** se cumplen los cuatro criterios.
+
+### 11.4 Datos
+
+Mismo protocolo y mismas semillas del generador que en la versión 1, ahora con el generador v2.
+
+| Conjunto | Semillas | Niveles |
+|---|---|---|
+| Entrenamiento | 1..5000 | 5000 |
+| Prueba | 100001..101000 | 1000 |
+| Confirmación | 200001..201000 | 1000 |
+
+- **Solapamiento por semilla efectiva:** 0 entre cualquier par de conjuntos (`reports/v2/data_checks.json`).
+- **Vectores de características idénticos (informativo):** 2 filas de prueba con una de entrenamiento, 1 de confirmación con entrenamiento y 0 entre confirmación y prueba.
+- **Determinismo:** cada CSV de características y de etiquetas, y su `.meta.json`, se generó dos veces, y las dos ejecuciones son idénticas byte a byte.
+- **Etiqueta principal en el entrenamiento** (`damage_total_mean`): media 12.43 y rango 1.6–34.4. Su fiabilidad frente al ruido de las 5 partidas es 0.917.
+- **Daño medio por sala que recibe el bot, según composición:**
+  - solo básicos: 1.916;
+  - con tirador: 0.942;
+  - con volador: 0.632;
+  - con explosivo: 0.193.
+
+### 11.5 Modelos
+
+Mismo protocolo que en la versión 1: validación cruzada anidada (5 × 3), cinco modelos y regla del error estándar. Resultados en validación cruzada, solo con el entrenamiento:
+
+| Modelo | Daño: RMSE | Daño: R² | Daño: Spearman | Tiempo: RMSE | Tiempo: R² | Parámetros exportables |
+|---|---|---|---|---|---|---|
+| Media | 4.776 | −0.001 | −0.037 | 16.123 | −0.000 | 1 |
+| **Regresión lineal** | **3.128** | **0.571** | **0.748** | **3.526** | **0.952** | **67** |
+| Ridge | 3.127 | 0.571 | 0.749 | 3.526 | 0.952 | 67 |
+| Gradient Boosting | 3.173 | 0.558 | 0.731 | 3.674 | 0.948 | ~2750 |
+| Random Forest | 3.333 | 0.513 | 0.702 | 4.092 | 0.936 | ~349 000 |
+
+**Los árboles tampoco superan a la lineal en la versión 2.** Ridge es el mejor por RMSE, pero la lineal queda a menos de 1 error estándar y es más simple. Gradient Boosting y Random Forest quedan fuera de ese margen, igual que en la versión 1.
+
+**Prueba (evaluada una vez) y confirmación (evaluada una vez, con el JSON exacto del juego):**
+
+| Etiqueta | Conjunto | MAE | RMSE | R² | Spearman |
+|---|---|---|---|---|---|
+| `damage_total_mean` | Prueba | 2.481 | 3.173 | 0.564 | 0.747 |
+| `damage_total_mean` | Confirmación | 2.405 | 3.122 | 0.577 | 0.764 |
+| `time_total_mean` | Prueba | 2.839 | 3.578 | 0.950 | 0.974 |
+| `time_total_mean` | Confirmación | 2.865 | 3.616 | 0.950 | 0.974 |
+
+- **Línea base:** predecir siempre la media da en la prueba un MAE de 3.785 para el daño y de 13.180 para el tiempo.
+- **Techo aproximado de R²:** no se estimó, porque con 22 características solo hay 2 grupos de niveles con vector idéntico en el entrenamiento (se exigen al menos 20).
+- **Características que más pesan** (importancia por permutación en la prueba):
+  - daño: `enemies_per_room_mean` (2.55), `total_enemies` (1.35), `room_area_cv` (1.08) y `flyer_count` (0.59);
+  - tiempo: `total_enemies` (1.33), `room_count` (0.18) y `flyer_count` (0.13).
+- **Compresión del rango:** como en v1, el modelo sobrestima los niveles fáciles y subestima los difíciles. En el tramo de daño real más bajo (2.4–8.4) el sesgo es +2.29; en el más alto (16.2–32.8), −3.31, con un MAE de 3.70.
+
+**Exportación y paridad.**
+- `difficulty_v2.json` (con `generator_version` = 2) tiene 4 KB; su copia está en `resources/ai/`.
+- `ModelParityTest --version=2` da una diferencia máxima entre Python y C# de 7.0e-12 (tolerancia 1e-6).
+
+### 11.6 Director
+
+`RunManager` carga el modelo según la versión del generador:
+- la **v1** usa `difficulty_v1.json` y las 14 características;
+- la **v2** usa `difficulty_v2.json` y las 22.
+
+La versión por defecto sigue siendo la 1. Los objetivos de la v2 salen de los percentiles 25, 50 y 75 del entrenamiento v2: **Easy 9.0, Normal 11.8 y Hard 15.4**. El aviso del HUD ("modelo no entrenado") ya no aparece con la versión 2; solo se mostraría si faltara el modelo v2.
+
+**Benchmark v2.** 300 semillas de partida nuevas (400001..400300) × 3 objetivos × 30 candidatos. Ninguna semilla efectiva de los candidatos aparece en los CSV v2. Error medio |dificultad real − objetivo|:
+
+| Objetivo | Azar | Director | Siempre el mejor | Oráculo |
+|---|---|---|---|---|
+| Easy (9.0) | 4.542 | 2.109 | 1.942 | 0.170 |
+| Normal (11.8) | 3.855 | 2.534 | 2.609 | 0.200 |
+| Hard (15.4) | 4.742 | 3.022 | 2.912 | 0.283 |
+| **Promedio** | **4.380 ± 0.027** | **2.555 ± 0.067** | **2.488 ± 0.068** | **0.218 ± 0.007** |
+
+- El director **reduce el error un 41.7 % frente al azar** y recorre el 44 % del camino hasta el oráculo. "Siempre el mejor" lo reduce un 43.2 %; la diferencia entre ambos (0.067) es del orden de su error estándar.
+- **Variedad:** con el mismo objetivo, las 300 semillas dan 300 niveles distintos en las tres estrategias y los tres objetivos. Dos niveles cualesquiera comparten de media entre 0.22 y 0.27 salas.
+- **Con el conjunto de prueba** (2000 grupos de 30): azar 4.343, director 2.493, siempre el mejor 2.599 y oráculo 0.245. Es una reducción del 42.6 % para el director.
+
+### 11.7 Limitaciones de la versión 2
+
+1. **El simulador subestima el daño por contacto**, tanto en v1 como en v2. En la prueba de fidelidad v1 (30 niveles) el daño total, todo por contacto, fue 13.24 en el simulador frente a 16.00 en el juego (−17 %). En la v2 (90 niveles), el contacto da −12.9 % (IC 95 % de −16.6 % a −9.2 %).
+   - **Causa:** el simulador mueve cajas eje por eje y el juego usa `MoveAndSlide` de Jolt.
+   - **Por qué no se corrigió:** cambiaría las etiquetas v1.
+   - **Efecto en las salas:** el sesgo pesa más donde casi todo el daño es de contacto y hay poco daño en total, como en las salas con explosivo (−27.8 % de daño por sala).
+2. **La dificultad es la de un bot competente que esquiva bien las explosiones y los proyectiles.** En las 270 partidas del juego real de la prueba de fidelidad, el bot recibió 0 golpes de explosión y 3 de proyectiles. Por eso la fidelidad de esas dos fuentes queda **sin evidencia suficiente**: no se puede afirmar que el simulador reproduzca bien su daño. Un jugador humano que no esquive igual sufrirá más esos enemigos de lo que predice el modelo.
+3. **Como en v1:** el modelo comprime el rango de dificultad, las etiquetas son del bot y no de personas, y prueba y confirmación salen del mismo generador que el entrenamiento.
+
+### 11.8 Cómo reproducir la versión 2
+
+```
+godot --headless --fixed-fps 60 --path . res://tests/FidelityCheck.tscn -- --generator=2 --count=90
+
+godot --headless --path . res://tests/DatasetExport.tscn -- --version=2
+godot --headless --path . res://tests/DatasetExport.tscn -- --version=2 --first-seed=100001 --count=1000 --out=ai-training/datasets/levels_v2_test.csv
+godot --headless --path . res://tests/DatasetExport.tscn -- --version=2 --first-seed=200001 --count=1000 --out=ai-training/datasets/levels_v2_confirm.csv
+godot --headless --path . res://tests/LabelExport.tscn -- --version=2
+godot --headless --path . res://tests/LabelExport.tscn -- --version=2 --first-seed=100001 --count=1000 --out=ai-training/datasets/levels_v2_test_labels.csv
+godot --headless --path . res://tests/LabelExport.tscn -- --version=2 --first-seed=200001 --count=1000 --out=ai-training/datasets/levels_v2_confirm_labels.csv
+
+ai-training/.venv/Scripts/python.exe ai-training/training/check_datasets.py --version 2
+ai-training/.venv/Scripts/python.exe ai-training/training/train.py --version 2
+ai-training/.venv/Scripts/python.exe ai-training/training/evaluate.py --version 2
+ai-training/.venv/Scripts/python.exe ai-training/training/export_model.py --version 2
+godot --headless --path . res://tests/ModelParityTest.tscn -- --version=2
+ai-training/.venv/Scripts/python.exe ai-training/training/evaluate_confirmation.py --version 2
+godot --headless --path . res://tests/DirectorBenchmark.tscn -- --version=2
+
+# jugar con el generador v2 (o pulsar G en depuración)
+godot --path . -- --generator=2
+```
+
+Sin `--version` (o con `--version 1`), todos los comandos producen los artefactos v1 de siempre.
