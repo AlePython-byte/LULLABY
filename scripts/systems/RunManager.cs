@@ -17,7 +17,8 @@ using Godot;
 /// La dificultad sale, por este orden, de la tecla de depuración, del argumento --difficulty=Easy|Normal|Hard o del
 /// [Export] Difficulty.
 ///
-/// Versión del generador: GeneratorVersion (1 por defecto), el argumento --generator=N o la tecla G. Cada versión usa su
+/// Versión del generador: GeneratorVersion (DefaultGeneratorVersion, la 2, por defecto), el argumento --generator=N
+/// (--generator=1 para la versión 1) o la tecla G. El HUD muestra siempre la versión en uso. Cada versión usa su
 /// modelo de dificultad: ModelFile (difficulty_v1.json, 14 características) para la 1 y ModelFileV2 (difficulty_v2.json,
 /// 22 características con tipos de enemigo) para la 2. Si no están asignados se leen de DifficultyModel.PathFor. Si el
 /// modelo v2 todavía no existe, la versión 2 usa el v1 y el HUD avisa de que no está entrenado para ella.
@@ -28,6 +29,9 @@ using Godot;
 /// </summary>
 public partial class RunManager : Node
 {
+	/// <summary>Versión del generador con la que se juega si nadie pide otra. La v1 sigue disponible (G, --generator=1).</summary>
+	public const int DefaultGeneratorVersion = 2;
+
 	private const string NewSeedAction = "debug_new_seed";
 	private const string RepeatSeedAction = "debug_repeat_seed";
 	private const string NextDifficultyAction = "debug_next_difficulty";
@@ -49,7 +53,7 @@ public partial class RunManager : Node
 	[Export] public int Candidates { get; set; } = 30;
 	[Export] public int TopCount { get; set; } = 5;
 
-	[Export] public int GeneratorVersion { get; set; } = DungeonGenerator.OriginalVersion;
+	[Export] public int GeneratorVersion { get; set; } = DefaultGeneratorVersion;
 	[Export] public int MinRooms { get; set; } = 8;
 	[Export] public int MaxRooms { get; set; } = 12;
 	[Export] public float BranchChance { get; set; } = 0.5f;
@@ -68,6 +72,7 @@ public partial class RunManager : Node
 	private int _seed;
 	private DifficultyTarget _difficulty;
 	private int _generatorVersion;
+	private string _modelSource;
 
 	public override void _Ready()
 	{
@@ -90,7 +95,7 @@ public partial class RunManager : Node
 		{
 			LevelMap fixedMap = _pendingMap;
 			_pendingMap = null;
-			SeedHud?.ShowFixedLevel($"{fixedMap.Rooms.Count} salas");
+			SeedHud?.ShowFixedLevel($"{fixedMap.Rooms.Count} salas", _generatorVersion);
 			Rooms.Begin(fixedMap);
 			return;
 		}
@@ -103,7 +108,7 @@ public partial class RunManager : Node
 		catch (Exception exception) when (exception is InvalidDataException or FileNotFoundException)
 		{
 			GD.PushError(exception.Message);
-			SeedHud?.ShowError(_seed, "modelo de dificultad no válido (ver la salida)");
+			SeedHud?.ShowError(_seed, "modelo de dificultad no válido (ver la salida)", _generatorVersion);
 			return;
 		}
 
@@ -126,14 +131,14 @@ public partial class RunManager : Node
 		if (!result.Success)
 		{
 			GD.PushError($"RunManager: el director no encontró ningún nivel para la semilla {_seed}.");
-			SeedHud?.ShowError(_seed, "sin nivel válido");
+			SeedHud?.ShowError(_seed, "sin nivel válido", _generatorVersion);
 			return;
 		}
 
 		SeedHud?.ShowRun(_seed, result.Chosen.EffectiveSeed, _difficulty, result.TargetValue, result.Chosen.Predicted,
 			_generatorVersion, model.GeneratorVersion);
-		GD.Print($"Generador v{_generatorVersion}, modelo de dificultad con {model.FeatureNames.Count} características " +
-			$"(versión {model.FeatureSetVersion})." + (model.GeneratorVersion != _generatorVersion
+		GD.Print($"Generador v{_generatorVersion}, modelo de dificultad {_modelSource} con {model.FeatureNames.Count} " +
+			$"características (versión {model.FeatureSetVersion})." + (model.GeneratorVersion != _generatorVersion
 				? $" Aviso: el modelo no está entrenado para el generador v{_generatorVersion}." : ""));
 		GD.Print(result.Describe());
 		GD.Print($"Nivel elegido: salas {result.Map.Rooms.Count}, jefe a {LevelValidator.BossDistance(result.Map)} pasos.");
@@ -179,6 +184,21 @@ public partial class RunManager : Node
 	}
 
 	/// <summary>
+	/// Fija la versión del generador de la próxima partida que se cargue (las pruebas que necesitan la v1 la piden con esto,
+	/// porque el defecto es la v2). Solo en compilaciones de depuración.
+	/// </summary>
+	public static void SetNextGeneratorVersion(int version)
+	{
+		if (!OS.IsDebugBuild())
+		{
+			GD.PushWarning("RunManager.SetNextGeneratorVersion solo funciona en compilaciones de depuración.");
+			return;
+		}
+
+		_pendingGeneratorVersion = version;
+	}
+
+	/// <summary>
 	/// Fija el nivel exacto de la próxima partida, sin director ni modelo (lo usa la prueba de fidelidad para jugar
 	/// niveles del generador v2 tal cual). Solo en compilaciones de depuración.
 	/// </summary>
@@ -206,6 +226,7 @@ public partial class RunManager : Node
 		}
 
 		DifficultyModel model = file != null ? DifficultyModel.FromJsonResource(file, file.ResourcePath) : DifficultyModel.Load(path);
+		_modelSource = file != null ? file.ResourcePath : path;
 		if (model.GeneratorVersion != generatorVersion)
 		{
 			throw new InvalidDataException($"RunManager: el modelo de dificultad es para el generador v{model.GeneratorVersion}, " +

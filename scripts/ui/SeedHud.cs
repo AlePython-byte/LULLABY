@@ -10,8 +10,9 @@ public partial class SeedHud : CanvasLayer
 	}
 
 	/// <summary>
-	/// Semilla de partida y nivel, versión del generador, y dificultad objetivo frente a la predicha. Cada versión del
-	/// generador usa su propio modelo; si el modelo cargado es de otra versión (no existe aún el de esta), avisa.
+	/// Semilla de partida y nivel, versión del generador (se muestra siempre, también en los mensajes de error y de nivel
+	/// fijado) y dificultad objetivo frente a la predicha. Cada versión del generador usa su propio modelo; si el modelo
+	/// cargado es de otra versión (no existe aún el de esta), avisa.
 	/// </summary>
 	public void ShowRun(int gameSeed, int levelSeed, DifficultyTarget target, double targetValue, double predicted,
 		int generatorVersion, int modelGeneratorVersion)
@@ -25,13 +26,13 @@ public partial class SeedHud : CanvasLayer
 	}
 
 	/// <summary>Nivel fijado desde fuera (pruebas de depuración), sin director.</summary>
-	public void ShowFixedLevel(string description)
+	public void ShowFixedLevel(string description, int generatorVersion)
 	{
-		_label.Text = $"Nivel fijado: {description}";
+		_label.Text = $"Nivel fijado: {description} · generador v{generatorVersion}";
 	}
 
-	public void ShowError(int gameSeed, string message)
+	public void ShowError(int gameSeed, string message, int generatorVersion)
 	{
-		_label.Text = $"Semilla {gameSeed}: {message}";
+		_label.Text = $"Semilla {gameSeed} · generador v{generatorVersion}: {message}";
 	}
 }
