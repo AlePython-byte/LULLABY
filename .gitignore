@@ -11,3 +11,4 @@ __pycache__/
 *.pyc
 ai-training/reports/.test_evaluated
 ai-training/reports/.confirmation_evaluated
+*.blend1
