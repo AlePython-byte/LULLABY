@@ -8,6 +8,8 @@
 ///   Capa 4 (8)   Enemies           enemigos.                  Máscara: World + Player + Enemies = 11.
 ///                                  Excepción: el Volador usa World + Player = 3 (no choca con otros enemigos ni,
 ///                                  cuando existan, con obstáculos de otra capa: vuela por encima).
+///                                  El Excavador, bajo tierra, pasa a capa 0 y máscara World = 1 (ni las lágrimas
+///                                  ni el jugador lo tocan; solo choca con las paredes) y recupera las suyas al emerger.
 ///   Capa 5 (16)  EnemyProjectiles  proyectiles enemigos.      Máscara: World + Player           = 3
 ///                                  (nunca Enemies ni Tears; los detecta el propio proyectil, que es un Area3D).
 /// </summary>

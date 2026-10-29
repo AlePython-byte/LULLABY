@@ -11,6 +11,8 @@ public enum EnemyKind
 	Shooter = 1,
 	Exploder = 2,
 	Flyer = 3,
+	Runner = 4,
+	Digger = 5,
 }
 
 /// <summary>
@@ -27,6 +29,8 @@ public static class EnemyKinds
 		new(EnemyKind.Shooter, "Tirador", new Color(0.42f, 0.22f, 0.58f), "res://scenes/enemies/ShooterEnemy.tscn"),
 		new(EnemyKind.Exploder, "Explosivo", new Color(0.9f, 0.45f, 0.08f), "res://scenes/enemies/ExploderEnemy.tscn"),
 		new(EnemyKind.Flyer, "Volador", new Color(0.12f, 0.62f, 0.62f), "res://scenes/enemies/FlyerEnemy.tscn"),
+		new(EnemyKind.Runner, "Huidor", new Color(1.0f, 0.9f, 0.62f), "res://scenes/enemies/RunnerEnemy.tscn"),
+		new(EnemyKind.Digger, "Excavador", new Color(0.76f, 0.55f, 0.22f), "res://scenes/enemies/DiggerEnemy.tscn"),
 	};
 
 	public static IReadOnlyList<Info> List => All;
