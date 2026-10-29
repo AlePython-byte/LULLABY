@@ -16,6 +16,8 @@ DoorScene = ExtResource("2_door")
 
 [node name="Enemies" type="Node3D" parent="."]
 
+[node name="Projectiles" type="Node3D" parent="."]
+
 [node name="EntryArea" type="Area3D" parent="."]
 collision_layer = 0
 collision_mask = 2

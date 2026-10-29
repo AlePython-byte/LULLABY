@@ -26,8 +26,17 @@ using Godot;
 /// </summary>
 public sealed class DungeonGenerator
 {
+	/// <summary>
+	/// Versiones del generador. 1: el contenido original (solo enemigos básicos); es la de los datasets y la del modelo de
+	/// dificultad, y con ella los niveles y las semillas no cambian. 2: añade las plantillas de RoomCatalog.NormalTemplatesV2,
+	/// que mezclan tipos de enemigo.
+	/// </summary>
+	public const int OriginalVersion = 1;
+	public const int LatestVersion = 2;
+
 	public sealed class Settings
 	{
+		public int GeneratorVersion { get; set; } = OriginalVersion;
 		public int MinRooms { get; set; } = 8;
 		public int MaxRooms { get; set; } = 12;
 		public float BranchChance { get; set; } = 0.5f;
@@ -100,6 +109,12 @@ public sealed class DungeonGenerator
 			{
 				text.Append($"{point} ");
 			}
+
+			// Solo existe en la versión 2: las descripciones de la versión 1 no cambian.
+			if (room.SpawnKinds.Length > 0)
+			{
+				text.Append($"kinds={string.Join(",", room.SpawnKinds)}");
+			}
 		}
 
 		return text.ToString();
@@ -108,6 +123,12 @@ public sealed class DungeonGenerator
 	private LevelMap GenerateOnce(int seed, Settings settings, out List<string> problems)
 	{
 		problems = new List<string>();
+
+		if (settings.GeneratorVersion < OriginalVersion || settings.GeneratorVersion > LatestVersion)
+		{
+			problems.Add($"versión del generador desconocida: {settings.GeneratorVersion} (válidas: {OriginalVersion}..{LatestVersion}).");
+			return null;
+		}
 
 		foreach (RoomType type in System.Enum.GetValues<RoomType>())
 		{
@@ -155,7 +176,7 @@ public sealed class DungeonGenerator
 				: cell == treasure ? RoomType.Treasure
 				: RoomType.Normal;
 
-			Godot.Collections.Array<RoomTemplate> templates = _catalog.For(type);
+			Godot.Collections.Array<RoomTemplate> templates = _catalog.For(type, settings.GeneratorVersion);
 			RoomTemplate template = templates[rng.RandiRange(0, templates.Count - 1)];
 
 			map.Rooms.Add(new RoomData
@@ -166,6 +187,7 @@ public sealed class DungeonGenerator
 				Size = template.Size,
 				EnemyScene = template.EnemyScene,
 				SpawnPoints = (Vector2[])template.SpawnPoints.Clone(),
+				SpawnKinds = (int[])template.SpawnKinds.Clone(),
 			});
 		}
 

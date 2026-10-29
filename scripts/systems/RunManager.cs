@@ -17,8 +17,12 @@ using Godot;
 /// La dificultad sale, por este orden, de la tecla de depuración, del argumento --difficulty=Easy|Normal|Hard o del
 /// [Export] Difficulty.
 ///
+/// Versión del generador: GeneratorVersion (1 por defecto), el argumento --generator=N o la tecla G. La versión 1 es la
+/// del modelo de dificultad; con la versión 2 (salas con varios tipos de enemigo) el HUD avisa de que el modelo no está
+/// entrenado para ella, porque no distingue tipos de enemigo.
+///
 /// Teclas de depuración (solo si OS.IsDebugBuild()): N reinicia con una semilla nueva; R repite la actual; T cambia la
-/// dificultad (Easy → Normal → Hard) con la misma semilla.
+/// dificultad (Easy → Normal → Hard) con la misma semilla; G alterna la versión del generador (1 ↔ 2).
 /// Al morir, la escena se recarga sin estado pendiente, así que empieza una partida nueva (o la fija).
 /// </summary>
 public partial class RunManager : Node
@@ -26,8 +30,10 @@ public partial class RunManager : Node
 	private const string NewSeedAction = "debug_new_seed";
 	private const string RepeatSeedAction = "debug_repeat_seed";
 	private const string NextDifficultyAction = "debug_next_difficulty";
+	private const string ToggleGeneratorAction = "debug_toggle_generator";
 	private const string SeedArgument = "--seed=";
 	private const string DifficultyArgument = "--difficulty=";
+	private const string GeneratorArgument = "--generator=";
 
 	[Export] public RoomCatalog Catalog { get; set; }
 	[Export] public RoomManager Rooms { get; set; }
@@ -41,6 +47,7 @@ public partial class RunManager : Node
 	[Export] public int Candidates { get; set; } = 30;
 	[Export] public int TopCount { get; set; } = 5;
 
+	[Export] public int GeneratorVersion { get; set; } = DungeonGenerator.OriginalVersion;
 	[Export] public int MinRooms { get; set; } = 8;
 	[Export] public int MaxRooms { get; set; } = 12;
 	[Export] public float BranchChance { get; set; } = 0.5f;
@@ -53,9 +60,11 @@ public partial class RunManager : Node
 	// Sobreviven a la recarga de escena: así las teclas de depuración pasan su estado a la siguiente partida.
 	private static int? _pendingSeed;
 	private static DifficultyTarget? _pendingDifficulty;
+	private static int? _pendingGeneratorVersion;
 
 	private int _seed;
 	private DifficultyTarget _difficulty;
+	private int _generatorVersion;
 
 	public override void _Ready()
 	{
@@ -64,12 +73,15 @@ public partial class RunManager : Node
 			InputActions.Register(NewSeedAction, Key.N);
 			InputActions.Register(RepeatSeedAction, Key.R);
 			InputActions.Register(NextDifficultyAction, Key.T);
+			InputActions.Register(ToggleGeneratorAction, Key.G);
 		}
 
 		_seed = ChooseSeed();
 		_difficulty = _pendingDifficulty ?? ArgumentDifficulty() ?? Difficulty;
+		_generatorVersion = _pendingGeneratorVersion ?? ArgumentGeneratorVersion() ?? GeneratorVersion;
 		_pendingSeed = null;
 		_pendingDifficulty = null;
+		_pendingGeneratorVersion = null;
 
 		DifficultyModel model;
 		try
@@ -85,6 +97,7 @@ public partial class RunManager : Node
 
 		DungeonGenerator.Settings settings = new()
 		{
+			GeneratorVersion = _generatorVersion,
 			MinRooms = MinRooms,
 			MaxRooms = MaxRooms,
 			BranchChance = BranchChance,
@@ -105,7 +118,10 @@ public partial class RunManager : Node
 			return;
 		}
 
-		SeedHud?.ShowRun(_seed, result.Chosen.EffectiveSeed, _difficulty, result.TargetValue, result.Chosen.Predicted);
+		SeedHud?.ShowRun(_seed, result.Chosen.EffectiveSeed, _difficulty, result.TargetValue, result.Chosen.Predicted,
+			_generatorVersion);
+		GD.Print($"Generador v{_generatorVersion}." + (_generatorVersion != DungeonGenerator.OriginalVersion
+			? " Aviso: el modelo de dificultad no está entrenado para esta versión." : ""));
 		GD.Print(result.Describe());
 		GD.Print($"Nivel elegido: salas {result.Map.Rooms.Count}, jefe a {LevelValidator.BossDistance(result.Map)} pasos.");
 		Rooms.Begin(result.Map);
@@ -120,15 +136,20 @@ public partial class RunManager : Node
 
 		if (@event.IsActionPressed(NewSeedAction))
 		{
-			Restart(RandomSeed(), _difficulty);
+			Restart(RandomSeed(), _difficulty, _generatorVersion);
 		}
 		else if (@event.IsActionPressed(RepeatSeedAction))
 		{
-			Restart(_seed, _difficulty);
+			Restart(_seed, _difficulty, _generatorVersion);
 		}
 		else if (@event.IsActionPressed(NextDifficultyAction))
 		{
-			Restart(_seed, (DifficultyTarget)(((int)_difficulty + 1) % Enum.GetValues<DifficultyTarget>().Length));
+			Restart(_seed, (DifficultyTarget)(((int)_difficulty + 1) % Enum.GetValues<DifficultyTarget>().Length), _generatorVersion);
+		}
+		else if (@event.IsActionPressed(ToggleGeneratorAction))
+		{
+			int next = _generatorVersion >= DungeonGenerator.LatestVersion ? DungeonGenerator.OriginalVersion : _generatorVersion + 1;
+			Restart(_seed, _difficulty, next);
 		}
 	}
 
@@ -176,6 +197,19 @@ public partial class RunManager : Node
 		return null;
 	}
 
+	private static int? ArgumentGeneratorVersion()
+	{
+		foreach (string argument in OS.GetCmdlineUserArgs())
+		{
+			if (argument.StartsWith(GeneratorArgument) && int.TryParse(argument[GeneratorArgument.Length..], out int version))
+			{
+				return version;
+			}
+		}
+
+		return null;
+	}
+
 	private static int RandomSeed()
 	{
 		RandomNumberGenerator rng = new();
@@ -183,10 +217,11 @@ public partial class RunManager : Node
 		return (int)(rng.Randi() & int.MaxValue);
 	}
 
-	private void Restart(int seed, DifficultyTarget difficulty)
+	private void Restart(int seed, DifficultyTarget difficulty, int generatorVersion)
 	{
 		_pendingSeed = seed;
 		_pendingDifficulty = difficulty;
+		_pendingGeneratorVersion = generatorVersion;
 		GetTree().CallDeferred(SceneTree.MethodName.ReloadCurrentScene);
 	}
 }

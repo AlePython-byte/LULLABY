@@ -1,0 +1,20 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/ExplosionEffect.cs" id="1_effect"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_explosion"]
+radius = 1.0
+height = 2.0
+
+[sub_resource type="StandardMaterial3D" id="Material_explosion"]
+transparency = 1
+albedo_color = Color(1, 0.55, 0.15, 0.6)
+emission_enabled = true
+emission = Color(1, 0.45, 0.1, 1)
+
+[node name="ExplosionEffect" type="Node3D"]
+script = ExtResource("1_effect")
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+mesh = SubResource("SphereMesh_explosion")
+material_override = SubResource("Material_explosion")

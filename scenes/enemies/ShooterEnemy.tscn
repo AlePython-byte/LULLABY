@@ -1,0 +1,53 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/EnemyBase.cs" id="1_enemy"]
+[ext_resource type="Script" path="res://scripts/systems/HealthComponent.cs" id="2_health"]
+[ext_resource type="Script" path="res://scripts/enemies/EnemyVisual.cs" id="3_visual"]
+[ext_resource type="Script" path="res://scripts/enemies/KeepDistanceBehavior.cs" id="4_distance"]
+[ext_resource type="Script" path="res://scripts/enemies/ShootBehavior.cs" id="5_shoot"]
+[ext_resource type="PackedScene" path="res://scenes/combat/EnemyProjectile.tscn" id="6_projectile"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_body"]
+top_radius = 0.3
+bottom_radius = 0.42
+height = 1.2
+
+[sub_resource type="SphereMesh" id="SphereMesh_eye"]
+radius = 0.2
+height = 0.4
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_enemy"]
+size = Vector3(0.8, 0.9, 0.8)
+
+[node name="ShooterEnemy" type="CharacterBody3D"]
+collision_layer = 8
+collision_mask = 11
+motion_mode = 1
+script = ExtResource("1_enemy")
+Kind = 1
+Speed = 2.0
+
+[node name="Visual" type="Node3D" parent="."]
+script = ExtResource("3_visual")
+
+[node name="Body" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0)
+mesh = SubResource("CylinderMesh_body")
+
+[node name="Eye" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
+mesh = SubResource("SphereMesh_eye")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_enemy")
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("2_health")
+MaxHealth = 3.0
+
+[node name="Move" type="Node" parent="."]
+script = ExtResource("4_distance")
+
+[node name="Shoot" type="Node" parent="."]
+script = ExtResource("5_shoot")
+ProjectileScene = ExtResource("6_projectile")

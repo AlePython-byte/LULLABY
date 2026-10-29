@@ -7,6 +7,7 @@ using Godot;
 ///   Size                               interior jugable en metros (X, Z). Suelo y paredes se construyen por código.
 ///   SpawnPoints                        un enemigo por punto (X, Z relativo al centro de la sala).
 ///   EnemyScene                         escena del enemigo. Sin ella o sin puntos, la sala nace despejada.
+///   SpawnKinds                         tipo de enemigo de cada punto (generador v2); vacío = todos EnemyScene.
 ///   Type                               Start, Normal, Boss o Treasure; por ahora solo cambia el color del suelo.
 ///
 /// Y de quien la carga (RoomManager), mediante Setup:
@@ -70,7 +71,11 @@ public partial class RoomController : Node3D
 	private Node3D _geometry;
 	private Node3D _doorsRoot;
 	private Node3D _enemiesRoot;
+	private Node3D _projectilesRoot;
 	private int _enemiesAlive;
+
+	/// <summary>Donde cuelgan los proyectiles enemigos de esta sala (desaparecen con ella o al despejarla).</summary>
+	public Node3D ProjectilesRoot => _projectilesRoot ?? _enemiesRoot;
 	private bool _active;
 	private bool _playerInside;
 
@@ -93,6 +98,7 @@ public partial class RoomController : Node3D
 		_geometry = GetNode<Node3D>("Geometry");
 		_doorsRoot = GetNode<Node3D>("Doors");
 		_enemiesRoot = GetNode<Node3D>("Enemies");
+		_projectilesRoot = GetNodeOrNull<Node3D>("Projectiles");
 		Node spawnRoot = GetNode("SpawnPoints");
 
 		for (int i = 0; i < _data.SpawnPoints.Length; i++)
@@ -258,13 +264,21 @@ public partial class RoomController : Node3D
 			}
 		}
 
-		foreach (Marker3D marker in _spawnPoints)
+		for (int i = 0; i < _spawnPoints.Count; i++)
 		{
-			Node3D enemy = _data.EnemyScene.Instantiate<Node3D>();
+			Node3D enemy = EnemySceneFor(i).Instantiate<Node3D>();
 			_enemiesRoot.AddChild(enemy);
-			enemy.GlobalPosition = marker.GlobalPosition;
+			enemy.GlobalPosition = _spawnPoints[i].GlobalPosition;
 			HealthComponent.FindIn(enemy).Died += OnEnemyDied;
 		}
+	}
+
+	// Con SpawnKinds (generador v2) cada punto tiene su tipo; si está vacío (v1), todos salen de EnemyScene.
+	private PackedScene EnemySceneFor(int index)
+	{
+		return _data.SpawnKinds.Length == _data.SpawnPoints.Length
+			? EnemyKinds.Scene((EnemyKind)_data.SpawnKinds[index])
+			: _data.EnemyScene;
 	}
 
 	private void OnEnemyDied()
@@ -280,6 +294,12 @@ public partial class RoomController : Node3D
 		foreach (Door door in _doors.Values)
 		{
 			door.SetOpen(true);
+		}
+
+		// Los proyectiles enemigos que sigan en vuelo desaparecen al despejar la sala.
+		foreach (Node projectile in ProjectilesRoot.GetChildren())
+		{
+			projectile.QueueFree();
 		}
 
 		EmitSignal(SignalName.RoomCleared);

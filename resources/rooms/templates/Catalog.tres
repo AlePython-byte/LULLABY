@@ -11,6 +11,10 @@
 [ext_resource type="Resource" path="res://resources/rooms/templates/inicio.tres" id="9_inicio"]
 [ext_resource type="Resource" path="res://resources/rooms/templates/jefe.tres" id="10_jefe"]
 [ext_resource type="Resource" path="res://resources/rooms/templates/tesoro.tres" id="11_tesoro"]
+[ext_resource type="Resource" path="res://resources/rooms/templates/mixta_tiradores.tres" id="12_mixta_tiradores"]
+[ext_resource type="Resource" path="res://resources/rooms/templates/mixta_explosivos.tres" id="13_mixta_explosivos"]
+[ext_resource type="Resource" path="res://resources/rooms/templates/mixta_voladores.tres" id="14_mixta_voladores"]
+[ext_resource type="Resource" path="res://resources/rooms/templates/mixta_variada.tres" id="15_mixta_variada"]
 
 [resource]
 script = ExtResource("1_catalog")
@@ -18,3 +22,4 @@ StartTemplates = Array[ExtResource("2_template")]([ExtResource("9_inicio")])
 NormalTemplates = Array[ExtResource("2_template")]([ExtResource("3_normal_cuadrada"), ExtResource("4_normal_pequena"), ExtResource("5_normal_ancha"), ExtResource("6_normal_alta"), ExtResource("7_normal_grande"), ExtResource("8_normal_esquinas")])
 BossTemplates = Array[ExtResource("2_template")]([ExtResource("10_jefe")])
 TreasureTemplates = Array[ExtResource("2_template")]([ExtResource("11_tesoro")])
+NormalTemplatesV2 = Array[ExtResource("2_template")]([ExtResource("12_mixta_tiradores"), ExtResource("13_mixta_explosivos"), ExtResource("14_mixta_voladores"), ExtResource("15_mixta_variada")])

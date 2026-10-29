@@ -127,6 +127,19 @@ public static class LevelValidator
 		float limitZ = room.Size.Y / 2.0f - RoomRules.SpawnWallMargin;
 		Vector2[] arrivals = RoomRules.ArrivalPoints(room.Size);
 
+		if (room.SpawnKinds.Length > 0 && room.SpawnKinds.Length != room.SpawnPoints.Length)
+		{
+			problems.Add($"sala {room.Cell} ({room.TemplateId}): SpawnKinds tiene {room.SpawnKinds.Length} tipos para {room.SpawnPoints.Length} puntos de aparición.");
+		}
+
+		foreach (int kind in room.SpawnKinds)
+		{
+			if (!EnemyKinds.IsValid(kind))
+			{
+				problems.Add($"sala {room.Cell} ({room.TemplateId}): tipo de enemigo desconocido {kind}.");
+			}
+		}
+
 		foreach (Vector2 point in room.SpawnPoints)
 		{
 			if (Mathf.Abs(point.X) > limitX + epsilon || Mathf.Abs(point.Y) > limitZ + epsilon)

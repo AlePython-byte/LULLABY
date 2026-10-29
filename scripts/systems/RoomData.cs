@@ -30,4 +30,10 @@ public partial class RoomData : Resource
 
 	/// <summary>Posiciones (X, Z) relativas al centro de la sala.</summary>
 	[Export] public Vector2[] SpawnPoints { get; set; } = System.Array.Empty<Vector2>();
+
+	/// <summary>
+	/// Tipo de enemigo (valor de EnemyKind) de cada punto de aparición, en el mismo orden que SpawnPoints. Vacío = todos
+	/// salen de EnemyScene (así son todas las salas de la versión 1 del generador).
+	/// </summary>
+	[Export] public int[] SpawnKinds { get; set; } = System.Array.Empty<int>();
 }
