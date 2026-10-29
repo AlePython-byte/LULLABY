@@ -57,6 +57,13 @@ public partial class FidelityCheck : Node
 	public override async void _Ready()
 	{
 		ReadArguments();
+		if (!ToolVersionGuard.Check("FidelityCheck", Version))
+		{
+			GD.Print("RESULTADO: FALLO");
+			GetTree().Quit(1);
+			return;
+		}
+
 		GameplayParameters parameters = GameplayParameters.FromScenes();
 		PackedScene levelScene = GD.Load<PackedScene>(GameplayParameters.LevelScenePath);
 		BotSettings settings = new();

@@ -90,6 +90,10 @@ public partial class DirectorBenchmark : Node
 			{
 				Version = version;
 			}
+			else if (argument.StartsWith("--generator=") && int.TryParse(argument["--generator=".Length..], out int generatorVersion))
+			{
+				Version = generatorVersion;
+			}
 		}
 
 		foreach (string argument in OS.GetCmdlineUserArgs())
@@ -107,6 +111,11 @@ public partial class DirectorBenchmark : Node
 			{
 				outArgument = argument["--out=".Length..];
 			}
+		}
+
+		if (!ToolVersionGuard.Check("DirectorBenchmark", Version))
+		{
+			return false;
 		}
 
 		if (Version >= 2 && !firstSeedGiven)

@@ -46,6 +46,11 @@ public partial class DatasetExport : Node
 	private bool Run()
 	{
 		string outPath = ResolveArguments();
+		if (!ToolVersionGuard.Check("DatasetExport", Version))
+		{
+			return false;
+		}
+
 		RoomCatalog catalog = GD.Load<RoomCatalog>(CatalogPath);
 		DungeonGenerator generator = new(catalog);
 		DungeonGenerator.Settings settings = new() { GeneratorVersion = Version };
@@ -104,7 +109,8 @@ public partial class DatasetExport : Node
 		string output = null;
 		foreach (string argument in OS.GetCmdlineUserArgs())
 		{
-			if (TryValue(argument, "--version=", out string version) && int.TryParse(version, out int parsedVersion))
+			if ((TryValue(argument, "--version=", out string version) || TryValue(argument, "--generator=", out version))
+				&& int.TryParse(version, out int parsedVersion))
 			{
 				Version = parsedVersion;
 			}

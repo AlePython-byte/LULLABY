@@ -73,6 +73,11 @@ public partial class LabelExport : Node
 	private bool Run()
 	{
 		string outPath = ResolveArguments();
+		if (!ToolVersionGuard.Check("LabelExport", Version))
+		{
+			return false;
+		}
+
 		GameplayParameters parameters = GameplayParameters.FromScenes();
 		BotSettings botSettings = new();
 		DungeonGenerator generator = new(GD.Load<RoomCatalog>(CatalogPath));
@@ -161,7 +166,8 @@ public partial class LabelExport : Node
 		string output = null;
 		foreach (string argument in OS.GetCmdlineUserArgs())
 		{
-			if (TryValue(argument, "--version=", out string version) && int.TryParse(version, out int parsedVersion))
+			if ((TryValue(argument, "--version=", out string version) || TryValue(argument, "--generator=", out version))
+				&& int.TryParse(version, out int parsedVersion))
 			{
 				Version = parsedVersion;
 			}
