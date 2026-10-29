@@ -32,6 +32,25 @@ public partial class EnemyProjectile : Area3D
 		_direction = direction.Normalized();
 	}
 
+	/// <summary>
+	/// Dispara un proyectil de `scene` desde `enemy` en `direction` (plano), naciendo a `spawnDistance` metros. Se cuelga
+	/// del nodo de proyectiles de la sala. speedOverride > 0 sustituye la velocidad de la escena (proyectiles más lentos).
+	/// </summary>
+	public static EnemyProjectile FireFrom(EnemyBase enemy, PackedScene scene, Vector3 direction, float spawnDistance,
+		float speedOverride = 0.0f)
+	{
+		EnemyProjectile projectile = scene.Instantiate<EnemyProjectile>();
+		if (speedOverride > 0.0f)
+		{
+			projectile.Speed = speedOverride;
+		}
+
+		enemy.ProjectileParent().AddChild(projectile);
+		projectile.GlobalPosition = enemy.GlobalPosition + direction * spawnDistance;
+		projectile.Launch(direction);
+		return projectile;
+	}
+
 	public override void _PhysicsProcess(double delta)
 	{
 		GlobalPosition += _direction * Speed * (float)delta;

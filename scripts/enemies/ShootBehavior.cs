@@ -56,10 +56,7 @@ public partial class ShootBehavior : EnemyBehavior
 		Vector3 toPlayer = PlanarToPlayer(enemy, player);
 		Vector3 direction = toPlayer.LengthSquared() > 0.0001f ? toPlayer.Normalized() : Vector3.Forward;
 
-		EnemyProjectile projectile = ProjectileScene.Instantiate<EnemyProjectile>();
-		enemy.ProjectileParent().AddChild(projectile);
-		projectile.GlobalPosition = enemy.GlobalPosition + direction * SpawnDistance;
-		projectile.Launch(direction);
+		EnemyProjectile.FireFrom(enemy, ProjectileScene, direction, SpawnDistance);
 		EmitSignal(SignalName.Fired, direction);
 	}
 }
