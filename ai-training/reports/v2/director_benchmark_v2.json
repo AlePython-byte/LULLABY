@@ -1,0 +1,206 @@
+{
+  "ai_version": 2,
+  "bot_runs_per_level": 5,
+  "candidates_per_game": 30,
+  "error": {
+    "Easy": {
+      "director_expected_error": 2.057067,
+      "gap_closed": {
+        "best": 0.594663,
+        "director": 0.556386,
+        "oracle": 1
+      },
+      "mean_error": {
+        "best": 1.942,
+        "director": 2.109333,
+        "oracle": 0.17,
+        "random": 4.541667
+      },
+      "reduction_vs_random": {
+        "best": 0.572404,
+        "director": 0.53556,
+        "oracle": 0.962569
+      },
+      "standard_error": {
+        "random": 0.041193,
+        "director": 0.103586,
+        "best": 0.095564,
+        "oracle": 0.010133
+      },
+      "target_value": 9
+    },
+    "Hard": {
+      "director_expected_error": 2.9144,
+      "gap_closed": {
+        "best": 0.410366,
+        "director": 0.385699,
+        "oracle": 1
+      },
+      "mean_error": {
+        "best": 2.912,
+        "director": 3.022,
+        "oracle": 0.282667,
+        "random": 4.741933
+      },
+      "reduction_vs_random": {
+        "best": 0.385904,
+        "director": 0.362707,
+        "oracle": 0.94039
+      },
+      "standard_error": {
+        "random": 0.033243,
+        "director": 0.134108,
+        "best": 0.133419,
+        "oracle": 0.017035
+      },
+      "target_value": 15.4
+    },
+    "Normal": {
+      "director_expected_error": 2.5244,
+      "gap_closed": {
+        "best": 0.340804,
+        "director": 0.361415,
+        "oracle": 1
+      },
+      "mean_error": {
+        "best": 2.609333,
+        "director": 2.534,
+        "oracle": 0.2,
+        "random": 3.854956
+      },
+      "reduction_vs_random": {
+        "best": 0.323122,
+        "director": 0.342664,
+        "oracle": 0.948119
+      },
+      "standard_error": {
+        "random": 0.031909,
+        "director": 0.121998,
+        "best": 0.121539,
+        "oracle": 0.012204
+      },
+      "target_value": 11.8
+    },
+    "Overall": {
+      "director_expected_error": 2.498622,
+      "gap_closed": {
+        "best": 0.454531,
+        "director": 0.438353,
+        "oracle": 1
+      },
+      "mean_error": {
+        "best": 2.487778,
+        "director": 2.555111,
+        "oracle": 0.217556,
+        "random": 4.379519
+      },
+      "reduction_vs_random": {
+        "best": 0.431952,
+        "director": 0.416577,
+        "oracle": 0.950324
+      },
+      "standard_error": {
+        "random": 0.026801,
+        "director": 0.067488,
+        "best": 0.068179,
+        "oracle": 0.007131
+      },
+      "target_value": null
+    }
+  },
+  "feature_set_version": 2,
+  "first_seed": 400001,
+  "games": 300,
+  "generator_version": 2,
+  "seed_overlap_checked_against": [
+    "ai-training/datasets/levels_v2.csv",
+    "ai-training/datasets/levels_v2_test.csv",
+    "ai-training/datasets/levels_v2_confirm.csv"
+  ],
+  "simulator_version": 3,
+  "top_count": 5,
+  "variety": {
+    "Easy": {
+      "candidato sin elegir (\u00EDndice 0)": {
+        "distinct_levels": 300,
+        "distinct_shapes": 300,
+        "levels": 300,
+        "pairs_with_3_or_more_shared": 0.002118,
+        "shared_rooms_max": 5,
+        "shared_rooms_mean": 0.227804
+      },
+      "director (azar entre top-5)": {
+        "distinct_levels": 300,
+        "distinct_shapes": 300,
+        "levels": 300,
+        "pairs_with_3_or_more_shared": 0.002274,
+        "shared_rooms_max": 4,
+        "shared_rooms_mean": 0.225463
+      },
+      "siempre el mejor": {
+        "distinct_levels": 300,
+        "distinct_shapes": 300,
+        "levels": 300,
+        "pairs_with_3_or_more_shared": 0.002564,
+        "shared_rooms_max": 5,
+        "shared_rooms_mean": 0.236276
+      }
+    },
+    "Hard": {
+      "candidato sin elegir (\u00EDndice 0)": {
+        "distinct_levels": 300,
+        "distinct_shapes": 300,
+        "levels": 300,
+        "pairs_with_3_or_more_shared": 0.002118,
+        "shared_rooms_max": 5,
+        "shared_rooms_mean": 0.227804
+      },
+      "director (azar entre top-5)": {
+        "distinct_levels": 300,
+        "distinct_shapes": 300,
+        "levels": 300,
+        "pairs_with_3_or_more_shared": 0.003144,
+        "shared_rooms_max": 5,
+        "shared_rooms_mean": 0.25534
+      },
+      "siempre el mejor": {
+        "distinct_levels": 300,
+        "distinct_shapes": 300,
+        "levels": 300,
+        "pairs_with_3_or_more_shared": 0.003166,
+        "shared_rooms_max": 4,
+        "shared_rooms_mean": 0.267157
+      }
+    },
+    "Normal": {
+      "candidato sin elegir (\u00EDndice 0)": {
+        "distinct_levels": 300,
+        "distinct_shapes": 300,
+        "levels": 300,
+        "pairs_with_3_or_more_shared": 0.002118,
+        "shared_rooms_max": 5,
+        "shared_rooms_mean": 0.227804
+      },
+      "director (azar entre top-5)": {
+        "distinct_levels": 300,
+        "distinct_shapes": 300,
+        "levels": 300,
+        "pairs_with_3_or_more_shared": 0.002051,
+        "shared_rooms_max": 4,
+        "shared_rooms_mean": 0.224816
+      },
+      "siempre el mejor": {
+        "distinct_levels": 300,
+        "distinct_shapes": 300,
+        "levels": 300,
+        "pairs_with_3_or_more_shared": 0.002899,
+        "shared_rooms_max": 5,
+        "shared_rooms_mean": 0.225217
+      }
+    },
+    "within_game_shared_rooms": {
+      "all_candidates": 0.229433,
+      "top_candidates_normal": 0.228333
+    }
+  }
+}

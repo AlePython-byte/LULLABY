@@ -1,0 +1,455 @@
+{
+  "environment": {
+    "numpy": "2.5.4",
+    "pandas": "3.1.0",
+    "python": "3.14.3",
+    "scikit_learn": "1.9.1",
+    "scipy": "1.18.1"
+  },
+  "feature_names": [
+    "room_count",
+    "boss_distance",
+    "dead_end_count",
+    "branching_factor",
+    "total_enemies",
+    "enemies_per_room_mean",
+    "enemies_per_room_std",
+    "enemy_density",
+    "room_area_cv",
+    "critical_path_enemies",
+    "critical_path_enemy_ratio",
+    "treasure_distance",
+    "template_variety",
+    "adjacent_same_template_ratio",
+    "shooter_count",
+    "exploder_count",
+    "flyer_count",
+    "ranged_enemy_fraction",
+    "special_enemy_fraction",
+    "mixed_room_count",
+    "critical_path_special_enemies",
+    "kind_variety"
+  ],
+  "feature_set_version": 2,
+  "final_search_folds": 5,
+  "inner_folds": 3,
+  "n_train": 5000,
+  "outer_folds": 5,
+  "random_state": 42,
+  "scoring": "neg_root_mean_squared_error",
+  "targets": {
+    "damage_total_mean": {
+      "models": {
+        "gradient_boosting": {
+          "complexity": {
+            "parameters": 2734,
+            "trees": 400
+          },
+          "final_params": {
+            "learning_rate": 0.1,
+            "max_depth": 2,
+            "n_estimators": 400
+          },
+          "final_search_rmse_optimistic": 3.17222112,
+          "fold_rmse": [
+            3.23330534,
+            3.16157614,
+            3.13233059,
+            3.2873142,
+            3.04657934
+          ],
+          "oof": {
+            "mae": 2.45123458,
+            "r2": 0.55820299,
+            "rmse": 3.1733075,
+            "spearman": 0.73144746
+          },
+          "params_per_outer_fold": [
+            {
+              "learning_rate": 0.1,
+              "max_depth": 2,
+              "n_estimators": 400
+            },
+            {
+              "learning_rate": 0.1,
+              "max_depth": 2,
+              "n_estimators": 400
+            },
+            {
+              "learning_rate": 0.1,
+              "max_depth": 2,
+              "n_estimators": 400
+            },
+            {
+              "learning_rate": 0.1,
+              "max_depth": 2,
+              "n_estimators": 400
+            },
+            {
+              "learning_rate": 0.1,
+              "max_depth": 2,
+              "n_estimators": 400
+            }
+          ],
+          "rmse_se": 0.04151393
+        },
+        "linear": {
+          "complexity": {
+            "parameters": 67
+          },
+          "final_params": {},
+          "final_search_rmse_optimistic": null,
+          "fold_rmse": [
+            3.21822247,
+            3.0556427,
+            3.12881177,
+            3.23500809,
+            2.99429992
+          ],
+          "oof": {
+            "mae": 2.41945623,
+            "r2": 0.57079388,
+            "rmse": 3.12776216,
+            "spearman": 0.74849015
+          },
+          "params_per_outer_fold": [
+            {},
+            {},
+            {},
+            {},
+            {}
+          ],
+          "rmse_se": 0.04620061
+        },
+        "mean": {
+          "fold_rmse": [
+            4.69546089,
+            4.78672341,
+            4.8234633,
+            4.8584887,
+            4.71376274
+          ],
+          "oof": {
+            "mae": 3.81469354,
+            "r2": -0.00074874,
+            "rmse": 4.77598877,
+            "spearman": -0.0370483
+          },
+          "params_per_outer_fold": [
+            {},
+            {},
+            {},
+            {},
+            {}
+          ],
+          "rmse_se": 0.03125003
+        },
+        "random_forest": {
+          "complexity": {
+            "parameters": 349106,
+            "trees": 200
+          },
+          "final_params": {
+            "max_features": 0.7,
+            "min_samples_leaf": 3
+          },
+          "final_search_rmse_optimistic": 3.3310564,
+          "fold_rmse": [
+            3.40510614,
+            3.35784487,
+            3.33365957,
+            3.37375054,
+            3.18979979
+          ],
+          "oof": {
+            "mae": 2.58469613,
+            "r2": 0.51265595,
+            "rmse": 3.33287178,
+            "spearman": 0.70169872
+          },
+          "params_per_outer_fold": [
+            {
+              "max_features": 0.4,
+              "min_samples_leaf": 3
+            },
+            {
+              "max_features": 0.7,
+              "min_samples_leaf": 3
+            },
+            {
+              "max_features": 0.4,
+              "min_samples_leaf": 3
+            },
+            {
+              "max_features": 0.7,
+              "min_samples_leaf": 3
+            },
+            {
+              "max_features": 0.7,
+              "min_samples_leaf": 3
+            }
+          ],
+          "rmse_se": 0.03740269
+        },
+        "ridge": {
+          "complexity": {
+            "parameters": 67
+          },
+          "final_params": {
+            "model__alpha": 1.0
+          },
+          "final_search_rmse_optimistic": 3.12614768,
+          "fold_rmse": [
+            3.21645057,
+            3.05631865,
+            3.12837772,
+            3.23508624,
+            2.99450524
+          ],
+          "oof": {
+            "mae": 2.41900941,
+            "r2": 0.57086628,
+            "rmse": 3.12749835,
+            "spearman": 0.7486753
+          },
+          "params_per_outer_fold": [
+            {
+              "model__alpha": 1.0
+            },
+            {
+              "model__alpha": 1.0
+            },
+            {
+              "model__alpha": 1.0
+            },
+            {
+              "model__alpha": 1.0
+            },
+            {
+              "model__alpha": 1.0
+            }
+          ],
+          "rmse_se": 0.0459527
+        }
+      },
+      "selection": {
+        "best_family_by_rmse": "ridge",
+        "chosen_family": "linear",
+        "chosen_params": {},
+        "reason": "El mejor por RMSE es Ridge (3.1275), pero regresión lineal (3.1278) queda a menos de 1 error estándar (0.0460) y es más simple.",
+        "rmse_threshold": 3.17345106,
+        "within_one_standard_error": [
+          "linear",
+          "ridge",
+          "gradient_boosting"
+        ]
+      }
+    },
+    "time_total_mean": {
+      "models": {
+        "gradient_boosting": {
+          "complexity": {
+            "parameters": 2764,
+            "trees": 400
+          },
+          "final_params": {
+            "learning_rate": 0.1,
+            "max_depth": 2,
+            "n_estimators": 400
+          },
+          "final_search_rmse_optimistic": 3.67291425,
+          "fold_rmse": [
+            3.70306216,
+            3.68046504,
+            3.61745231,
+            3.82701621,
+            3.53657554
+          ],
+          "oof": {
+            "mae": 2.91491403,
+            "r2": 0.94805411,
+            "rmse": 3.67417673,
+            "spearman": 0.9747836
+          },
+          "params_per_outer_fold": [
+            {
+              "learning_rate": 0.1,
+              "max_depth": 2,
+              "n_estimators": 400
+            },
+            {
+              "learning_rate": 0.1,
+              "max_depth": 2,
+              "n_estimators": 400
+            },
+            {
+              "learning_rate": 0.1,
+              "max_depth": 2,
+              "n_estimators": 400
+            },
+            {
+              "learning_rate": 0.1,
+              "max_depth": 2,
+              "n_estimators": 400
+            },
+            {
+              "learning_rate": 0.1,
+              "max_depth": 2,
+              "n_estimators": 400
+            }
+          ],
+          "rmse_se": 0.04815475
+        },
+        "linear": {
+          "complexity": {
+            "parameters": 67
+          },
+          "final_params": {},
+          "final_search_rmse_optimistic": null,
+          "fold_rmse": [
+            3.51999967,
+            3.51192552,
+            3.50227718,
+            3.66643442,
+            3.42598962
+          ],
+          "oof": {
+            "mae": 2.7957499,
+            "r2": 0.95215432,
+            "rmse": 3.52619087,
+            "spearman": 0.9768632
+          },
+          "params_per_outer_fold": [
+            {},
+            {},
+            {},
+            {},
+            {}
+          ],
+          "rmse_se": 0.03906308
+        },
+        "mean": {
+          "fold_rmse": [
+            16.25164555,
+            16.08743407,
+            16.32212981,
+            15.80008974,
+            16.14662724
+          ],
+          "oof": {
+            "mae": 13.51333808,
+            "r2": -0.00023228,
+            "rmse": 16.12259189,
+            "spearman": -0.01950715
+          },
+          "params_per_outer_fold": [
+            {},
+            {},
+            {},
+            {},
+            {}
+          ],
+          "rmse_se": 0.09007957
+        },
+        "random_forest": {
+          "complexity": {
+            "parameters": 348792,
+            "trees": 200
+          },
+          "final_params": {
+            "max_features": 0.7,
+            "min_samples_leaf": 3
+          },
+          "final_search_rmse_optimistic": 4.08216711,
+          "fold_rmse": [
+            4.14422117,
+            4.14592638,
+            4.04235499,
+            4.15924835,
+            3.96447558
+          ],
+          "oof": {
+            "mae": 3.22897508,
+            "r2": 0.93556942,
+            "rmse": 4.09195117,
+            "spearman": 0.96911877
+          },
+          "params_per_outer_fold": [
+            {
+              "max_features": 0.7,
+              "min_samples_leaf": 3
+            },
+            {
+              "max_features": 0.7,
+              "min_samples_leaf": 3
+            },
+            {
+              "max_features": 0.7,
+              "min_samples_leaf": 3
+            },
+            {
+              "max_features": 0.7,
+              "min_samples_leaf": 3
+            },
+            {
+              "max_features": 1.0,
+              "min_samples_leaf": 3
+            }
+          ],
+          "rmse_se": 0.03800112
+        },
+        "ridge": {
+          "complexity": {
+            "parameters": 67
+          },
+          "final_params": {
+            "model__alpha": 1.0
+          },
+          "final_search_rmse_optimistic": 3.5251935,
+          "fold_rmse": [
+            3.51727556,
+            3.51322726,
+            3.50313118,
+            3.66508363,
+            3.42611716
+          ],
+          "oof": {
+            "mae": 2.79530062,
+            "r2": 0.95216438,
+            "rmse": 3.52582013,
+            "spearman": 0.97686328
+          },
+          "params_per_outer_fold": [
+            {
+              "model__alpha": 1.0
+            },
+            {
+              "model__alpha": 1.0
+            },
+            {
+              "model__alpha": 1.0
+            },
+            {
+              "model__alpha": 1.0
+            },
+            {
+              "model__alpha": 0.1
+            }
+          ],
+          "rmse_se": 0.03877999
+        }
+      },
+      "selection": {
+        "best_family_by_rmse": "ridge",
+        "chosen_family": "linear",
+        "chosen_params": {},
+        "reason": "El mejor por RMSE es Ridge (3.5258), pero regresión lineal (3.5262) queda a menos de 1 error estándar (0.0388) y es más simple.",
+        "rmse_threshold": 3.56460012,
+        "within_one_standard_error": [
+          "linear",
+          "ridge"
+        ]
+      }
+    }
+  }
+}

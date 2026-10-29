@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/SeedHud.tscn" id="8_seed"]
 [ext_resource type="Script" path="res://scripts/systems/RunManager.cs" id="9_run"]
 [ext_resource type="JSON" path="res://resources/ai/difficulty_v1.json" id="10_model"]
+[ext_resource type="JSON" path="res://resources/ai/difficulty_v2.json" id="11_model_v2"]
 
 [sub_resource type="Environment" id="Environment_dark"]
 background_mode = 1
@@ -62,5 +63,6 @@ Fade = NodePath("../ScreenFade")
 script = ExtResource("9_run")
 Catalog = ExtResource("2_catalog")
 ModelFile = ExtResource("10_model")
+ModelFileV2 = ExtResource("11_model_v2")
 Rooms = NodePath("../RoomManager")
 SeedHud = NodePath("../SeedHud")

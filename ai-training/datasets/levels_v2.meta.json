@@ -1,0 +1,37 @@
+{
+  "metrics_version": 2,
+  "feature_names": [
+    "room_count",
+    "boss_distance",
+    "dead_end_count",
+    "branching_factor",
+    "total_enemies",
+    "enemies_per_room_mean",
+    "enemies_per_room_std",
+    "enemy_density",
+    "room_area_cv",
+    "critical_path_enemies",
+    "critical_path_enemy_ratio",
+    "treasure_distance",
+    "template_variety",
+    "adjacent_same_template_ratio",
+    "shooter_count",
+    "exploder_count",
+    "flyer_count",
+    "ranged_enemy_fraction",
+    "special_enemy_fraction",
+    "mixed_room_count",
+    "critical_path_special_enemies",
+    "kind_variety"
+  ],
+  "level_count": 5000,
+  "first_seed": 1,
+  "generator": {
+    "GeneratorVersion": 2,
+    "MinRooms": 8,
+    "MaxRooms": 12,
+    "MinBossDistance": 4,
+    "BranchChance": 0.5,
+    "MaxAttempts": 20
+  }
+}

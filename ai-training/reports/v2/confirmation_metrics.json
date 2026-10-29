@@ -1,0 +1,55 @@
+{
+  "effective_seed_range": [
+    200001,
+    247929
+  ],
+  "environment": {
+    "numpy": "2.5.4",
+    "pandas": "3.1.0",
+    "python": "3.14.3",
+    "scikit_learn": "1.9.1",
+    "scipy": "1.18.1"
+  },
+  "main_target": "damage_total_mean",
+  "model_file": "resources/ai/difficulty_v2.json",
+  "model_sha256": "c03cf200951a1588705e9f6aca839510c92c26a8261767e4177ad885122fe7bd",
+  "n_confirm": 1000,
+  "note": "Evaluación única del modelo ya fijado; no se ajustó nada con este resultado.",
+  "overlap": {
+    "confirm_and_test_effective_seeds": 0,
+    "confirm_and_train_effective_seeds": 0,
+    "confirm_rows_with_identical_vector_in_test": 0,
+    "confirm_rows_with_identical_vector_in_train": 1
+  },
+  "results": {
+    "damage_total_mean": {
+      "metrics": {
+        "mae": 2.40475647,
+        "r2": 0.57653301,
+        "rmse": 3.12201551,
+        "spearman": 0.76404115
+      },
+      "test_metrics_for_reference": {
+        "mae": 2.48138658,
+        "r2": 0.56383285,
+        "rmse": 3.17328009,
+        "spearman": 0.74675427
+      }
+    },
+    "time_total_mean": {
+      "metrics": {
+        "mae": 2.86484745,
+        "r2": 0.94989556,
+        "rmse": 3.61555897,
+        "spearman": 0.97353218
+      },
+      "test_metrics_for_reference": {
+        "mae": 2.83857852,
+        "r2": 0.94992615,
+        "rmse": 3.5781136,
+        "spearman": 0.97418877
+      }
+    }
+  },
+  "secondary_target": "time_total_mean"
+}
