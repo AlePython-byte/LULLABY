@@ -6,15 +6,8 @@
 [ext_resource type="Script" path="res://scripts/enemies/ChaseBehavior.cs" id="4_chase"]
 [ext_resource type="Script" path="res://scripts/enemies/FuseBehavior.cs" id="5_fuse"]
 [ext_resource type="PackedScene" path="res://scenes/combat/ExplosionEffect.tscn" id="6_effect"]
-
-[sub_resource type="SphereMesh" id="SphereMesh_body"]
-radius = 0.45
-height = 0.9
-
-[sub_resource type="CylinderMesh" id="CylinderMesh_fuse"]
-top_radius = 0.05
-bottom_radius = 0.07
-height = 0.35
+[ext_resource type="PackedScene" path="res://assets/models/exploder_enemy.glb" id="7_model"]
+[ext_resource type="Script" path="res://scripts/enemies/EnemyFacing.cs" id="8_facing"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_enemy"]
 size = Vector3(0.8, 0.9, 0.8)
@@ -29,14 +22,12 @@ Speed = 4.5
 ContactDamage = 0.0
 
 [node name="Visual" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 script = ExtResource("3_visual")
+UseKindColor = false
 
-[node name="Body" type="MeshInstance3D" parent="Visual"]
-mesh = SubResource("SphereMesh_body")
-
-[node name="Wick" type="MeshInstance3D" parent="Visual"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
-mesh = SubResource("CylinderMesh_fuse")
+[node name="Model" parent="Visual" instance=ExtResource("7_model")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("BoxShape3D_enemy")
@@ -51,3 +42,6 @@ script = ExtResource("4_chase")
 [node name="Fuse" type="Node" parent="."]
 script = ExtResource("5_fuse")
 ExplosionEffect = ExtResource("6_effect")
+
+[node name="Facing" type="Node" parent="."]
+script = ExtResource("8_facing")
