@@ -627,6 +627,18 @@ La versión por defecto es la 2: el juego arranca con el generador v2 y su model
 - **Variedad:** con el mismo objetivo, las 300 semillas dan 300 niveles distintos en las tres estrategias y los tres objetivos. Dos niveles cualesquiera comparten de media entre 0.22 y 0.27 salas.
 - **Con el conjunto de prueba** (2000 grupos de 30): azar 4.343, director 2.493, siempre el mejor 2.599 y oráculo 0.245. Es una reducción del 42.6 % para el director.
 
+#### 11.6.1 Desempate opcional por variedad
+
+`AIDungeonDirector.PreferEnemyVariety` vale `false` por defecto y conserva la selección histórica aleatoria entre los cinco candidatos más cercanos al objetivo. `RunManager` lo activa explícitamente solo al jugar con el generador v2. Con la opción activa se mantienen esos mismos cinco candidatos y se elige el que contiene más tipos de enemigo distintos; los empates se resuelven por menor distancia predicha al objetivo y después por índice de candidato. La selección es determinista para la misma semilla, dificultad y configuración. El log indica cuántos tipos tiene el nivel elegido.
+
+Este desempate no cambia las plantillas, el catálogo, el modelo ni los datos de entrenamiento. Los benchmarks históricos crean el director con la opción desactivada y conservan sus resultados. En la auditoría de 200 semillas consecutivas (1–200), dificultad Normal, los niveles con al menos tres tipos pasan de 176/200 (88 %) a 200/200 (100 %); los básicos pasan del 74,35 % al 70,86 % de los enemigos. La mejora medida es de **composición**, no de dificultad simulada: esta comparación no ejecuta combates del bot. Informe: `ai-training/reports/diagnostics/director_variety_v2.json`.
+
+Para reproducir la comparación y comprobar ambos modos, el determinismo y el informe sin sobrescribirlo:
+
+```
+godot --headless --path . res://tests/DirectorVarietyAudit.tscn -- --verify-selector --check-report
+```
+
 ### 11.7 Limitaciones de la versión 2
 
 1. **El simulador subestima el daño por contacto**, tanto en v1 como en v2. En la prueba de fidelidad v1 (30 niveles) el daño total, todo por contacto, fue 13.24 en el simulador frente a 16.00 en el juego (−17 %). En la v2 (90 niveles), el contacto da −12.9 % (IC 95 % de −16.6 % a −9.2 %).
