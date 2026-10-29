@@ -9,6 +9,9 @@ using Godot;
 /// (normal de la colisión; si empatan, la izquierda) y mantiene ese sentido al menos StrafeTime segundos y mientras siga
 /// demasiado cerca del jugador, hasta MaxStrafeTime. Si también queda bloqueado de lado, invierte el sentido. Así sale
 /// de las esquinas en vez de volver a meterse en ellas al intentar alejarse. Todo es determinista.
+///
+/// Si otro comportamiento anterior decide la velocidad de un fotograma (la embestida del Huidor), AfterMove no evalúa el
+/// bloqueo en ese fotograma: no fue su movimiento. Con el Tirador, que solo tiene este, no cambia nada.
 /// </summary>
 public partial class KeepDistanceBehavior : EnemyBehavior
 {
@@ -22,12 +25,14 @@ public partial class KeepDistanceBehavior : EnemyBehavior
 	private Vector3 _strafeDirection;
 	private bool _strafing;
 	private float _strafeElapsed;
+	private bool _decidedThisFrame;
 
 	/// <summary>Cuántas veces ha empezado a desplazarse en perpendicular por estar bloqueado (diagnóstico y pruebas).</summary>
 	public int StrafeCount { get; private set; }
 
 	public override bool TryGetVelocity(EnemyBase enemy, Node3D player, float delta, out Vector3 velocity)
 	{
+		_decidedThisFrame = true;
 		float speed = enemy.Speed * enemy.SpeedScale;
 		Vector3 toPlayer = PlanarToPlayer(enemy, player);
 		float distance = toPlayer.Length();
@@ -71,7 +76,9 @@ public partial class KeepDistanceBehavior : EnemyBehavior
 
 	public override void AfterMove(EnemyBase enemy, Node3D player, float delta)
 	{
-		if (_wanted == Vector3.Zero)
+		bool decided = _decidedThisFrame;
+		_decidedThisFrame = false;
+		if (!decided || _wanted == Vector3.Zero)
 		{
 			return;
 		}
