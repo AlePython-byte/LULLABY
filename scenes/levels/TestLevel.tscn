@@ -15,6 +15,7 @@
 [ext_resource type="Resource" path="res://resources/items/Catalog.tres" id="13_items"]
 [ext_resource type="PackedScene" path="res://scenes/items/ItemPickup.tscn" id="14_pickup"]
 [ext_resource type="Script" path="res://scripts/items/TreasureItemSpawner.cs" id="15_treasure"]
+[ext_resource type="PackedScene" path="res://scenes/ui/ItemsHud.tscn" id="16_items_hud"]
 
 [sub_resource type="Environment" id="Environment_dark"]
 background_mode = 1
@@ -42,6 +43,9 @@ shadow_enabled = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 
 [node name="HealthHud" parent="." instance=ExtResource("4_hud")]
+
+[node name="ItemsHud" parent="." node_paths=PackedStringArray("Inventory") instance=ExtResource("16_items_hud")]
+Inventory = NodePath("../Player/Items")
 
 [node name="SeedHud" parent="." instance=ExtResource("8_seed")]
 

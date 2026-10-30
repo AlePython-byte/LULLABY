@@ -1,0 +1,17 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/ItemsHud.cs" id="1_items"]
+
+[node name="ItemsHud" type="CanvasLayer"]
+script = ExtResource("1_items")
+
+[node name="Label" type="Label" parent="."]
+offset_left = 16.0
+offset_top = 76.0
+offset_right = 316.0
+offset_bottom = 246.0
+mouse_filter = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 18
+text = "Objetos: —"
