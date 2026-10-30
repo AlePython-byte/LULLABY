@@ -157,11 +157,14 @@ public partial class BossEncounterTest : Node
 				shotWarningTicks = 0;
 			}
 
-			bool moved = position.DistanceTo(previousPosition) > 0.0001f;
+			// Solo cuenta el plano: en el primer paso la física asienta el cuerpo sobre el suelo y varía la Y una diezmilésima.
+			Vector3 step = position - previousPosition;
+			step.Y = 0.0f;
+			bool moved = step.Length() > 0.001f;
 			if (moved)
 			{
 				Require(previous == MotherBehavior.AttackState.Approach || previous == MotherBehavior.AttackState.Dash,
-					$"The Mother se movió durante {previous}: solo puede moverse al acercarse o embestir");
+					$"The Mother se movió durante {previous} (paso {tick}, de {previousPosition} a {position}, estado actual {state}): solo puede moverse al acercarse o embestir");
 			}
 
 			if (moved && previous == MotherBehavior.AttackState.Dash)
