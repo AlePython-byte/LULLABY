@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 
 /// <summary>
@@ -8,7 +9,10 @@ using Godot;
 /// Por ahora:
 ///   - un marco de puerta (marco_puerta) alrededor de cada hueco; su hueco libre mide 3 m, como el de la puerta;
 ///   - los barrotes (puerta_barrotes) como visual de la puerta cerrada, colgando de Door (se ocultan al abrir);
-///   - columnas (columna_esquina) en las esquinas interiores del lado norte.
+///   - columnas (columna_esquina) en las esquinas interiores del lado norte;
+///   - con el tipo de sala: en las de combate (Normal), estanterías, cortinas y una alfombra plana pegadas a la pared (WallDecorPlanner,
+///     con azar propio por semilla de partida y celda); en inicio, tesoro y jefe, piezas exentas en una disposición fija
+///     (FixedRoomLayouts). Ninguna lleva colisión.
 ///
 /// La cámara mira desde el sur con 60° de inclinación: la pared sur oculta el suelo que tiene delante, así que sus esquinas no
 /// llevan columna (SkipSouth). Una pieza que falte en assets/ simplemente no se pone.
@@ -26,8 +30,18 @@ public static class RoomDecorator
 	// Las caras del marco (1 m de fondo) coinciden con las de la pared (1 m de grosor); un poco más de fondo evita el parpadeo.
 	private const float FrameDepthScale = 1.03f;
 
-	/// <summary>Crea el nodo "Decor" de la sala (marcos y columnas) y pone los barrotes en cada puerta.</summary>
-	public static Node3D Build(Node3D room, RoomLayout layout, Vector2 roomSize, IReadOnlyDictionary<DoorSide, Door> doors)
+	/// <summary>Piezas de una sala según su tipo: plan de pared con azar propio (combate) o disposición fija (inicio, tesoro, jefe).</summary>
+	public static List<DecorPiece> PiecesFor(RoomType type, Vector2 size, Vector2I cell, int gameSeed, IReadOnlyCollection<DoorSide> doors)
+	{
+		return type == RoomType.Normal ? WallDecorPlanner.Plan(gameSeed, cell, size, doors) : FixedRoomLayouts.For(type, size);
+	}
+
+	/// <summary>
+	/// Crea el nodo "Decor" de la sala (marcos, columnas y, si se da el tipo, sus piezas) y pone los barrotes en cada puerta.
+	/// Sin tipo solo se hace la parte estructural.
+	/// </summary>
+	public static Node3D Build(Node3D room, RoomLayout layout, Vector2 roomSize, IReadOnlyDictionary<DoorSide, Door> doors,
+		RoomType? type = null, Vector2I cell = default, int gameSeed = 0)
 	{
 		Node3D decor = new() { Name = DecorName };
 		room.AddChild(decor);
@@ -83,7 +97,50 @@ public static class RoomDecorator
 			}
 		}
 
+		if (type.HasValue)
+		{
+			AddPieces(decor, PiecesFor(type.Value, roomSize, cell, gameSeed, layout.Doors.Select(door => door.Side).ToList()));
+		}
+
 		return decor;
+	}
+
+	private static void AddPieces(Node3D decor, List<DecorPiece> pieces)
+	{
+		for (int i = 0; i < pieces.Count; i++)
+		{
+			DecorPiece piece = pieces[i];
+			Node3D model = ModelLibrary.Create(piece.Path);
+			if (model == null)
+			{
+				continue;
+			}
+
+			model.Name = $"{piece.Model}_{i}";
+			model.Position = piece.Position;
+			model.Rotation = new Vector3(0.0f, piece.Yaw, 0.0f);
+			decor.AddChild(model);
+
+			// Las piezas bajas y planas no proyectan sombra: cuestan sin aportar.
+			Aabb? box = ModelLibrary.BoundsOf(piece.Path);
+			if (piece.Model == PropModels.Rug || piece.Model == PropModels.Curtain || (box.HasValue && box.Value.Size.Y < 0.6f))
+			{
+				SetShadows(model, false);
+			}
+		}
+	}
+
+	private static void SetShadows(Node node, bool cast)
+	{
+		if (node is GeometryInstance3D geometry)
+		{
+			geometry.CastShadow = cast ? GeometryInstance3D.ShadowCastingSetting.On : GeometryInstance3D.ShadowCastingSetting.Off;
+		}
+
+		foreach (Node child in node.GetChildren())
+		{
+			SetShadows(child, cast);
+		}
 	}
 
 	// Norte y sur recorren el eje X (el modelo ya mira así); este y oeste, el Z.
