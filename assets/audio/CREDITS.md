@@ -9,3 +9,4 @@ Todos los efectos de sonido y pistas musicales utilizados en el proyecto cuentan
 | noah_dano.ogg       | Daño recibido por Noah                     | SpliceSound | https://freesound.org/people/SpliceSound/sounds/260188/ | CC0      |
 | noah_muere.ogg      | Derrota o muerte de Noah                   | blukotek    | https://freesound.org/people/blukotek/sounds/431644/    | CC0      |
 | enemigo_golpe.ogg   | Daño recibido por un enemigo               | DSPena      | https://freesound.org/people/DSPena/sounds/243701/      | CC0      |
+| explosion.ogg       | Explosión o ataque de área                 | craigsmith  | https://freesound.org/people/craigsmith/sounds/674879/  | CC0      |
