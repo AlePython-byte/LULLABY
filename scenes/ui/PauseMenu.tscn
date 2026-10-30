@@ -1,0 +1,79 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/PauseMenu.cs" id="1_pause"]
+[ext_resource type="PackedScene" path="res://scenes/ui/ControlsPanel.tscn" id="2_controls"]
+
+[node name="PauseMenu" type="CanvasLayer"]
+process_mode = 3
+layer = 15
+script = ExtResource("1_pause")
+
+[node name="Root" type="Control" parent="."]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="ColorRect" parent="Root"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.6)
+
+[node name="Center" type="CenterContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Box" type="VBoxContainer" parent="Root/Center"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="Root/Center/Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.7, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 56
+text = "Pausa"
+horizontal_alignment = 1
+
+[node name="Resume" type="Button" parent="Root/Center/Box"]
+custom_minimum_size = Vector2(320, 56)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
+text = "Reanudar"
+
+[node name="ControlsButton" type="Button" parent="Root/Center/Box"]
+custom_minimum_size = Vector2(320, 56)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
+text = "Controles"
+
+[node name="Restart" type="Button" parent="Root/Center/Box"]
+custom_minimum_size = Vector2(320, 56)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
+text = "Reiniciar partida"
+
+[node name="Menu" type="Button" parent="Root/Center/Box"]
+custom_minimum_size = Vector2(320, 56)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
+text = "Volver al menú"
+
+[node name="ControlsPanel" parent="Root" instance=ExtResource("2_controls")]
+layout_mode = 1
