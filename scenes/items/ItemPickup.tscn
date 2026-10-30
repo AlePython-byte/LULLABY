@@ -17,11 +17,11 @@ Definition = ExtResource("2_default")
 position = Vector3(0, 0.45, 0)
 
 [node name="NameLabel" type="Label3D" parent="."]
-position = Vector3(0, 1.2, 0)
+position = Vector3(0, 1.35, 0)
 billboard = 1
 no_depth_test = true
-font_size = 40
-pixel_size = 0.008
+font_size = 48
+pixel_size = 0.015
 outline_size = 6
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]

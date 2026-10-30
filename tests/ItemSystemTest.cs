@@ -18,6 +18,7 @@ public partial class ItemSystemTest : Node
 			CheckHealth();
 			await CheckPlayerItems();
 			await CheckPickups();
+			await CheckDebugSpawner();
 			CheckBaseParameters();
 			await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
 			GD.Print($"ItemSystemTest: {_checks} comprobaciones. RESULTADO: OK");
@@ -230,5 +231,62 @@ public partial class ItemSystemTest : Node
 		enemy.Free();
 		player.Free();
 		GD.Print("Formas, colores, nombres, contacto físico y recogida única: OK");
+	}
+
+	private async System.Threading.Tasks.Task CheckDebugSpawner()
+	{
+		PlayerController player = GD.Load<PackedScene>("res://scenes/player/Player.tscn").Instantiate<PlayerController>();
+		player.Position = new Vector3(0.0f, 0.5f, 0.0f);
+		AddChild(player);
+		player.SetPhysicsProcess(false);
+		player.GetNode<PlayerShooter>("Shooter").SetPhysicsProcess(false);
+		DebugItemSpawner spawner = new()
+		{
+			Player = player, Catalog = _catalog,
+			PickupScene = GD.Load<PackedScene>("res://scenes/items/ItemPickup.tscn"),
+		};
+		AddChild(spawner);
+		if (OS.IsDebugBuild())
+		{
+			int before = GetChildren().OfType<ItemPickup>().Count();
+			spawner._UnhandledInput(new InputEventKey { PhysicalKeycode = Key.J, Pressed = true, CtrlPressed = true });
+			spawner._UnhandledInput(new InputEventKey { PhysicalKeycode = Key.J, Pressed = true, Echo = true });
+			spawner._UnhandledInput(new InputEventKey { PhysicalKeycode = Key.N, Pressed = true });
+			Require(GetChildren().OfType<ItemPickup>().Count() == before, "No dispara con modificadores, repetición ni otras teclas");
+			spawner._UnhandledInput(new InputEventKey { PhysicalKeycode = Key.J, Pressed = true });
+			ItemPickup first = GetChildren().OfType<ItemPickup>().Last();
+			Require(first.Definition.Id == "biberon", "J crea el primer objeto");
+			Near(first.GlobalPosition.DistanceTo(player.GlobalPosition), Mathf.Sqrt(4.25f), "Aparición junto al jugador sin solaparlo");
+			first.Free();
+			for (int i = 1; i <= _catalog.Items.Count; i++)
+			{
+				ItemPickup pickup = spawner.SpawnNext();
+				Require(pickup != null && pickup.Definition.Id == _catalog.Items[i % _catalog.Items.Count].Id, "Ciclo de los cinco objetos");
+				pickup.Free();
+			}
+		}
+		else Require(spawner.SpawnNext() == null, "No aparece ningún objeto de depuración en Release");
+		spawner.Free();
+		player.Free();
+		if (OS.IsDebugBuild())
+		{
+			RunManager.SetNextSeed(1);
+			Node level = GD.Load<PackedScene>("res://scenes/levels/TestLevel.tscn").Instantiate();
+			AddChild(level);
+			RoomController room = level.GetNode<RoomManager>("RoomManager").CurrentRoom;
+			PlayerController realPlayer = level.GetNode<PlayerController>("Player");
+			realPlayer.SetPhysicsProcess(false);
+			realPlayer.GlobalPosition = room.ToGlobal(new Vector3(room.Data.Size.X / 2.0f - 0.65f, 0.5f,
+				room.Data.Size.Y / 2.0f - 0.65f));
+			ItemPickup nearWall = level.GetNode<DebugItemSpawner>("DebugItemSpawner").SpawnNext();
+			Require(nearWall != null && nearWall.GetParent() == room, "Objeto de depuración pertenece a la sala actual");
+			Require(Mathf.Abs(nearWall.Position.X) <= room.Data.Size.X / 2.0f - 1.0f
+				&& Mathf.Abs(nearWall.Position.Z) <= room.Data.Size.Y / 2.0f - 1.0f, "Aparición dentro de las paredes");
+			Vector3 relative = nearWall.GlobalPosition - realPlayer.GlobalPosition;
+			Require(new Vector2(relative.X, relative.Z).Length() >= 1.5f, "Aparición segura junto a una esquina");
+			level.Free();
+		}
+		await Frames(1);
+		GD.Print("Atajo J sin modificadores, ciclo y aparición junto al jugador: OK");
 	}
 }

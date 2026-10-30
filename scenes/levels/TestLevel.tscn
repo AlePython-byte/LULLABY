@@ -11,6 +11,9 @@
 [ext_resource type="Script" path="res://scripts/systems/RunManager.cs" id="9_run"]
 [ext_resource type="JSON" path="res://resources/ai/difficulty_v1.json" id="10_model"]
 [ext_resource type="JSON" path="res://resources/ai/difficulty_v2.json" id="11_model_v2"]
+[ext_resource type="Script" path="res://scripts/items/DebugItemSpawner.cs" id="12_debug_items"]
+[ext_resource type="Resource" path="res://resources/items/Catalog.tres" id="13_items"]
+[ext_resource type="PackedScene" path="res://scenes/items/ItemPickup.tscn" id="14_pickup"]
 
 [sub_resource type="Environment" id="Environment_dark"]
 background_mode = 1
@@ -66,3 +69,10 @@ ModelFile = ExtResource("10_model")
 ModelFileV2 = ExtResource("11_model_v2")
 Rooms = NodePath("../RoomManager")
 SeedHud = NodePath("../SeedHud")
+
+[node name="DebugItemSpawner" type="Node" parent="." node_paths=PackedStringArray("Player", "Rooms")]
+script = ExtResource("12_debug_items")
+Player = NodePath("../Player")
+Rooms = NodePath("../RoomManager")
+Catalog = ExtResource("13_items")
+PickupScene = ExtResource("14_pickup")
