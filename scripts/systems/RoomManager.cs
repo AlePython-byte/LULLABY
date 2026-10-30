@@ -32,6 +32,12 @@ public partial class RoomManager : Node3D
 	[Export] public RoomCamera Camera { get; set; }
 	[Export] public ScreenFade Fade { get; set; }
 
+	/// <summary>
+	/// Activa la ambientación visual de las salas (RoomController.DecorEnabled). Apagada por defecto: las pruebas y el
+	/// simulador no la usan; la escena jugable (TestLevel) la enciende.
+	/// </summary>
+	[Export] public bool DecorEnabled { get; set; }
+
 	// Distancia del centro del jugador al interior de la pared de la puerta por la que aparece.
 	// El LevelValidator asume RoomRules.ArrivalOffset: si se cambia aquí, cambia también la regla.
 	[Export] public float ArrivalOffset { get; set; } = RoomRules.ArrivalOffset;
@@ -176,6 +182,7 @@ public partial class RoomManager : Node3D
 		RoomController room = RoomScene.Instantiate<RoomController>();
 		room.Setup(data, connected, _cleared.Contains(cell));
 		room.BossScene = BossScene;
+		room.DecorEnabled = DecorEnabled;
 		room.BossSpawned += boss =>
 		{
 			float height = boss.GetNodeOrNull<MotherVisual>("Animation")?.FramingHeight ?? room.WallHeight;
