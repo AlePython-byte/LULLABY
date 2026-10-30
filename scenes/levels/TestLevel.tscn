@@ -18,6 +18,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/ItemsHud.tscn" id="16_items_hud"]
 [ext_resource type="PackedScene" path="res://scenes/bosses/TheMother.tscn" id="17_mother"]
 [ext_resource type="PackedScene" path="res://scenes/ui/BossHud.tscn" id="18_boss_hud"]
+[ext_resource type="Script" path="res://scripts/bosses/DebugBossControls.cs" id="19_debug_boss"]
 
 [sub_resource type="Environment" id="Environment_dark"]
 background_mode = 1
@@ -80,6 +81,10 @@ Rooms = NodePath("../RoomManager")
 Inventory = NodePath("../Player/Items")
 Catalog = ExtResource("13_items")
 PickupScene = ExtResource("14_pickup")
+
+[node name="DebugBossControls" type="Node" parent="." node_paths=PackedStringArray("Rooms")]
+script = ExtResource("19_debug_boss")
+Rooms = NodePath("../RoomManager")
 
 [node name="RunManager" type="Node" parent="." node_paths=PackedStringArray("Rooms", "SeedHud", "TreasureItems")]
 script = ExtResource("9_run")

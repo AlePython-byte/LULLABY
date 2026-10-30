@@ -197,9 +197,30 @@ public partial class RoomManager : Node3D
 		Callable.From(() => BeginTransition(exitSide)).CallDeferred();
 	}
 
-	private async void BeginTransition(DoorSide exitSide)
+	/// <summary>Salta a la sala del jefe del mapa actual sin modificarlo. Solo en depuración.</summary>
+	public bool DebugGoToBoss()
 	{
-		Vector2I nextCell = _currentCell + exitSide.GridOffset();
+		if (!OS.IsDebugBuild() || _transitioning || Map == null || !IsInstanceValid(Player)
+			|| HealthComponent.FindIn(Player).IsDead) return false;
+		foreach (RoomData data in _rooms.Values)
+		{
+			if (data.Type != RoomType.Boss || data.Cell == _currentCell) continue;
+			foreach (DoorSide entrance in System.Enum.GetValues<DoorSide>())
+			{
+				if (!_rooms.ContainsKey(data.Cell + entrance.GridOffset())) continue;
+				DoorSide exit = (DoorSide)(((int)entrance + 2) % 4);
+				Vector2I target = data.Cell;
+				_transitioning = true;
+				Callable.From(() => BeginTransition(exit, target)).CallDeferred();
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private async void BeginTransition(DoorSide exitSide, Vector2I? targetCell = null)
+	{
+		Vector2I nextCell = targetCell ?? _currentCell + exitSide.GridOffset();
 		if (!_rooms.ContainsKey(nextCell))
 		{
 			GD.PushError($"RoomManager: la puerta {exitSide} de {_currentCell} no lleva a ninguna sala.");
