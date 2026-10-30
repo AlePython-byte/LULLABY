@@ -186,6 +186,20 @@ El HUD muestra los nombres obtenidos; el Biberón queda marcado como usado y agr
 
 Pruebas: `tests/ItemSystemTest.tscn` comprueba efectos, recogidas y parámetros base; `tests/TreasureItemsTest.tscn` comprueba visitas reales, HUD, varias ofertas, reinicio y aislamiento del RNG sobre 200 semillas. Cada recogible emite su señal `Collected`; el registro separado por celda y oferta permite añadir posteriormente grupos de elección sin cambiar los efectos del jugador.
 
+## 4.4. Menú, pausa y fin de partida
+
+El juego arranca en el **menú principal** (`scenes/ui/MainMenu.tscn`, escena principal del proyecto). `TestLevel.tscn` sigue pudiendo lanzarse directo con F6 y por las pruebas, sin pasar por el menú.
+
+- **Menú principal:** título y subtítulo, **Jugar**, **Dificultad** (Fácil / Normal / Difícil), **Controles** y **Salir**.
+- **Dificultad:** la elegida se guarda en `GameSettings.Difficulty` mientras el juego está abierto (no se escribe en disco) y es el objetivo del director de IA (Fácil = `Easy`, Normal = `Normal`, Difícil = `Hard`). La partida la muestra en el HUD de la esquina inferior derecha. Antes solo se podía cambiar con atajos de depuración, que no existen en Release. Para el director, el orden de prioridad es: tecla de depuración, argumento `--difficulty=`, menú, valor del inspector de `RunManager`. Con F6 directo no hay elección del menú y manda el inspector (Normal).
+- **Imágenes opcionales:** si existen `assets/ui/logo_lullaby.png` y `assets/ui/fondo_menu.png`, el menú las usa; si no, funciona igual con el título en texto y un fondo de color. Se comprueba con `ResourceLoader.Exists`, así que su ausencia no da error ni en el juego ni en la exportación.
+- **Controles** (`ControlsPanel`, también dentro de la pausa), solo las teclas reales: **W, A, S, D** mover, **flechas** disparar lágrimas y **Esc o P** pausa.
+- **Pausa** (Esc o P): congela el juego con `SceneTree.Paused`, de modo que el jefe, los enemigos, los proyectiles, los efectos y los temporizadores se detienen y continúan donde estaban al reanudar. Ofrece **Reanudar**, **Controles**, **Reiniciar partida** (semilla nueva y misma dificultad) y **Volver al menú**. No se abre durante un cambio de sala, la victoria o la derrota. Los retrasos de las salas y del final de partida usan temporizadores que se detienen con la pausa, y reiniciar o volver al menú despausan antes de cambiar de escena.
+- **Derrota:** al morir Noah la partida termina una sola vez (Noah queda quieto y se eliminan los proyectiles), y tras un breve fundido aparece una de las tres frases de derrota con los botones **Reintentar** (semilla nueva, misma dificultad, objetos y salud reiniciados) y **Menú**. Si Noah muere en la pelea contra The Mother, no hay victoria aunque el jefe muera después. Las frases de victoria y de derrota se eligen con la semilla de partida, sin consumir ningún azar.
+- **Textos:** están copiados de `docs/equipo/textos.md` a constantes (`GameText`, `MotherTexts`), porque `docs/` no viaja en la exportación y no se lee en ejecución. Los controles del documento (clic izquierdo, interactuar) no existen en el juego y no se muestran.
+
+Pruebas, en headless: `tests/MenuFlowTest.tscn` (menú, imágenes opcionales, controles y dificultad hasta el director y el HUD), `tests/PauseTest.tscn` (pausa con el jefe atacando y con el retraso de la sala, Esc y P, casos ignorados, reiniciar y menú) y `tests/DefeatTest.tscn` (derrota, reintentar, menú y recarga de respaldo).
+
 # 5. Jefes principales
 
 **The Mother:** Una representación monstruosa de la figura materna que intenta atrapar constantemente a Noah.
