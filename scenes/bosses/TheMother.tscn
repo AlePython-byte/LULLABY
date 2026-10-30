@@ -1,0 +1,69 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/EnemyBase.cs" id="1_enemy"]
+[ext_resource type="Script" path="res://scripts/systems/HealthComponent.cs" id="2_health"]
+[ext_resource type="Script" path="res://scripts/enemies/EnemyVisual.cs" id="3_visual"]
+[ext_resource type="Script" path="res://scripts/bosses/MotherBehavior.cs" id="4_attacks"]
+[ext_resource type="Script" path="res://scripts/bosses/MotherVisual.cs" id="5_animation"]
+[ext_resource type="PackedScene" path="res://assets/models/the_mother.glb" id="6_model"]
+[ext_resource type="PackedScene" path="res://scenes/combat/EnemyProjectile.tscn" id="7_projectile"]
+
+[sub_resource type="CylinderShape3D" id="MotherShape"]
+height = 1.0
+radius = 1.2
+
+[node name="TheMother" type="CharacterBody3D" groups=["bosses"]]
+collision_layer = 8
+collision_mask = 3
+motion_mode = 1
+script = ExtResource("1_enemy")
+Speed = 1.5
+RecoilDistance = 0.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("MotherShape")
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("2_health")
+MaxHealth = 180.0
+
+[node name="Visual" type="Node3D" parent="."]
+position = Vector3(0, -0.5, 0)
+script = ExtResource("3_visual")
+UseKindColor = false
+HighlightColor = Color(1, 0.25, 0.1, 1)
+
+[node name="Model" parent="Visual" instance=ExtResource("6_model")]
+
+[node name="Attacks" type="Node" parent="."]
+script = ExtResource("4_attacks")
+EntrancePause = 1.5
+ProjectileScene = ExtResource("7_projectile")
+VolleyShots = 3
+ShotWarning = 0.7
+ShotInterval = 1.25
+ShotSpawnDistance = 1.6
+BeforeDashPause = 1.0
+DashWarning = 1.0
+DashSpeed = 8.0
+DashDistance = 6.0
+DashTriggerDistance = 18.0
+RecoveryTime = 1.5
+ArenaMargin = 3.0
+
+[node name="EntranceText" type="Label3D" parent="."]
+position = Vector3(0, 3.5, 0)
+billboard = 1
+font_size = 40
+outline_size = 8
+pixel_size = 0.008
+no_depth_test = true
+
+[node name="Animation" type="Node" parent="."]
+script = ExtResource("5_animation")
+EntranceTextTime = 3.0
+BobHeight = 0.06
+BobSpeed = 2.5
+ArmWarningAngle = 35.0
+WarningWidth = 2.4
+DeathEffectTime = 0.7
