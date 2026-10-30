@@ -142,7 +142,7 @@ Scripts de Python reproducibles (`random_state = 42`). Comparan cinco modelos co
 
 Es el componente descrito en la sección 1. Todo es **determinista dada la semilla de partida**: las semillas de los 30 candidatos salen de ella con una función hash, y el azar de la elección entre los 5 mejores se siembra con la misma semilla. La misma semilla y la misma dificultad producen siempre el mismo nivel. El director solo depende del generador, de las métricas y del modelo: **no usa el simulador ni el bot**, que son herramientas de desarrollo.
 
-En el juego, `RunManager` usa el director y el HUD muestra la semilla y la dificultad objetivo frente a la predicha. En compilaciones de depuración, N cambia la semilla, R la repite y T cambia la dificultad.
+En el juego, `RunManager` usa el director y el HUD muestra la semilla y la dificultad objetivo (Fácil, Normal o Difícil) frente a la predicha. El jugador elige la dificultad en el menú principal (también en Release) y esa elección es el objetivo `Easy`, `Normal` o `Hard` del director. En compilaciones de depuración, N cambia la semilla, R la repite y T cambia la dificultad.
 
 ---
 
@@ -418,7 +418,7 @@ Los resultados quedan en `ai-training/reports/` (`director_benchmark.json` y `co
 
 ### 9.8 Jugar con el director
 
-Abrir el proyecto en Godot y pulsar F5. En compilaciones de depuración: **N** cambia la semilla de partida, **R** la repite y **T** cambia la dificultad (Easy, Normal, Hard). También se pueden fijar por línea de comandos:
+Abrir el proyecto en Godot y pulsar F5 (arranca el menú principal, donde se elige la dificultad). Lanzar `TestLevel.tscn` directo con F6 usa la dificultad del inspector de `RunManager`. En compilaciones de depuración: **N** cambia la semilla de partida, **R** la repite y **T** cambia la dificultad (Easy, Normal, Hard). También se pueden fijar por línea de comandos:
 
 ```
 godot --path . -- --seed=42 --difficulty=Hard
