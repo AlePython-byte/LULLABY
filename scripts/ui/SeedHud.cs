@@ -18,7 +18,7 @@ public partial class SeedHud : CanvasLayer
 		int generatorVersion, int modelGeneratorVersion)
 	{
 		_label.Text = $"Semilla {gameSeed} · nivel {levelSeed} · generador v{generatorVersion}\n" +
-			$"Dificultad {target} (objetivo {targetValue:0.0}) · predicha {predicted:0.0}";
+			$"Dificultad {GameText.DifficultyName(target)} (objetivo {targetValue:0.0}) · predicha {predicted:0.0}";
 		if (modelGeneratorVersion != generatorVersion)
 		{
 			_label.Text += $"\nAVISO: modelo de dificultad no entrenado para v{generatorVersion}";

@@ -1,0 +1,14 @@
+/// <summary>
+/// Opciones de la sesión que viajan entre escenas (del menú al nivel). Solo viven mientras el juego está abierto.
+/// </summary>
+public static class GameSettings
+{
+	public const string MenuScene = "res://scenes/ui/MainMenu.tscn";
+	public const string LevelScene = "res://scenes/levels/TestLevel.tscn";
+
+	/// <summary>
+	/// Dificultad elegida en el menú. Nula si nadie eligió (TestLevel lanzado con F6, las pruebas): entonces manda el
+	/// argumento --difficulty o el valor del inspector de RunManager.
+	/// </summary>
+	public static DifficultyTarget? Difficulty { get; set; }
+}

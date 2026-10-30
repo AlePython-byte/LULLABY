@@ -14,8 +14,8 @@ using Godot;
 ///   2. El argumento de línea de comandos --seed=N (en Godot: godot -- --seed=12345).
 ///   3. FixedSeed, si UseFixedSeed está activo en el inspector.
 ///   4. Una semilla aleatoria.
-/// La dificultad sale, por este orden, de la tecla de depuración, del argumento --difficulty=Easy|Normal|Hard o del
-/// [Export] Difficulty.
+/// La dificultad sale, por este orden, de la tecla de depuración, del argumento --difficulty=Easy|Normal|Hard, de la que
+/// eligió el jugador en el menú (GameSettings.Difficulty) o del [Export] Difficulty.
 ///
 /// Versión del generador: GeneratorVersion (DefaultGeneratorVersion, la 2, por defecto), el argumento --generator=N
 /// (--generator=1 para la versión 1) o la tecla G. El HUD muestra siempre la versión en uso. Cada versión usa su
@@ -95,6 +95,9 @@ public partial class RunManager : Node
 	private int _generatorVersion;
 	private string _modelSource;
 
+	/// <summary>Dificultad objetivo de la partida en curso.</summary>
+	public DifficultyTarget CurrentDifficulty => _difficulty;
+
 	/// <summary>Semilla de la partida en curso.</summary>
 	public int Seed => _seed;
 
@@ -117,7 +120,7 @@ public partial class RunManager : Node
 		}
 
 		_seed = ChooseSeed();
-		_difficulty = _pendingDifficulty ?? ArgumentDifficulty() ?? Difficulty;
+		_difficulty = _pendingDifficulty ?? ArgumentDifficulty() ?? GameSettings.Difficulty ?? Difficulty;
 		_generatorVersion = _pendingGeneratorVersion ?? ArgumentGeneratorVersion() ?? GeneratorVersion;
 		_pendingSeed = null;
 		_pendingDifficulty = null;
