@@ -200,6 +200,48 @@ Pruebas: `tests/ItemSystemTest.tscn` comprueba efectos, recogidas y parámetros 
 
 Los jefes podrán disponer de varias fases, patrones de ataque y condiciones especiales de combate.
 
+## 5.1. The Mother (jefe implementado para el MVP)
+
+The Mother es el jefe de The Cradle. Vive en `scenes/bosses/TheMother.tscn` y su lógica en `scripts/bosses/`. Aparece en la sala del jefe del nivel, que conserva el tamaño de su plantilla (26×26 m). La composición histórica de esa sala, seis enemigos básicos (`resources/rooms/templates/jefe.tres`), no se modifica: The Mother entra como un **jefe alternativo** (`RoomManager.BossScene`) que sustituye a los seis básicos solo al jugar. Con ese campo vacío, la sala vuelve a tener los seis básicos y despejarla no termina la partida.
+
+Tiene **180 puntos de vida** (una lágrima base hace 1 de daño) y se mueve a 1.5 m/s al acercarse. Hace un solo ataque a la vez, siempre avisado, y repite este ciclo hasta morir:
+
+| Fase | Qué hace | Duración |
+|---|---|---|
+| Entrada | Quieta; muestra «Vuelve a la cuna, mi pequeño...» | 1.5 s (la frase se ve 3 s) |
+| Salva | Tres proyectiles hacia donde está Noah en el instante de disparar. Antes de cada uno levanta los brazos | Aviso de 0.7 s por disparo, uno cada 1.25 s |
+| Pausa | Quieta | 1.0 s |
+| Acercamiento | Persigue a Noah hasta tenerlo a 18 m o menos (si ya está más cerca, no hace falta) | Lo que tarde |
+| Embestida | Se detiene, marca el recorrido con una franja naranja en el suelo y fija la dirección. Luego carga en línea recta a 8 m/s hasta 6 m; termina antes si choca con Noah o llega al límite de la arena | Aviso de 1.0 s |
+| Recuperación | Quieta; después vuelve a la salva | 1.5 s |
+
+- La dirección de la embestida se fija al empezar el aviso, así que se esquiva apartándose durante ese segundo.
+- El centro del jefe no se acerca a menos de 3 m de las paredes: la embestida se detiene en ese límite y nunca atraviesa la pared.
+- Hace 1 punto de daño por contacto (con 1 s entre golpes) y 1 por proyectil (velocidad 5 m/s, desaparece a los 3 s o al chocar). Noah conserva su segundo de invulnerabilidad tras un golpe.
+- La vida del jefe se muestra en la parte inferior de la pantalla mientras dura el combate.
+
+### Fin de la partida
+
+Al derrotar a The Mother la partida termina **una sola vez**:
+
+1. En ese instante Noah queda quieto y sin poder disparar, las puertas y las transiciones se bloquean, no puede recibir daño y se eliminan todos los proyectiles enemigos.
+2. Tras una pausa breve (0.8 s, para ver cómo se deshace el jefe) la pantalla se funde a oscuro y aparece la **pantalla de victoria** con una de las tres frases de `docs/equipo/textos.md` (la semilla de partida elige cuál, sin tocar ningún generador de azar) y el botón **Nueva partida**.
+3. **Nueva partida** empieza otra partida con una semilla distinta de la actual, aunque la actual viniera de `--seed` o de una semilla fija en el inspector, con la misma dificultad y versión del generador. El inventario, las mejoras y la salud de Noah se reinician. No depende de las teclas de depuración, así que funciona igual en Release.
+
+Si Noah ya estaba muerto cuando cae el jefe, no hay victoria: la partida se reinicia como siempre. Una vez declarada la victoria, Noah no puede morir ni reiniciar la escena por error.
+
+### Depuración y pruebas
+
+En compilaciones de depuración, **B** lleva a la sala del jefe y **U** le quita 20 de vida (sin modificadores); R y N siguen reiniciando la partida con la misma semilla o con otra. Pruebas, todas en headless:
+
+```
+godot --headless --path . res://tests/BossEncounterTest.tscn
+godot --headless --path . res://tests/BossVictoryTest.tscn
+godot --headless --path . res://tests/HistoricalIntegrityTest.tscn
+```
+
+`BossEncounterTest` comprueba la composición con y sin el jefe alternativo, los avisos completos antes de cada ataque, que nunca haya dos ataques a la vez y que la embestida respete las paredes. `BossVictoryTest` mata al jefe en cada estado de su ciclo y comprueba que la partida termina una vez, que no quedan proyectiles y que **Nueva partida** cambia la semilla y deja el inventario vacío y la salud completa. `HistoricalIntegrityTest` fija los datos históricos de la IA, la sala de seis básicos y las colisiones de Noah (1×1) y del básico (0.9×0.9).
+
 # 6. Stack tecnológico
 
 El videojuego se desarrollará utilizando herramientas gratuitas, priorizando la posibilidad de trabajar sin servicios de pago.
