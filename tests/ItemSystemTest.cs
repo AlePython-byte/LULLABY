@@ -15,6 +15,7 @@ public partial class ItemSystemTest : Node
 		try
 		{
 			CheckCatalog();
+			CheckHealth();
 			CheckBaseParameters();
 			await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
 			GD.Print($"ItemSystemTest: {_checks} comprobaciones. RESULTADO: OK");
@@ -67,5 +68,36 @@ public partial class ItemSystemTest : Node
 					$"Parámetro histórico v{version}: {property.Name}");
 		}
 		GD.Print("Parámetros y colisiones históricos v1/v2: OK");
+	}
+
+	private void CheckHealth()
+	{
+		HealthComponent health = new() { MaxHealth = 5.0f };
+		int damaged = 0, died = 0, changed = 0;
+		health.Damaged += (_, _) => damaged++;
+		health.Died += () => died++;
+		health.HealthChanged += (_, _) => changed++;
+		AddChild(health);
+		Near(health.Heal(2.0f), 0.0f, "No cura por encima del máximo");
+		health.TakeDamage(4.0f);
+		Near(health.Heal(2.0f), 2.0f, "Curación efectiva");
+		Near(health.CurrentHealth, 3.0f, "Vida después de curar");
+		Near(health.Heal(99.0f), 2.0f, "Curación limitada al máximo");
+		Near(health.Heal(float.NaN), 0.0f, "Curación no finita rechazada");
+		Near(health.Heal(-1.0f), 0.0f, "Curación negativa rechazada");
+		Require(health.AddMaxHealthBonus(1.0f), "Aumento de vida máxima");
+		Near(health.MaxHealth, 5.0f, "La vida máxima base no cambia");
+		Near(health.EffectiveMaxHealth, 6.0f, "Vida máxima efectiva");
+		Near(health.CurrentHealth, 6.0f, "El incremento añade vida actual");
+		health.TakeDamage(99.0f);
+		Near(health.Heal(2.0f), 0.0f, "Curación no revive");
+		Require(!health.AddMaxHealthBonus(1.0f), "La mejora no revive");
+		Require(damaged == 2 && died == 1, "Se conservan las señales de daño y muerte");
+		health.ResetForNewRun();
+		Near(health.EffectiveMaxHealth, 5.0f, "Reinicio elimina la bonificación");
+		Near(health.CurrentHealth, 5.0f, "Reinicio recupera la vida base");
+		Require(changed == 6, "Se notifican daño, curación, mejora y reinicio al HUD");
+		health.Free();
+		GD.Print("Curación, máximo por instancia, señales y reinicio: OK");
 	}
 }

@@ -16,7 +16,7 @@ public partial class HealthHud : CanvasLayer
 		}
 
 		_health = HealthComponent.FindIn(player);
-		_health.Damaged += OnDamaged;
+		_health.HealthChanged += OnHealthChanged;
 		UpdateText();
 	}
 
@@ -24,17 +24,17 @@ public partial class HealthHud : CanvasLayer
 	{
 		if (IsInstanceValid(_health))
 		{
-			_health.Damaged -= OnDamaged;
+			_health.HealthChanged -= OnHealthChanged;
 		}
 	}
 
-	private void OnDamaged(float amount, float current)
+	private void OnHealthChanged(float current, float maximum)
 	{
 		UpdateText();
 	}
 
 	private void UpdateText()
 	{
-		_label.Text = $"Vida: {Mathf.CeilToInt(_health.CurrentHealth)}/{Mathf.CeilToInt(_health.MaxHealth)}";
+		_label.Text = $"Vida: {_health.CurrentHealth:0.#}/{_health.EffectiveMaxHealth:0.#}";
 	}
 }
