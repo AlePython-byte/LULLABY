@@ -141,6 +141,7 @@ public partial class RunManager : Node
 		_pendingSeed = null;
 		_pendingDifficulty = null;
 		_pendingGeneratorVersion = null;
+		Rooms.DecorSeed = _seed;
 
 		if (_pendingMap != null)
 		{
