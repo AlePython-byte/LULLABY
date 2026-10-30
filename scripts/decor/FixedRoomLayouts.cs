@@ -6,7 +6,8 @@ using Godot;
 /// colisión. Las posiciones se dan como separación (m) hacia dentro desde las paredes, así que se adaptan al tamaño de la sala.
 ///
 /// Reglas que cumplen todas:
-///   - nada en la mitad sur (la cámara no la ve) ni en los puntos de llegada del jugador (centro de cada lado, a 2,5 m de la pared);
+///   - nada a menos de 1,8 m de la pared sur (la cámara no la ve), ni en los puntos de llegada del jugador (centro de cada lado,
+///     a 2,5 m de la pared), ni en el hueco de las puertas (centro de cada pared);
 ///   - nada en el área central: la cuadrícula de objetos del tesoro (4 m de lado) y el centro del jefe, que Noah y The Mother
 ///     recorren (el centro de The Mother queda a 3 m de las paredes; su cuerpo llega a ~1,6 m de ellas).
 ///   - mecedora_gigante y cuna_gigante solo en las esquinas norte del jefe, con su lado largo paralelo a la pared. La cuna
@@ -40,26 +41,26 @@ public static class FixedRoomLayouts
 				North(PropModels.Castle, -4.6f, 1.3f, 180.0f);
 				West(PropModels.Chest, 1.8f, 3.4f, 0.0f);
 				West(PropModels.Drum, 1.5f, -3.2f, 0.0f);
-				East(PropModels.Train, 1.2f, 3.6f, 90.0f);
+				East(PropModels.Train, 1.2f, 3.6f, 0.0f);
 				break;
 			case RoomType.Treasure:
 				NW(PropModels.Chest, 1.8f, 1.6f, 160.0f);
 				NE(PropModels.Lamp, 1.1f, 1.1f, 0.0f);
-				NE(PropModels.Ball, 1.5f, 3.6f, 0.0f);
+				NE(PropModels.Ball, 1.5f, 3.0f, 0.0f);
 				West(PropModels.Blocks, 1.4f, 3.4f, -90.0f);
-				East(PropModels.Drum, 1.0f, 3.8f, 0.0f);
-				North(PropModels.Xylophone, -2.6f, 1.2f, 180.0f);
+				East(PropModels.Drum, 1.0f, 3.4f, 0.0f);
+				North(PropModels.Xylophone, -3.2f, 1.2f, 180.0f);
 				break;
 			case RoomType.Boss:
-				NW(PropModels.GiantCrib, 2.2f, 1.4f, -90.0f);
+				NW(PropModels.GiantCrib, 2.2f, 1.3f, -90.0f);
 				NE(PropModels.Rocker, 2.0f, 0.9f, 90.0f);
 				North(PropModels.Castle, -5.0f, 0.9f, 180.0f);
 				North(PropModels.Drum, 5.2f, 1.0f, 0.0f);
 				West(PropModels.Xylophone, 0.9f, -5.5f, -90.0f);
-				West(PropModels.Train, 0.8f, 5.0f, -90.0f);
+				West(PropModels.Train, 0.8f, 5.0f, 0.0f);
 				West(PropModels.Ball, 1.0f, 8.5f, 0.0f);
 				East(PropModels.Lamp, 1.0f, -6.5f, 0.0f);
-				East(PropModels.Train, 0.8f, 5.5f, 90.0f);
+				East(PropModels.Train, 0.8f, 5.5f, 0.0f);
 				East(PropModels.Blocks, 1.0f, 8.0f, 90.0f);
 				break;
 		}
