@@ -77,6 +77,8 @@ public partial class MainMenu : Control
 	public void StartGame()
 	{
 		GameSettings.Difficulty = SelectedDifficulty;
+		RunManager.DiscardPending();
+		GetTree().Paused = false;
 		GetTree().ChangeSceneToFile(GameSettings.LevelScene);
 	}
 

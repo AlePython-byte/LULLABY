@@ -249,6 +249,18 @@ public partial class RunManager : Node
 		}
 	}
 
+	/// <summary>
+	/// Olvida la semilla, dificultad, versión del generador y nivel pendientes de una recarga que no llegó a ocurrir. El menú
+	/// lo llama antes de jugar para que una partida nueva tome una semilla aleatoria y no una pendiente.
+	/// </summary>
+	public static void DiscardPending()
+	{
+		_pendingSeed = null;
+		_pendingDifficulty = null;
+		_pendingGeneratorVersion = null;
+		_pendingMap = null;
+	}
+
 	/// <summary>Cadena de victoria de una partida: determinista por semilla, sin tocar ningún generador de azar.</summary>
 	public static string VictoryMessageFor(int seed)
 	{

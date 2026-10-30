@@ -49,6 +49,9 @@ public partial class RoomManager : Node3D
 
 	public RoomController CurrentRoom => _room;
 
+	/// <summary>Hay un cambio de sala en curso (fundido, descarga y carga). La pausa no se abre mientras dura.</summary>
+	public bool IsTransitioning => _transitioning;
+
 	/// <summary>La partida terminó (EndRun): no hay más transiciones entre salas.</summary>
 	public bool RunEnded { get; private set; }
 
