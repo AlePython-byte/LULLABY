@@ -672,6 +672,12 @@ La prueba `tests/HistoricalIntegrityTest.tscn` fija los SHA-256 de los datasets,
 godot --headless --path . res://tests/HistoricalIntegrityTest.tscn
 ```
 
+#### 11.6.4 Variedad extendida (generador v3, experimental)
+
+El menú principal ofrece la casilla «Variedad extendida (experimental)» (`GameSettings.ExtendedVariety`), que juega la partida con el generador v3 (`DungeonGenerator.LatestVersion`): seis tipos de enemigo, con el huidor y el excavador. El v3 no tiene todavía modelo de dificultad propio (`difficulty_v3.json` no existe), así que `RunManager` usa el modelo v2, cuyas 22 características no cuentan huidores ni excavadores: **la dificultad predicha en esas partidas es solo orientativa**. El HUD de la semilla lo avisa («AVISO (experimental): el modelo de dificultad no está entrenado para el excavador ni el huidor») y el menú lo indica junto a la casilla. `PreferEnemyVariety` sigue en `false` con el v3 (solo se evaluó para el v2). El argumento `--generator=` y la tecla G de depuración mandan sobre la casilla. No cambia ningún dato, modelo ni benchmark históricos.
+
+Prueba: `godot --headless --fixed-fps 60 --path . res://tests/ItemMessageVarietyTest.tscn`.
+
 ### 11.7 Limitaciones de la versión 2
 
 1. **El simulador subestima el daño por contacto**, tanto en v1 como en v2. En la prueba de fidelidad v1 (30 niveles) el daño total, todo por contacto, fue 13.24 en el simulador frente a 16.00 en el juego (−17 %). En la v2 (90 niveles), el contacto da −12.9 % (IC 95 % de −16.6 % a −9.2 %).
