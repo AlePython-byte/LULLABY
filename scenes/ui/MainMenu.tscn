@@ -1,0 +1,127 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/MainMenu.cs" id="1_menu"]
+[ext_resource type="PackedScene" path="res://scenes/ui/ControlsPanel.tscn" id="2_controls"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_menu")
+
+[node name="BackgroundArt" type="TextureRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.04, 0.03, 0.07, 1)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Box" type="VBoxContainer" parent="Center"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Logo" type="TextureRect" parent="Center/Box"]
+visible = false
+custom_minimum_size = Vector2(520, 240)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Title" type="Label" parent="Center/Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.7, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 96
+text = "LULLABY"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="Center/Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.75, 0.9, 1)
+theme_override_font_sizes/font_size = 24
+text = "El eco de una nana olvidada"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="Center/Box"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+
+[node name="Play" type="Button" parent="Center/Box"]
+custom_minimum_size = Vector2(320, 60)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 28
+text = "Jugar"
+
+[node name="DifficultyLabel" type="Label" parent="Center/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Dificultad"
+horizontal_alignment = 1
+
+[node name="Difficulties" type="HBoxContainer" parent="Center/Box"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 8
+
+[node name="Easy" type="Button" parent="Center/Box/Difficulties"]
+custom_minimum_size = Vector2(100, 44)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Fácil"
+
+[node name="Normal" type="Button" parent="Center/Box/Difficulties"]
+custom_minimum_size = Vector2(100, 44)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Normal"
+
+[node name="Hard" type="Button" parent="Center/Box/Difficulties"]
+custom_minimum_size = Vector2(100, 44)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Difícil"
+
+[node name="ControlsButton" type="Button" parent="Center/Box"]
+custom_minimum_size = Vector2(320, 52)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
+text = "Controles"
+
+[node name="Quit" type="Button" parent="Center/Box"]
+custom_minimum_size = Vector2(320, 52)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
+text = "Salir"
+
+[node name="ControlsPanel" parent="." instance=ExtResource("2_controls")]
+layout_mode = 1
