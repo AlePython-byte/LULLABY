@@ -21,6 +21,7 @@
 [ext_resource type="Script" path="res://scripts/bosses/DebugBossControls.cs" id="19_debug_boss"]
 [ext_resource type="PackedScene" path="res://scenes/ui/VictoryScreen.tscn" id="20_victory"]
 [ext_resource type="PackedScene" path="res://scenes/ui/DefeatScreen.tscn" id="21_defeat"]
+[ext_resource type="PackedScene" path="res://scenes/ui/PauseMenu.tscn" id="22_pause"]
 
 [sub_resource type="Environment" id="Environment_dark"]
 background_mode = 1
@@ -62,6 +63,10 @@ Rooms = NodePath("../RoomManager")
 [node name="VictoryScreen" parent="." instance=ExtResource("20_victory")]
 
 [node name="DefeatScreen" parent="." instance=ExtResource("21_defeat")]
+
+[node name="PauseMenu" parent="." node_paths=PackedStringArray("Run", "Rooms") instance=ExtResource("22_pause")]
+Run = NodePath("../RunManager")
+Rooms = NodePath("../RoomManager")
 
 [node name="CameraRig" type="Node3D" parent="."]
 rotation_degrees = Vector3(-60, 0, 0)
