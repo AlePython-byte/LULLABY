@@ -44,6 +44,7 @@ public partial class RunManager : Node
 	[Export] public RoomCatalog Catalog { get; set; }
 	[Export] public RoomManager Rooms { get; set; }
 	[Export] public SeedHud SeedHud { get; set; }
+	[Export] public TreasureItemSpawner TreasureItems { get; set; }
 
 	// Los modelos viajan como recursos Json referenciados desde la escena, así el exportador los incluye como dependencia.
 	// Si no se asignan, se leen de DifficultyModel.PathFor(versión del generador).
@@ -97,6 +98,7 @@ public partial class RunManager : Node
 			LevelMap fixedMap = _pendingMap;
 			_pendingMap = null;
 			SeedHud?.ShowFixedLevel($"{fixedMap.Rooms.Count} salas", _generatorVersion);
+			TreasureItems?.BeginRun(_seed, fixedMap);
 			Rooms.Begin(fixedMap);
 			return;
 		}
@@ -144,6 +146,7 @@ public partial class RunManager : Node
 				? $" Aviso: el modelo no está entrenado para el generador v{_generatorVersion}." : ""));
 		GD.Print(result.Describe());
 		GD.Print($"Nivel elegido: salas {result.Map.Rooms.Count}, jefe a {LevelValidator.BossDistance(result.Map)} pasos.");
+		TreasureItems?.BeginRun(_seed, result.Map);
 		Rooms.Begin(result.Map);
 	}
 

@@ -17,6 +17,8 @@ using Godot;
 /// </summary>
 public partial class RoomManager : Node3D
 {
+	/// <summary>Sala preparada, con el jugador colocado y el fundido de entrada terminado.</summary>
+	public event System.Action<RoomController> RoomLoaded;
 	[Export] public LevelMap Map { get; set; }
 	[Export] public PackedScene RoomScene { get; set; }
 	[Export] public PlayerController Player { get; set; }
@@ -61,6 +63,7 @@ public partial class RoomManager : Node3D
 
 		LoadRoom(Map.StartCell);
 		_room.Activate();
+		RoomLoaded?.Invoke(_room);
 	}
 
 	private bool ValidateMap()
@@ -217,6 +220,7 @@ public partial class RoomManager : Node3D
 		SetPlayerFrozen(false);
 		_room.Activate();
 		_transitioning = false;
+		RoomLoaded?.Invoke(_room);
 	}
 
 	// Aparece junto a la puerta opuesta a la que cruzó, dentro de la sala y mirando hacia dentro.

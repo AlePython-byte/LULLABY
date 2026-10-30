@@ -90,6 +90,8 @@ public partial class FidelityCheck : Node
 					RunManager.SetNextSeed(seed);
 				}
 				Node level = levelScene.Instantiate();
+				// El modelo y el bot se evalúan sobre la composición base, sin recompensas ni mejoras.
+				level.GetNode<TreasureItemSpawner>("TreasureItemSpawner").Enabled = false;
 				HealthComponent.FindIn(level.GetNode("Player")).MaxHealth = 1.0e9f;
 				AddChild(level);
 

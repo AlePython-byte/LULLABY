@@ -35,7 +35,7 @@ public partial class ItemPickup : Area3D
 
 	public bool TryCollect(Node3D body)
 	{
-		if (IsCollected || !IsInsideTree() || body == null || !body.IsInGroup("player")) return false;
+		if (IsCollected || IsQueuedForDeletion() || !IsInsideTree() || body == null || !body.IsInGroup("player")) return false;
 		PlayerItems inventory = body.GetNodeOrNull<PlayerItems>("Items");
 		if (inventory == null) return false;
 		// Se marca antes de aplicar el efecto: las señales del inventario tampoco pueden recogerlo de nuevo.

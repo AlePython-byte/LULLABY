@@ -14,6 +14,7 @@
 [ext_resource type="Script" path="res://scripts/items/DebugItemSpawner.cs" id="12_debug_items"]
 [ext_resource type="Resource" path="res://resources/items/Catalog.tres" id="13_items"]
 [ext_resource type="PackedScene" path="res://scenes/items/ItemPickup.tscn" id="14_pickup"]
+[ext_resource type="Script" path="res://scripts/items/TreasureItemSpawner.cs" id="15_treasure"]
 
 [sub_resource type="Environment" id="Environment_dark"]
 background_mode = 1
@@ -62,13 +63,22 @@ Player = NodePath("../Player")
 Camera = NodePath("../CameraRig")
 Fade = NodePath("../ScreenFade")
 
-[node name="RunManager" type="Node" parent="." node_paths=PackedStringArray("Rooms", "SeedHud")]
+[node name="TreasureItemSpawner" type="Node" parent="." node_paths=PackedStringArray("Rooms", "Inventory")]
+script = ExtResource("15_treasure")
+Enabled = true
+Rooms = NodePath("../RoomManager")
+Inventory = NodePath("../Player/Items")
+Catalog = ExtResource("13_items")
+PickupScene = ExtResource("14_pickup")
+
+[node name="RunManager" type="Node" parent="." node_paths=PackedStringArray("Rooms", "SeedHud", "TreasureItems")]
 script = ExtResource("9_run")
 Catalog = ExtResource("2_catalog")
 ModelFile = ExtResource("10_model")
 ModelFileV2 = ExtResource("11_model_v2")
 Rooms = NodePath("../RoomManager")
 SeedHud = NodePath("../SeedHud")
+TreasureItems = NodePath("../TreasureItemSpawner")
 
 [node name="DebugItemSpawner" type="Node" parent="." node_paths=PackedStringArray("Player", "Rooms")]
 script = ExtResource("12_debug_items")
