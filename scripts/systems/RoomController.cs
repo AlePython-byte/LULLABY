@@ -63,6 +63,24 @@ public partial class RoomController : Node3D
 	[Export] public Color BossFloorColor { get; set; } = new Color(0.32f, 0.07f, 0.07f, 1.0f);
 	[Export] public Color TreasureFloorColor { get; set; } = new Color(0.32f, 0.26f, 0.08f, 1.0f);
 
+	/// <summary>
+	/// Ambientación visual (RoomDecorator y RoomSurfaces): paredes y suelo con texturas opcionales o colores pastel, marcos y
+	/// barrotes de puerta, columnas. Solo visual. Apagada por defecto: tests y simulador ven la sala de siempre. La activa
+	/// RoomManager (antes de añadir la sala al árbol) cuando su propio DecorEnabled está activo.
+	/// </summary>
+	public bool DecorEnabled { get; set; }
+
+	// Aspecto de la sala decorada (colores pastel apagados, que se usan cuando no hay textura de ese tipo).
+	[ExportGroup("Decoración")]
+	[Export] public Color DecorFloorColor { get; set; } = new Color(0.56f, 0.46f, 0.40f, 1.0f);
+	[Export] public Color DecorWallColor { get; set; } = new Color(0.68f, 0.60f, 0.64f, 1.0f);
+	[Export] public Color DecorStartFloorColor { get; set; } = new Color(0.50f, 0.53f, 0.62f, 1.0f);
+	[Export] public Color DecorBossFloorColor { get; set; } = new Color(0.58f, 0.40f, 0.40f, 1.0f);
+	[Export] public Color DecorTreasureFloorColor { get; set; } = new Color(0.66f, 0.58f, 0.36f, 1.0f);
+
+	/// <summary>Metros que cubre una repetición de las texturas opcionales de suelo y paredes.</summary>
+	[Export] public float TextureTileMeters { get; set; } = 2.0f;
+
 	public RoomState State { get; private set; } = RoomState.Unvisited;
 	public RoomData Data => _data;
 
@@ -144,6 +162,18 @@ public partial class RoomController : Node3D
 		};
 		StandardMaterial3D floorMaterial = new() { AlbedoColor = floorColor };
 		StandardMaterial3D wallMaterial = new() { AlbedoColor = WallColor };
+		if (DecorEnabled)
+		{
+			Color decorFloor = _data.Type switch
+			{
+				RoomType.Start => DecorStartFloorColor,
+				RoomType.Boss => DecorBossFloorColor,
+				RoomType.Treasure => DecorTreasureFloorColor,
+				_ => DecorFloorColor,
+			};
+			floorMaterial = RoomSurfaces.Floor(_data.Type, decorFloor, TextureTileMeters);
+			wallMaterial = RoomSurfaces.Wall(DecorWallColor, TextureTileMeters);
+		}
 
 		RoomLayout layout = RoomLayout.Build(_data.Size, _connectedDoors, WallHeight, WallThickness, DoorWidth,
 			EntryMargin);
@@ -160,6 +190,11 @@ public partial class RoomController : Node3D
 		}
 
 		BuildEntryArea(layout.EntryArea);
+
+		if (DecorEnabled)
+		{
+			RoomDecorator.Build(this, layout, _data.Size, _doors);
+		}
 	}
 
 	private void AddDoor(RoomLayout.DoorLayout layout)
