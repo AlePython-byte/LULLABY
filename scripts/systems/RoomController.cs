@@ -269,7 +269,8 @@ public partial class RoomController : Node3D
 
 		if (StartDelay > 0.0f)
 		{
-			await ToSignal(GetTree().CreateTimer(StartDelay), SceneTreeTimer.SignalName.Timeout);
+			// processAlways = false: la pausa también detiene este retraso.
+			await ToSignal(GetTree().CreateTimer(StartDelay, false), SceneTreeTimer.SignalName.Timeout);
 
 			if (!IsInstanceValid(this) || !IsInsideTree())
 			{

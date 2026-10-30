@@ -452,7 +452,7 @@ public partial class RunManager : Node
 	{
 		if (VictoryDelay > 0.0f)
 		{
-			await ToSignal(GetTree().CreateTimer(VictoryDelay), SceneTreeTimer.SignalName.Timeout);
+			await ToSignal(GetTree().CreateTimer(VictoryDelay, false), SceneTreeTimer.SignalName.Timeout);
 			if (!IsInstanceValid(this) || !IsInsideTree())
 			{
 				return;
