@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="CradleAtmosphere" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/decor/CradleAtmosphere.cs" id="1_atmosphere"]
+
+[sub_resource type="Environment" id="Environment_cradle"]
+background_mode = 1
+background_color = Color(0.03, 0.02, 0.02, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.36, 0.28, 0.26, 1)
+ambient_light_energy = 0.5
+tonemap_mode = 2
+fog_enabled = true
+fog_light_color = Color(0.1, 0.06, 0.05, 1)
+fog_density = 0.012
+
+[resource]
+script = ExtResource("1_atmosphere")
+Environment = SubResource("Environment_cradle")
+LightColor = Color(1, 0.82, 0.62, 1)
+LightEnergy = 0.9
+LightRotationDegrees = Vector3(-55, 30, 0)
+LightShadows = true
