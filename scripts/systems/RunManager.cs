@@ -27,6 +27,13 @@ using Godot;
 /// Teclas de depuración (solo si OS.IsDebugBuild()): N reinicia con una semilla nueva; R repite la actual; T cambia la
 /// dificultad (Easy → Normal → Hard) con la misma semilla; G recorre las versiones del generador (1 → 2 → 3 → 1).
 /// Al morir, la escena se recarga sin estado pendiente, así que empieza una partida nueva (o la fija).
+///
+/// Fin de la partida: cuando RoomManager avisa de que se derrotó a The Mother (BossRoomCleared), la partida termina UNA sola
+/// vez (RunEnded): se congela a Noah, se bloquean las transiciones y se eliminan los proyectiles enemigos (RoomManager.EndRun);
+/// tras VictoryDelay (deja ver el efecto de muerte del jefe) y un fundido a oscuro, VictoryScreen muestra una de las cadenas
+/// de victoria (la elige la semilla de partida, sin consumir ningún azar) y el botón «Nueva partida» llama a StartNewRun.
+/// StartNewRun no depende de las teclas de depuración: funciona igual en Release y siempre cambia la semilla, aunque la
+/// partida arrancara con --seed o UseFixedSeed.
 /// </summary>
 public partial class RunManager : Node
 {
@@ -45,6 +52,12 @@ public partial class RunManager : Node
 	[Export] public RoomManager Rooms { get; set; }
 	[Export] public SeedHud SeedHud { get; set; }
 	[Export] public TreasureItemSpawner TreasureItems { get; set; }
+	[Export] public VictoryScreen Victory { get; set; }
+
+	// Pausa tras derrotar al jefe (su efecto de muerte dura 0.7 s) y fundido antes de la pantalla de victoria.
+	[Export] public float VictoryDelay { get; set; } = 0.8f;
+	[Export] public float VictoryFadeTime { get; set; } = 0.6f;
+	[Export] public float VictoryDim { get; set; } = 0.85f;
 
 	// Los modelos viajan como recursos Json referenciados desde la escena, así el exportador los incluye como dependencia.
 	// Si no se asignan, se leen de DifficultyModel.PathFor(versión del generador).
@@ -71,13 +84,30 @@ public partial class RunManager : Node
 	private static int? _pendingGeneratorVersion;
 	private static LevelMap _pendingMap;
 
+	/// <summary>Cadenas de victoria del juego (MotherTexts); la semilla de partida elige una.</summary>
+	public static readonly string[] VictoryMessages = { MotherTexts.VictoryDawn, MotherTexts.VictoryFreedom, MotherTexts.VictorySilence };
+
+	/// <summary>Se derrotó a The Mother y la partida terminó. Se emite una sola vez, en el instante de la muerte.</summary>
+	public event Action RunCompleted;
+
 	private int _seed;
 	private DifficultyTarget _difficulty;
 	private int _generatorVersion;
 	private string _modelSource;
 
+	/// <summary>Semilla de la partida en curso.</summary>
+	public int Seed => _seed;
+
+	public bool RunEnded { get; private set; }
+
 	public override void _Ready()
 	{
+		Rooms.BossRoomCleared += OnBossRoomCleared;
+		if (Victory != null)
+		{
+			Victory.NewRunRequested += StartNewRun;
+		}
+
 		if (OS.IsDebugBuild())
 		{
 			InputActions.Register(NewSeedAction, Key.N);
@@ -150,6 +180,19 @@ public partial class RunManager : Node
 		Rooms.Begin(result.Map);
 	}
 
+	public override void _ExitTree()
+	{
+		if (IsInstanceValid(Rooms))
+		{
+			Rooms.BossRoomCleared -= OnBossRoomCleared;
+		}
+
+		if (IsInstanceValid(Victory))
+		{
+			Victory.NewRunRequested -= StartNewRun;
+		}
+	}
+
 	public override void _UnhandledInput(InputEvent @event)
 	{
 		if (!OS.IsDebugBuild())
@@ -174,6 +217,43 @@ public partial class RunManager : Node
 			int next = _generatorVersion >= DungeonGenerator.LatestVersion ? DungeonGenerator.OriginalVersion : _generatorVersion + 1;
 			Restart(_seed, _difficulty, next);
 		}
+	}
+
+	/// <summary>Cadena de victoria de una partida: determinista por semilla, sin tocar ningún generador de azar.</summary>
+	public static string VictoryMessageFor(int seed)
+	{
+		return VictoryMessages[(int)((uint)seed % (uint)VictoryMessages.Length)];
+	}
+
+	/// <summary>
+	/// Nueva partida con otra semilla (siempre distinta de la actual, también con --seed o UseFixedSeed) y la misma
+	/// dificultad y versión del generador. Reinicia objetos y salud y recarga la escena. Pública y sin depender de la
+	/// depuración: es lo que llama el botón «Nueva partida».
+	/// </summary>
+	public void StartNewRun()
+	{
+		PrepareNewRun();
+		GetTree().CallDeferred(SceneTree.MethodName.ReloadCurrentScene);
+	}
+
+	/// <summary>
+	/// Deja lista la partida siguiente sin recargar la escena: fija su semilla (devuelta) y reinicia inventario, mejoras y
+	/// salud de Noah. La escena que se cargue después toma esa semilla antes que --seed o FixedSeed.
+	/// </summary>
+	public int PrepareNewRun()
+	{
+		int seed;
+		do
+		{
+			seed = RandomSeed();
+		}
+		while (seed == _seed);
+
+		_pendingSeed = seed;
+		_pendingDifficulty = _difficulty;
+		_pendingGeneratorVersion = _generatorVersion;
+		Rooms.Player?.GetNodeOrNull<PlayerItems>("Items")?.ResetForNewRun();
+		return seed;
 	}
 
 	/// <summary>Fija la semilla de partida de la próxima partida que se cargue. Solo en compilaciones de depuración.</summary>
@@ -299,6 +379,43 @@ public partial class RunManager : Node
 		RandomNumberGenerator rng = new();
 		rng.Randomize();
 		return (int)(rng.Randi() & int.MaxValue);
+	}
+
+	private void OnBossRoomCleared()
+	{
+		// Si Noah murió en el mismo instante, su muerte reinicia la escena y no hay victoria.
+		if (RunEnded || HealthComponent.FindIn(Rooms.Player).IsDead)
+		{
+			return;
+		}
+
+		RunEnded = true;
+		Rooms.EndRun();
+		RunCompleted?.Invoke();
+		PresentVictory();
+	}
+
+	private async void PresentVictory()
+	{
+		if (VictoryDelay > 0.0f)
+		{
+			await ToSignal(GetTree().CreateTimer(VictoryDelay), SceneTreeTimer.SignalName.Timeout);
+			if (!IsInstanceValid(this) || !IsInsideTree())
+			{
+				return;
+			}
+		}
+
+		if (Rooms.Fade != null && VictoryFadeTime > 0.0f)
+		{
+			await Rooms.Fade.FadeTo(VictoryDim, VictoryFadeTime);
+			if (!IsInstanceValid(this) || !IsInsideTree())
+			{
+				return;
+			}
+		}
+
+		Victory?.Present(VictoryMessageFor(_seed));
 	}
 
 	private void Restart(int seed, DifficultyTarget difficulty, int generatorVersion)
