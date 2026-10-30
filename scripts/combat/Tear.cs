@@ -19,6 +19,7 @@ public partial class Tear : Area3D
 	public void Launch(Vector3 direction)
 	{
 		_direction = direction.Normalized();
+		GetNodeOrNull<ProjectileModel>("Model")?.Orient(_direction);
 	}
 
 	public override void _PhysicsProcess(double delta)
