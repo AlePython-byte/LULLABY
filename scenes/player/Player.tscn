@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://scripts/player/PlayerHealth.cs" id="5_phealth"]
 [ext_resource type="PackedScene" path="res://assets/models/noah.glb" id="6_noah"]
 [ext_resource type="Script" path="res://scripts/player/PlayerVisualAnimator.cs" id="7_anim"]
+[ext_resource type="Script" path="res://scripts/items/PlayerItems.cs" id="8_items"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_noah"]
 
@@ -38,3 +39,6 @@ MaxHealth = 5.0
 
 [node name="PlayerHealth" type="Node" parent="."]
 script = ExtResource("5_phealth")
+
+[node name="Items" type="Node" parent="."]
+script = ExtResource("8_items")

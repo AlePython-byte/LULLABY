@@ -16,6 +16,7 @@ public partial class ItemSystemTest : Node
 		{
 			CheckCatalog();
 			CheckHealth();
+			await CheckPlayerItems();
 			CheckBaseParameters();
 			await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
 			GD.Print($"ItemSystemTest: {_checks} comprobaciones. RESULTADO: OK");
@@ -99,5 +100,71 @@ public partial class ItemSystemTest : Node
 		Require(changed == 6, "Se notifican daño, curación, mejora y reinicio al HUD");
 		health.Free();
 		GD.Print("Curación, máximo por instancia, señales y reinicio: OK");
+	}
+
+	private async System.Threading.Tasks.Task CheckPlayerItems()
+	{
+		PackedScene scene = GD.Load<PackedScene>("res://scenes/player/Player.tscn");
+		PlayerController player = scene.Instantiate<PlayerController>();
+		PlayerController other = scene.Instantiate<PlayerController>();
+		AddChild(player);
+		AddChild(other);
+		player.SetPhysicsProcess(false);
+		other.SetPhysicsProcess(false);
+		other.GetNode<PlayerShooter>("Shooter").SetPhysicsProcess(false);
+		HealthComponent health = HealthComponent.FindIn(player);
+		PlayerHealth protection = player.GetNode<PlayerHealth>("PlayerHealth");
+		PlayerShooter shooter = player.GetNode<PlayerShooter>("Shooter");
+		PlayerItems items = player.GetNode<PlayerItems>("Items");
+		HealthHud hud = GD.Load<PackedScene>("res://scenes/ui/HealthHud.tscn").Instantiate<HealthHud>();
+		AddChild(hud);
+		int changed = 0;
+		items.InventoryChanged += () => changed++;
+		Require(!items.TryCollect(_catalog.Find("biberon")), "Biberón no consumido a vida completa");
+		health.TakeDamage(3.0f);
+		Require(items.TryCollect(_catalog.Find("biberon")), "Biberón recogido");
+		Near(health.CurrentHealth, 4.0f, "Biberón recupera dos puntos");
+		Require(items.TryCollect(_catalog.Find("fotografia_rota")), "Fotografía recogida");
+		Require(!items.TryCollect(_catalog.Find("fotografia_rota")), "Fotografía no se acumula");
+		Near(shooter.DamageMultiplier, 1.25f, "Multiplicador de daño");
+		Require(items.TryCollect(_catalog.Find("chupete")), "Chupete recogido");
+		Near(shooter.EffectiveShotsPerSecond, 3.6f, "Cadencia efectiva");
+		Near(shooter.ShotsPerSecond, 3.0f, "Cadencia base intacta");
+		Require(items.TryCollect(_catalog.Find("oso_peluche")), "Oso recogido");
+		Near(health.EffectiveMaxHealth, 6.0f, "Oso aumenta el máximo efectivo");
+		Near(health.CurrentHealth, 5.0f, "Oso añade un punto actual");
+		Near(health.MaxHealth, 5.0f, "Oso conserva el máximo base");
+		Require(items.TryCollect(_catalog.Find("manta_vieja")), "Manta recogida");
+		Near(protection.DamageTakenMultiplier, 0.8f, "Resistencia");
+		Require(protection.TakeHit(1.0f), "Golpe con resistencia");
+		Near(health.CurrentHealth, 4.2f, "Daño reducido un 20 %");
+		Require(hud.GetNode<Label>("Label").Text == $"Vida: {4.2f:0.#}/6", "HUD muestra salud fraccionaria y máximo efectivo");
+		Require(!protection.TakeHit(1.0f), "Se conserva la invulnerabilidad");
+
+		Input.ActionPress(PlayerShooter.ShootRight);
+		await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame);
+		await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+		Input.ActionRelease(PlayerShooter.ShootRight);
+		var tears = GetTree().GetNodesInGroup("tears").OfType<Tear>().ToArray();
+		Require(tears.Length > 0, "Disparo real después de mejorar");
+		foreach (Tear tear in tears) { Near(tear.Damage, 1.25f, "Daño aplicado a la instancia de lágrima"); tear.Free(); }
+		Tear baseTear = shooter.TearScene.Instantiate<Tear>();
+		Near(baseTear.Damage, 1.0f, "Recurso de lágrima intacto");
+		baseTear.Free();
+		Near(other.GetNode<PlayerShooter>("Shooter").DamageMultiplier, 1.0f, "Segundo jugador sin mejoras compartidas");
+		Near(HealthComponent.FindIn(other).EffectiveMaxHealth, 5.0f, "Segundo jugador sin vida adicional");
+		Require(items.CollectedItems.Count == 5, "Inventario registra los cinco objetos");
+		items.ResetForNewRun();
+		Require(items.CollectedItems.Count == 0 && changed == 6, "Inventario y señales al reiniciar");
+		Near(shooter.DamageMultiplier, 1.0f, "Reinicio restaura daño");
+		Near(shooter.EffectiveShotsPerSecond, 3.0f, "Reinicio restaura cadencia");
+		Near(protection.DamageTakenMultiplier, 1.0f, "Reinicio restaura resistencia");
+		Near(health.CurrentHealth, 5.0f, "Reinicio restaura salud");
+		Near(health.EffectiveMaxHealth, 5.0f, "Reinicio restaura máximo");
+		Require(hud.GetNode<Label>("Label").Text == "Vida: 5/5", "HUD actualizado al reiniciar");
+		hud.Free();
+		player.Free();
+		other.Free();
+		GD.Print("Cinco efectos, disparo real, duplicados, aislamiento por instancia y reinicio: OK");
 	}
 }

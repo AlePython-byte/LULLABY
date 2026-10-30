@@ -3,6 +3,7 @@ using Godot;
 public partial class PlayerHealth : Node
 {
 	[Export] public float InvulnerabilityTime { get; set; } = 1.0f;
+	public float DamageTakenMultiplier { get; private set; } = 1.0f;
 
 	private HealthComponent _health;
 	private Node3D _mesh;
@@ -37,9 +38,23 @@ public partial class PlayerHealth : Node
 			return false;
 		}
 
-		_health.TakeDamage(damage);
+		_health.TakeDamage(damage * DamageTakenMultiplier);
 		_invulnerableTimer = InvulnerabilityTime;
 		return true;
+	}
+
+	public void SetItemDamageMultiplier(float multiplier)
+	{
+		if (!float.IsFinite(multiplier) || multiplier <= 0.0f || multiplier > 1.0f)
+			throw new System.ArgumentOutOfRangeException(nameof(multiplier));
+		DamageTakenMultiplier = multiplier;
+	}
+
+	public void ResetItemModifiers()
+	{
+		DamageTakenMultiplier = 1.0f;
+		_invulnerableTimer = 0.0f;
+		_mesh.Visible = true;
 	}
 
 	private void OnDied()
