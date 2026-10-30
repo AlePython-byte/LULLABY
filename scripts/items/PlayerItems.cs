@@ -5,6 +5,9 @@ using Godot;
 public partial class PlayerItems : Node
 {
 	[Signal] public delegate void InventoryChangedEventHandler();
+
+	/// <summary>Se recogió un objeto (se emite después de aplicar su efecto y de InventoryChanged).</summary>
+	public event System.Action<ItemDefinition> ItemCollected;
 	private readonly List<ItemDefinition> _collected = new();
 	private readonly HashSet<string> _upgrades = new(System.StringComparer.Ordinal);
 	private HealthComponent _health;
@@ -33,6 +36,7 @@ public partial class PlayerItems : Node
 		if (item.Effect != ItemEffect.Heal) _upgrades.Add(item.Id);
 		UpdateModifiers();
 		EmitSignal(SignalName.InventoryChanged);
+		ItemCollected?.Invoke(item);
 		return true;
 	}
 
