@@ -38,6 +38,9 @@ public partial class RoomManager : Node3D
 	/// </summary>
 	[Export] public bool DecorEnabled { get; set; }
 
+	/// <summary>Semilla de partida para la decoración (la fija RunManager antes de Begin). Con la celda siembra su azar propio.</summary>
+	public int DecorSeed { get; set; }
+
 	// Distancia del centro del jugador al interior de la pared de la puerta por la que aparece.
 	// El LevelValidator asume RoomRules.ArrivalOffset: si se cambia aquí, cambia también la regla.
 	[Export] public float ArrivalOffset { get; set; } = RoomRules.ArrivalOffset;
@@ -183,6 +186,7 @@ public partial class RoomManager : Node3D
 		room.Setup(data, connected, _cleared.Contains(cell));
 		room.BossScene = BossScene;
 		room.DecorEnabled = DecorEnabled;
+		room.DecorSeed = DecorSeed;
 		room.BossSpawned += boss =>
 		{
 			float height = boss.GetNodeOrNull<MotherVisual>("Animation")?.FramingHeight ?? room.WallHeight;
