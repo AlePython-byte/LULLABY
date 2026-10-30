@@ -656,6 +656,22 @@ godot --headless --path . res://tests/TreasureItemsTest.tscn
 
 La segunda prueba compara el nivel elegido antes y después de asignar recompensas para 200 semillas consecutivas, comprueba la independencia del RNG global y ejercita transiciones reales, cantidades configurables, orden de visita, recogida única, HUD y reinicio. Los valores base se contrastan con los metadatos históricos de las etiquetas v1/v2 en la primera prueba.
 
+#### 11.6.3 Alcance de la predicción: The Mother
+
+Todo lo medido en este documento (características, etiquetas, modelo, objetivos Easy/Normal/Hard y benchmarks) corresponde a la **composición histórica**: las salas de las plantillas de `resources/rooms/templates/` y, en la sala del jefe, la plantilla `jefe.tres` con **seis enemigos básicos**.
+
+En el juego, la sala del jefe se juega con The Mother (`RoomManager.BossScene`, ver `docs/LULLABY.md`, sección 5.1). Ese jefe se aplica después de que el director elige el nivel, igual que las recompensas: no cambia plantillas, características, modelo, etiquetas ni datos de entrenamiento, y el director sigue contando los seis básicos de esa sala al calcular `total_enemies`, `critical_path_enemies` y el resto de métricas. Por eso:
+
+- **La dificultad predicha no estima el combate contra The Mother.** Es un jefe de 180 puntos de vida con salvas y embestidas que no existe en el simulador ni en el bot, así que no hay etiquetas ni fidelidad medida para él.
+- **Tampoco estima el efecto de las mejoras de los objetos** (ver 11.6.2).
+- `FidelityCheck` pone `BossScene = null` antes de jugar cada nivel, para evaluar la composición de seis básicos del modelo. Con `BossScene` vacío el juego vuelve a esa composición y despejar la sala del jefe no termina la partida.
+
+La prueba `tests/HistoricalIntegrityTest.tscn` fija los SHA-256 de los datasets, etiquetas, modelos exportados y benchmarks de v1 y v2 (los de v1 son los de la tabla de la introducción de la versión 2), de `jefe.tres` y de `Catalog.tres`, y las colisiones de Noah (1×1) y del básico (0.9×0.9), y comprueba que la prueba de fidelidad sigue sin el jefe alternativo:
+
+```
+godot --headless --path . res://tests/HistoricalIntegrityTest.tscn
+```
+
 ### 11.7 Limitaciones de la versión 2
 
 1. **El simulador subestima el daño por contacto**, tanto en v1 como en v2. En la prueba de fidelidad v1 (30 niveles) el daño total, todo por contacto, fue 13.24 en el simulador frente a 16.00 en el juego (−17 %). En la v2 (90 niveles), el contacto da −12.9 % (IC 95 % de −16.6 % a −9.2 %).
@@ -663,7 +679,8 @@ La segunda prueba compara el nivel elegido antes y después de asignar recompens
    - **Por qué no se corrigió:** cambiaría las etiquetas v1.
    - **Efecto en las salas:** el sesgo pesa más donde casi todo el daño es de contacto y hay poco daño en total, como en las salas con explosivo (−27.8 % de daño por sala).
 2. **La dificultad es la de un bot competente que esquiva bien las explosiones y los proyectiles.** En las 270 partidas del juego real de la prueba de fidelidad, el bot recibió 0 golpes de explosión y 3 de proyectiles. Por eso la fidelidad de esas dos fuentes queda **sin evidencia suficiente**: no se puede afirmar que el simulador reproduzca bien su daño. Un jugador humano que no esquive igual sufrirá más esos enemigos de lo que predice el modelo.
-3. **Como en v1:** el modelo comprime el rango de dificultad, las etiquetas son del bot y no de personas, y prueba y confirmación salen del mismo generador que el entrenamiento.
+3. **La predicción describe la composición histórica de seis básicos en la sala del jefe**, no el combate contra The Mother ni el efecto de las mejoras de los objetos (secciones 11.6.2 y 11.6.3). Para incluirlos habría que ampliar el simulador y el bot, reetiquetar y reentrenar.
+4. **Como en v1:** el modelo comprime el rango de dificultad, las etiquetas son del bot y no de personas, y prueba y confirmación salen del mismo generador que el entrenamiento.
 
 ### 11.8 Cómo reproducir la versión 2
 
