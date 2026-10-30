@@ -164,6 +164,28 @@ Algunos objetos también modificarán la apariencia física de Noah.
 
 El objetivo es que el jugador pueda construir combinaciones distintas en cada partida.
 
+### 4.3.1. Objetos implementados para el MVP
+
+El MVP adapta las ideas anteriores a cinco efectos sencillos. Los valores se definen en `resources/items/`:
+
+| Objeto | Efecto durante la partida | Forma provisional |
+|---|---|---|
+| Biberón | Recupera hasta 2 puntos de vida, sin superar el máximo; permanece en el suelo si no puede curar | Cilindro azul |
+| Fotografía rota | +25 % de daño de las lágrimas | Caja naranja |
+| Chupete | +20 % de cadencia | Esfera rosa |
+| Oso de peluche | +1 punto de vida máxima efectiva y actual | Cápsula marrón |
+| Manta vieja | −20 % de daño recibido | Prisma verde |
+
+La recogida se realiza por contacto. La curación es instantánea; las cuatro mejoras permanecen hasta morir o empezar otra partida y no se acumulan por duplicado. Los modificadores pertenecen a cada instancia del jugador: los valores base de salud, disparo y colisiones siguen intactos. El Sonajero, los efectos de miedo, revelar enemigos ocultos y la protección temporal quedan fuera de esta implementación.
+
+Cada tesoro ofrece un objeto por defecto. La cantidad se configura en `ItemCatalog.ItemsPerTreasure`, a través de `resources/items/Catalog.tres`. Con cantidades mayores, todas las ofertas son recogibles independientes: todavía no existe «elegir uno de N». En cada tesoro se agota el catálogo antes de repetir un objeto. Volver a una habitación conserva tanto las ofertas pendientes como las ya recogidas, sin cambiar su selección ni permitir recogerlas otra vez.
+
+Las recompensas se asignan después de elegir el nivel, con un RNG propio por semilla de partida y celda del tesoro. El catálogo se ordena por identificador estable; cambiar el orden de visita o la cantidad de ofertas no cambia la primera recompensa de una celda. No se modifican las plantillas ni se consume el azar del generador o del director de IA.
+
+El HUD muestra los nombres obtenidos; el Biberón queda marcado como usado y agrupa las curaciones repetidas. Morir o reiniciar limpia el inventario, las mejoras y el estado de los tesoros. En compilaciones de depuración, **J sin modificadores** crea junto al jugador el siguiente objeto del catálogo para probarlo; **R** repite la partida desde cero con su semilla y **N** comienza otra. Este atajo no funciona en Release.
+
+Pruebas: `tests/ItemSystemTest.tscn` comprueba efectos, recogidas y parámetros base; `tests/TreasureItemsTest.tscn` comprueba visitas reales, HUD, varias ofertas, reinicio y aislamiento del RNG sobre 200 semillas. Cada recogible emite su señal `Collected`; el registro separado por celda y oferta permite añadir posteriormente grupos de elección sin cambiar los efectos del jugador.
+
 # 5. Jefes principales
 
 **The Mother:** Una representación monstruosa de la figura materna que intenta atrapar constantemente a Noah.

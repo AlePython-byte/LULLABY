@@ -639,6 +639,23 @@ Para reproducir la comparación y comprobar ambos modos, el determinismo y el in
 godot --headless --path . res://tests/DirectorVarietyAudit.tscn -- --verify-selector --check-report
 ```
 
+#### 11.6.2 Objetos del juego y composición base evaluada
+
+Las recompensas del MVP se añaden **después** de que el director seleccione el nivel. `TreasureItemSpawner` usa un RNG independiente por semilla de partida y celda, con una constante propia para separar su secuencia. La asignación y el estado de recogida viven fuera de `LevelMap` y `RoomData`: no cambian las plantillas, las características, el modelo ni los datos de entrenamiento. Tampoco consumen el azar global ni el del generador o el director.
+
+La predicción del HUD sigue describiendo la **composición base, sin objetos**. Las mejoras del jugador pueden cambiar la dificultad de una partida humana; el modelo no estima ese cambio y no se ha reentrenado para incluirlo. `GameplayParameters`, el simulador y el bot continúan sin objetos y leen los mismos valores base.
+
+`TreasureItemSpawner.Enabled` vale `false` por defecto y se activa explícitamente en la escena jugable. `FidelityCheck` lo desactiva antes de añadir esa escena al árbol, conservando la vida ilimitada del bot y evitando recogidas en la comparación entre simulación y juego real. Los benchmarks del director no dependen de las recompensas y mantienen su selección histórica con `PreferEnemyVariety=false`.
+
+Para comprobar efectos, parámetros históricos, persistencia y aislamiento sin sobrescribir los informes existentes:
+
+```
+godot --headless --path . res://tests/ItemSystemTest.tscn
+godot --headless --path . res://tests/TreasureItemsTest.tscn
+```
+
+La segunda prueba compara el nivel elegido antes y después de asignar recompensas para 200 semillas consecutivas, comprueba la independencia del RNG global y ejercita transiciones reales, cantidades configurables, orden de visita, recogida única, HUD y reinicio. Los valores base se contrastan con los metadatos históricos de las etiquetas v1/v2 en la primera prueba.
+
 ### 11.7 Limitaciones de la versión 2
 
 1. **El simulador subestima el daño por contacto**, tanto en v1 como en v2. En la prueba de fidelidad v1 (30 niveles) el daño total, todo por contacto, fue 13.24 en el simulador frente a 16.00 en el juego (−17 %). En la v2 (90 niveles), el contacto da −12.9 % (IC 95 % de −16.6 % a −9.2 %).
