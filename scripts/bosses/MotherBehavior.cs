@@ -32,6 +32,7 @@ public partial class MotherBehavior : EnemyBehavior
 	private float _timer;
 	private int _shots;
 	private bool _shotWarning;
+	private Vector3 _dashOrigin;
 
 	public override void _Ready()
 	{
@@ -64,6 +65,11 @@ public partial class MotherBehavior : EnemyBehavior
 				break;
 			case AttackState.Dash:
 				_dash.TryGetVelocity(enemy, player, delta, out velocity);
+				if (_dash.State == DashBehavior.DashState.Dashing && delta > 0.0f)
+				{
+					float remaining = Mathf.Max(0.0f, DashDistance - enemy.GlobalPosition.DistanceTo(_dashOrigin));
+					velocity = velocity.LimitLength(remaining / delta);
+				}
 				break;
 		}
 		Vector3 local = _room != null ? _room.ToLocal(enemy.GlobalPosition) : enemy.Position;
@@ -112,6 +118,7 @@ public partial class MotherBehavior : EnemyBehavior
 			MaxDistance = float.MaxValue,
 		};
 		_dash.WarningStarted += direction => DashDirection = direction;
+		_dash.DashStarted += _ => _dashOrigin = GetParent<Node3D>().GlobalPosition;
 		_dash.DashEnded += _ => { State = AttackState.Recovery; _timer = RecoveryTime; };
 		AddChild(_dash);
 		State = AttackState.Dash;
