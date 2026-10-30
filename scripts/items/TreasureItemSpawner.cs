@@ -22,6 +22,9 @@ public partial class TreasureItemSpawner : Node
 	private Node3D _root;
 	private bool _active;
 
+	// El modelo de un objeto ya queda ~0,25 m sobre el suelo: sube solo la altura del pedestal menos este margen (que lo deja justo encima).
+	private const float PedestalOverlap = 0.2f;
+
 	public bool Active => Enabled && _active;
 
 	public override void _Ready()
@@ -77,16 +80,31 @@ public partial class TreasureItemSpawner : Node
 		for (int slot = 0; slot < offers.Count; slot++)
 		{
 			Offer offer = offers[slot];
+			Vector3 position = PositionFor(slot, offers.Count);
+			// Con la ambientación activa, cada objeto descansa sobre un pedestal (que se queda vacío al recogerlo). Es solo visual.
+			float lift = room.DecorEnabled ? AddPedestal(position) : 0.0f;
 			if (offer.Collected) continue;
 			ItemPickup pickup = PickupScene.Instantiate<ItemPickup>();
 			pickup.Monitoring = false;
 			pickup.Definition = offer.Item;
-			pickup.Position = PositionFor(slot, offers.Count);
+			pickup.Position = position + new Vector3(0.0f, lift, 0.0f);
 			pickup.Collected += _ => offer.Collected = true;
 			_root.AddChild(pickup);
 			_live.Add(pickup);
 			EnableAfterPhysics(pickup);
 		}
+	}
+
+	// Devuelve cuánto hay que subir el objeto (la altura del pedestal menos lo que ya flota sobre el suelo); 0 si falta la pieza.
+	private float AddPedestal(Vector3 position)
+	{
+		string path = PropModels.Path(PropModels.Pedestal);
+		Node3D pedestal = ModelLibrary.Create(path);
+		if (pedestal == null) return 0.0f;
+		pedestal.Name = "Pedestal";
+		pedestal.Position = position;
+		_root.AddChild(pedestal);
+		return ModelLibrary.BoundsOf(path).Value.Size.Y - PedestalOverlap;
 	}
 
 	private async void EnableAfterPhysics(ItemPickup pickup)
