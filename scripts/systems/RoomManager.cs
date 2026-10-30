@@ -21,6 +21,8 @@ public partial class RoomManager : Node3D
 	public event System.Action<RoomController> RoomLoaded;
 	[Export] public LevelMap Map { get; set; }
 	[Export] public PackedScene RoomScene { get; set; }
+	/// <summary>Vacío conserva los seis enemigos históricos de la plantilla del jefe.</summary>
+	[Export] public PackedScene BossScene { get; set; }
 	[Export] public PlayerController Player { get; set; }
 	[Export] public RoomCamera Camera { get; set; }
 	[Export] public ScreenFade Fade { get; set; }
@@ -162,6 +164,12 @@ public partial class RoomManager : Node3D
 
 		RoomController room = RoomScene.Instantiate<RoomController>();
 		room.Setup(data, connected, _cleared.Contains(cell));
+		room.BossScene = BossScene;
+		room.BossSpawned += boss =>
+		{
+			float height = boss.GetNodeOrNull<MotherVisual>("Animation")?.FramingHeight ?? room.WallHeight;
+			Camera.Frame(data.Size, Mathf.Max(room.WallHeight, height), room.WallThickness);
+		};
 		room.DoorCrossed += OnDoorCrossed;
 		room.RoomCleared += OnRoomCleared;
 		AddChild(room);

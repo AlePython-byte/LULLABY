@@ -41,6 +41,11 @@ public partial class RoomController : Node3D
 {
 	[Signal] public delegate void RoomClearedEventHandler();
 	[Signal] public delegate void DoorCrossedEventHandler(int side);
+	public event System.Action<EnemyBase> BossSpawned;
+	// Override exclusivo de la instancia jugable. Nunca se escribe en RoomData ni en las plantillas.
+	public PackedScene BossScene { get; set; }
+	public EnemyBase BossEnemy { get; private set; }
+	private bool UsesBossOverride => _data.Type == RoomType.Boss && BossScene != null;
 
 	[Export] public float WallHeight { get; set; } = 3.0f;
 	[Export] public float WallThickness { get; set; } = 1.0f;
@@ -116,7 +121,7 @@ public partial class RoomController : Node3D
 			door.SetOpen(true);
 		}
 
-		if (_alreadyCleared || _data.EnemyScene == null || _spawnPoints.Count == 0)
+		if (_alreadyCleared || (!UsesBossOverride && (_data.EnemyScene == null || _spawnPoints.Count == 0)))
 		{
 			State = RoomState.Cleared;
 		}
@@ -252,7 +257,15 @@ public partial class RoomController : Node3D
 		}
 
 		// Se cuenta antes de instanciar: si un enemigo muriera durante el bucle, no se daría la sala por despejada.
-		_enemiesAlive = _spawnPoints.Count;
+		_enemiesAlive = UsesBossOverride ? 1 : _spawnPoints.Count;
+
+		if (UsesBossOverride)
+		{
+			// Aparece al activar el combate; su coordinador controla la pausa inicial, sin sumar StartDelay.
+			// La entrada puede venir de BodyEntered: se instancia fuera del callback de física.
+			Callable.From(SpawnBoss).CallDeferred();
+			return;
+		}
 
 		if (StartDelay > 0.0f)
 		{
@@ -271,6 +284,16 @@ public partial class RoomController : Node3D
 			enemy.GlobalPosition = _spawnPoints[i].GlobalPosition;
 			HealthComponent.FindIn(enemy).Died += OnEnemyDied;
 		}
+	}
+
+	private void SpawnBoss()
+	{
+		if (!IsInsideTree() || IsQueuedForDeletion() || State != RoomState.Combat) return;
+		BossEnemy = BossScene.Instantiate<EnemyBase>();
+		BossEnemy.Position = new Vector3(0.0f, 0.5f, 0.0f);
+		HealthComponent.FindIn(BossEnemy).Died += OnEnemyDied;
+		_enemiesRoot.AddChild(BossEnemy);
+		BossSpawned?.Invoke(BossEnemy);
 	}
 
 	// Con SpawnKinds (generador v2) cada punto tiene su tipo; si está vacío (v1), todos salen de EnemyScene.

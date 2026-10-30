@@ -67,3 +67,4 @@ BobSpeed = 2.5
 ArmWarningAngle = 35.0
 WarningWidth = 2.4
 DeathEffectTime = 0.7
+FramingHeight = 4.5

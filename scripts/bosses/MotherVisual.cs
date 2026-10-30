@@ -10,6 +10,7 @@ public partial class MotherVisual : Node
 	[Export] public float ArmWarningAngle { get; set; } = 35.0f;
 	[Export] public float WarningWidth { get; set; } = 2.4f;
 	[Export] public float DeathEffectTime { get; set; } = 0.7f;
+	[Export] public float FramingHeight { get; set; } = 4.5f;
 
 	private EnemyBase _enemy;
 	private MotherBehavior _behavior;

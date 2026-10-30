@@ -16,6 +16,7 @@
 [ext_resource type="PackedScene" path="res://scenes/items/ItemPickup.tscn" id="14_pickup"]
 [ext_resource type="Script" path="res://scripts/items/TreasureItemSpawner.cs" id="15_treasure"]
 [ext_resource type="PackedScene" path="res://scenes/ui/ItemsHud.tscn" id="16_items_hud"]
+[ext_resource type="PackedScene" path="res://scenes/bosses/TheMother.tscn" id="17_mother"]
 
 [sub_resource type="Environment" id="Environment_dark"]
 background_mode = 1
@@ -63,6 +64,7 @@ current = true
 [node name="RoomManager" type="Node3D" parent="." node_paths=PackedStringArray("Player", "Camera", "Fade")]
 script = ExtResource("7_manager")
 RoomScene = ExtResource("1_room")
+BossScene = ExtResource("17_mother")
 Player = NodePath("../Player")
 Camera = NodePath("../CameraRig")
 Fade = NodePath("../ScreenFade")

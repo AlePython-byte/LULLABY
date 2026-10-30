@@ -92,6 +92,8 @@ public partial class FidelityCheck : Node
 				Node level = levelScene.Instantiate();
 				// El modelo y el bot se evalúan sobre la composición base, sin recompensas ni mejoras.
 				level.GetNode<TreasureItemSpawner>("TreasureItemSpawner").Enabled = false;
+				// El combate evaluado conserva los seis básicos de jefe.tres.
+				level.GetNode<RoomManager>("RoomManager").BossScene = null;
 				HealthComponent.FindIn(level.GetNode("Player")).MaxHealth = 1.0e9f;
 				AddChild(level);
 
