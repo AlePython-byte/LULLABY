@@ -1,6 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/combat/EnemyProjectile.cs" id="1_projectile"]
+[ext_resource type="Script" path="res://scripts/combat/ProjectileModel.cs" id="9_model"]
 
 [sub_resource type="SphereMesh" id="SphereMesh_projectile"]
 radius = 0.2
@@ -25,3 +26,8 @@ surface_material_override/0 = SubResource("Material_projectile")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("SphereShape3D_projectile")
+
+[node name="Model" type="Node3D" parent="."]
+script = ExtResource("9_model")
+ModelPath = "res://assets/models/enemy_projectile.glb"
+FitSize = 0.4
