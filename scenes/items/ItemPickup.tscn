@@ -1,0 +1,29 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/items/ItemPickup.cs" id="1_pickup"]
+[ext_resource type="Resource" path="res://resources/items/biberon.tres" id="2_default"]
+
+[sub_resource type="SphereShape3D" id="Sphere_pickup"]
+radius = 0.65
+
+[node name="ItemPickup" type="Area3D"]
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+script = ExtResource("1_pickup")
+Definition = ExtResource("2_default")
+
+[node name="Visual" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.45, 0)
+
+[node name="NameLabel" type="Label3D" parent="."]
+position = Vector3(0, 1.2, 0)
+billboard = 1
+no_depth_test = true
+font_size = 40
+pixel_size = 0.008
+outline_size = 6
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.5, 0)
+shape = SubResource("Sphere_pickup")

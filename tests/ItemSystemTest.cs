@@ -17,6 +17,7 @@ public partial class ItemSystemTest : Node
 			CheckCatalog();
 			CheckHealth();
 			await CheckPlayerItems();
+			await CheckPickups();
 			CheckBaseParameters();
 			await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
 			GD.Print($"ItemSystemTest: {_checks} comprobaciones. RESULTADO: OK");
@@ -166,5 +167,68 @@ public partial class ItemSystemTest : Node
 		player.Free();
 		other.Free();
 		GD.Print("Cinco efectos, disparo real, duplicados, aislamiento por instancia y reinicio: OK");
+	}
+
+	private async System.Threading.Tasks.Task Frames(int count)
+	{
+		for (int i = 0; i < count; i++)
+		{
+			await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame);
+			await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+		}
+	}
+
+	private async System.Threading.Tasks.Task CheckPickups()
+	{
+		PackedScene pickupScene = GD.Load<PackedScene>("res://scenes/items/ItemPickup.tscn");
+		foreach (ItemDefinition definition in _catalog.Items)
+		{
+			ItemPickup sample = pickupScene.Instantiate<ItemPickup>();
+			sample.Definition = definition;
+			sample.Position = new Vector3(20.0f, 0.0f, 0.0f);
+			AddChild(sample);
+			MeshInstance3D mesh = sample.GetNode<MeshInstance3D>("Visual");
+			Require(mesh.Mesh != null && ((StandardMaterial3D)mesh.MaterialOverride).AlbedoColor == definition.Color,
+				"Forma y color de " + definition.Id);
+			Require(sample.GetNode<Label3D>("NameLabel").Text == definition.DisplayName, "Nombre visible de " + definition.Id);
+			Require(sample.CollisionLayer == 0 && sample.CollisionMask == CollisionLayers.Player, "Recogible no bloqueante");
+			sample.Free();
+		}
+		PlayerController player = GD.Load<PackedScene>("res://scenes/player/Player.tscn").Instantiate<PlayerController>();
+		player.Position = new Vector3(-3.0f, 0.5f, 0.0f);
+		AddChild(player);
+		player.SetPhysicsProcess(false);
+		player.GetNode<PlayerShooter>("Shooter").SetPhysicsProcess(false);
+		PlayerItems items = player.GetNode<PlayerItems>("Items");
+		HealthComponent health = HealthComponent.FindIn(player);
+		ItemPickup photo = pickupScene.Instantiate<ItemPickup>();
+		photo.Definition = _catalog.Find("fotografia_rota");
+		int collected = 0;
+		photo.Collected += _ => collected++;
+		AddChild(photo);
+		await Frames(3);
+		Require(items.CollectedItems.Count == 0, "No se recoge a distancia");
+		player.GlobalPosition = new Vector3(0.0f, 0.5f, 0.0f);
+		await Frames(3);
+		Require(!GodotObject.IsInstanceValid(photo) && collected == 1 && items.CollectedItems.Count == 1,
+			"Contacto físico recoge y elimina una sola vez");
+		ItemPickup bottle = pickupScene.Instantiate<ItemPickup>();
+		bottle.Position = new Vector3(10.0f, 0.0f, 0.0f);
+		AddChild(bottle);
+		Node3D enemy = new();
+		AddChild(enemy);
+		Require(!bottle.TryCollect(enemy), "Un enemigo no recoge objetos");
+		Require(!bottle.TryCollect(player) && !bottle.IsCollected && bottle.Visible, "Biberón permanece a vida completa");
+		health.TakeDamage(4.0f);
+		bool reentrant = false;
+		items.InventoryChanged += () => reentrant = bottle.TryCollect(player);
+		Require(bottle.TryCollect(player), "Biberón recogido al necesitarlo");
+		Require(!reentrant && !bottle.TryCollect(player), "Recogida protegida frente a callbacks repetidos y reentrantes");
+		Near(health.CurrentHealth, 3.0f, "Solo una curación aplicada");
+		await Frames(2);
+		Require(!GodotObject.IsInstanceValid(bottle), "Eliminación diferida del recogible");
+		enemy.Free();
+		player.Free();
+		GD.Print("Formas, colores, nombres, contacto físico y recogida única: OK");
 	}
 }
