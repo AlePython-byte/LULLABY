@@ -22,6 +22,8 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/VictoryScreen.tscn" id="20_victory"]
 [ext_resource type="PackedScene" path="res://scenes/ui/DefeatScreen.tscn" id="21_defeat"]
 [ext_resource type="PackedScene" path="res://scenes/ui/PauseMenu.tscn" id="22_pause"]
+[ext_resource type="Script" path="res://scripts/decor/AtmosphereApplier.cs" id="23_atmosphere"]
+[ext_resource type="Resource" path="res://resources/atmosphere/cradle_atmosphere.tres" id="24_cradle"]
 
 [sub_resource type="Environment" id="Environment_dark"]
 background_mode = 1
@@ -44,6 +46,12 @@ rotation_degrees = Vector3(-55, 30, 0)
 light_color = Color(0.7, 0.75, 1, 1)
 light_energy = 0.8
 shadow_enabled = true
+
+[node name="Atmosphere" type="Node" parent="." node_paths=PackedStringArray("World", "Light")]
+script = ExtResource("23_atmosphere")
+Atmosphere = ExtResource("24_cradle")
+World = NodePath("../WorldEnvironment")
+Light = NodePath("../DirectionalLight3D")
 
 [node name="Player" parent="." instance=ExtResource("3_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
@@ -81,6 +89,7 @@ current = true
 script = ExtResource("7_manager")
 RoomScene = ExtResource("1_room")
 BossScene = ExtResource("17_mother")
+DecorEnabled = true
 Player = NodePath("../Player")
 Camera = NodePath("../CameraRig")
 Fade = NodePath("../ScreenFade")
