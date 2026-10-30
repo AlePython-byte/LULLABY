@@ -11,7 +11,8 @@ using Godot;
 /// </summary>
 public static class RoomSurfaces
 {
-	public const string TextureFolder = "res://assets/textures/";
+	/// <summary>Carpeta de las texturas opcionales (las pruebas la apuntan a tests/fixtures/textures/).</summary>
+	public static string TextureFolder { get; set; } = "res://assets/textures/";
 	public const string Parquet = "parquet";
 	public const string Wallpaper = "papel_tapiz";
 	public const string Rug = "alfombra";
