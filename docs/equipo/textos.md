@@ -6,10 +6,11 @@ En el silencio sofocante de The Cradle, las sombras cobran vida entre juguetes r
 
 ## 2. Controles
 
-- **Moverse:** W, A, S, D / Flechas direccionales
-- **Disparar lágrimas:** Clic izquierdo / Flechas de disparo
-- **Pausa:** Esc / P
-- **Interactuar:** Espacio / E
+| Acción           | Tecla / Control            |
+| :--------------- | :------------------------- |
+| Moverse          | WASD                       |
+| Disparar lágrima | Teclas de flecha (↑ ↓ ← →) |
+| Pausa            | Esc / P                    |
 
 ## 3. Menú Principal e Interfaz
 
