@@ -33,6 +33,25 @@ public static class GameText
 	};
 
 	/// <summary>Teclas reales del juego (PlayerController, PlayerShooter y la pausa).</summary>
+	/// <summary>
+	/// Mensaje al recoger un objeto, por id: título (nombre y efecto) y descripción. Copiados de docs/equipo/textos.md (sección 4);
+	/// el juego no lee docs/ en ejecución.
+	/// </summary>
+	public static readonly System.Collections.Generic.Dictionary<string, (string Title, string Description)> ItemMessages = new()
+	{
+		["biberon"] = ("Biberón: recupera 2 puntos de vida", "Un sorbo tibio que calma el dolor y devuelve las fuerzas."),
+		["fotografia_rota"] = ("Fotografía rota: +25% de daño", "Un recuerdo fragmentado que enciende una rabia punzante."),
+		["chupete"] = ("Chupete: +20% de cadencia", "El llanto se vuelve un flujo incesante y apresurado."),
+		["oso_peluche"] = ("Oso de peluche: +1 de vida máxima y +1 punto de vida actual", "Un abrazo mullido que ensancha la resistencia del corazón."),
+		["manta_vieja"] = ("Manta vieja: -20% de daño recibido", "Un tejido gastado que amortigua la frialdad de los golpes."),
+	};
+
+	/// <summary>Mensaje de un objeto recogido; si no está en la tabla, su nombre y la descripción de su recurso.</summary>
+	public static (string Title, string Description) ItemMessage(ItemDefinition item)
+	{
+		return ItemMessages.TryGetValue(item.Id, out var message) ? message : (item.DisplayName, item.Description);
+	}
+
 	public static readonly string[] ControlLines =
 	{
 		"Moverse: W, A, S, D",
