@@ -191,7 +191,7 @@ public partial class ItemSystemTest : Node
 			MeshInstance3D mesh = sample.GetNode<MeshInstance3D>("Visual");
 			Require(mesh.Mesh != null && ((StandardMaterial3D)mesh.MaterialOverride).AlbedoColor == definition.Color,
 				"Forma y color de " + definition.Id);
-			Require(sample.GetNode<Label3D>("NameLabel").Text == definition.DisplayName, "Nombre visible de " + definition.Id);
+			Require(sample.GetNodeOrNull("NameLabel") == null, "Sin etiqueta flotante sobre " + definition.Id);
 			Require(sample.CollisionLayer == 0 && sample.CollisionMask == CollisionLayers.Player, "Recogible no bloqueante");
 			sample.Free();
 		}
