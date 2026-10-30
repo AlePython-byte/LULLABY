@@ -21,7 +21,9 @@ public partial class SeedHud : CanvasLayer
 			$"Dificultad {GameText.DifficultyName(target)} (objetivo {targetValue:0.0}) · predicha {predicted:0.0}";
 		if (modelGeneratorVersion != generatorVersion)
 		{
-			_label.Text += $"\nAVISO: modelo de dificultad no entrenado para v{generatorVersion}";
+			_label.Text += generatorVersion >= 3
+				? $"\n{GameText.ExtendedVarietyWarning}"
+				: $"\nAVISO: modelo de dificultad no entrenado para v{generatorVersion}";
 		}
 	}
 
