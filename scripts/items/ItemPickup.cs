@@ -7,6 +7,15 @@ public partial class ItemPickup : Area3D
 	[Export] public ItemDefinition Definition { get; set; }
 	public bool IsCollected { get; private set; }
 
+	/// <summary>Tamaño (dimensión mayor, en metros) del modelo 3D de un objeto.</summary>
+	public const float ModelSize = 0.5f;
+
+	/// <summary>El modelo 3D de un objeto vive en assets/models/items/{Id}.glb; si no existe se queda la figura provisional.</summary>
+	public static string ModelPathFor(string id) => $"res://assets/models/items/{id}.glb";
+
+	/// <summary>Nodo con el modelo 3D (flotando y girando); nulo si se usa la figura provisional.</summary>
+	public Node3D Model { get; private set; }
+
 	public override void _Ready()
 	{
 		if (Definition == null || !Definition.IsValid)
@@ -29,8 +38,24 @@ public partial class ItemPickup : Area3D
 			AlbedoColor = Definition.Color,
 			ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
 		};
+		ShowModel(visual);
 		GetNode<Label3D>("NameLabel").Text = Definition.DisplayName;
 		BodyEntered += OnBodyEntered;
+	}
+
+	// La figura provisional conserva su forma y color (respaldo y pruebas); solo se oculta cuando hay modelo.
+	private void ShowModel(MeshInstance3D provisional)
+	{
+		FloatingSpin holder = GetNodeOrNull<FloatingSpin>("ModelHolder");
+		Node3D model = holder == null ? null : ModelLibrary.Create(ModelPathFor(Definition.Id), ModelLibrary.Anchor.Center, ModelSize);
+		if (model == null)
+		{
+			return;
+		}
+
+		holder.AddChild(model);
+		Model = model;
+		provisional.Visible = false;
 	}
 
 	public bool TryCollect(Node3D body)
