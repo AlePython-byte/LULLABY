@@ -64,6 +64,40 @@ public static class BossTestHarness
 		return level;
 	}
 
+	/// <summary>
+	/// Como Open, pero bajo la raíz y como escena ACTUAL: ReloadCurrentScene y ChangeSceneToFile reemplazan a la escena
+	/// actual, y así reemplazan al nivel y no a la prueba.
+	/// </summary>
+	public static Level OpenAsCurrent(SceneTree tree, int seed, bool withMother = true, bool unlimitedHealth = true)
+	{
+		Level level = Open(tree.Root, seed, withMother, unlimitedHealth);
+		tree.CurrentScene = level.Root;
+		return level;
+	}
+
+	/// <summary>Espera a que la escena actual sea otra (la de scenePath) tras una recarga o un cambio de escena.</summary>
+	public static async Task<Node> WaitForScene(SceneTree tree, Node previous, string scenePath)
+	{
+		await WaitUntil(tree, () => tree.CurrentScene != null && tree.CurrentScene != previous
+			&& tree.CurrentScene.SceneFilePath == scenePath && !GodotObject.IsInstanceValid(previous), 300, $"la escena {scenePath}");
+		await Frames(tree, 5);
+		return tree.CurrentScene;
+	}
+
+	/// <summary>Libera una escena creada por la prueba y devuelve el papel de escena actual a la propia prueba.</summary>
+	public static async Task Restore(SceneTree tree, Node testScene, Node created)
+	{
+		if (GodotObject.IsInstanceValid(created))
+		{
+			created.QueueFree();
+			await tree.ToSignal(created, Node.SignalName.TreeExited);
+		}
+
+		tree.Paused = false;
+		tree.CurrentScene = testScene;
+		await Frames(tree, 1);
+	}
+
 	/// <summary>Libera el nivel y espera a que salga del árbol: dos niveles a la vez confundirían al grupo "player".</summary>
 	public static async Task Close(SceneTree tree, Level level)
 	{
