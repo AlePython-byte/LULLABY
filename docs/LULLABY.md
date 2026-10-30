@@ -411,6 +411,17 @@ Los modelos viven en `assets/models/` (fuentes en `assets/source/blender/`). Tod
 
 Prueba: `godot --headless --fixed-fps 60 --path . res://tests/VisualModelsTest.tscn`.
 
+## 8.2. Ambientación de las salas de The Cradle
+
+Es solo visual y **opcional**: `RoomManager.DecorEnabled` (apagado por defecto, encendido en `TestLevel.tscn`) la activa en cada sala. Con ella apagada, las pruebas, el simulador y los benchmarks ven las salas de siempre. Ninguna pieza tiene colisión: paredes, puertas (`Door`), `RoomLayout` y las colisiones de Noah y los enemigos no cambian.
+
+- **Puertas:** un marco (`marco_puerta`, hueco libre de 3 m) alrededor de cada hueco y unos barrotes (`puerta_barrotes`) como aspecto de la puerta cerrada. Los barrotes cuelgan de `Door` (`AttachSkin`): se ven mientras está cerrada y se ocultan al abrirla; la caja roja provisional deja de verse.
+- **Columnas** (`columna_esquina`) en las esquinas interiores del lado norte. La cámara mira desde el sur con 60° de inclinación y la pared sur oculta el suelo que tiene delante, así que el sur no se decora (`RoomDecorator.SkipSouth`).
+- **Texturas opcionales** en `assets/textures/` (`RoomSurfaces`): `parquet.png` (suelo de salas normales y de inicio), `papel_tapiz.png` (paredes), `alfombra.png` (suelo del tesoro) y `madera_cuna.png` (suelo del jefe). Se cargan solo por código con `ResourceLoader.Exists` y en triplanar de espacio mundo (una repetición cada `TextureTileMeters`, 2 m por defecto, editable en `Room.tscn`). Si una no existe, esa superficie usa un color pastel apagado (también editable en `Room.tscn`, grupo «Decoración»). Ninguna escena las referencia, así que su ausencia no rompe el juego ni la exportación.
+- **Luz y ambiente:** un solo recurso, `resources/atmosphere/cradle_atmosphere.tres` (`CradleAtmosphere`), editable desde el inspector de Godot: entorno (ambiente, niebla, tonemap, fondo) y luz principal (color, energía, orientación, sombras). El nodo `Atmosphere` de `TestLevel.tscn` (`AtmosphereApplier`) lo aplica al empezar. No afecta al encuadre de `RoomCamera`.
+
+Prueba: `godot --headless --fixed-fps 60 --path . res://tests/RoomDecorBaseTest.tscn`.
+
 # 9. Arquitectura de software
 
 Se utilizará una arquitectura modular para facilitar el desarrollo y mantenimiento.
