@@ -19,6 +19,7 @@
 [ext_resource type="PackedScene" path="res://scenes/bosses/TheMother.tscn" id="17_mother"]
 [ext_resource type="PackedScene" path="res://scenes/ui/BossHud.tscn" id="18_boss_hud"]
 [ext_resource type="Script" path="res://scripts/bosses/DebugBossControls.cs" id="19_debug_boss"]
+[ext_resource type="PackedScene" path="res://scenes/ui/VictoryScreen.tscn" id="20_victory"]
 
 [sub_resource type="Environment" id="Environment_dark"]
 background_mode = 1
@@ -57,6 +58,8 @@ Rooms = NodePath("../RoomManager")
 
 [node name="ScreenFade" parent="." instance=ExtResource("5_fade")]
 
+[node name="VictoryScreen" parent="." instance=ExtResource("20_victory")]
+
 [node name="CameraRig" type="Node3D" parent="."]
 rotation_degrees = Vector3(-60, 0, 0)
 script = ExtResource("6_camera")
@@ -86,7 +89,7 @@ PickupScene = ExtResource("14_pickup")
 script = ExtResource("19_debug_boss")
 Rooms = NodePath("../RoomManager")
 
-[node name="RunManager" type="Node" parent="." node_paths=PackedStringArray("Rooms", "SeedHud", "TreasureItems")]
+[node name="RunManager" type="Node" parent="." node_paths=PackedStringArray("Rooms", "SeedHud", "TreasureItems", "Victory")]
 script = ExtResource("9_run")
 Catalog = ExtResource("2_catalog")
 ModelFile = ExtResource("10_model")
@@ -94,6 +97,7 @@ ModelFileV2 = ExtResource("11_model_v2")
 Rooms = NodePath("../RoomManager")
 SeedHud = NodePath("../SeedHud")
 TreasureItems = NodePath("../TreasureItemSpawner")
+Victory = NodePath("../VictoryScreen")
 
 [node name="DebugItemSpawner" type="Node" parent="." node_paths=PackedStringArray("Player", "Rooms")]
 script = ExtResource("12_debug_items")
