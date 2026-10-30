@@ -400,6 +400,17 @@ La dirección artística incluirá:
 
 La interfaz mostrará información como salud, objetos, mapa, recursos y estado de la partida sin ocupar demasiado espacio.
 
+## 8.1. Modelos 3D integrados
+
+Los modelos viven en `assets/models/` (fuentes en `assets/source/blender/`). Todos son solo visuales: no cambian ninguna colisión ni parámetro del juego.
+
+- **Enemigos** (los seis): el modelo cuelga del nodo `Visual` de cada escena con un giro fijo de 180°, sin color provisional (`UseKindColor = false`), con `EnemyFacing` y destello de golpe sobre copias de sus materiales. El volador flota (su punto más bajo está a 0,33 m del suelo). El excavador conserva `DiggerVisual`: su modelo cuelga del nodo `Body`, que se hunde al enterrarse, y el nodo `Mound` de la escena es el montículo que queda.
+- **Objetos del tesoro:** cada recogida carga `assets/models/items/{Id}.glb`, centrado y escalado a 0,5 m, que flota y gira suavemente (`FloatingSpin`). Si el archivo no existe, se ve la figura provisional de siempre.
+- **Proyectiles:** `tear.glb` (lágrima de Noah, orientada con su vuelo y la punta hacia atrás) y `enemy_projectile.glb` (tirador y excavador), con la figura provisional como respaldo.
+- `ModelLibrary` (`scripts/decor/`) carga los `.glb` centrados por su caja envolvente, porque algunos orígenes no están centrados.
+
+Prueba: `godot --headless --fixed-fps 60 --path . res://tests/VisualModelsTest.tscn`.
+
 # 9. Arquitectura de software
 
 Se utilizará una arquitectura modular para facilitar el desarrollo y mantenimiento.
