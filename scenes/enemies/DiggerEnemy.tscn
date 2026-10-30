@@ -5,15 +5,8 @@
 [ext_resource type="Script" path="res://scripts/enemies/DiggerVisual.cs" id="3_visual"]
 [ext_resource type="Script" path="res://scripts/enemies/DigBehavior.cs" id="4_dig"]
 [ext_resource type="PackedScene" path="res://scenes/combat/EnemyProjectile.tscn" id="5_projectile"]
-
-[sub_resource type="SphereMesh" id="SphereMesh_body"]
-radius = 0.45
-height = 0.8
-
-[sub_resource type="CylinderMesh" id="CylinderMesh_drill"]
-top_radius = 0.0
-bottom_radius = 0.16
-height = 0.45
+[ext_resource type="PackedScene" path="res://assets/models/digger_enemy.glb" id="6_model"]
+[ext_resource type="Script" path="res://scripts/enemies/EnemyFacing.cs" id="7_facing"]
 
 [sub_resource type="SphereMesh" id="SphereMesh_mound"]
 radius = 0.55
@@ -33,15 +26,13 @@ ContactDamage = 0.0
 
 [node name="Visual" type="Node3D" parent="."]
 script = ExtResource("3_visual")
+UseKindColor = false
 
 [node name="Body" type="Node3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 
-[node name="Shell" type="MeshInstance3D" parent="Visual/Body"]
-mesh = SubResource("SphereMesh_body")
-
-[node name="Drill" type="MeshInstance3D" parent="Visual/Body"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
-mesh = SubResource("CylinderMesh_drill")
+[node name="Model" parent="Visual/Body" instance=ExtResource("6_model")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 0)
 
 [node name="Mound" type="MeshInstance3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
@@ -58,3 +49,6 @@ MaxHealth = 3.0
 [node name="Dig" type="Node" parent="."]
 script = ExtResource("4_dig")
 ProjectileScene = ExtResource("5_projectile")
+
+[node name="Facing" type="Node" parent="."]
+script = ExtResource("7_facing")
