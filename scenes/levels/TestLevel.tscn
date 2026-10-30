@@ -17,6 +17,7 @@
 [ext_resource type="Script" path="res://scripts/items/TreasureItemSpawner.cs" id="15_treasure"]
 [ext_resource type="PackedScene" path="res://scenes/ui/ItemsHud.tscn" id="16_items_hud"]
 [ext_resource type="PackedScene" path="res://scenes/bosses/TheMother.tscn" id="17_mother"]
+[ext_resource type="PackedScene" path="res://scenes/ui/BossHud.tscn" id="18_boss_hud"]
 
 [sub_resource type="Environment" id="Environment_dark"]
 background_mode = 1
@@ -49,6 +50,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 Inventory = NodePath("../Player/Items")
 
 [node name="SeedHud" parent="." instance=ExtResource("8_seed")]
+
+[node name="BossHud" parent="." node_paths=PackedStringArray("Rooms") instance=ExtResource("18_boss_hud")]
+Rooms = NodePath("../RoomManager")
 
 [node name="ScreenFade" parent="." instance=ExtResource("5_fade")]
 
