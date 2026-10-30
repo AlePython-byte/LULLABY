@@ -109,6 +109,22 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "Difícil"
 
+[node name="ExtendedVariety" type="CheckButton" parent="Center/Box"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 20
+text = "Variedad extendida (experimental)"
+
+[node name="ExtendedVarietyHint" type="Label" parent="Center/Box"]
+custom_minimum_size = Vector2(520, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0.85, 0.7, 0.5, 1)
+theme_override_font_sizes/font_size = 15
+text = "Añade al huidor y al excavador."
+horizontal_alignment = 1
+autowrap_mode = 3
+
 [node name="ControlsButton" type="Button" parent="Center/Box"]
 custom_minimum_size = Vector2(320, 52)
 layout_mode = 2
