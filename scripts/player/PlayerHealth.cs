@@ -8,6 +8,10 @@ public partial class PlayerHealth : Node
 	private HealthComponent _health;
 	private Node3D _mesh;
 	private float _invulnerableTimer;
+	private bool _locked;
+
+	/// <summary>La partida terminó: Noah ya no recibe daño y, si llegara a morir, la escena no se reinicia.</summary>
+	public bool IsLocked => _locked;
 
 	public override void _Ready()
 	{
@@ -33,7 +37,7 @@ public partial class PlayerHealth : Node
 	/// <summary>Devuelve true si el golpe hizo daño (false si estaba en invulnerabilidad o muerto).</summary>
 	public bool TakeHit(float damage)
 	{
-		if (_invulnerableTimer > 0.0f || _health.IsDead)
+		if (_locked || _invulnerableTimer > 0.0f || _health.IsDead)
 		{
 			return false;
 		}
@@ -50,8 +54,15 @@ public partial class PlayerHealth : Node
 		DamageTakenMultiplier = multiplier;
 	}
 
+	/// <summary>Fin de la partida por victoria. ResetItemModifiers, que usa cada partida nueva, lo deshace.</summary>
+	public void Lock()
+	{
+		_locked = true;
+	}
+
 	public void ResetItemModifiers()
 	{
+		_locked = false;
 		DamageTakenMultiplier = 1.0f;
 		_invulnerableTimer = 0.0f;
 		_mesh.Visible = true;
@@ -59,6 +70,11 @@ public partial class PlayerHealth : Node
 
 	private void OnDied()
 	{
+		if (_locked)
+		{
+			return;
+		}
+
 		GetTree().CallDeferred(SceneTree.MethodName.ReloadCurrentScene);
 	}
 }

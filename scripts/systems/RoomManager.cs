@@ -19,6 +19,11 @@ public partial class RoomManager : Node3D
 {
 	/// <summary>Sala preparada, con el jugador colocado y el fundido de entrada terminado.</summary>
 	public event System.Action<RoomController> RoomLoaded;
+	/// <summary>
+	/// Murió el jefe de la partida (el override BossScene) y la sala del jefe quedó despejada. Con la composición histórica
+	/// de seis básicos no se emite: solo termina la partida quien derrota a The Mother.
+	/// </summary>
+	public event System.Action BossRoomCleared;
 	[Export] public LevelMap Map { get; set; }
 	[Export] public PackedScene RoomScene { get; set; }
 	/// <summary>Vacío conserva los seis enemigos históricos de la plantilla del jefe.</summary>
@@ -43,6 +48,9 @@ public partial class RoomManager : Node3D
 	private bool _transitioning;
 
 	public RoomController CurrentRoom => _room;
+
+	/// <summary>La partida terminó (EndRun): no hay más transiciones entre salas.</summary>
+	public bool RunEnded { get; private set; }
 
 	public override void _Ready()
 	{
@@ -182,12 +190,40 @@ public partial class RoomManager : Node3D
 	private void OnRoomCleared()
 	{
 		_cleared.Add(_currentCell);
+
+		if (_room.Data.Type == RoomType.Boss && _room.BossEnemy != null)
+		{
+			BossRoomCleared?.Invoke();
+		}
+	}
+
+	/// <summary>
+	/// Termina la partida: congela a Noah (movimiento y disparo), bloquea las puertas y las transiciones, le impide
+	/// recibir daño y elimina los proyectiles enemigos. Es definitivo hasta cargar otra partida.
+	/// </summary>
+	public void EndRun()
+	{
+		RunEnded = true;
+		SetPlayerFrozen(true);
+		Player.Velocity = Vector3.Zero;
+		Player.GetNodeOrNull<PlayerHealth>("PlayerHealth")?.Lock();
+		ClearEnemyProjectiles();
+		// Un proyectil disparado en este mismo fotograma nace después de la limpieza: se barre otra vez al terminar.
+		Callable.From(ClearEnemyProjectiles).CallDeferred();
+	}
+
+	private void ClearEnemyProjectiles()
+	{
+		foreach (Node projectile in GetTree().GetNodesInGroup("enemy_projectiles"))
+		{
+			projectile.QueueFree();
+		}
 	}
 
 	// Viene de una colisión: la descarga de la sala se difiere para no tocar la física en pleno callback.
 	private void OnDoorCrossed(int side)
 	{
-		if (_transitioning)
+		if (_transitioning || RunEnded)
 		{
 			return;
 		}
@@ -200,7 +236,7 @@ public partial class RoomManager : Node3D
 	/// <summary>Salta a la sala del jefe del mapa actual sin modificarlo. Solo en depuración.</summary>
 	public bool DebugGoToBoss()
 	{
-		if (!OS.IsDebugBuild() || _transitioning || Map == null || !IsInstanceValid(Player)
+		if (!OS.IsDebugBuild() || _transitioning || RunEnded || Map == null || !IsInstanceValid(Player)
 			|| HealthComponent.FindIn(Player).IsDead) return false;
 		foreach (RoomData data in _rooms.Values)
 		{
@@ -221,6 +257,12 @@ public partial class RoomManager : Node3D
 	private async void BeginTransition(DoorSide exitSide, Vector2I? targetCell = null)
 	{
 		Vector2I nextCell = targetCell ?? _currentCell + exitSide.GridOffset();
+		if (RunEnded)
+		{
+			_transitioning = false;
+			return;
+		}
+
 		if (!_rooms.ContainsKey(nextCell))
 		{
 			GD.PushError($"RoomManager: la puerta {exitSide} de {_currentCell} no lleva a ninguna sala.");
