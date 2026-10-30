@@ -39,7 +39,6 @@ public partial class ItemPickup : Area3D
 			ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
 		};
 		ShowModel(visual);
-		GetNode<Label3D>("NameLabel").Text = Definition.DisplayName;
 		BodyEntered += OnBodyEntered;
 	}
 
