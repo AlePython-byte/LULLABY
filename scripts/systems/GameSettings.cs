@@ -11,4 +11,11 @@ public static class GameSettings
 	/// argumento --difficulty o el valor del inspector de RunManager.
 	/// </summary>
 	public static DifficultyTarget? Difficulty { get; set; }
+
+	/// <summary>
+	/// «Variedad extendida (experimental)»: la partida usa el generador v3 (seis tipos de enemigo, con el huidor y el excavador).
+	/// Su modelo de dificultad no está entrenado para esos dos. Falso por defecto; un argumento --generator o una tecla de
+	/// depuración mandan sobre esta opción.
+	/// </summary>
+	public static bool ExtendedVariety { get; set; }
 }
