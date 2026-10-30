@@ -5,15 +5,8 @@
 [ext_resource type="Script" path="res://scripts/enemies/EnemyVisual.cs" id="3_visual"]
 [ext_resource type="Script" path="res://scripts/enemies/DashBehavior.cs" id="4_dash"]
 [ext_resource type="Script" path="res://scripts/enemies/KeepDistanceBehavior.cs" id="5_distance"]
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_body"]
-radius = 0.28
-height = 0.85
-
-[sub_resource type="CylinderMesh" id="CylinderMesh_ear"]
-top_radius = 0.0
-bottom_radius = 0.08
-height = 0.3
+[ext_resource type="PackedScene" path="res://assets/models/runner_enemy.glb" id="6_model"]
+[ext_resource type="Script" path="res://scripts/enemies/EnemyFacing.cs" id="7_facing"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_enemy"]
 size = Vector3(0.7, 0.9, 0.7)
@@ -27,18 +20,12 @@ Kind = 4
 Speed = 3.5
 
 [node name="Visual" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 script = ExtResource("3_visual")
+UseKindColor = false
 
-[node name="Body" type="MeshInstance3D" parent="Visual"]
-mesh = SubResource("CapsuleMesh_body")
-
-[node name="EarL" type="MeshInstance3D" parent="Visual"]
-transform = Transform3D(0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 0, 0, 1, -0.13, 0.5, 0)
-mesh = SubResource("CylinderMesh_ear")
-
-[node name="EarR" type="MeshInstance3D" parent="Visual"]
-transform = Transform3D(0.965926, -0.258819, 0, 0.258819, 0.965926, 0, 0, 0, 1, 0.13, 0.5, 0)
-mesh = SubResource("CylinderMesh_ear")
+[node name="Model" parent="Visual" instance=ExtResource("6_model")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("BoxShape3D_enemy")
@@ -53,3 +40,6 @@ script = ExtResource("4_dash")
 [node name="Move" type="Node" parent="."]
 script = ExtResource("5_distance")
 PreferredDistance = 5.0
+
+[node name="Facing" type="Node" parent="."]
+script = ExtResource("7_facing")
