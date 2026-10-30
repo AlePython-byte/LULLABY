@@ -1,0 +1,6 @@
+# Créditos y Licencias de Audio — LULLABY
+
+Todos los efectos de sonido y pistas musicales utilizados en el proyecto cuentan con licencias permisivas (CC0 / Dominio Público o CC-BY) compatibles con el desarrollo del juego.
+
+| Archivo | Elemento / Uso | Autor | Enlace / Fuente | Licencia |
+| :------ | :------------- | :---- | :-------------- | :------- |
