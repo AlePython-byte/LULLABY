@@ -70,6 +70,9 @@ public partial class RoomController : Node3D
 	/// </summary>
 	public bool DecorEnabled { get; set; }
 
+	/// <summary>Semilla de la partida para decorar (con la celda, siembra el azar propio de la decoración; ver SeedMix).</summary>
+	public int DecorSeed { get; set; }
+
 	// Aspecto de la sala decorada (colores pastel apagados, que se usan cuando no hay textura de ese tipo).
 	[ExportGroup("Decoración")]
 	[Export] public Color DecorFloorColor { get; set; } = new Color(0.56f, 0.46f, 0.40f, 1.0f);
@@ -193,7 +196,7 @@ public partial class RoomController : Node3D
 
 		if (DecorEnabled)
 		{
-			RoomDecorator.Build(this, layout, _data.Size, _doors);
+			RoomDecorator.Build(this, layout, _data.Size, _doors, _data.Type, _data.Cell, DecorSeed);
 		}
 	}
 
