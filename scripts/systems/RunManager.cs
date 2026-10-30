@@ -24,6 +24,9 @@ using Godot;
 /// modelo de una versión todavía no existe (la 3, con el Huidor y el Excavador, aún no tiene el suyo), se usa el de la
 /// versión anterior más reciente y el HUD avisa de que no está entrenado para ella.
 ///
+/// La opción «Variedad extendida (experimental)» del menú (GameSettings.ExtendedVariety) elige la versión más reciente del generador
+/// (la 3) si ni el argumento ni la tecla piden otra.
+///
 /// Teclas de depuración (solo si OS.IsDebugBuild()): N reinicia con una semilla nueva; R repite la actual; T cambia la
 /// dificultad (Easy → Normal → Hard) con la misma semilla; G recorre las versiones del generador (1 → 2 → 3 → 1).
 /// Al morir, la escena se recarga sin estado pendiente, así que empieza una partida nueva (o la fija).
@@ -137,7 +140,8 @@ public partial class RunManager : Node
 
 		_seed = ChooseSeed();
 		_difficulty = _pendingDifficulty ?? ArgumentDifficulty() ?? GameSettings.Difficulty ?? Difficulty;
-		_generatorVersion = _pendingGeneratorVersion ?? ArgumentGeneratorVersion() ?? GeneratorVersion;
+		_generatorVersion = _pendingGeneratorVersion ?? ArgumentGeneratorVersion()
+			?? (GameSettings.ExtendedVariety ? DungeonGenerator.LatestVersion : GeneratorVersion);
 		_pendingSeed = null;
 		_pendingDifficulty = null;
 		_pendingGeneratorVersion = null;
