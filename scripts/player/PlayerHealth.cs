@@ -13,6 +13,12 @@ public partial class PlayerHealth : Node
 	/// <summary>La partida terminó: Noah ya no recibe daño y, si llegara a morir, la escena no se reinicia.</summary>
 	public bool IsLocked => _locked;
 
+	/// <summary>
+	/// Noah murió. Si hay alguien escuchando (RunManager con su pantalla de derrota), él decide qué pasa; si no, la escena
+	/// se reinicia como siempre.
+	/// </summary>
+	public event System.Action Defeated;
+
 	public override void _Ready()
 	{
 		Node player = GetParent();
@@ -72,6 +78,12 @@ public partial class PlayerHealth : Node
 	{
 		if (_locked)
 		{
+			return;
+		}
+
+		if (Defeated != null)
+		{
+			Defeated.Invoke();
 			return;
 		}
 

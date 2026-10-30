@@ -53,8 +53,9 @@ public partial class RunManager : Node
 	[Export] public SeedHud SeedHud { get; set; }
 	[Export] public TreasureItemSpawner TreasureItems { get; set; }
 	[Export] public VictoryScreen Victory { get; set; }
+	[Export] public DefeatScreen Defeat { get; set; }
 
-	// Pausa tras derrotar al jefe (su efecto de muerte dura 0.7 s) y fundido antes de la pantalla de victoria.
+	// Pausa tras derrotar al jefe (su efecto de muerte dura 0.7 s) y fundido antes de la pantalla de victoria o de derrota.
 	[Export] public float VictoryDelay { get; set; } = 0.8f;
 	[Export] public float VictoryFadeTime { get; set; } = 0.6f;
 	[Export] public float VictoryDim { get; set; } = 0.85f;
@@ -90,10 +91,14 @@ public partial class RunManager : Node
 	/// <summary>Se derrotó a The Mother y la partida terminó. Se emite una sola vez, en el instante de la muerte.</summary>
 	public event Action RunCompleted;
 
+	/// <summary>Noah murió y la partida terminó (con DefeatScreen asignada). Se emite una sola vez.</summary>
+	public event Action RunFailed;
+
 	private int _seed;
 	private DifficultyTarget _difficulty;
 	private int _generatorVersion;
 	private string _modelSource;
+	private PlayerHealth _playerHealth;
 
 	/// <summary>Dificultad objetivo de la partida en curso.</summary>
 	public DifficultyTarget CurrentDifficulty => _difficulty;
@@ -109,6 +114,17 @@ public partial class RunManager : Node
 		if (Victory != null)
 		{
 			Victory.NewRunRequested += StartNewRun;
+		}
+
+		if (Defeat != null)
+		{
+			Defeat.RetryRequested += StartNewRun;
+			Defeat.MenuRequested += ReturnToMenu;
+			_playerHealth = Rooms.Player?.GetNodeOrNull<PlayerHealth>("PlayerHealth");
+			if (_playerHealth != null)
+			{
+				_playerHealth.Defeated += OnDefeated;
+			}
 		}
 
 		if (OS.IsDebugBuild())
@@ -194,6 +210,17 @@ public partial class RunManager : Node
 		{
 			Victory.NewRunRequested -= StartNewRun;
 		}
+
+		if (IsInstanceValid(Defeat))
+		{
+			Defeat.RetryRequested -= StartNewRun;
+			Defeat.MenuRequested -= ReturnToMenu;
+		}
+
+		if (IsInstanceValid(_playerHealth))
+		{
+			_playerHealth.Defeated -= OnDefeated;
+		}
 	}
 
 	public override void _UnhandledInput(InputEvent @event)
@@ -235,8 +262,16 @@ public partial class RunManager : Node
 	/// </summary>
 	public void StartNewRun()
 	{
+		GetTree().Paused = false;
 		PrepareNewRun();
 		GetTree().CallDeferred(SceneTree.MethodName.ReloadCurrentScene);
+	}
+
+	/// <summary>Vuelve al menú principal (también desde la pausa y la derrota). La dificultad elegida se conserva.</summary>
+	public void ReturnToMenu()
+	{
+		GetTree().Paused = false;
+		GetTree().CallDeferred(SceneTree.MethodName.ChangeSceneToFile, GameSettings.MenuScene);
 	}
 
 	/// <summary>
@@ -395,10 +430,25 @@ public partial class RunManager : Node
 		RunEnded = true;
 		Rooms.EndRun();
 		RunCompleted?.Invoke();
-		PresentVictory();
+		PresentEnd(() => Victory?.Present(VictoryMessageFor(_seed)));
 	}
 
-	private async void PresentVictory()
+	// Noah murió: la partida termina igual que con la victoria (Noah quieto, sin transiciones ni proyectiles) y, tras el
+	// mismo fundido, aparece la derrota con una frase elegida por la semilla.
+	private void OnDefeated()
+	{
+		if (RunEnded)
+		{
+			return;
+		}
+
+		RunEnded = true;
+		Rooms.EndRun();
+		RunFailed?.Invoke();
+		PresentEnd(() => Defeat?.Present(GameText.DefeatMessageFor(_seed)));
+	}
+
+	private async void PresentEnd(Action present)
 	{
 		if (VictoryDelay > 0.0f)
 		{
@@ -418,7 +468,7 @@ public partial class RunManager : Node
 			}
 		}
 
-		Victory?.Present(VictoryMessageFor(_seed));
+		present();
 	}
 
 	private void Restart(int seed, DifficultyTarget difficulty, int generatorVersion)
