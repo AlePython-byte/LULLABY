@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemCatalog" format=3]
+
+[ext_resource type="Script" path="res://scripts/items/ItemCatalog.cs" id="1_catalog"]
+[ext_resource type="Script" path="res://scripts/items/ItemDefinition.cs" id="2_item"]
+[ext_resource type="Resource" path="res://resources/items/biberon.tres" id="3_biberon"]
+[ext_resource type="Resource" path="res://resources/items/fotografia_rota.tres" id="4_foto"]
+[ext_resource type="Resource" path="res://resources/items/chupete.tres" id="5_chupete"]
+[ext_resource type="Resource" path="res://resources/items/oso_peluche.tres" id="6_oso"]
+[ext_resource type="Resource" path="res://resources/items/manta_vieja.tres" id="7_manta"]
+
+[resource]
+script = ExtResource("1_catalog")
+Items = Array[ExtResource("2_item")]([ExtResource("3_biberon"), ExtResource("4_foto"), ExtResource("5_chupete"), ExtResource("6_oso"), ExtResource("7_manta")])

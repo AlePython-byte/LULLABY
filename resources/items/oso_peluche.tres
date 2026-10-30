@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemDefinition" format=3]
+
+[ext_resource type="Script" path="res://scripts/items/ItemDefinition.cs" id="1_item"]
+
+[resource]
+script = ExtResource("1_item")
+Id = "oso_peluche"
+DisplayName = "Oso de peluche"
+Description = "Añade 1 punto a la vida máxima y actual durante esta partida."
+Effect = 3
+Amount = 1.0
+Color = Color(0.7, 0.4, 0.15, 1)
+Shape = 3

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemDefinition" format=3]
+
+[ext_resource type="Script" path="res://scripts/items/ItemDefinition.cs" id="1_item"]
+
+[resource]
+script = ExtResource("1_item")
+Id = "manta_vieja"
+DisplayName = "Manta vieja"
+Description = "Reduce un 20 % el daño recibido durante esta partida."
+Effect = 4
+Amount = 0.2
+Color = Color(0.3, 0.95, 0.4, 1)
+Shape = 4

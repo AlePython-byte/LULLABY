@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemDefinition" format=3]
+
+[ext_resource type="Script" path="res://scripts/items/ItemDefinition.cs" id="1_item"]
+
+[resource]
+script = ExtResource("1_item")
+Id = "fotografia_rota"
+DisplayName = "Fotografía rota"
+Description = "Aumenta un 25 % el daño de las lágrimas durante esta partida."
+Effect = 1
+Amount = 0.25
+Color = Color(1, 0.5, 0.15, 1)
+Shape = 1
