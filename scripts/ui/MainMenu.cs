@@ -2,7 +2,8 @@ using Godot;
 
 /// <summary>
 /// Menú principal: título, Jugar, Dificultad (Fácil / Normal / Difícil), Controles y Salir. La dificultad elegida se
-/// guarda en GameSettings y es la que usa el director de IA al empezar la partida; solo dura la sesión.
+/// guarda en GameSettings y es la que usa el director de IA al empezar la partida; solo dura la sesión. La casilla «Variedad extendida
+/// (experimental)» elige el generador v3 (con el huidor y el excavador) y avisa de que su modelo de dificultad no está entrenado.
 /// El logo (assets/ui/logo_lullaby.png) y el fondo (assets/ui/fondo_menu.png) son opcionales: si no existen, el menú
 /// funciona igual con el título en texto y un fondo de color.
 /// </summary>
@@ -17,6 +18,9 @@ public partial class MainMenu : Control
 	public ControlsPanel Controls { get; private set; }
 	public bool HasLogo { get; private set; }
 	public bool HasBackgroundArt { get; private set; }
+
+	/// <summary>Casilla «Variedad extendida (experimental)»: marcada, la partida usa el generador v3.</summary>
+	public CheckButton ExtendedVarietyToggle { get; private set; }
 
 	/// <summary>Dificultad marcada en pantalla.</summary>
 	public DifficultyTarget SelectedDifficulty { get; private set; } = DifficultyTarget.Normal;
@@ -59,6 +63,12 @@ public partial class MainMenu : Control
 			_difficultyButtons[i] = button;
 		}
 
+		GetNode<Label>("Center/Box/ExtendedVarietyHint").Text = GameText.ExtendedVarietyHint;
+		ExtendedVarietyToggle = GetNode<CheckButton>("Center/Box/ExtendedVariety");
+		ExtendedVarietyToggle.Text = GameText.ExtendedVariety;
+		ExtendedVarietyToggle.SetPressedNoSignal(GameSettings.ExtendedVariety);
+		ExtendedVarietyToggle.Toggled += pressed => GameSettings.ExtendedVariety = pressed;
+
 		ApplyArt();
 		PlayButton.GrabFocus();
 	}
@@ -77,6 +87,7 @@ public partial class MainMenu : Control
 	public void StartGame()
 	{
 		GameSettings.Difficulty = SelectedDifficulty;
+		GameSettings.ExtendedVariety = ExtendedVarietyToggle.ButtonPressed;
 		RunManager.DiscardPending();
 		GetTree().Paused = false;
 		GetTree().ChangeSceneToFile(GameSettings.LevelScene);
