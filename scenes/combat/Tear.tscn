@@ -1,6 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/combat/Tear.cs" id="1_tear"]
+[ext_resource type="Script" path="res://scripts/combat/ProjectileModel.cs" id="9_model"]
 
 [sub_resource type="SphereMesh" id="SphereMesh_tear"]
 radius = 0.15
@@ -25,3 +26,8 @@ surface_material_override/0 = SubResource("Material_tear")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("SphereShape3D_tear")
+
+[node name="Model" type="Node3D" parent="."]
+script = ExtResource("9_model")
+ModelPath = "res://assets/models/tear.glb"
+FitSize = 0.4
