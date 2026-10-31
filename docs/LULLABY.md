@@ -437,19 +437,21 @@ Todo el sonido pasa por `AudioManager` (`scripts/audio/`, autoload). Los ids, ar
 
 | Sonido | Evento | Tipo |
 |---|---|---|
-| `lagrima_disparo` | Noah dispara | plano, tono ±5 % |
+| `lagrima_disparo` | Noah dispara | plano, tono ±5 %, −10 dB |
 | `lagrima_impacto` | una lágrima impacta | plano, tono ±5 % |
 | `noah_dano` / `noah_muere` | Noah recibe un golpe / muere | plano |
 | `enemigo_golpe` | un enemigo recibe un golpe que no lo mata | 3D, tono ±5 % |
 | `enemigo_muere` | muere un enemigo | 3D |
 | `mecha_explosivo` / `explosion` | el explosivo enciende su mecha / explota (no suena además su muerte) | 3D |
-| `tirador_disparo` | dispara el tirador o el excavador | 3D |
+| `tirador_disparo` | dispara el tirador, el excavador o la salva de The Mother | 3D |
 | `volador_aleteo` | bucle mientras haya voladores vivos (un único reproductor en su posición media; el bucle se activa por código, no por la importación) | 3D |
 
 - **Sonidos que aún no tienen archivo** (se añaden más tarde, sin tocar código, con el mismo nombre en `assets/audio/sfx/`): `objeto_recogido` (al recoger un objeto), `ui_click` (botones de los menús), `jefe_golpe` y `jefe_muere`. Mientras no existan, The Mother usa `enemigo_golpe` y `enemigo_muere` con el tono un 20 % más grave. Si un archivo no existe, no suena y no da error (`ResourceLoader.Exists`).
 - **Voces:** como mucho 8 planas y 16 en 3D a la vez, de 1 a 4 por sonido y un intervalo mínimo entre repeticiones; sin hueco, el sonido nuevo se descarta, salvo `noah_muere` y `explosion`, que roban la voz más antigua. La variación de tono usa un generador de azar propio: no toca el azar global.
 - **3D:** el oyente (`AudioListener3D`) está en el soporte de la cámara, en el centro de la sala a nivel de suelo; los sonidos llegan hasta 30 m. `noah_muere` (casi 7 s) se corta al reiniciar la partida o volver al menú.
+- **A prueba de fallos:** el audio nunca puede alterar el juego. Toda la API que usa la lógica (`Play`, `PlayAt`, `PlayFrom`, `PlayMusic`, `StopMusic`, `StopAll`) captura cualquier excepción, la avisa una sola vez y sigue; tras 5 fallos el audio se desactiva solo (`AudioManager.Enabled`). La lógica pide el sonido siempre DESPUÉS de aplicar el daño, liberar lo que muere y resolver la derrota o la recogida. Los comportamientos de los enemigos piden su sonido con `PlayFrom`, que usa el primer nodo 3D que los contiene (The Mother cuelga sus `ShootBehavior` de `MotherBehavior`, no del enemigo).
 - **Volúmenes:** dos deslizadores («Volumen general» y «Efectos», de 0 a 100) en el menú principal y en el de pausa. Por defecto, 80 % y 100 %. Se guardan en `user://settings.cfg` (`ConfigFile`) y se cargan al iniciar; si el archivo no existe o está dañado, se usan los valores por defecto.
+- **Pruebas de resistencia:** `tests/RoomEnduranceTest.tscn` recorre 14 o más salas seguidas con el nivel real (combate con lágrimas reales, tesoro con objetos) y en cada una comprueba que una lágrima daña a un enemigo y que un proyectil enemigo daña a Noah; mide también nodos, memoria y objetos por sala para detectar acumulaciones. Se ejecuta con el audio real y con el audio apagado (`--audio=real|silent|off`, `--generator=2|3`, `--fight=1`, `--items=1`).
 - **Pruebas:** en `--headless` no suena nada (driver de audio ficticio) y `AudioManager` registra cada petición. `tests/AudioEventsTest.tscn` comprueba que cada evento pide su sonido y que los faltantes no rompen. `tests/run_suite.ps1` ejecuta toda la batería (PowerShell, Windows) y falla también si algún log contiene errores de carga de escenas o recursos.
 
 # 9. Arquitectura de software
