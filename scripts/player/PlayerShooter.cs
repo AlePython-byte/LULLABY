@@ -7,8 +7,14 @@ public partial class PlayerShooter : Node3D
 	public const string ShootUp = "shoot_up";
 	public const string ShootDown = "shoot_down";
 
+	// StringName propios: pasar el texto a Input.IsActionPressed crearía uno nuevo en cada fotograma.
+	private static readonly StringName ShootLeftName = new(ShootLeft);
+	private static readonly StringName ShootRightName = new(ShootRight);
+	private static readonly StringName ShootUpName = new(ShootUp);
+	private static readonly StringName ShootDownName = new(ShootDown);
+
 	// Orden fijo: izquierda, derecha, arriba (-Z), abajo (+Z).
-	public static readonly string[] Actions = { ShootLeft, ShootRight, ShootUp, ShootDown };
+	public static readonly StringName[] Actions = { ShootLeftName, ShootRightName, ShootUpName, ShootDownName };
 
 	[Export] public PackedScene TearScene { get; set; }
 	[Export] public float ShotsPerSecond { get; set; } = 3.0f;
@@ -19,7 +25,7 @@ public partial class PlayerShooter : Node3D
 	public float EffectiveShotsPerSecond => ShotsPerSecond * CadenceMultiplier;
 
 	private Node3D _player;
-	private string _activeAction;
+	private StringName _activeAction;
 	private float _cooldown;
 
 	public override void _Ready()
@@ -64,7 +70,7 @@ public partial class PlayerShooter : Node3D
 	// Con varias flechas pulsadas manda la última; al soltarla vuelve a otra que siga pulsada.
 	private void UpdateActiveAction()
 	{
-		foreach (string action in Actions)
+		foreach (StringName action in Actions)
 		{
 			if (Input.IsActionJustPressed(action))
 			{
@@ -75,7 +81,7 @@ public partial class PlayerShooter : Node3D
 		if (_activeAction != null && !Input.IsActionPressed(_activeAction))
 		{
 			_activeAction = null;
-			foreach (string action in Actions)
+			foreach (StringName action in Actions)
 			{
 				if (Input.IsActionPressed(action))
 				{
@@ -96,14 +102,23 @@ public partial class PlayerShooter : Node3D
 		AudioManager.Play(SoundCatalog.TearShot);
 	}
 
-	private static Vector3 DirectionOf(string action)
+	private static Vector3 DirectionOf(StringName action)
 	{
-		return action switch
+		if (action == ShootLeftName)
 		{
-			ShootLeft => Vector3.Left,
-			ShootRight => Vector3.Right,
-			ShootUp => Vector3.Forward,
-			_ => Vector3.Back,
-		};
+			return Vector3.Left;
+		}
+
+		if (action == ShootRightName)
+		{
+			return Vector3.Right;
+		}
+
+		if (action == ShootUpName)
+		{
+			return Vector3.Forward;
+		}
+
+		return Vector3.Back;
 	}
 }

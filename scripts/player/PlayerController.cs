@@ -7,6 +7,12 @@ public partial class PlayerController : CharacterBody3D
 	public const string MoveUp = "move_up";
 	public const string MoveDown = "move_down";
 
+	// StringName propios: pasar el texto a Input.GetVector crearía cuatro StringName nuevos en cada fotograma.
+	private static readonly StringName MoveLeftName = new(MoveLeft);
+	private static readonly StringName MoveRightName = new(MoveRight);
+	private static readonly StringName MoveUpName = new(MoveUp);
+	private static readonly StringName MoveDownName = new(MoveDown);
+
 	[Export] public float Speed { get; set; } = 6.0f;
 	[Export] public float TurnSpeed { get; set; } = 12.0f;
 
@@ -24,7 +30,7 @@ public partial class PlayerController : CharacterBody3D
 
 	public override void _PhysicsProcess(double delta)
 	{
-		Vector2 input = Input.GetVector(MoveLeft, MoveRight, MoveUp, MoveDown);
+		Vector2 input = Input.GetVector(MoveLeftName, MoveRightName, MoveUpName, MoveDownName);
 		Vector3 direction = new Vector3(input.X, 0.0f, input.Y);
 
 		Velocity = direction * Speed;
