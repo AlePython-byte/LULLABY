@@ -12,6 +12,8 @@ public static class GameText
 	public const string Play = "Jugar";
 	public const string Difficulty = "Dificultad";
 	public const string Controls = "Controles";
+	public const string MasterVolume = "Volumen general";
+	public const string SfxVolume = "Efectos";
 	public const string ExtendedVariety = "Variedad extendida (experimental)";
 	public const string ExtendedVarietyHint = "Añade al huidor y al excavador. El modelo de dificultad no está entrenado para ellos: la dificultad mostrada es solo orientativa.";
 	public const string ExtendedVarietyWarning = "AVISO (experimental): el modelo de dificultad no está entrenado para el excavador ni el huidor";
