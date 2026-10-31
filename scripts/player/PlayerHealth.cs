@@ -5,6 +5,19 @@ public partial class PlayerHealth : Node
 	[Export] public float InvulnerabilityTime { get; set; } = 1.0f;
 	public float DamageTakenMultiplier { get; private set; } = 1.0f;
 
+	/// <summary>Ningún golpe quita menos de medio corazón (0,5), por mucho que se acumulen efectos de resistencia.</summary>
+	public const float MinHitDamage = 0.5f;
+
+	/// <summary>
+	/// Daño que un golpe de `damage` hace de verdad con el multiplicador de resistencia dado: damage × multiplicador, pero nunca por debajo de
+	/// MinHitDamage ni por encima del propio golpe (un golpe más pequeño que el mínimo conserva su valor). Los efectos de resistencia se
+	/// combinan multiplicándose (cada uno reduce lo que deja el anterior); este mínimo acota el resultado final.
+	/// </summary>
+	public static float EffectiveHitDamage(float damage, float multiplier)
+	{
+		return Mathf.Min(damage, Mathf.Max(damage * multiplier, MinHitDamage));
+	}
+
 	private HealthComponent _health;
 	private Node3D _mesh;
 	private float _invulnerableTimer;
@@ -56,7 +69,7 @@ public partial class PlayerHealth : Node
 			return false;
 		}
 
-		_health.TakeDamage(damage * DamageTakenMultiplier);
+		_health.TakeDamage(EffectiveHitDamage(damage, DamageTakenMultiplier));
 		_invulnerableTimer = InvulnerabilityTime;
 		return true;
 	}
