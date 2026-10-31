@@ -8,7 +8,7 @@ using Godot;
 /// Prueba de la decoración por tipo de sala (piezas de pared de combate, piezas exentas de inicio, tesoro y jefe, pedestales).
 ///   godot --headless --fixed-fps 60 --path . res://tests/RoomDecorLayoutTest.tscn
 ///
-/// 1. Salas de combate: el plan es determinista por semilla y celda, usa solo estanterías, cortinas y alfombra, no toca la pared sur,
+/// 1. Salas de combate: el plan es determinista por semilla y celda, usa solo las piezas de pared de WallDecorPlanner.WallPieces y la alfombra, no toca la pared sur,
 ///    deja el relieve en 0,3 m o menos, respeta esquinas y puertas, y no altera el azar global ni la generación de niveles.
 /// 2. Piezas exentas (inicio, tesoro, jefe): deterministas, fuera de las llegadas, las puertas, el área central y la pared sur, sin solapes.
 /// 3. Salas reales con ambientación: colisiones idénticas a las de la sala sin ambientar, ninguna pieza con colisión.
@@ -93,7 +93,7 @@ public partial class RoomDecorLayoutTest : Node
 							continue;
 						}
 
-						onlyAllowed &= piece.Model == PropModels.Shelf || piece.Model == PropModels.Curtain;
+						onlyAllowed &= WallDecorPlanner.WallPieces.Any(wall => wall.Model == piece.Model);
 						Aabb box = World(piece);
 						noSouth &= box.End.Z < hz - 1.0f;
 						// Relieve: lo que sobresale de la cara interior de la pared más cercana.
@@ -123,8 +123,9 @@ public partial class RoomDecorLayoutTest : Node
 		GD.Print($"  {total} piezas en 150 semillas x {Sizes.Length} tamaños x {DoorSets.Length} juegos de puertas; alfombras {withRug}");
 		Check("el plan es idéntico con la misma semilla y celda", deterministic, "planes distintos");
 		Check("otra semilla da otro plan", differs, "siempre el mismo plan");
-		Check("solo hay estanterías, cortinas y alfombra", onlyAllowed && kinds.IsSubsetOf(new[] { PropModels.Shelf, PropModels.Curtain, PropModels.Rug }), string.Join(",", kinds));
-		Check("hay de las tres piezas", kinds.Count == 3, string.Join(",", kinds));
+		string[] allowed = WallDecorPlanner.WallPieces.Select(wall => wall.Model).Append(PropModels.Rug).ToArray();
+		Check("solo hay piezas de pared del sorteo y alfombra", onlyAllowed && kinds.IsSubsetOf(allowed), string.Join(",", kinds));
+		Check($"salen las {allowed.Length} piezas posibles", kinds.SetEquals(allowed), string.Join(",", allowed.Where(a => !kinds.Contains(a))));
 		Check($"como mucho {WallDecorPlanner.MaxWallPieces} piezas de pared", capped, "demasiadas");
 		Check("nada en la pared sur", noSouth, "pieza al sur");
 		Check("relieve de 0,3 m o menos", relief, detail);

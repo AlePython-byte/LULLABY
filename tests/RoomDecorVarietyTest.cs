@@ -158,7 +158,8 @@ public partial class RoomDecorVarietyTest : Node
 		}
 		else
 		{
-			Check($"{label}: usa estanterías, cortinas y alfombras", models.SetEquals(new[] { PropModels.Shelf, PropModels.Curtain, PropModels.Rug }), string.Join(",", models));
+			string[] expected = WallDecorPlanner.WallPieces.Select(wall => wall.Model).Append(PropModels.Rug).ToArray();
+			Check($"{label}: en {plans.Count} semillas aparecen todas las piezas de pared posibles y la alfombra ({expected.Length})", models.SetEquals(expected), "faltan " + string.Join(",", expected.Where(e => !models.Contains(e))));
 		}
 
 		// La misma semilla en otra sala (celda) da otra decoración.
@@ -233,13 +234,27 @@ public partial class RoomDecorVarietyTest : Node
 	private void Relief()
 	{
 		GD.Print("\n--- Relieve real de las piezas de pared ---");
-		foreach (string model in new[] { PropModels.Shelf, PropModels.Curtain })
+		foreach ((string model, float height) in WallDecorPlanner.WallPieces)
 		{
+			// Medido sobre las mallas cargadas (ModelLibrary), no sobre lo que diga la documentación del archivo.
 			Aabb box = ModelLibrary.BoundsOf(PropModels.Path(model)).Value;
 			float relief = box.Size.Z - WallDecorPlanner.Embed;
-			GD.Print($"  {model}: fondo del modelo {box.Size.Z:F3} m; relieve sobre la pared {relief:F3} m (límite {WallDecorPlanner.MaxRelief} m)");
+			GD.Print($"  {model}: {box.Size.X:F3} x {box.Size.Z:F3} x {box.Size.Y:F3} m (ancho x fondo x alto); relieve sobre la pared {relief:F3} m (límite {WallDecorPlanner.MaxRelief} m); cuelga a {height:F2} m");
 			Check($"{model}: relieve de 0,3 m o menos", relief <= WallDecorPlanner.MaxRelief, $"{relief:F3} m");
+			Check($"{model}: apoyada en y = 0 y, si cuelga, cabe bajo la pared de 3 m", Mathf.Abs(box.Position.Y) < 0.001f && (height == 0.0f || height + box.Size.Y <= 3.0f), $"{height + box.Size.Y:F2} m");
 		}
+
+		// Cada pieza colocada lleva exactamente su altura de montaje.
+		bool heights = true;
+		for (int seed = 1; seed <= Batch; seed++)
+		{
+			foreach (DecorPiece piece in WallDecorPlanner.Plan(seed, new Vector2I(seed % 9, seed % 4), new Vector2(28, 16), DoorSets[3]).Where(p => p.Model != PropModels.Rug))
+			{
+				heights &= Mathf.IsEqualApprox(piece.Position.Y, WallDecorPlanner.WallPieces.First(w => w.Model == piece.Model).Height);
+			}
+		}
+
+		Check("las piezas de pared cuelgan de su altura de montaje", heights, "altura distinta");
 	}
 
 	private void Check(string name, bool ok, string detail)
