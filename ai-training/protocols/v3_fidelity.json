@@ -1,0 +1,41 @@
+{
+  "protocol_version": 1,
+  "generator_version": 3,
+  "simulator_version": 4,
+  "status": "preregistered_before_v3_runs",
+  "scope": "Composicion base de seis tipos, sin objetos, sin The Mother y con vida ilimitada; jefe historico de seis basicos.",
+  "bot": {
+    "profile": "competent_v3",
+    "novice_profile": false,
+    "reaction_frames": 6,
+    "reaction_jitter": 3,
+    "policy": "Prioridad: explosivo cercano, tirador o excavador vulnerable, huidor, volador, resto. No apuntar al excavador enterrado; avisos y vulnerabilidad con la misma observacion retrasada; esquiva perpendicular al aviso del huidor sin conocer su direccion interna.",
+    "freeze": "Congelar codigo, parametros y hashes antes de aceptacion. Cualquier correccion posterior requiere la muestra de reserva."
+  },
+  "physics_ticks_per_second": 60,
+  "max_seconds_per_run": 600,
+  "runs_per_level_per_environment": 3,
+  "bot_seed": "BotBrainV3.SeedFor(effective_seed, run_index)",
+  "samples": {
+    "development": { "first_seed": 600001, "count": 30 },
+    "acceptance": { "first_seed": 610001, "count": 90 },
+    "reserve": { "first_seed": 620001, "count": 90 },
+    "coverage": "Antes de combates, exigir presencia de los seis EnemyKind en cada muestra y al menos 10 niveles con Runner y 10 con Digger en aceptacion. Si no se cumple, detenerse y registrar una enmienda antes de ver resultados; no seleccionar por dano. Verificar semillas efectivas distintas y ausencia de solapamiento entre muestras."
+  },
+  "criteria": {
+    "spearman": { "damage_total_mean_min": 0.7, "time_total_mean_min": 0.7, "unit": "level_mean" },
+    "contact": { "absolute_relative_bias_max": 0.25, "minimum_real_hits": 1 },
+    "composition_time": { "absolute_relative_bias_max": 0.30, "groups": ["basic_only", "with_shooter", "with_exploder", "with_flyer", "with_runner", "with_digger"], "missing_group": "fail_coverage" },
+    "projectile_and_explosion": { "absolute_relative_bias_max": 0.30, "minimum_real_hits_per_source": 30, "below_minimum": "insufficient_evidence_nonblocking_report_limitation" },
+    "timeouts": { "simulator_max": 0, "real_game_max": 0 },
+    "behavior": "Deben pasar pruebas controladas de aviso, embestida, bloqueo, retroceso, fases del excavador, vulnerabilidad, colisiones, disparo y emergencia forzada. Un fallo reproducible de comportamiento bloquea aunque los agregados pasen.",
+    "undefined_metric": "Spearman no finito o contacto sin golpes reales bloquea; no convertirlo en aprobado."
+  },
+  "relative_bias_formula": "(sum_simulated - sum_real) / sum_real",
+  "uncertainty": { "method": "paired_bootstrap_over_levels", "resamples": 2000, "seed": 20261031, "confidence": 0.95, "interval_role": "informative_point_estimate_decides" },
+  "diagnostics": ["damage_and_hits_by_source", "contact_by_enemy_kind", "damage_and_time_by_room_composition", "controlled_rare_events", "coverage", "timeouts"],
+  "retry_policy": "Conservar todos los informes. Fallar aceptacion impide etiquetado masivo; diagnosticar en desarrollo, congelar nueva version y evaluar reserva una vez. Si reserva falla, detenerse y reportar sin abrir otra muestra.",
+  "execution": "Solo headless, editor cerrado; avisar y coordinar ejecuciones largas. No ejecutar fidelidad durante etapa 1.",
+  "checkpoint": "2026-11-03",
+  "hard_cutoff": "2026-11-08"
+}
