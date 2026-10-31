@@ -13,6 +13,9 @@ public partial class Minimap : CanvasLayer
 {
 	public const string ExpandAction = "minimapa_expandir";
 
+	// Un StringName propio: pasar el texto a Input.IsActionPressed crearía uno nuevo (y su basura) en cada fotograma.
+	private static readonly StringName ExpandActionName = new(ExpandAction);
+
 	[Export] public RoomManager Rooms { get; set; }
 
 	public MinimapView View { get; private set; }
@@ -48,7 +51,7 @@ public partial class Minimap : CanvasLayer
 
 	public override void _Process(double delta)
 	{
-		bool want = !GetTree().Paused && Input.IsActionPressed(ExpandAction);
+		bool want = !GetTree().Paused && Input.IsActionPressed(ExpandActionName);
 		if (want != View.Expanded)
 		{
 			View.SetExpanded(want);
