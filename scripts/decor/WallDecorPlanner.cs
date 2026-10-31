@@ -31,7 +31,17 @@ public static class WallDecorPlanner
 	public static readonly (string Model, float Height)[] WallPieces =
 	{
 		(PropModels.Shelf, 0.0f), (PropModels.Curtain, 0.0f),
-		(PropModels.Picture, 1.3f), (PropModels.Clock, 1.05f), (PropModels.ToyShelf, 1.2f), (PropModels.StarLamp, 1.5f), (PropModels.CoatRack, 1.1f),
+		(PropModels.Picture, 1.5f), (PropModels.Clock, 1.5f), (PropModels.ToyShelf, 2.2f), (PropModels.StarLamp, 1.5f), (PropModels.CoatRack, 1.9f),
+	};
+
+	/// <summary>Amplía la cara visible sin aumentar el fondo ni el relieve. El péndulo del reloj limita su altura bajo el muro de 3 m.</summary>
+	public static Vector3 ScaleFor(string model) => model switch
+	{
+		PropModels.Picture => new Vector3(2.0f, 2.0f, 1.0f),
+		PropModels.Clock => new Vector3(2.0f, 1.3f, 1.0f),
+		PropModels.ToyShelf => new Vector3(1.8f, 1.8f, 1.0f),
+		PropModels.StarLamp or PropModels.CoatRack => new Vector3(2.2f, 2.2f, 1.0f),
+		_ => Vector3.One,
 	};
 
 	private const ulong Salt = 0x57414C4CUL;
@@ -63,7 +73,8 @@ public static class WallDecorPlanner
 						continue;
 					}
 
-					float width = box.Value.Size.X;
+					Vector3 scale = ScaleFor(kind);
+					float width = box.Value.Size.X * scale.X;
 					if (Mathf.Abs(along) + width / 2.0f > half - CornerMargin)
 					{
 						continue;
@@ -74,7 +85,7 @@ public static class WallDecorPlanner
 						continue;
 					}
 
-					DecorPiece piece = OnWall(side, along, kind, box.Value.Size.Z, hx, hz, height) with { Mirror = mirror };
+					DecorPiece piece = OnWall(side, along, kind, box.Value.Size.Z, hx, hz, height) with { Mirror = mirror, Scale = scale };
 					Aabb footprint = DecorGeometry.Footprint(piece);
 					if (footprints.Any(other => DecorGeometry.Overlaps(footprint, other, MinGap)))
 					{

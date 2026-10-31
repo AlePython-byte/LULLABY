@@ -126,10 +126,7 @@ public static class RoomDecorator
 			model.Name = $"{piece.Model}_{i}";
 			model.Position = piece.Position;
 			model.Rotation = new Vector3(0.0f, piece.Yaw, 0.0f);
-			if (piece.Mirror)
-			{
-				model.Scale = new Vector3(-1.0f, 1.0f, 1.0f);
-			}
+			model.Scale = piece.ModelScale;
 
 			decor.AddChild(model);
 

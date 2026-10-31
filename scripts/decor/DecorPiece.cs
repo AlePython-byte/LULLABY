@@ -8,6 +8,9 @@ using Godot;
 public readonly record struct DecorPiece(string Model, Vector3 Position, float Yaw, bool Mirror = false)
 {
 	public string Path => PropModels.Path(Model);
+	/// <summary>Escala en los ejes locales del modelo, antes del giro y el espejado.</summary>
+	public Vector3 Scale { get; init; } = Vector3.One;
+	public Vector3 ModelScale => Scale * new Vector3(Mirror ? -1.0f : 1.0f, 1.0f, 1.0f);
 }
 
 /// <summary>Ids de las piezas de assets/models/props/.</summary>

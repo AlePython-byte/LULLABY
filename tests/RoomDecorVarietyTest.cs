@@ -190,7 +190,7 @@ public partial class RoomDecorVarietyTest : Node
 				for (int i = 0; i < Mathf.Min(nodes.Count, plan.Count); i++)
 				{
 					allMatch &= nodes[i].Position.IsEqualApprox(plan[i].Position) && Mathf.Abs(nodes[i].Rotation.Y - plan[i].Yaw) < 0.001f
-						&& (nodes[i].Scale.X < 0.0f) == plan[i].Mirror && nodes[i].Name.ToString().StartsWith(plan[i].Model);
+						&& nodes[i].Scale.IsEqualApprox(plan[i].ModelScale) && nodes[i].Name.ToString().StartsWith(plan[i].Model);
 					mirroredNodes += nodes[i].Scale.X < 0.0f ? 1 : 0;
 					mirroredPlan += plan[i].Mirror ? 1 : 0;
 				}
@@ -198,7 +198,7 @@ public partial class RoomDecorVarietyTest : Node
 				room.Free();
 			}
 
-			Check($"{type}: la sala real coloca exactamente el plan (posición, giro, espejado)", allMatch && mirroredNodes == mirroredPlan, $"{mirroredNodes} / {mirroredPlan}");
+			Check($"{type}: la sala real coloca exactamente el plan (posición, giro, escala, espejado)", allMatch && mirroredNodes == mirroredPlan, $"{mirroredNodes} / {mirroredPlan}");
 		}
 	}
 
@@ -238,10 +238,36 @@ public partial class RoomDecorVarietyTest : Node
 		{
 			// Medido sobre las mallas cargadas (ModelLibrary), no sobre lo que diga la documentación del archivo.
 			Aabb box = ModelLibrary.BoundsOf(PropModels.Path(model)).Value;
-			float relief = box.Size.Z - WallDecorPlanner.Embed;
-			GD.Print($"  {model}: {box.Size.X:F3} x {box.Size.Z:F3} x {box.Size.Y:F3} m (ancho x fondo x alto); relieve sobre la pared {relief:F3} m (límite {WallDecorPlanner.MaxRelief} m); cuelga a {height:F2} m");
-			Check($"{model}: relieve de 0,3 m o menos", relief <= WallDecorPlanner.MaxRelief, $"{relief:F3} m");
-			Check($"{model}: apoyada en y = 0 y, si cuelga, cabe bajo la pared de 3 m", Mathf.Abs(box.Position.Y) < 0.001f && (height == 0.0f || height + box.Size.Y <= 3.0f), $"{height + box.Size.Y:F2} m");
+			Node3D original = ModelLibrary.Create(PropModels.Path(model));
+			Aabb before = MeasureMeshes(original, Transform3D.Identity).Value;
+			original.Free();
+			Vector3 scale = WallDecorPlanner.ScaleFor(model);
+			GD.Print($"  {model}: antes {before.Size.X:F3} x {before.Size.Y:F3} x {before.Size.Z:F3} m (ancho x alto x fondo); escala {scale}; base a {height:F2} m");
+			foreach (DoorSide side in new[] { DoorSide.North, DoorSide.East, DoorSide.West })
+			{
+				foreach (bool mirror in new[] { false, true })
+				{
+					DecorPiece piece = WallDecorPlanner.OnWall(side, -4.0f, model, box.Size.Z, 10, 10, height) with { Scale = scale, Mirror = mirror };
+					Node3D instance = ModelLibrary.Create(piece.Path);
+					instance.Position = piece.Position;
+					instance.Rotation = new Vector3(0, piece.Yaw, 0);
+					instance.Scale = piece.ModelScale;
+					Aabb measured = MeasureMeshes(instance, Transform3D.Identity).Value;
+					float relief = side switch
+					{
+						DoorSide.North => measured.End.Z + 10,
+						DoorSide.East => 10 - measured.Position.X,
+						_ => measured.End.X + 10,
+					};
+					float width = side == DoorSide.North ? measured.Size.X : measured.Size.Z;
+					float depth = side == DoorSide.North ? measured.Size.Z : measured.Size.X;
+					GD.Print($"    {side}, espejo {mirror}: después {width:F3} x {measured.Size.Y:F3} x {depth:F3} m; relieve {relief:F3} m");
+					Check($"{model} {side}/{mirror}: relieve real de 0,3 m o menos y fondo intacto", relief <= WallDecorPlanner.MaxRelief + 0.001f && Mathf.Abs(depth - before.Size.Z) < 0.00001f, $"{relief:F3} m");
+					Check($"{model} {side}/{mirror}: caja del plan igual a las mallas instanciadas", measured.Position.IsEqualApprox(DecorGeometry.Footprint(piece).Position) && measured.Size.IsEqualApprox(DecorGeometry.Footprint(piece).Size), $"caja {measured}");
+					Check($"{model} {side}/{mirror}: base a su altura y pieza colgada bajo 3 m", Mathf.Abs(measured.Position.Y - height) < 0.001f && (height == 0 || measured.End.Y <= 3.0f), $"cima {measured.End.Y:F3} m");
+					instance.Free();
+				}
+			}
 		}
 
 		// Cada pieza colocada lleva exactamente su altura de montaje.
@@ -255,6 +281,21 @@ public partial class RoomDecorVarietyTest : Node
 		}
 
 		Check("las piezas de pared cuelgan de su altura de montaje", heights, "altura distinta");
+	}
+
+	// Recorre las mallas de la instancia con todos sus giros, escalas, anclas y espejados aplicados por Godot.
+	private static Aabb? MeasureMeshes(Node3D node, Transform3D parent)
+	{
+		Transform3D transform = parent * node.Transform;
+		Aabb? result = node is MeshInstance3D { Mesh: not null } mesh ? transform * mesh.Mesh.GetAabb() : null;
+		foreach (Node3D child in node.GetChildren().OfType<Node3D>())
+		{
+			if (MeasureMeshes(child, transform) is Aabb part)
+			{
+				result = result.HasValue ? result.Value.Merge(part) : part;
+			}
+		}
+		return result;
 	}
 
 	private void Check(string name, bool ok, string detail)

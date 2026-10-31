@@ -9,9 +9,9 @@ public static class DecorGeometry
 	/// </summary>
 	public static Aabb Footprint(DecorPiece piece)
 	{
-		Aabb box = ModelLibrary.BoundsOf(piece.Path).Value;
+		Vector3 size = ModelLibrary.BoundsOf(piece.Path).Value.Size * piece.Scale;
 		Transform3D transform = new(Basis.FromEuler(new Vector3(0.0f, piece.Yaw, 0.0f)), piece.Position);
-		Aabb local = new(new Vector3(-box.Size.X / 2.0f, 0.0f, -box.Size.Z / 2.0f), box.Size);
+		Aabb local = new(new Vector3(-size.X / 2.0f, 0.0f, -size.Z / 2.0f), size);
 		return transform * local;
 	}
 

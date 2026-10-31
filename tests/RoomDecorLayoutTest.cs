@@ -305,6 +305,10 @@ public partial class RoomDecorLayoutTest : Node
 				RoomController room = await NewRoom(type, size, all, true, seed);
 				roomCamera.Frame(size, height, 1.0f);
 				await Frames(1);
+				if (type == RoomType.Normal && seed == 1)
+				{
+					WallExtremes(camera, size);
+				}
 				int outside = 0;
 				string first = "";
 				foreach (Node3D piece in room.GetNode(RoomDecorator.DecorName).GetChildren().Cast<Node3D>())
@@ -325,6 +329,47 @@ public partial class RoomDecorLayoutTest : Node
 		}
 
 		roomCamera.Free();
+	}
+
+	// Comprueba también cada pieza colgada en los extremos permitidos: no depende de que salga sorteada en 12 semillas.
+	private void WallExtremes(Camera3D camera, Vector2 size)
+	{
+		bool framed = true;
+		foreach ((string model, float height) in WallDecorPlanner.WallPieces.Where(w => w.Height > 0))
+		{
+			Vector3 dimensions = ModelLibrary.BoundsOf(PropModels.Path(model)).Value.Size;
+			Vector3 scale = WallDecorPlanner.ScaleFor(model);
+			foreach (DoorSide side in new[] { DoorSide.North, DoorSide.East, DoorSide.West })
+			{
+				float half = (side == DoorSide.North ? size.X : size.Y) / 2;
+				float limit = half - WallDecorPlanner.CornerMargin - dimensions.X * scale.X / 2;
+				foreach (float along in new[] { -limit, limit })
+				{
+					DecorPiece piece = WallDecorPlanner.OnWall(side, along, model, dimensions.Z, size.X / 2, size.Y / 2, height) with { Scale = scale };
+					Node3D instance = ModelLibrary.Create(piece.Path);
+					instance.Position = piece.Position;
+					instance.Rotation = new Vector3(0, piece.Yaw, 0);
+					instance.Scale = piece.ModelScale;
+					AddChild(instance);
+					framed &= Corners(Bounds(instance)).All(camera.IsPositionInFrustum);
+					instance.Free();
+				}
+			}
+		}
+		Check($"{size}: las cinco piezas ampliadas caben incluso en los extremos de las tres paredes", framed, "esquina fuera del encuadre");
+
+		// Área proyectada de la cara del cuadro en un lateral, a igual altura y a ambos lados del centro.
+		float FaceArea(float along)
+		{
+			Vector3 dimensions = ModelLibrary.BoundsOf(PropModels.Path(PropModels.Picture)).Value.Size * WallDecorPlanner.ScaleFor(PropModels.Picture);
+			DecorPiece piece = WallDecorPlanner.OnWall(DoorSide.East, along, PropModels.Picture, dimensions.Z, size.X / 2, size.Y / 2, 1.5f);
+			Transform3D transform = new(Basis.FromEuler(new Vector3(0, piece.Yaw, 0)), piece.Position);
+			Vector2[] points = new[] { new Vector3(-dimensions.X / 2, 0, -dimensions.Z / 2), new Vector3(dimensions.X / 2, 0, -dimensions.Z / 2),
+				new Vector3(dimensions.X / 2, dimensions.Y, -dimensions.Z / 2), new Vector3(-dimensions.X / 2, dimensions.Y, -dimensions.Z / 2) }
+				.Select(p => camera.UnprojectPosition(transform * p)).ToArray();
+			return Mathf.Abs(Enumerable.Range(0, 4).Sum(i => points[i].Cross(points[(i + 1) % 4]))) / 2;
+		}
+		GD.Print($"  {size}: cara lateral al fondo / cerca: área proyectada {FaceArea(-size.Y / 4) / FaceArea(size.Y / 4):P1}");
 	}
 
 	// --- 5 ------------------------------------------------------------------------------------------------------------
@@ -416,7 +461,7 @@ public partial class RoomDecorLayoutTest : Node
 	private static Aabb World(DecorPiece piece)
 	{
 		Aabb box = ModelLibrary.BoundsOf(piece.Path).Value;
-		Transform3D transform = new(Basis.FromEuler(new Vector3(0.0f, piece.Yaw, 0.0f)), piece.Position);
+		Transform3D transform = new(Basis.FromEuler(new Vector3(0.0f, piece.Yaw, 0.0f)).ScaledLocal(piece.ModelScale), piece.Position);
 		Aabb local = new(new Vector3(-box.Size.X / 2.0f, 0.0f, -box.Size.Z / 2.0f), box.Size);
 		return transform * local;
 	}
