@@ -42,6 +42,7 @@ public partial class Tear : Area3D
 		}
 
 		_spent = true;
+		AudioManager.Play(SoundCatalog.TearImpact);
 		HealthComponent.FindIn(body)?.TakeDamage(Damage);
 		QueueFree();
 	}
