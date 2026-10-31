@@ -2,9 +2,6 @@
 
 [ext_resource type="Script" path="res://scripts/ui/BossHud.cs" id="1_hud"]
 
-[node name="BossHud" type="CanvasLayer"]
-script = ExtResource("1_hud")
-
 [sub_resource type="StyleBoxFlat" id="StyleBox_bar_back"]
 bg_color = Color(0.06, 0.02, 0.03, 0.92)
 border_width_left = 3
@@ -23,6 +20,9 @@ corner_radius_top_left = 3
 corner_radius_top_right = 3
 corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
+
+[node name="BossHud" type="CanvasLayer"]
+script = ExtResource("1_hud")
 
 [node name="Panel" type="Control" parent="."]
 anchors_preset = 5
