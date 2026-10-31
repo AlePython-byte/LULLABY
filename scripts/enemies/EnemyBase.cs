@@ -39,6 +39,15 @@ public partial class EnemyBase : CharacterBody3D
 	/// <summary>Multiplicador de la velocidad que aplican los comportamientos de movimiento (1 = normal).</summary>
 	public float SpeedScale { get; set; } = 1.0f;
 
+	/// <summary>
+	/// Familia de sonidos de golpe y muerte: "{SoundSet}_golpe" y "{SoundSet}_muere" (SoundCatalog). "enemigo" por defecto; The Mother usa
+	/// "jefe", que mientras no tenga sus archivos suena como los enemigos con el tono más grave.
+	/// </summary>
+	[Export] public string SoundSet { get; set; } = "enemigo";
+
+	/// <summary>Su muerte no suena (el explosivo ya suena como explosión).</summary>
+	public bool MuteDeathSound { get; set; }
+
 	public HealthComponent Health { get; private set; }
 	public EnemyVisual Visual { get; private set; }
 
@@ -46,6 +55,7 @@ public partial class EnemyBase : CharacterBody3D
 	{
 		Health = HealthComponent.FindIn(this);
 		Health.Died += OnDied;
+		Health.Damaged += OnDamagedSound;
 
 		Visual = GetNodeOrNull<EnemyVisual>("Visual");
 		Visual?.ApplyKind(Kind);
@@ -188,8 +198,22 @@ public partial class EnemyBase : CharacterBody3D
 		_recoilVelocity = away.Normalized() * (RecoilDistance / (_recoilFrames * step));
 	}
 
+	// Un golpe que no mata suena como golpe; el que mata, solo como muerte (la posición es la del enemigo: él mismo desaparece).
+	private void OnDamagedSound(float amount, float current)
+	{
+		if (current > 0.0f)
+		{
+			AudioManager.PlayAt($"{SoundSet}_golpe", GlobalPosition);
+		}
+	}
+
 	private void OnDied()
 	{
+		if (!MuteDeathSound)
+		{
+			AudioManager.PlayAt($"{SoundSet}_muere", GlobalPosition);
+		}
+
 		QueueFree();
 	}
 }
