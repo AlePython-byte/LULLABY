@@ -39,6 +39,11 @@ public partial class DigBehavior : EnemyBehavior
 	[Export] public float ProjectileSpeed { get; set; } = 3.5f;
 	[Export] public float SpawnDistance { get; set; } = 0.7f;
 
+	public override void _Ready()
+	{
+		Fired += _ => AudioManager.PlayAt(SoundCatalog.ShooterShot, GetParent<Node3D>().GlobalPosition);
+	}
+
 	[ExportGroup("Bajo tierra")]
 	[Export] public float SinkTime { get; set; } = 0.5f;
 	[Export] public float UndergroundTime { get; set; } = 1.8f;
