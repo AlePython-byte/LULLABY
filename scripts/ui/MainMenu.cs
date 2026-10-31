@@ -70,6 +70,7 @@ public partial class MainMenu : Control
 		ExtendedVarietyToggle.Toggled += pressed => GameSettings.ExtendedVariety = pressed;
 
 		ApplyArt();
+		AudioManager.HookButtons(this);
 		PlayButton.GrabFocus();
 	}
 
