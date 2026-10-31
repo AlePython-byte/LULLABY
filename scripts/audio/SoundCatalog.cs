@@ -49,7 +49,7 @@ public static class SoundCatalog
 
 	private static readonly Dictionary<string, Sound> Sounds = new()
 	{
-		[TearShot] = new Sound(TearShot, VolumeDb: -4.0f, PitchVariation: RepeatedPitchVariation, MaxVoices: 3, MinInterval: 0.06f),
+		[TearShot] = new Sound(TearShot, VolumeDb: -10.0f, PitchVariation: RepeatedPitchVariation, MaxVoices: 3, MinInterval: 0.06f),
 		[TearImpact] = new Sound(TearImpact, VolumeDb: -3.0f, PitchVariation: RepeatedPitchVariation, MaxVoices: 4, MinInterval: 0.04f),
 		[NoahHurt] = new Sound(NoahHurt, MaxVoices: 2, MinInterval: 0.1f),
 		[NoahDies] = new Sound(NoahDies, MaxVoices: 1, Priority: true),
