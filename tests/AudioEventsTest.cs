@@ -18,6 +18,9 @@ using Godot;
 ///      Unknown. The Mother usa los sonidos de los enemigos con el tono -20 % mientras no existan los suyos.
 ///   4. Tono ±5 % en los repetidos con azar propio (el global no cambia); límites de voces, intervalo mínimo y prioridad.
 ///   5. StopAll corta todo, también al reiniciar o volver al menú desde RunManager.
+///   5b. Un fallo de audio (inyectado) no altera el juego: el daño de lágrimas y proyectiles, la muerte y liberación de enemigos, la
+///      derrota de Noah, la recogida de objetos y la salva de The Mother (un ShootBehavior colgado de otro comportamiento) funcionan
+///      igual; el fallo se captura, se cuenta y tras MaxFailures el audio se desactiva solo.
 ///   6. Volúmenes: buses, guardado en settings.cfg, valores por defecto con el archivo ausente o dañado, deslizadores y menús.
 /// Sale con código 0 si todo pasa.
 /// </summary>
@@ -45,6 +48,7 @@ public partial class AudioEventsTest : Node
 			Voices();
 			await StopAll();
 			Volumes();
+			await FaultTolerance();
 			await Sliders();
 		}
 		catch (Exception exception)
@@ -314,6 +318,103 @@ public partial class AudioEventsTest : Node
 			tree.Paused = false;
 			tree.CurrentScene = this;
 			await Frames(2);
+		}
+	}
+
+	// --- 5b -----------------------------------------------------------------------------------------------------------
+
+	private async Task FaultTolerance()
+	{
+		GD.Print("\n--- Un fallo de audio no altera el juego ---");
+		AudioManager.StopAll();
+		_audio.ResetFailures();
+		int injected = 0;
+		AudioManager.FaultInjection = id =>
+		{
+			injected++;
+			throw new InvalidOperationException("fallo de audio simulado: " + id);
+		};
+		try
+		{
+			Node3D world = new();
+			AddChild(world);
+			PlayerController player = GD.Load<PackedScene>("res://scenes/player/Player.tscn").Instantiate<PlayerController>();
+			world.AddChild(player);
+			player.GetNode<PlayerHealth>("PlayerHealth").Defeated += () => { };
+			HealthComponent playerHealth = HealthComponent.FindIn(player);
+			await Frames(3);
+
+			// Lágrima contra enemigo: el daño se aplica y la lágrima se libera aunque el sonido explote.
+			EnemyBase enemy = NewEnemy(world, "res://scenes/enemies/BasicEnemy.tscn", new Vector3(6, 0.5f, 0));
+			HealthComponent enemyHealth = HealthComponent.FindIn(enemy);
+			float before = enemyHealth.CurrentHealth;
+			Tear tear = GD.Load<PackedScene>("res://scenes/combat/Tear.tscn").Instantiate<Tear>();
+			world.AddChild(tear);
+			tear.EmitSignal(Area3D.SignalName.BodyEntered, enemy);
+			Check("con el audio roto, una lágrima sigue dañando al enemigo", enemyHealth.CurrentHealth < before, $"vida {enemyHealth.CurrentHealth}");
+			Check("y la lágrima se libera", tear.IsQueuedForDeletion(), "la lágrima no se liberó");
+
+			// Proyectil enemigo contra Noah.
+			float playerBefore = playerHealth.CurrentHealth;
+			EnemyProjectile projectile = GD.Load<PackedScene>("res://scenes/combat/EnemyProjectile.tscn").Instantiate<EnemyProjectile>();
+			world.AddChild(projectile);
+			projectile.EmitSignal(Area3D.SignalName.BodyEntered, player);
+			Check("con el audio roto, un proyectil enemigo sigue dañando a Noah", playerHealth.CurrentHealth < playerBefore, $"vida {playerHealth.CurrentHealth}");
+
+			// Muerte de enemigo: se libera.
+			enemyHealth.TakeDamage(100.0f);
+			Check("con el audio roto, el enemigo muerto se libera", enemy.IsQueuedForDeletion(), "no se liberó");
+
+			// Objeto recogido.
+			ItemCatalog catalog = GD.Load<ItemCatalog>("res://resources/items/Catalog.tres");
+			ItemPickup pickup = GD.Load<PackedScene>("res://scenes/items/ItemPickup.tscn").Instantiate<ItemPickup>();
+			pickup.Definition = catalog.Items.First(i => i.Effect == ItemEffect.Damage);
+			world.AddChild(pickup);
+			bool collected = pickup.TryCollect(player);
+			Check("con el audio roto, el objeto se recoge y se libera", collected && pickup.IsQueuedForDeletion(), "no se recogió");
+
+			// Salva de The Mother: un ShootBehavior colgado de otro comportamiento (no del enemigo) también pide su sonido.
+			AudioManager.StopAll();
+			_audio.ResetFailures();
+			AudioManager.FaultInjection = null;
+			_audio.ClearRequests();
+			EnemyBase host = NewEnemy(world, "res://scenes/enemies/BasicEnemy.tscn", new Vector3(-6, 0.5f, 3));
+			Node wrapper = new Node { Name = "MotherLike" };
+			host.AddChild(wrapper);
+			ShootBehavior nested = new();
+			wrapper.AddChild(nested);
+			nested.EmitSignal(ShootBehavior.SignalName.Fired, Vector3.Left);
+			Check("un ShootBehavior colgado de otro nodo (como el de The Mother) pide tirador_disparo en su enemigo, sin excepción",
+				Single("tirador_disparo") is { Positional: true } nestedPing && nestedPing.Position.IsEqualApprox(new Vector3(-6, 0.5f, 3)), "sin petición");
+
+			// Tras varios fallos seguidos el audio se desactiva solo y deja de llamar a nadie.
+			_audio.ResetFailures();
+			int calls = 0;
+			AudioManager.FaultInjection = id =>
+			{
+				calls++;
+				throw new InvalidOperationException("fallo " + id);
+			};
+			for (int i = 0; i < AudioManager.MaxFailures + 5; i++)
+			{
+				AudioManager.Play("lagrima_disparo");
+				AudioManager.PlayAt("enemigo_golpe", Vector3.Zero);
+			}
+
+			Check($"tras {AudioManager.MaxFailures} fallos el audio se desactiva solo", !_audio.Enabled && _audio.FailureCount == AudioManager.MaxFailures, $"activo {_audio.Enabled}, {_audio.FailureCount} fallos");
+			Check("y desactivado ya no se le llama más", calls == AudioManager.MaxFailures, $"{calls} llamadas");
+			AudioManager.FaultInjection = null;
+			AudioManager.PlayMusic("menu");
+			AudioManager.StopAll();
+			Check("PlayMusic, StopMusic y StopAll tampoco lanzan con el audio desactivado", true, "");
+
+			world.Free();
+		}
+		finally
+		{
+			AudioManager.FaultInjection = null;
+			_audio.ResetFailures();
+			AudioManager.StopAll();
 		}
 	}
 
