@@ -1,13 +1,19 @@
 using Godot;
 
+/// <summary>
+/// Vida del jugador como una fila de corazones (HeartsRow) arriba a la izquierda, con el HUD de objetos debajo. Solo muestra la vida
+/// (HealthComponent.CurrentHealth y EffectiveMaxHealth): no cambia ningún valor.
+/// </summary>
 public partial class HealthHud : CanvasLayer
 {
-	private Label _label;
+	private HeartsRow _hearts;
 	private HealthComponent _health;
+
+	public HeartsRow Hearts => _hearts;
 
 	public override void _Ready()
 	{
-		_label = GetNode<Label>("Label");
+		_hearts = GetNode<HeartsRow>("Hearts");
 
 		Node player = GetTree().GetFirstNodeInGroup(GameNames.PlayerGroup);
 		if (player == null)
@@ -17,7 +23,7 @@ public partial class HealthHud : CanvasLayer
 
 		_health = HealthComponent.FindIn(player);
 		_health.HealthChanged += OnHealthChanged;
-		UpdateText();
+		_hearts.SetHealth(_health.CurrentHealth, _health.EffectiveMaxHealth);
 	}
 
 	public override void _ExitTree()
@@ -30,11 +36,6 @@ public partial class HealthHud : CanvasLayer
 
 	private void OnHealthChanged(float current, float maximum)
 	{
-		UpdateText();
-	}
-
-	private void UpdateText()
-	{
-		_label.Text = $"Vida: {_health.CurrentHealth:0.#}/{_health.EffectiveMaxHealth:0.#}";
+		_hearts.SetHealth(current, maximum);
 	}
 }
