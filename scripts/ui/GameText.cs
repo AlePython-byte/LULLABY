@@ -48,7 +48,7 @@ public static class GameText
 		["fotografia_rota"] = ("Fotografía rota: +25% de daño", "Un recuerdo fragmentado que enciende una rabia punzante."),
 		["chupete"] = ("Chupete: +20% de cadencia", "El llanto se vuelve un flujo incesante y apresurado."),
 		["oso_peluche"] = ("Oso de peluche: +1 de vida máxima y +1 punto de vida actual", "Un abrazo mullido que ensancha la resistencia del corazón."),
-		["manta_vieja"] = ("Manta vieja: -20% de daño recibido", "Un tejido gastado que amortigua la frialdad de los golpes."),
+		["manta_vieja"] = ("Manta vieja: -50 % de daño recibido", "Un tejido gastado que amortigua la frialdad de los golpes."),
 	};
 
 	/// <summary>Mensaje de un objeto recogido; si no está en la tabla, su nombre y la descripción de su recurso.</summary>

@@ -6,8 +6,8 @@
 script = ExtResource("1_item")
 Id = "manta_vieja"
 DisplayName = "Manta vieja"
-Description = "Reduce un 20 % el daño recibido durante esta partida."
+Description = "Reduce un 50 % el daño recibido durante esta partida; ningún golpe quita menos de medio corazón."
 Effect = 4
-Amount = 0.2
+Amount = 0.5
 Color = Color(0.3, 0.95, 0.4, 1)
 Shape = 4
