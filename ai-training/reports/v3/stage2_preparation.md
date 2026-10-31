@@ -50,6 +50,9 @@ entrega: primero se debe revisar el resultado de desarrollo.
   escenas, recursos y ensamblado. Se comprueba que no cambien entre pares.
 - Cada resultado se guarda por separado, sin sobrescribir intentos anteriores.
   El cierre incluye los hashes de todos los archivos de datos.
+  Los informes nuevos se escriben con LF y los atributos locales impiden que Git
+  transforme sus bytes. Los primeros prechequeos conservan sus finales originales
+  de Windows para que sus hashes sigan verificándose al recuperar el commit.
 - El primer timeout o partida declarada completa con salas pendientes detiene
   todo. Una alarma conservadora también detiene ante 60 segundos simulados sin
   desplazamiento mayor de 0,1 m, daño a enemigos, muertes ni cambio de sala.

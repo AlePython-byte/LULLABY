@@ -48,7 +48,8 @@ public sealed class FidelityV3Protocol : IDisposable
 
 	public static void WriteNew(string path, object payload)
 	{
-		byte[] bytes = new UTF8Encoding(false).GetBytes(JsonSerializer.Serialize(payload, JsonOptions) + "\n");
+		string json = JsonSerializer.Serialize(payload, JsonOptions).Replace("\r\n", "\n");
+		byte[] bytes = new UTF8Encoding(false).GetBytes(json + "\n");
 		using FileStream stream = new(path, FileMode.CreateNew, System.IO.FileAccess.Write, FileShare.Read);
 		stream.Write(bytes);
 		stream.Flush(true);
