@@ -133,9 +133,9 @@ public static class RoomDecorator
 
 			decor.AddChild(model);
 
-			// Las piezas bajas y planas no proyectan sombra: cuestan sin aportar.
+			// Las piezas bajas y planas, y las colgadas de la pared, no proyectan sombra: cuestan sin aportar.
 			Aabb? box = ModelLibrary.BoundsOf(piece.Path);
-			if (piece.Model == PropModels.Rug || piece.Model == PropModels.Curtain || (box.HasValue && box.Value.Size.Y < 0.6f))
+			if (piece.Model == PropModels.Rug || piece.Model == PropModels.Curtain || piece.Position.Y > 0.0f || (box.HasValue && box.Value.Size.Y < 0.6f))
 			{
 				SetShadows(model, false);
 			}

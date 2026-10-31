@@ -3,14 +3,14 @@ using System.Linq;
 using Godot;
 
 /// <summary>
-/// Plan determinista de la decoración de una SALA DE COMBATE (tipo Normal): solo piezas pegadas a la pared (estanterías y cortinas,
-/// con la parte trasera hacia la pared y el frente hacia el interior) y alfombras planas. Nada con colisión y nada que cambie el
+/// Plan determinista de la decoración de una SALA DE COMBATE (tipo Normal): solo piezas pegadas a la pared (estanterías, cortinas,
+/// cuadro, reloj, repisa, aplique y perchero, con la parte trasera hacia la pared y el frente hacia el interior) y alfombras planas. Nada con colisión y nada que cambie el
 /// juego que la IA evaluó. Sin pared sur: la cámara no la ve (RoomDecorator.SkipSouth).
 ///
 /// Variedad por semilla: en cada pared (norte, este, oeste) se eligen al azar la cantidad (0 a 2), la pieza, la posición a lo largo de
-/// la pared y el espejado; y de 0 a 2 alfombras con posición y giro propios. En una sala de combate solo caben dos piezas de pared
-/// distintas (estantería y cortina): el resto del catálogo tiene más de 0,3 m de fondo y vive en las salas de inicio, tesoro y
-/// jefe (FreeDecorPlanner).
+/// la pared y el espejado; y de 0 a 2 alfombras con posición y giro propios. En una sala de combate solo caben las piezas de
+/// WallPieces (relieve medido de 0,3 m o menos; las colgadas llevan su altura de montaje): el resto del catálogo tiene más fondo y
+/// vive en las salas de inicio, tesoro y jefe (FreeDecorPlanner).
 ///
 /// Reglas: relieve de MaxRelief (0,3 m) como mucho (las piezas se hunden Embed metros en la pared de 1 m), a CornerMargin de las
 /// esquinas, a DoorClear del centro de cada pared con puerta, a MinGap entre sí y como mucho MaxWallPieces por sala. El azar sale de
@@ -27,6 +27,13 @@ public static class WallDecorPlanner
 	public const float RugMargin = 3.2f;
 	public const float RugGap = 0.3f;
 
+	/// <summary>Piezas de pared y altura (m) a la que cuelga la base de cada una. Estantería y cortina llegan al suelo.</summary>
+	public static readonly (string Model, float Height)[] WallPieces =
+	{
+		(PropModels.Shelf, 0.0f), (PropModels.Curtain, 0.0f),
+		(PropModels.Picture, 1.3f), (PropModels.Clock, 1.05f), (PropModels.ToyShelf, 1.2f), (PropModels.StarLamp, 1.5f), (PropModels.CoatRack, 1.1f),
+	};
+
 	private const ulong Salt = 0x57414C4CUL;
 	private const int Attempts = 14;
 
@@ -38,7 +45,6 @@ public static class WallDecorPlanner
 		float hx = size.X / 2.0f;
 		float hz = size.Y / 2.0f;
 
-		string[] kinds = { PropModels.Shelf, PropModels.Curtain };
 		foreach (DoorSide side in new[] { DoorSide.North, DoorSide.East, DoorSide.West })
 		{
 			float roll = random.Randf();
@@ -48,7 +54,7 @@ public static class WallDecorPlanner
 			{
 				for (int attempt = 0; attempt < Attempts; attempt++)
 				{
-					string kind = kinds[random.Randf() < 0.5f ? 0 : 1];
+					(string kind, float height) = WallPieces[random.RandiRange(0, WallPieces.Length - 1)];
 					bool mirror = random.Randf() < 0.5f;
 					float along = random.RandfRange(-half, half);
 					Aabb? box = ModelLibrary.BoundsOf(PropModels.Path(kind));
@@ -68,7 +74,7 @@ public static class WallDecorPlanner
 						continue;
 					}
 
-					DecorPiece piece = OnWall(side, along, kind, box.Value.Size.Z, hx, hz) with { Mirror = mirror };
+					DecorPiece piece = OnWall(side, along, kind, box.Value.Size.Z, hx, hz, height) with { Mirror = mirror };
 					Aabb footprint = DecorGeometry.Footprint(piece);
 					if (footprints.Any(other => DecorGeometry.Overlaps(footprint, other, MinGap)))
 					{
@@ -119,11 +125,11 @@ public static class WallDecorPlanner
 		return pieces;
 	}
 
-	/// <summary>Pieza con la espalda contra la cara interior de la pared (hundida Embed) y el frente (-Z del modelo) hacia el interior.</summary>
-	public static DecorPiece OnWall(DoorSide side, float along, string model, float depth, float hx, float hz)
+	/// <summary>Pieza con la espalda contra la cara interior de la pared (hundida Embed) y el frente (-Z del modelo) hacia el interior, con la base a height metros del suelo.</summary>
+	public static DecorPiece OnWall(DoorSide side, float along, string model, float depth, float hx, float hz, float height = 0.0f)
 	{
 		Vector3 inward = DecorGeometry.Inward(side);
-		Vector3 position = DecorGeometry.WallPoint(side, along, hx, hz) + inward * (depth / 2.0f - Embed);
+		Vector3 position = DecorGeometry.WallPoint(side, along, hx, hz) + inward * (depth / 2.0f - Embed) + Vector3.Up * height;
 		return new DecorPiece(model, position, DecorGeometry.FacingYaw(side));
 	}
 }
