@@ -25,6 +25,7 @@
 [ext_resource type="Script" path="res://scripts/decor/AtmosphereApplier.cs" id="23_atmosphere"]
 [ext_resource type="Resource" path="res://resources/atmosphere/cradle_atmosphere.tres" id="24_cradle"]
 [ext_resource type="PackedScene" path="res://scenes/ui/ItemMessageHud.tscn" id="25_item_message"]
+[ext_resource type="Script" path="res://scripts/audio/CurrentAudioListener.cs" id="26_listener"]
 
 [sub_resource type="Environment" id="Environment_dark"]
 background_mode = 1
@@ -88,6 +89,9 @@ script = ExtResource("6_camera")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 24)
 fov = 60.0
 current = true
+
+[node name="AudioListener3D" type="AudioListener3D" parent="CameraRig"]
+script = ExtResource("26_listener")
 
 [node name="RoomManager" type="Node3D" parent="." node_paths=PackedStringArray("Player", "Camera", "Fade")]
 script = ExtResource("7_manager")
