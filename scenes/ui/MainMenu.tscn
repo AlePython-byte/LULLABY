@@ -3,6 +3,48 @@
 [ext_resource type="Script" path="res://scripts/ui/MainMenu.cs" id="1_menu"]
 [ext_resource type="PackedScene" path="res://scenes/ui/ControlsPanel.tscn" id="2_controls"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBox_toggle_off"]
+bg_color = Color(0.3, 0.26, 0.42, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.9, 0.8, 0.6, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+content_margin_left = 14.0
+content_margin_right = 14.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_toggle_hover"]
+bg_color = Color(0.38, 0.33, 0.52, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.92, 0.75, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+content_margin_left = 14.0
+content_margin_right = 14.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_toggle_on"]
+bg_color = Color(0.2, 0.42, 0.26, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.6, 1, 0.7, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+content_margin_left = 14.0
+content_margin_right = 14.0
+
 [node name="MainMenu" type="Control"]
 layout_mode = 3
 anchors_preset = 15
@@ -110,8 +152,17 @@ theme_override_font_sizes/font_size = 20
 text = "Difícil"
 
 [node name="ExtendedVariety" type="CheckButton" parent="Center/Box"]
+custom_minimum_size = Vector2(440, 48)
 layout_mode = 2
 size_flags_horizontal = 4
+theme_override_colors/font_color = Color(1, 0.96, 0.88, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 0.95, 1)
+theme_override_colors/font_pressed_color = Color(0.92, 1, 0.92, 1)
+theme_override_colors/font_hover_pressed_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBox_toggle_off")
+theme_override_styles/hover = SubResource("StyleBox_toggle_hover")
+theme_override_styles/pressed = SubResource("StyleBox_toggle_on")
+theme_override_styles/hover_pressed = SubResource("StyleBox_toggle_on")
 theme_override_font_sizes/font_size = 20
 text = "Variedad extendida (experimental)"
 
