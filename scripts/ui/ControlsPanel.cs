@@ -41,9 +41,12 @@ public partial class ControlsPanel : Control
 		Closed?.Invoke();
 	}
 
+	// Nombre fijo: pasar el texto a IsActionPressed crearía un StringName nuevo en cada tecla.
+	private static readonly StringName UiCancelName = new("ui_cancel");
+
 	public override void _UnhandledInput(InputEvent @event)
 	{
-		if (Visible && @event.IsActionPressed("ui_cancel"))
+		if (Visible && @event.IsActionPressed(UiCancelName))
 		{
 			GetViewport().SetInputAsHandled();
 			Close();

@@ -11,6 +11,7 @@ using Godot;
 public partial class PauseMenu : CanvasLayer
 {
 	public const string PauseAction = "pause_game";
+	private static readonly StringName PauseActionName = new(PauseAction);
 
 	[Export] public RunManager Run { get; set; }
 	[Export] public RoomManager Rooms { get; set; }
@@ -92,7 +93,7 @@ public partial class PauseMenu : CanvasLayer
 
 	public override void _UnhandledInput(InputEvent @event)
 	{
-		if (!@event.IsActionPressed(PauseAction))
+		if (!@event.IsActionPressed(PauseActionName))
 		{
 			return;
 		}

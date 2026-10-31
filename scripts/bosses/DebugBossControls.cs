@@ -6,6 +6,8 @@ public partial class DebugBossControls : Node
 	[Export] public RoomManager Rooms { get; set; }
 	private const string JumpAction = "debug_boss_room";
 	private const string DamageAction = "debug_damage_boss";
+	private static readonly StringName JumpActionName = new(JumpAction);
+	private static readonly StringName DamageActionName = new(DamageAction);
 
 	public override void _Ready()
 	{
@@ -19,11 +21,11 @@ public partial class DebugBossControls : Node
 	{
 		if (!OS.IsDebugBuild() || @event is not InputEventKey key || key.Echo || key.CtrlPressed || key.AltPressed
 			|| key.ShiftPressed || key.MetaPressed || !IsInstanceValid(Rooms)) return;
-		if (@event.IsActionPressed(JumpAction, false, true))
+		if (@event.IsActionPressed(JumpActionName, false, true))
 		{
 			if (Rooms.DebugGoToBoss()) GetViewport().SetInputAsHandled();
 		}
-		else if (@event.IsActionPressed(DamageAction, false, true) && DamageBoss())
+		else if (@event.IsActionPressed(DamageActionName, false, true) && DamageBoss())
 			GetViewport().SetInputAsHandled();
 	}
 

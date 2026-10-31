@@ -5,6 +5,7 @@ using Godot;
 public partial class DebugItemSpawner : Node
 {
 	private const string SpawnAction = "debug_spawn_item";
+	private static readonly StringName SpawnActionName = new(SpawnAction);
 	[Export] public PlayerController Player { get; set; }
 	[Export] public RoomManager Rooms { get; set; }
 	[Export] public ItemCatalog Catalog { get; set; }
@@ -32,7 +33,7 @@ public partial class DebugItemSpawner : Node
 	public override void _UnhandledInput(InputEvent @event)
 	{
 		if (!OS.IsDebugBuild() || @event is not InputEventKey key || key.Echo || key.CtrlPressed || key.AltPressed
-			|| key.ShiftPressed || key.MetaPressed || !@event.IsActionPressed(SpawnAction, false, true)) return;
+			|| key.ShiftPressed || key.MetaPressed || !@event.IsActionPressed(SpawnActionName, false, true)) return;
 		if (SpawnNext() != null) GetViewport().SetInputAsHandled();
 	}
 

@@ -10,6 +10,7 @@ using Godot;
 public partial class EnemyShowcase : Node3D
 {
 	private const string RestartAction = "showcase_restart";
+	private static readonly StringName RestartActionName = new(RestartAction);
 
 	[Export] public PackedScene PlayerScene { get; set; }
 	[Export] public PackedScene HudScene { get; set; }
@@ -53,7 +54,7 @@ public partial class EnemyShowcase : Node3D
 
 	public override void _UnhandledInput(InputEvent @event)
 	{
-		if (@event.IsActionPressed(RestartAction))
+		if (@event.IsActionPressed(RestartActionName))
 		{
 			GetTree().CallDeferred(SceneTree.MethodName.ReloadCurrentScene);
 		}

@@ -47,6 +47,10 @@ public partial class RunManager : Node
 	private const string RepeatSeedAction = "debug_repeat_seed";
 	private const string NextDifficultyAction = "debug_next_difficulty";
 	private const string ToggleGeneratorAction = "debug_toggle_generator";
+	private static readonly StringName NewSeedActionName = new(NewSeedAction);
+	private static readonly StringName RepeatSeedActionName = new(RepeatSeedAction);
+	private static readonly StringName NextDifficultyActionName = new(NextDifficultyAction);
+	private static readonly StringName ToggleGeneratorActionName = new(ToggleGeneratorAction);
 	private const string SeedArgument = "--seed=";
 	private const string DifficultyArgument = "--difficulty=";
 	private const string GeneratorArgument = "--generator=";
@@ -235,19 +239,19 @@ public partial class RunManager : Node
 			return;
 		}
 
-		if (@event.IsActionPressed(NewSeedAction))
+		if (@event.IsActionPressed(NewSeedActionName))
 		{
 			Restart(RandomSeed(), _difficulty, _generatorVersion);
 		}
-		else if (@event.IsActionPressed(RepeatSeedAction))
+		else if (@event.IsActionPressed(RepeatSeedActionName))
 		{
 			Restart(_seed, _difficulty, _generatorVersion);
 		}
-		else if (@event.IsActionPressed(NextDifficultyAction))
+		else if (@event.IsActionPressed(NextDifficultyActionName))
 		{
 			Restart(_seed, (DifficultyTarget)(((int)_difficulty + 1) % Enum.GetValues<DifficultyTarget>().Length), _generatorVersion);
 		}
-		else if (@event.IsActionPressed(ToggleGeneratorAction))
+		else if (@event.IsActionPressed(ToggleGeneratorActionName))
 		{
 			int next = _generatorVersion >= DungeonGenerator.LatestVersion ? DungeonGenerator.OriginalVersion : _generatorVersion + 1;
 			Restart(_seed, _difficulty, next);
