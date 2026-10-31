@@ -16,6 +16,12 @@ public partial class FlyPatternBehavior : EnemyBehavior
 
 	private bool _started;
 
+	// El aleteo suena en bucle mientras haya voladores vivos: AudioManager cuenta el grupo.
+	public override void _Ready()
+	{
+		GetParent().AddToGroup(AudioManager.FlyerGroup);
+	}
+
 	public float Time { get; private set; }
 	public float Phase { get; private set; }
 
