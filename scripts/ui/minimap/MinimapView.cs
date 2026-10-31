@@ -9,7 +9,7 @@ using Godot;
 ///
 /// Pequeño (por defecto): panel de 192x192 arriba a la derecha, opacidad ~0,6, iconos x1 con 8 px entre salas unidas por una línea
 /// fina, centrado en la sala actual y recortado al panel. Expandido (mientras se mantiene Tab): panel centrado que se ajusta a las
-/// salas descubiertas con tope de 512x512, opacidad ~0,92 y, si caben, iconos x2 con 32 px entre salas (la línea de conexión más el
+/// salas descubiertas (como mínimo 320x320, con tope de 512x512), opacidad ~0,92 y, si caben, iconos x2 con 32 px entre salas (la línea de conexión más el
 /// icono de puerta de 32 px en el hueco); si no caben, iconos x1 como en el pequeño.
 /// </summary>
 public partial class MinimapView : Control
@@ -17,6 +17,7 @@ public partial class MinimapView : Control
 	public const string IconPrefix = "minimapa_";
 	public const int IconSize = 32;
 	public const int SmallPanel = 192;
+	public const int ExpandedMin = 320;
 	public const int ExpandedMax = 512;
 	public const int Padding = 16;
 	public const float SmallAlpha = 0.6f;
@@ -89,7 +90,7 @@ public partial class MinimapView : Control
 				panel = PanelFor(bounds);
 			}
 
-			panel = new Vector2I(Mathf.Clamp(panel.X, SmallPanel, ExpandedMax), Mathf.Clamp(panel.Y, SmallPanel, ExpandedMax));
+			panel = new Vector2I(Mathf.Clamp(panel.X, ExpandedMin, ExpandedMax), Mathf.Clamp(panel.Y, ExpandedMin, ExpandedMax));
 			SetAnchorsPreset(LayoutPreset.Center);
 			OffsetLeft = -panel.X / 2;
 			OffsetRight = OffsetLeft + panel.X;
