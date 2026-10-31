@@ -42,8 +42,9 @@ public partial class Tear : Area3D
 		}
 
 		_spent = true;
-		AudioManager.Play(SoundCatalog.TearImpact);
+		// Primero el daño y la liberación; el sonido va después y nunca puede impedirlos.
 		HealthComponent.FindIn(body)?.TakeDamage(Damage);
 		QueueFree();
+		AudioManager.Play(SoundCatalog.TearImpact);
 	}
 }

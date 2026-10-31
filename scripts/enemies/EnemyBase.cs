@@ -203,17 +203,18 @@ public partial class EnemyBase : CharacterBody3D
 	{
 		if (current > 0.0f)
 		{
-			AudioManager.PlayAt($"{SoundSet}_golpe", GlobalPosition);
+			AudioManager.PlayFrom($"{SoundSet}_golpe", this);
 		}
 	}
 
 	private void OnDied()
 	{
+		// Primero se libera (la lógica no depende del audio); el sonido va después y nunca puede lanzar. El nodo sigue en el árbol
+		// hasta el final del fotograma, así que PlayFrom aún encuentra su posición.
+		QueueFree();
 		if (!MuteDeathSound)
 		{
-			AudioManager.PlayAt($"{SoundSet}_muere", GlobalPosition);
+			AudioManager.PlayFrom($"{SoundSet}_muere", this);
 		}
-
-		QueueFree();
 	}
 }
