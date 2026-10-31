@@ -12,3 +12,4 @@ Todos los efectos de sonido y pistas musicales utilizados en el proyecto cuentan
 | explosion.ogg       | Explosión o ataque de área                 | craigsmith        | https://freesound.org/people/craigsmith/sounds/674879/        | CC0      |
 | tirador_disparo.ogg | Disparo de proyectil enemigo               | qubodup           | https://freesound.org/people/qubodup/sounds/816113/           | CC0      |
 | mecha_explosivo.ogg | Chisporroteo de mecha previo a explosión   | Alex_hears_things | https://freesound.org/people/Alex_hears_things/sounds/316682/ | CC0      |
+| volador_aleteo.ogg  | Aleteo continuo o vuelo de enemigo volador | Scottrex05        | https://freesound.org/people/Scottrex05/sounds/593487/        | CC0      |
