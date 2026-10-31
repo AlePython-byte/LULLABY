@@ -12,7 +12,8 @@ using Godot;
 ///   - columnas (columna_esquina) en las esquinas interiores del lado norte;
 ///   - con el tipo de sala: en las de combate (Normal), estanterías, cortinas y alfombras planas pegadas a la pared (WallDecorPlanner);
 ///     en inicio, tesoro y jefe, un subconjunto del catálogo de piezas exentas junto a las paredes (FreeDecorPlanner). Las dos
-///     cosas con azar propio por semilla de partida y celda, y sin colisión.
+///     cosas con azar propio por semilla de partida y celda, y sin colisión;
+///   - en la sala de inicio, los controles pintados en el piso (FloorControlsDecal).
 ///
 /// La cámara mira desde el sur con 60° de inclinación: la pared sur oculta el suelo que tiene delante, así que sus esquinas no
 /// llevan columna (SkipSouth). Una pieza que falte en assets/ simplemente no se pone.
@@ -100,6 +101,12 @@ public static class RoomDecorator
 		if (type.HasValue)
 		{
 			AddPieces(decor, PiecesFor(type.Value, roomSize, cell, gameSeed, layout.Doors.Select(door => door.Side).ToList()));
+
+			// Solo la sala de inicio lleva los controles pintados en el piso (si existe la textura).
+			if (type.Value == RoomType.Start)
+			{
+				FloorControlsDecal.Build(decor);
+			}
 		}
 
 		return decor;
