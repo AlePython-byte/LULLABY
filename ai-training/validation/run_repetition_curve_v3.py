@@ -29,7 +29,7 @@ def inspect_log(text):
         match = re.search(r"CURVE_BEGIN seed=(\d+) run=(\d+) phase=(\w+)", line)
         if match:
             active = dict(zip(("seed", "run", "phase"), (int(match[1]), int(match[2]), match[3])))
-        if (line.startswith("ERROR:") or "gchandle" in line.lower()
+        if (line.startswith(("ERROR:", "WARNING:")) or "gchandle" in line.lower()
                 or "illegal instruction" in line.lower() or "fatal error" in line.lower()):
             incidents.append({"line": number, "text": line, "active_pair": active})
     return active, incidents
