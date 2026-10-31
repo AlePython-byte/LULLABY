@@ -440,7 +440,15 @@ Arriba a la derecha (`scripts/ui/minimap/`, escena `scenes/ui/Minimap.tscn`, ins
 
 Prueba: `godot --headless --fixed-fps 60 --path . res://tests/MinimapTest.tscn`.
 
-## 8.4. Audio
+## 8.4. Corazones de vida y controles en el piso
+
+- **Corazones** (`HeartsRow`, dentro de `HealthHud`): sustituyen al texto «Vida: X/Y». Arriba a la izquierda, en una fila, con los iconos pixel art `assets/ui/corazon_lleno|medio|vacio.png` (16×16) a escala x3 y filtro `Nearest`; el HUD de objetos va debajo. Solo muestran la vida: no cambian ningún valor de vida ni de daño. 1 corazón = 1 punto de vida y hay tantos como la vida máxima redondeada hacia arriba (como mucho 24). **Regla de redondeo:** al corazón *i* le corresponde `v = clamp(vida − i, 0, 1)`; `v ≥ 0,75` lleno, `0,25 ≤ v < 0,75` medio, menos vacío. **Garantía:** con vida mayor que 0 nunca se muestran 0 corazones (con 0,1 se ve medio). Ejemplos: 5,2/6 → 5 llenos y 1 vacío; 4,5/6 → 4 llenos, 1 medio y 1 vacío. Al perder vida, el corazón que baja de estado se sacude y se tiñe de rojo ~0,35 s (solo visual). Si falta una textura se dibuja por código.
+- **Daño y Manta:** cada golpe de contacto o proyectil quita 1 corazón; la explosión del explosivo, 2. La dificultad elegida no cambia el daño. La Manta vieja reduce el daño un 50 %, y **ningún golpe quita menos de 0,5** (`PlayerHealth.MinHitDamage`): con Manta, un golpe de 1 quita medio corazón y la explosión (2) quita 1. Los efectos de resistencia se combinan multiplicándose y ese mínimo acota el resultado.
+- **Controles en el piso** (`FloorControlsDecal`): `assets/ui/controles_piso.png` (1600×600) como un quad horizontal de 7,2×2,7 m en el centro de la sala de **inicio** (solo esa), a 2 cm del suelo, con la parte superior de la imagen hacia el norte, con transparencia, sin sombra ni colisión y dibujado por debajo de Noah, los enemigos y los objetos. No tapa las puertas ni las zonas de llegada, y la decoración exenta del inicio deja libre su rectángulo (con 0,3 m de margen) haya o no textura. Si la textura no existe no se crea nada. **La imagen muestra MOVER (WASD), DISPARAR (flechas) y PAUSA (solo ESC); falta Tab (minimapa) y la tecla P como segunda tecla de pausa.**
+
+Pruebas: `godot --headless --fixed-fps 60 --path . res://tests/HeartsHudTest.tscn` y `res://tests/FloorControlsTest.tscn`.
+
+## 8.5. Audio
 
 Todo el sonido pasa por `AudioManager` (`scripts/audio/`, autoload). Los ids, archivos y límites están en constantes de C# (`SoundCatalog`); el juego no lee `docs/` en ejecución. Los efectos de Luis están en `assets/audio/sfx/` (créditos en `assets/audio/CREDITS.md`).
 
