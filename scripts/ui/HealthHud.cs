@@ -9,7 +9,7 @@ public partial class HealthHud : CanvasLayer
 	{
 		_label = GetNode<Label>("Label");
 
-		Node player = GetTree().GetFirstNodeInGroup("player");
+		Node player = GetTree().GetFirstNodeInGroup(GameNames.PlayerGroup);
 		if (player == null)
 		{
 			return;

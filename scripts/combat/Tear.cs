@@ -12,7 +12,7 @@ public partial class Tear : Area3D
 
 	public override void _Ready()
 	{
-		AddToGroup("tears");
+		AddToGroup(GameNames.TearsGroup);
 		BodyEntered += OnBodyEntered;
 	}
 

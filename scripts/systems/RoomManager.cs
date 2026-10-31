@@ -228,7 +228,7 @@ public partial class RoomManager : Node3D
 
 	private void ClearEnemyProjectiles()
 	{
-		foreach (Node projectile in GetTree().GetNodesInGroup("enemy_projectiles"))
+		foreach (Node projectile in GetTree().GetNodesInGroup(GameNames.EnemyProjectilesGroup))
 		{
 			projectile.QueueFree();
 		}
@@ -287,7 +287,7 @@ public partial class RoomManager : Node3D
 		SetPlayerFrozen(true);
 		await Fade.FadeTo(1.0f, FadeDuration);
 
-		foreach (Node tear in GetTree().GetNodesInGroup("tears"))
+		foreach (Node tear in GetTree().GetNodesInGroup(GameNames.TearsGroup))
 		{
 			tear.QueueFree();
 		}

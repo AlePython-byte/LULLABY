@@ -120,7 +120,7 @@ public partial class EnemyBase : CharacterBody3D
 
 		if (!IsInstanceValid(_player))
 		{
-			_player = GetTree().GetFirstNodeInGroup("player") as Node3D;
+			_player = GetTree().GetFirstNodeInGroup(GameNames.PlayerGroup) as Node3D;
 			if (_player == null)
 			{
 				return;
@@ -134,7 +134,7 @@ public partial class EnemyBase : CharacterBody3D
 		{
 			for (int i = 0; i < GetSlideCollisionCount(); i++)
 			{
-				if (GetSlideCollision(i).GetCollider() is Node3D collider && collider.IsInGroup("player"))
+				if (GetSlideCollision(i).GetCollider() is Node3D collider && collider.IsInGroup(GameNames.PlayerGroup))
 				{
 					TryHit(collider);
 				}

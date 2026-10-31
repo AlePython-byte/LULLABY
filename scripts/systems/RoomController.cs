@@ -251,7 +251,7 @@ public partial class RoomController : Node3D
 
 	private void OnDoorTriggerEntered(DoorSide side, Node3D body)
 	{
-		if (!body.IsInGroup("player") || !_doors[side].IsOpen)
+		if (!body.IsInGroup(GameNames.PlayerGroup) || !_doors[side].IsOpen)
 		{
 			return;
 		}
@@ -261,7 +261,7 @@ public partial class RoomController : Node3D
 
 	private void OnBodyEntered(Node3D body)
 	{
-		if (!body.IsInGroup("player"))
+		if (!body.IsInGroup(GameNames.PlayerGroup))
 		{
 			return;
 		}
@@ -272,7 +272,7 @@ public partial class RoomController : Node3D
 
 	private void OnBodyExited(Node3D body)
 	{
-		if (body.IsInGroup("player"))
+		if (body.IsInGroup(GameNames.PlayerGroup))
 		{
 			_playerInside = false;
 		}

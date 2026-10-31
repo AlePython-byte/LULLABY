@@ -34,7 +34,7 @@ public partial class AudioManager : Node
 	public const int SpatialVoices = 16;
 	public const float MaxDistance = 30.0f;
 	public const float UnitSize = 10.0f;
-	public const string FlyerGroup = "flyers";
+	public static readonly StringName FlyerGroup = "flyers";
 
 	public enum Outcome
 	{

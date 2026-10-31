@@ -96,7 +96,7 @@ public partial class DashBehavior : EnemyBehavior
 		bool hitPlayer = false;
 		for (int i = 0; i < enemy.GetSlideCollisionCount(); i++)
 		{
-			hitPlayer |= enemy.GetSlideCollision(i).GetCollider() is Node3D collider && collider.IsInGroup("player");
+			hitPlayer |= enemy.GetSlideCollision(i).GetCollider() is Node3D collider && collider.IsInGroup(GameNames.PlayerGroup);
 		}
 
 		Vector3 real = enemy.GetRealVelocity();

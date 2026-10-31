@@ -23,7 +23,7 @@ public partial class EnemyProjectile : Area3D
 
 	public override void _Ready()
 	{
-		AddToGroup("enemy_projectiles");
+		AddToGroup(GameNames.EnemyProjectilesGroup);
 		BodyEntered += OnBodyEntered;
 	}
 
@@ -70,7 +70,7 @@ public partial class EnemyProjectile : Area3D
 		}
 
 		_spent = true;
-		bool hitPlayer = body.IsInGroup("player");
+		bool hitPlayer = body.IsInGroup(GameNames.PlayerGroup);
 		if (hitPlayer)
 		{
 			body.GetNodeOrNull<PlayerHealth>("PlayerHealth")?.TakeHit(Damage);

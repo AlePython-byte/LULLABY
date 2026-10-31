@@ -64,7 +64,7 @@ public partial class MotherVisual : Node
 	{
 		_age += (float)delta;
 		_phrase.Visible = _age < EntranceTextTime;
-		if (!IsInstanceValid(_player)) _player = GetTree().GetFirstNodeInGroup("player") as Node3D;
+		if (!IsInstanceValid(_player)) _player = GetTree().GetFirstNodeInGroup(GameNames.PlayerGroup) as Node3D;
 		Vector3 direction = _behavior.DashWarningActive
 			|| _behavior.State == MotherBehavior.AttackState.Dash
 			? _behavior.DashDirection : (_player != null ? _player.GlobalPosition - _enemy.GlobalPosition : Vector3.Forward);
