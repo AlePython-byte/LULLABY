@@ -30,10 +30,10 @@ public static class BossTestHarness
 	/// Instancia TestLevel bajo `parent`. withMother = false conserva la composición histórica del jefe (seis básicos).
 	/// La pausa y el fundido de la victoria se acortan para no alargar la prueba; las recompensas del tesoro se apagan.
 	/// </summary>
-	public static Level Open(Node parent, int seed, bool withMother = true, bool unlimitedHealth = true)
+	public static Level Open(Node parent, int seed, bool withMother = true, bool unlimitedHealth = true, bool treasure = false)
 	{
 		Node root = GD.Load<PackedScene>(LevelPath).Instantiate();
-		root.GetNode<TreasureItemSpawner>("TreasureItemSpawner").Enabled = false;
+		root.GetNode<TreasureItemSpawner>("TreasureItemSpawner").Enabled = treasure;
 
 		Level level = new()
 		{
