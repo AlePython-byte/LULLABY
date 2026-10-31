@@ -194,9 +194,10 @@ def build_cuadro_infantil():
     bpy.ops.object.transform_apply(scale=True)
     
     # Lienzo de fondo
-    bpy.ops.mesh.primitive_cube_add(size=1.0, location=(0, 0.01, 0))
+    # Cara trasera plana en y=0 (pegada a la pared)
+    bpy.ops.mesh.primitive_cube_add(size=1.0, location=(0, 0.00875, 0))
     canvas = bpy.context.object
-    canvas.scale = (0.76, 0.015, 0.64)
+    canvas.scale = (0.76, 0.0175, 0.64)
     bpy.ops.object.transform_apply(scale=True)
     
     # Dibujo infantil: Casco de barquito
@@ -212,11 +213,16 @@ def build_cuadro_infantil():
     bpy.ops.object.transform_apply(scale=True)
     
     # Vela triangular
-    bpy.ops.mesh.primitive_cylinder_add(vertices=3, radius=0.14, depth=0.015, location=(0.04, 0.025, 0.06))
-    sail = bpy.context.object
-    sail.rotation_euler = (math.radians(90), 0, math.radians(90))
-    sail.scale = (1.0, 1.0, 1.0)
-    bpy.ops.object.transform_apply(rotation=True, scale=True)
+    # (prisma triangular plano sobre el lienzo, en el plano XZ; sin geometria hacia fuera de la pared)
+    sail_mesh = bpy.data.meshes.new("Vela")
+    sail_pts = [(-0.015, -0.05), (-0.015, 0.17), (0.15, -0.05)]  # (x, z)
+    y0, y1 = 0.0175, 0.0325
+    sverts = [(x, y0, z) for x, z in sail_pts] + [(x, y1, z) for x, z in sail_pts]
+    sfaces = [(0, 2, 1), (3, 4, 5), (0, 1, 4, 3), (1, 2, 5, 4), (2, 0, 3, 5)]
+    sail_mesh.from_pydata(sverts, [], sfaces)
+    sail_mesh.update()
+    sail = bpy.data.objects.new("Vela", sail_mesh)
+    bpy.context.collection.objects.link(sail)
 
     # Sol infantil en la esquina superior izquierda
     bpy.ops.mesh.primitive_cylinder_add(vertices=12, radius=0.08, depth=0.015, location=(-0.24, 0.025, 0.19))
@@ -244,7 +250,22 @@ def build_cuadro_infantil():
     
     cuadro = bpy.context.object
     cuadro.name = "cuadro_infantil"
-    set_origin_to_base_back(cuadro)
+    # Hornear transformaciones (Ctrl+A) para que las coordenadas locales sean las del mundo
+    bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+    # Eliminar vertices sueltos (sin aristas ni caras)
+    bm = bmesh.new()
+    bm.from_mesh(cuadro.data)
+    loose = [v for v in bm.verts if not v.link_edges and not v.link_faces]
+    bmesh.ops.delete(bm, geom=loose, context='VERTS')
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    bm.to_mesh(cuadro.data)
+    bm.free()
+    cuadro.data.update()
+    # Origen: centrado en X, base en z=0 y espalda plana en y=0 (sin recentrar en X)
+    zs = [v.co.z for v in cuadro.data.vertices]
+    ys = [v.co.y for v in cuadro.data.vertices]
+    cuadro.data.transform(__import__("mathutils").Matrix.Translation((0.0, -min(ys), -min(zs))))
+    cuadro.data.update()
     bpy.ops.object.shade_smooth()
     return cuadro
 
@@ -576,7 +597,10 @@ def generate_all():
     print("=== GENERANDO 5 PROPS DE PARED NUEVOS ===")
     results = []
 
+    only = os.environ.get("LULLABY_ONLY")  # ej. LULLABY_ONLY=cuadro_infantil
     for name, builder in NEW_WALL_PROPS:
+        if only and name != only:
+            continue
         print(f"\n--- Generando {name} ---")
         obj = builder()
         tris = get_tris(obj)
