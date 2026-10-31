@@ -39,7 +39,9 @@ New-Item -ItemType Directory -Force -Path $LogDir | Out-Null
 
 # Mensajes que delatan una escena o un recurso que no carga. Coincidencia sensible a mayusculas: "Parse Error" de las escenas no
 # coincide con el aviso "parse error" de un archivo de ajustes danado que prueban a proposito.
-$loadErrorPattern = 'Parse Error|Failed loading resource|Failed to load|No loader found|referenced non-existent resource|Unknown tag|Cannot open resource'
+# "ERROR: System." es una excepcion de C# sin capturar dentro de una senal o un callback (Godot la registra y sigue): una prueba puede
+# salir con 0 y dejarla en el log, como paso con el audio de The Mother.
+$loadErrorPattern = 'Parse Error|Failed loading resource|Failed to load|No loader found|referenced non-existent resource|Unknown tag|Cannot open resource|ERROR: System\.|SCRIPT ERROR'
 
 # Cada prueba: nombre de la escena en tests/, argumentos propios tras "--" si los necesita.
 $tests = @(
@@ -61,9 +63,13 @@ $tests = @(
     @{ Name = 'RoomDecorVarietyTest' },
     @{ Name = 'ItemMessageVarietyTest' },
     @{ Name = 'AudioEventsTest' },
+    # Resistencia: recorre muchas salas con el nivel real (combate, tesoro y objetos) y en cada una comprueba que una lagrima hace dano
+    # y que un proyectil enemigo hace dano. Una vez con el audio real y otra con el audio apagado.
+    @{ Name = 'RoomEnduranceTest'; Label = 'RoomEnduranceTest-audio-real'; Args = @('--', '--audio=real', '--generator=3', '--rooms=14', '--seeds=12345,777', '--fight=1', '--items=1') },
+    @{ Name = 'RoomEnduranceTest'; Label = 'RoomEnduranceTest-audio-apagado'; Args = @('--', '--audio=off', '--generator=2', '--rooms=14', '--seeds=4242,99', '--fight=1', '--items=1') },
     @{ Name = 'DirectorVarietyAudit'; Args = @('--', '--verify-selector', '--check-report'); FixedFps = $false }
 )
-if ($Only.Count -gt 0) { $tests = $tests | Where-Object { $Only -contains $_.Name } }
+if ($Only.Count -gt 0) { $tests = $tests | Where-Object { ($Only -contains $_.Name) -or ($Only -contains $_.Label) } }
 
 # Lanza Godot con argumentos, guarda su salida en un log y devuelve codigo de salida, motivo y lineas de error de carga.
 function Invoke-Godot {
@@ -122,11 +128,11 @@ try {
 
     $results = @([pscustomobject]@{ Name = 'importacion'; Ok = $import.Ok; Reason = $import.Reason })
     foreach ($test in $tests) {
-        $name = $test.Name
+        $name = if ($test.Label) { $test.Label } else { $test.Name }
         $log = Join-Path $LogDir "$name.log"
         $arguments = @('--headless')
         if ($test.FixedFps -ne $false) { $arguments += @('--fixed-fps', '60') }
-        $arguments += @('--path', '.', "res://tests/$name.tscn")
+        $arguments += @('--path', '.', "res://tests/$($test.Name).tscn")
         if ($test.Args) { $arguments += $test.Args }
 
         $started = Get-Date
