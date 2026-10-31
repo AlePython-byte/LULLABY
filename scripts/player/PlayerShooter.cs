@@ -93,6 +93,7 @@ public partial class PlayerShooter : Node3D
 		_player.GetParent().AddChild(tear);
 		tear.GlobalPosition = _player.GlobalPosition + direction * SpawnDistance;
 		tear.Launch(direction);
+		AudioManager.Play(SoundCatalog.TearShot);
 	}
 
 	private static Vector3 DirectionOf(string action)
