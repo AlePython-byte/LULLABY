@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 using Godot;
 
 /// <summary>
-/// Prueba de la decoración por tipo de sala (piezas de pared de combate, disposición fija de inicio, tesoro y jefe, pedestales).
+/// Prueba de la decoración por tipo de sala (piezas de pared de combate, piezas exentas de inicio, tesoro y jefe, pedestales).
 ///   godot --headless --fixed-fps 60 --path . res://tests/RoomDecorLayoutTest.tscn
 ///
 /// 1. Salas de combate: el plan es determinista por semilla y celda, usa solo estanterías, cortinas y alfombra, no toca la pared sur,
 ///    deja el relieve en 0,3 m o menos, respeta esquinas y puertas, y no altera el azar global ni la generación de niveles.
-/// 2. Disposición fija: mismas piezas siempre, fuera de las llegadas, de las puertas, del área central y de la pared sur.
+/// 2. Piezas exentas (inicio, tesoro, jefe): deterministas, fuera de las llegadas, las puertas, el área central y la pared sur, sin solapes.
 /// 3. Salas reales con ambientación: colisiones idénticas a las de la sala sin ambientar, ninguna pieza con colisión.
 /// 4. Encuadre de cámara de todas las piezas, para todos los tamaños de plantilla y la sala del jefe.
 /// 5. Presupuesto de nodos y triángulos por tipo de sala.
@@ -42,7 +42,7 @@ public partial class RoomDecorLayoutTest : Node
 		try
 		{
 			CombatPlans();
-			FixedLayouts();
+			FreeLayouts();
 			await RealRooms();
 			await CameraFraming();
 			await Budget();
@@ -174,67 +174,82 @@ public partial class RoomDecorLayoutTest : Node
 
 	// --- 2 ------------------------------------------------------------------------------------------------------------
 
-	private void FixedLayouts()
+	private void FreeLayouts()
 	{
-		GD.Print("\n--- Disposición fija ---");
+		GD.Print("\n--- Piezas exentas (inicio, tesoro y jefe) ---");
 		(RoomType type, Vector2 size)[] cases = { (RoomType.Start, new Vector2(16, 16)), (RoomType.Treasure, new Vector2(12, 12)), (RoomType.Boss, new Vector2(26, 26)) };
 		foreach ((RoomType type, Vector2 size) in cases)
 		{
-			List<DecorPiece> pieces = FixedRoomLayouts.For(type, size);
-			Check($"{type}: tiene piezas y son siempre las mismas", pieces.Count >= 6 && pieces.SequenceEqual(FixedRoomLayouts.For(type, size)), $"{pieces.Count} piezas");
 			float hx = size.X / 2.0f, hz = size.Y / 2.0f;
-			bool inside = true, arrivals = true, doorsClear = true, southClear = true, center = true, giants = true;
+			bool deterministic = true, counts = true, allowed = true, inside = true, arrivals = true, doorsClear = true, southClear = true;
+			bool center = true, lane = true, overlaps = false, giantsPresent = true, noGiants = true;
 			string detail = "";
-			foreach (DecorPiece piece in pieces)
+			HashSet<string> used = new();
+			(int min, int max) = FreeDecorPlanner.CountRange(type);
+			for (int seed = 1; seed <= 80; seed++)
 			{
-				Aabb box = World(piece);
-				bool giant = piece.Model == PropModels.GiantCrib || piece.Model == PropModels.Rocker;
-				inside &= box.Position.X >= -hx && box.End.X <= hx && box.Position.Z >= -hz && box.End.Z <= hz;
-				southClear &= box.End.Z <= hz - 1.8f;
-				foreach (Vector2 arrival in RoomRules.ArrivalPoints(size))
+				Vector2I cell = new(seed % 5, seed % 3);
+				List<DecorPiece> pieces = FreeDecorPlanner.Plan(type, size, cell, seed);
+				deterministic &= pieces.SequenceEqual(FreeDecorPlanner.Plan(type, size, cell, seed));
+				int small = pieces.Count(p => FreeDecorPlanner.SmallCatalog.Contains(p.Model));
+				counts &= small >= 3 && small <= max;
+				giantsPresent &= type != RoomType.Boss || pieces.Any(p => FreeDecorPlanner.BossGiants.Contains(p.Model));
+				noGiants &= type == RoomType.Boss || pieces.All(p => !FreeDecorPlanner.BossGiants.Contains(p.Model));
+				for (int a = 0; a < pieces.Count; a++)
 				{
-					bool hits = box.Position.X < arrival.X + 1.5f && box.End.X > arrival.X - 1.5f && box.Position.Z < arrival.Y + 1.5f && box.End.Z > arrival.Y - 1.5f;
-					arrivals &= !hits;
-					if (hits) detail = $"{piece.Model} sobre la llegada {arrival}";
-				}
+					DecorPiece piece = pieces[a];
+					used.Add(piece.Model);
+					Aabb box = DecorGeometry.Footprint(piece);
+					bool giant = FreeDecorPlanner.BossGiants.Contains(piece.Model);
+					allowed &= giant || FreeDecorPlanner.SmallCatalog.Contains(piece.Model);
+					float slack = giant ? 0.5f : 0.001f;
+					inside &= box.Position.X >= -hx - slack && box.End.X <= hx + slack && box.Position.Z >= -hz - slack && box.End.Z <= hz + slack;
+					southClear &= box.End.Z <= hz - 1.8f + 0.001f;
+					foreach (Vector2 arrival in RoomRules.ArrivalPoints(size))
+					{
+						bool hits = box.Position.X < arrival.X + 1.5f && box.End.X > arrival.X - 1.5f && box.Position.Z < arrival.Y + 1.5f && box.End.Z > arrival.Y - 1.5f;
+						arrivals &= !hits;
+						if (hits) detail = $"{piece.Model} sobre la llegada {arrival}";
+					}
 
-				// Hueco de puerta (3 m) con 0,65 m de holgura, a cualquier lado, hasta 2 m de la pared.
-				bool northSouthDoor = box.Position.X < 2.3f && box.End.X > -2.3f && (box.Position.Z < -hz + 2.0f || box.End.Z > hz - 2.0f);
-				bool eastWestDoor = box.Position.Z < 2.3f && box.End.Z > -2.3f && (box.Position.X < -hx + 2.0f || box.End.X > hx - 2.0f);
-				doorsClear &= !northSouthDoor && !eastWestDoor;
-				if (northSouthDoor || eastWestDoor) detail = $"{piece.Model} en {box}";
-				if (type == RoomType.Treasure)
-				{
-					center &= !(box.Position.X < 2.7f && box.End.X > -2.7f && box.Position.Z < 2.7f && box.End.Z > -2.7f);
-				}
+					bool northSouthDoor = box.Position.X < 2.3f && box.End.X > -2.3f && (box.Position.Z < -hz + 2.0f || box.End.Z > hz - 2.0f);
+					bool eastWestDoor = box.Position.Z < 2.3f && box.End.Z > -2.3f && (box.Position.X < -hx + 2.0f || box.End.X > hx - 2.0f);
+					doorsClear &= !northSouthDoor && !eastWestDoor;
+					if (northSouthDoor || eastWestDoor) detail = $"{piece.Model} en una puerta, semilla {seed}";
+					float centralHalf = type == RoomType.Treasure ? 2.7f : type == RoomType.Start ? 3.0f : 0.0f;
+					center &= centralHalf == 0.0f || !(box.Position.X < centralHalf && box.End.X > -centralHalf && box.Position.Z < centralHalf && box.End.Z > -centralHalf);
+					if (type == RoomType.Boss)
+					{
+						float intrusion = FreeDecorPlanner.BossLaneIntrusion(box, size);
+						float allowedIntrusion = giant ? FreeDecorPlanner.MaxBossLaneIntrusion : 0.001f;
+						lane &= intrusion <= allowedIntrusion + 0.001f;
+						if (intrusion > allowedIntrusion + 0.001f) detail = $"{piece.Model} invade {intrusion:F2} m, semilla {seed}";
+					}
 
-				if (type == RoomType.Boss)
-				{
-					// Fuera del recorrido de The Mother; solo la cuna y la mecedora invaden un poco el pasillo.
-					float overlapX = Mathf.Min(box.End.X, MotherReach) - Mathf.Max(box.Position.X, -MotherReach);
-					float overlapZ = Mathf.Min(box.End.Z, MotherReach) - Mathf.Max(box.Position.Z, -MotherReach);
-					float intrusion = overlapX > 0.0f && overlapZ > 0.0f ? Mathf.Min(overlapX, overlapZ) : 0.0f;
-					float allowed = piece.Model == PropModels.GiantCrib ? 1.0f : piece.Model == PropModels.Rocker ? 0.2f : 0.0f;
-					giants &= intrusion <= allowed + 0.001f;
-					if (intrusion > allowed + 0.001f) detail = $"{piece.Model} invade {intrusion:F2} m";
-					center &= giant || intrusion <= 0.001f;
+					for (int b = a + 1; b < pieces.Count; b++)
+					{
+						overlaps |= DecorGeometry.Overlaps(box, DecorGeometry.Footprint(pieces[b]), 0.0f);
+					}
 				}
 			}
 
-			Check($"{type}: todas las piezas dentro de la sala", inside, "pieza fuera");
+			GD.Print($"  {type}: piezas distintas usadas en 80 semillas: {used.Count} de {FreeDecorPlanner.SmallCatalog.Length + (type == RoomType.Boss ? 2 : 0)}");
+			Check($"{type}: determinista y con entre 3 y {max} piezas pequeñas (de {min} a {max} pedidas)", deterministic && counts, "plan variable o con pocas piezas");
+			Check($"{type}: usa muchas piezas distintas del catálogo", used.Count >= 11, $"{used.Count}");
+			Check($"{type}: solo piezas del catálogo", allowed, "pieza ajena");
+			Check($"{type}: todas dentro de la sala", inside, "pieza fuera");
 			Check($"{type}: nada sobre las llegadas del jugador", arrivals, detail);
 			Check($"{type}: nada en el hueco de las puertas", doorsClear, detail);
 			Check($"{type}: nada pegado a la pared sur", southClear, "pieza al sur");
-			Check($"{type}: nada en el área central{(type == RoomType.Boss ? " de The Mother" : "")}", center, "pieza en el centro");
+			Check($"{type}: nada en el área central", center, "pieza en el centro");
+			Check($"{type}: ninguna pieza solapada con otra", !overlaps, "solape");
 			if (type == RoomType.Boss)
 			{
-				Check("jefe: la cuna y la mecedora solo invaden el pasillo lo previsto", giants, detail);
-				Check("jefe: cuna y mecedora en las esquinas norte", pieces.Count(p => p.Model == PropModels.GiantCrib && p.Position.Z < 0 && p.Position.X < 0) == 1
-					&& pieces.Count(p => p.Model == PropModels.Rocker && p.Position.Z < 0 && p.Position.X > 0) == 1, "mal colocadas");
+				Check("jefe: siempre hay una pieza gigante y ninguna invade el pasillo más de lo previsto (gigantes 0,5 m; el resto nada)", giantsPresent && lane, detail);
 			}
 			else
 			{
-				Check($"{type}: sin piezas gigantes", pieces.All(p => p.Model != PropModels.GiantCrib && p.Model != PropModels.Rocker), "gigante fuera del jefe");
+				Check($"{type}: sin piezas gigantes", noGiants, "gigante fuera del jefe");
 			}
 		}
 	}
@@ -280,11 +295,11 @@ public partial class RoomDecorLayoutTest : Node
 
 		cases.Add((RoomType.Start, new Vector2(16, 16), 3.0f));
 		cases.Add((RoomType.Treasure, new Vector2(12, 12), 3.0f));
-		// En la sala del jefe, RoomManager encuadra con la altura de The Mother (3,5 m) si es mayor que la pared.
-		cases.Add((RoomType.Boss, new Vector2(26, 26), 3.5f));
+		// En la sala del jefe, RoomManager encuadra con la altura de The Mother (FramingHeight, 4,5 m) si es mayor que la pared.
+		cases.Add((RoomType.Boss, new Vector2(26, 26), 4.5f));
 		foreach ((RoomType type, Vector2 size, float height) in cases)
 		{
-			for (int seed = 1; seed <= (type == RoomType.Normal ? 6 : 1); seed++)
+			for (int seed = 1; seed <= 12; seed++)
 			{
 				RoomController room = await NewRoom(type, size, all, true, seed);
 				roomCamera.Frame(size, height, 1.0f);
@@ -320,7 +335,7 @@ public partial class RoomDecorLayoutTest : Node
 		foreach ((RoomType type, Vector2 size) in new[] { (RoomType.Normal, new Vector2(28, 16)), (RoomType.Start, new Vector2(16, 16)), (RoomType.Treasure, new Vector2(12, 12)), (RoomType.Boss, new Vector2(26, 26)) })
 		{
 			int worst = 0, worstTriangles = 0;
-			for (int seed = 1; seed <= (type == RoomType.Normal ? 20 : 1); seed++)
+			for (int seed = 1; seed <= 20; seed++)
 			{
 				RoomController room = await NewRoom(type, size, all, true, seed);
 				List<MeshInstance3D> meshes = Descendants(room.GetNode(RoomDecorator.DecorName)).OfType<MeshInstance3D>().ToList();
