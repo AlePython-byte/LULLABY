@@ -279,6 +279,7 @@ public partial class RunManager : Node
 	/// </summary>
 	public void StartNewRun()
 	{
+		AudioManager.StopAll();
 		GetTree().Paused = false;
 		PrepareNewRun();
 		GetTree().CallDeferred(SceneTree.MethodName.ReloadCurrentScene);
@@ -287,6 +288,7 @@ public partial class RunManager : Node
 	/// <summary>Vuelve al menú principal (también desde la pausa y la derrota). La dificultad elegida se conserva.</summary>
 	public void ReturnToMenu()
 	{
+		AudioManager.StopAll();
 		GetTree().Paused = false;
 		GetTree().CallDeferred(SceneTree.MethodName.ChangeSceneToFile, GameSettings.MenuScene);
 	}
@@ -490,6 +492,7 @@ public partial class RunManager : Node
 
 	private void Restart(int seed, DifficultyTarget difficulty, int generatorVersion)
 	{
+		AudioManager.StopAll();
 		_pendingSeed = seed;
 		_pendingDifficulty = difficulty;
 		_pendingGeneratorVersion = generatorVersion;
