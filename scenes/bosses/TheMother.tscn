@@ -19,6 +19,7 @@ motion_mode = 1
 script = ExtResource("1_enemy")
 Speed = 1.5
 RecoilDistance = 0.0
+SoundSet = "jefe"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("MotherShape")
