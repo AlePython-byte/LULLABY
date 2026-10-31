@@ -45,6 +45,7 @@ public partial class PauseMenu : CanvasLayer
 		ResumeButton.Pressed += Resume;
 		RestartButton.Pressed += () => Run?.StartNewRun();
 		MenuButton.Pressed += () => Run?.ReturnToMenu();
+		AudioManager.HookButtons(_root);
 		_root.Hide();
 	}
 
