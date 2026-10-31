@@ -29,7 +29,7 @@ En el silencio sofocante de The Cradle, las sombras cobran vida entre juguetes r
 | **Fotografía rota** | Un recuerdo fragmentado que enciende una rabia punzante.   | +25% de daño                                |
 | **Chupete**         | El llanto se vuelve un flujo incesante y apresurado.       | +20% de cadencia                            |
 | **Oso de peluche**  | Un abrazo mullido que ensancha la resistencia del corazón. | +1 de vida máxima y +1 punto de vida actual |
-| **Manta vieja**     | Un tejido gastado que amortigua la frialdad de los golpes. | -20% de daño recibido                       |
+| **Manta vieja**     | Un tejido gastado que amortigua la frialdad de los golpes. | -50 % de daño recibido                      |
 
 ## 5. Mensajes de Estado
 
