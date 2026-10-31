@@ -31,6 +31,12 @@ public partial class ItemSystemTest : Node
 		}
 	}
 
+	// Corazones de la fila del HUD como texto: F = lleno, M = medio, E = vacío.
+	private static string Hearts(HealthHud hud)
+	{
+		return string.Concat(hud.Hearts.States.Select(state => state switch { HeartState.Full => 'F', HeartState.Half => 'M', _ => 'E' }));
+	}
+
 	private void Require(bool condition, string message)
 	{
 		_checks++;
@@ -140,7 +146,7 @@ public partial class ItemSystemTest : Node
 		Near(protection.DamageTakenMultiplier, 0.8f, "Resistencia");
 		Require(protection.TakeHit(1.0f), "Golpe con resistencia");
 		Near(health.CurrentHealth, 4.2f, "Daño reducido un 20 %");
-		Require(hud.GetNode<Label>("Label").Text == $"Vida: {4.2f:0.#}/6", "HUD muestra salud fraccionaria y máximo efectivo");
+		Require(Hearts(hud) == "FFFFEE", "HUD muestra salud fraccionaria y máximo efectivo en corazones (4,2 de 6: 4 llenos y 2 vacíos)");
 		Require(!protection.TakeHit(1.0f), "Se conserva la invulnerabilidad");
 
 		Input.ActionPress(PlayerShooter.ShootRight);
@@ -163,7 +169,7 @@ public partial class ItemSystemTest : Node
 		Near(protection.DamageTakenMultiplier, 1.0f, "Reinicio restaura resistencia");
 		Near(health.CurrentHealth, 5.0f, "Reinicio restaura salud");
 		Near(health.EffectiveMaxHealth, 5.0f, "Reinicio restaura máximo");
-		Require(hud.GetNode<Label>("Label").Text == "Vida: 5/5", "HUD actualizado al reiniciar");
+		Require(Hearts(hud) == "FFFFF", "HUD actualizado al reiniciar (5 corazones llenos)");
 		hud.Free();
 		player.Free();
 		other.Free();

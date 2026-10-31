@@ -279,7 +279,8 @@ public partial class MinimapTest : Node
 		GD.Print("\n--- Posición, transparencia y expansión ---");
 		SceneTree tree = GetTree();
 		GetWindow().Size = new Vector2I(1152, 648); // la ventana de juego (en headless puede nacer con otra altura)
-		BossTestHarness.Level level = BossTestHarness.Open(this, BossTestHarness.Seed);
+		// Con la vida real de Noah (5 corazones): con vida ilimitada la fila de corazones llegaría al tope de 24 y cruzaría el minimapa.
+		BossTestHarness.Level level = BossTestHarness.Open(this, BossTestHarness.Seed, unlimitedHealth: false);
 		await BossTestHarness.Frames(tree, 4);
 		Minimap minimap = level.Root.GetNode<Minimap>("Minimap");
 		MinimapView view = minimap.View;
