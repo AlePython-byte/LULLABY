@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/ui/PauseMenu.cs" id="1_pause"]
 [ext_resource type="PackedScene" path="res://scenes/ui/ControlsPanel.tscn" id="2_controls"]
+[ext_resource type="PackedScene" path="res://scenes/ui/VolumeControls.tscn" id="3_volume"]
 
 [node name="PauseMenu" type="CanvasLayer"]
 process_mode = 3
@@ -53,6 +54,10 @@ layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
 text = "Reanudar"
+
+[node name="VolumeControls" parent="Root/Center/Box" instance=ExtResource("3_volume")]
+layout_mode = 2
+size_flags_horizontal = 4
 
 [node name="ControlsButton" type="Button" parent="Root/Center/Box"]
 custom_minimum_size = Vector2(320, 56)
