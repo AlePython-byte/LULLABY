@@ -54,9 +54,9 @@ public partial class FidelityV3RepetitionCurve : FidelityV3Check
 			}
 			GameplayParametersV3 parameters = GameplayParametersV3.FromScenes();
 			DungeonGenerator generator = new(GD.Load<RoomCatalog>("res://resources/rooms/templates/Catalog.tres"));
-			var coverage = FidelityV3Protocol.Coverage(protocol, generator, parameters);
-			FidelityV3Protocol.WriteNew(Path.Combine(path, "coverage.json"), new { Samples = coverage, CombatsExecuted = 0 });
-			if (coverage.Any(s => s.Errors.Count > 0)) throw new InvalidOperationException("Cobertura alterada.");
+			var coverage = DevelopmentCoverage(generator, parameters);
+			FidelityV3Protocol.WriteNew(Path.Combine(path, "coverage.json"), new { Sample = coverage, CombatsExecuted = 0, ReserveUsed = false });
+			if (coverage.Errors.Count > 0) throw new InvalidOperationException("Cobertura de desarrollo alterada.");
 			BotSettings settings = new();
 			FidelityV3Protocol.WriteNew(Path.Combine(path, "manifest.json"), new
 			{
@@ -146,6 +146,26 @@ public partial class FidelityV3RepetitionCurve : FidelityV3Check
 			|| !plan.GetProperty("run_indices").EnumerateArray().Select(e => e.GetInt32()).SequenceEqual(Enumerable.Range(0, 10))
 			|| !plan.GetProperty("mean_prefixes").EnumerateArray().Select(e => e.GetInt32()).SequenceEqual(new[] { 3, 5, 10 }))
 			throw new InvalidDataException("Plan incompatible con la curva fija autorizada.");
+	}
+
+	private static FidelityV3Protocol.CoverageSample DevelopmentCoverage(DungeonGenerator generator, GameplayParametersV3 parameters)
+	{
+		FidelityV3Protocol.CoverageSample sample = new() { Name = "development", FirstSeed = 600001, Count = 30 };
+		HashSet<int> seen = new();
+		foreach (EnemyKinds.Info info in EnemyKinds.List) sample.LevelsByKind[info.Kind.ToString()] = 0;
+		for (int seed = 600001; seed <= 600030; seed++)
+		{
+			var generated = generator.Generate(seed, new DungeonGenerator.Settings { GeneratorVersion = 3 });
+			if (!generated.Success) { sample.Errors.Add($"No se genero {seed}."); continue; }
+			if (!seen.Add(generated.EffectiveSeed)) sample.Errors.Add("Semilla efectiva repetida.");
+			sample.EffectiveSeeds.Add(generated.EffectiveSeed);
+			SimLevelV3 level = SimLevelV3.From(generated.Map, parameters);
+			foreach (EnemyKind kind in level.Rooms.SelectMany(r => r.SpawnStats).Where(s => s != null).Select(s => s.Kind).Distinct())
+				sample.LevelsByKind[kind.ToString()]++;
+			sample.Signatures.Add(FidelityV3Protocol.HashBytes(JsonSerializer.SerializeToUtf8Bytes(FidelityV3Protocol.MapData(level), FidelityV3Protocol.JsonOptions)));
+		}
+		if (sample.LevelsByKind.Values.Any(count => count == 0)) sample.Errors.Add("Falta un tipo en desarrollo.");
+		return sample;
 	}
 
 	private static SortedDictionary<string, string> Fingerprints()
