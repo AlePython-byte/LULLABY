@@ -14,6 +14,7 @@ using Godot;
 ///   - dentro de la sala y a más de 1,8 m de la pared sur (la cámara no la ve);
 ///   - fuera de los puntos de llegada del jugador (centro de cada lado, a 2,5 m de la pared) y del hueco de las puertas (centro de
 ///     cada pared, a cualquier lado);
+///   - en el inicio, fuera del cartel de controles del piso (FloorControlsDecal.Reserved);
 ///   - fuera del área central: el centro de Noah en inicio (±3 m), la cuadrícula de objetos del tesoro (±2,7 m) y el recorrido de
 ///     The Mother en el jefe (su centro queda a 3 m de las paredes y su cuerpo llega a ~1,4 m más allá);
 ///   - sin solaparse con otra pieza (a MinGap).
@@ -170,6 +171,16 @@ public static class FreeDecorPlanner
 			if (center > 0.0f && f.Position.X < center && f.End.X > -center && f.Position.Z < center && f.End.Z > -center)
 			{
 				return false;
+			}
+
+			// En el inicio, el cartel de controles pintado en el piso (FloorControlsDecal) queda libre, haya textura o no.
+			if (type == RoomType.Start)
+			{
+				Rect2 reserved = FloorControlsDecal.Reserved;
+				if (f.Position.X < reserved.End.X && f.End.X > reserved.Position.X && f.Position.Z < reserved.End.Y && f.End.Z > reserved.Position.Y)
+				{
+					return false;
+				}
 			}
 
 			if (type == RoomType.Boss && BossLaneIntrusion(f, size) > (giant ? MaxBossLaneIntrusion : 0.001f))
