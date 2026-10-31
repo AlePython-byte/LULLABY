@@ -19,6 +19,12 @@ public partial class FuseBehavior : EnemyBehavior
 	[Export] public float BlinkInterval { get; set; } = 0.1f;
 	[Export] public PackedScene ExplosionEffect { get; set; }
 
+	public override void _Ready()
+	{
+		FuseLit += () => AudioManager.PlayAt(SoundCatalog.FuseLit, GetParent<Node3D>().GlobalPosition);
+		Exploded += _ => AudioManager.PlayAt(SoundCatalog.Explosion, GetParent<Node3D>().GlobalPosition);
+	}
+
 	private bool _lit;
 	private bool _exploded;
 	private float _timer;
@@ -73,6 +79,7 @@ public partial class FuseBehavior : EnemyBehavior
 		}
 
 		EmitSignal(SignalName.Exploded, hitPlayer);
+		enemy.MuteDeathSound = true; // ya suena la explosión
 		enemy.Kill();
 	}
 }
