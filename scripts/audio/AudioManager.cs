@@ -20,6 +20,11 @@ using Godot;
 /// Bucle del volador: un único reproductor 3D en la posición media de los voladores vivos (grupo "flyers"); se activa por código
 /// (se duplica el stream con Loop = true, la importación no lo hace) y se detiene al quedar ninguno.
 ///
+/// A prueba de fallos: el audio NUNCA puede alterar el juego. Toda la API estática que usa la lógica (Play, PlayAt, PlayFrom, PlayMusic,
+/// StopMusic, StopAll, HookButtons) captura cualquier excepción, la avisa una sola vez por mensaje y sigue; tras MaxFailures fallos el
+/// audio se desactiva solo (Enabled = false) y el resto del juego ni se entera. La lógica pide los sonidos DESPUÉS de aplicar el daño
+/// y de liberar lo que corresponda. Enabled también sirve para probar con el audio apagado.
+///
 /// Sin dispositivo (--headless o Silent): no reproduce nada pero lleva la misma contabilidad y registra cada petición en Requests,
 /// que es lo que miran las pruebas.
 /// </summary>
@@ -53,7 +58,19 @@ public partial class AudioManager : Node
 		public Node Player; // null en silencio
 	}
 
+	/// <summary>Fallos de audio que se toleran antes de desactivarlo del todo.</summary>
+	public const int MaxFailures = 5;
+
 	public static AudioManager Instance { get; private set; }
+
+	/// <summary>Interruptor general: apagado, todas las peticiones se ignoran (las pruebas lo usan; también se apaga solo tras MaxFailures fallos).</summary>
+	public bool Enabled { get; set; } = true;
+
+	/// <summary>Excepciones capturadas hasta ahora (nunca llegaron a la lógica del juego).</summary>
+	public int FailureCount { get; private set; }
+
+	/// <summary>Solo para pruebas: se invoca al empezar cada petición; si lanza, simula un fallo de audio.</summary>
+	public static System.Action<string> FaultInjection { get; set; }
 
 	/// <summary>No reproduce nada (se activa solo en --headless; las pruebas también pueden activarlo).</summary>
 	public bool Silent { get; set; }
@@ -173,25 +190,154 @@ public partial class AudioManager : Node
 
 	// --- peticiones ---------------------------------------------------------------------------------------------------
 
-	/// <summary>Sonido plano (Noah, interfaz). No hace nada si no hay AudioManager.</summary>
-	public static void Play(string id) => Instance?.Submit(id, false, Vector3.Zero, 1.0f);
+	/// <summary>Sonido plano (Noah, interfaz). No hace nada si no hay AudioManager; nunca lanza.</summary>
+	public static void Play(string id)
+	{
+		AudioManager audio = Instance;
+		if (audio == null || !audio.Enabled)
+		{
+			return;
+		}
 
-	/// <summary>Sonido posicional en el mundo (enemigos). pitch multiplica el tono (por ejemplo 0,8 = un 20 % más grave).</summary>
-	public static void PlayAt(string id, Vector3 position, float pitch = 1.0f) => Instance?.Submit(id, true, position, pitch);
+		try
+		{
+			audio.Submit(id, false, Vector3.Zero, 1.0f);
+		}
+		catch (System.Exception exception)
+		{
+			audio.Fail(exception);
+		}
+	}
 
-	/// <summary>Música (gancho): assets/audio/music/{name}.ogg en el bus Musica. Si no existe no hace nada.</summary>
-	public static void PlayMusic(string name) => Instance?.StartMusic(name);
+	/// <summary>Sonido posicional en el mundo (enemigos). pitch multiplica el tono (por ejemplo 0,8 = un 20 % más grave). Nunca lanza.</summary>
+	public static void PlayAt(string id, Vector3 position, float pitch = 1.0f)
+	{
+		AudioManager audio = Instance;
+		if (audio == null || !audio.Enabled)
+		{
+			return;
+		}
 
-	public static void StopMusic() => Instance?.EndMusic();
+		try
+		{
+			audio.Submit(id, true, position, pitch);
+		}
+		catch (System.Exception exception)
+		{
+			audio.Fail(exception);
+		}
+	}
 
-	/// <summary>Corta todas las voces (también noah_muere, que dura casi 7 s) y el bucle del volador. Se llama al reiniciar o volver al menú.</summary>
-	public static void StopAll() => Instance?.StopEverything();
+	/// <summary>
+	/// Sonido posicional en la posición del primer nodo 3D que contiene a source (él mismo o su antecesor más cercano). Sirve para los
+	/// comportamientos de enemigos, que a veces cuelgan de otro comportamiento (The Mother) y no directamente del enemigo. Nunca lanza.
+	/// </summary>
+	public static void PlayFrom(string id, Node source, float pitch = 1.0f)
+	{
+		AudioManager audio = Instance;
+		if (audio == null || !audio.Enabled)
+		{
+			return;
+		}
+
+		try
+		{
+			for (Node node = source; node != null; node = node.GetParent())
+			{
+				if (node is Node3D node3D)
+				{
+					if (node3D.IsInsideTree())
+					{
+						audio.Submit(id, true, node3D.GlobalPosition, pitch);
+					}
+
+					return;
+				}
+			}
+		}
+		catch (System.Exception exception)
+		{
+			audio.Fail(exception);
+		}
+	}
+
+	/// <summary>Música (gancho): assets/audio/music/{name}.ogg en el bus Musica. Si no existe no hace nada. Nunca lanza.</summary>
+	public static void PlayMusic(string name)
+	{
+		AudioManager audio = Instance;
+		if (audio == null || !audio.Enabled)
+		{
+			return;
+		}
+
+		try
+		{
+			audio.StartMusic(name);
+		}
+		catch (System.Exception exception)
+		{
+			audio.Fail(exception);
+		}
+	}
+
+	public static void StopMusic()
+	{
+		AudioManager audio = Instance;
+		try
+		{
+			audio?.EndMusic();
+		}
+		catch (System.Exception exception)
+		{
+			audio?.Fail(exception);
+		}
+	}
+
+	/// <summary>Corta todas las voces (también noah_muere, que dura casi 7 s) y el bucle del volador. Se llama al reiniciar o volver al menú. Nunca lanza.</summary>
+	public static void StopAll()
+	{
+		AudioManager audio = Instance;
+		try
+		{
+			audio?.StopEverything();
+		}
+		catch (System.Exception exception)
+		{
+			audio?.Fail(exception);
+		}
+	}
+
+	// Un fallo de audio se avisa una vez por mensaje; tras MaxFailures el audio se desactiva solo. Nunca se relanza.
+	private void Fail(System.Exception exception)
+	{
+		FailureCount++;
+		string message = $"{exception.GetType().Name}: {exception.Message}";
+		if (_warned.Add(message))
+		{
+			GD.PushWarning($"AudioManager: fallo de audio capturado (el juego sigue): {message}");
+		}
+
+		if (FailureCount >= MaxFailures && Enabled)
+		{
+			Enabled = false;
+			GD.PushWarning($"AudioManager: audio desactivado tras {FailureCount} fallos.");
+		}
+	}
+
+	/// <summary>Vuelve a activar el audio y pone a cero el contador de fallos (pruebas).</summary>
+	public void ResetFailures()
+	{
+		FailureCount = 0;
+		Enabled = true;
+		_warned.Clear();
+	}
 
 	/// <summary>Borra el registro de peticiones (para las pruebas).</summary>
 	public void ClearRequests() => _requests.Clear();
 
 	private void Submit(string id, bool positional, Vector3 position, float pitchMultiplier)
 	{
+		FaultInjection?.Invoke(id);
 		SoundCatalog.Sound requested = SoundCatalog.Get(id);
 		if (requested == null)
 		{
@@ -379,8 +525,20 @@ public partial class AudioManager : Node
 		}
 
 		_loopCheck = 0.1;
-		List<Node3D> flyers = GetTree().GetNodesInGroup(FlyerGroup).OfType<Node3D>().Where(f => IsInstanceValid(f) && f.IsInsideTree() && !f.IsQueuedForDeletion()).ToList();
-		UpdateFlyerLoop(flyers);
+		if (!Enabled)
+		{
+			return;
+		}
+
+		try
+		{
+			List<Node3D> flyers = GetTree().GetNodesInGroup(FlyerGroup).OfType<Node3D>().Where(f => IsInstanceValid(f) && f.IsInsideTree() && !f.IsQueuedForDeletion()).ToList();
+			UpdateFlyerLoop(flyers);
+		}
+		catch (System.Exception exception)
+		{
+			Fail(exception);
+		}
 	}
 
 	private void UpdateFlyerLoop(List<Node3D> flyers)
@@ -433,6 +591,7 @@ public partial class AudioManager : Node
 
 	private void StartMusic(string name)
 	{
+		FaultInjection?.Invoke("musica:" + name);
 		string path = SoundCatalog.MusicPath(name);
 		AudioStream stream = Load(path);
 		if (stream == null)
@@ -477,7 +636,7 @@ public partial class AudioManager : Node
 		{
 			if (child is BaseButton button)
 			{
-				button.Pressed += () => Play(SoundCatalog.UiClick);
+				button.Pressed += () => Play(SoundCatalog.UiClick); // Play nunca lanza
 			}
 
 			HookButtons(child);
