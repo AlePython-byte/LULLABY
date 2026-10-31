@@ -71,9 +71,9 @@ public partial class ItemPickup : Area3D
 		}
 		Visible = false;
 		SetDeferred(PropertyName.Monitoring, false);
-		AudioManager.Play(SoundCatalog.ItemPickedUp);
 		EmitSignal(SignalName.Collected, Definition);
 		QueueFree();
+		AudioManager.Play(SoundCatalog.ItemPickedUp);
 		return true;
 	}
 

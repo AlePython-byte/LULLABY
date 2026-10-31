@@ -89,13 +89,15 @@ public partial class PlayerHealth : Node
 			return;
 		}
 
-		AudioManager.Play(SoundCatalog.NoahDies);
+		// La derrota (o la recarga) va primero; el sonido de muerte después y sin poder impedirla.
 		if (Defeated != null)
 		{
 			Defeated.Invoke();
+			AudioManager.Play(SoundCatalog.NoahDies);
 			return;
 		}
 
 		GetTree().CallDeferred(SceneTree.MethodName.ReloadCurrentScene);
+		AudioManager.Play(SoundCatalog.NoahDies);
 	}
 }
