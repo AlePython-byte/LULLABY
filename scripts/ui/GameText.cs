@@ -62,6 +62,7 @@ public static class GameText
 		"Moverse: W, A, S, D",
 		"Disparar lágrimas: flechas direccionales",
 		"Pausa: Esc o P",
+		"Minimapa: mantener Tab",
 	};
 
 	/// <summary>Frase de derrota de una partida: determinista por semilla, sin tocar ningún generador de azar.</summary>
