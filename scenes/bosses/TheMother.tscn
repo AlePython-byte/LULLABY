@@ -52,12 +52,16 @@ RecoveryTime = 1.5
 ArenaMargin = 3.0
 
 [node name="EntranceText" type="Label3D" parent="."]
-position = Vector3(0, 3.5, 0)
+position = Vector3(0, 4.0, 0)
+modulate = Color(1, 0.93, 0.8, 1)
+outline_modulate = Color(0, 0, 0, 1)
 billboard = 1
-font_size = 40
-outline_size = 8
-pixel_size = 0.008
 no_depth_test = true
+pixel_size = 0.014
+outline_size = 18
+font_size = 56
+width = 1100.0
+autowrap_mode = 3
 
 [node name="Animation" type="Node" parent="."]
 script = ExtResource("5_animation")
