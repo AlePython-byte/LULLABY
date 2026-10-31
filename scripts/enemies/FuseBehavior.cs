@@ -21,8 +21,8 @@ public partial class FuseBehavior : EnemyBehavior
 
 	public override void _Ready()
 	{
-		FuseLit += () => AudioManager.PlayAt(SoundCatalog.FuseLit, GetParent<Node3D>().GlobalPosition);
-		Exploded += _ => AudioManager.PlayAt(SoundCatalog.Explosion, GetParent<Node3D>().GlobalPosition);
+		FuseLit += () => AudioManager.PlayFrom(SoundCatalog.FuseLit, this);
+		Exploded += _ => AudioManager.PlayFrom(SoundCatalog.Explosion, this);
 	}
 
 	private bool _lit;

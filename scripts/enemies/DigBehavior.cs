@@ -41,7 +41,7 @@ public partial class DigBehavior : EnemyBehavior
 
 	public override void _Ready()
 	{
-		Fired += _ => AudioManager.PlayAt(SoundCatalog.ShooterShot, GetParent<Node3D>().GlobalPosition);
+		Fired += _ => AudioManager.PlayFrom(SoundCatalog.ShooterShot, this);
 	}
 
 	[ExportGroup("Bajo tierra")]
