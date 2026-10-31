@@ -194,7 +194,7 @@ El juego arranca en el **menú principal** (`scenes/ui/MainMenu.tscn`, escena pr
 - **Variedad extendida (experimental):** casilla del menú (`GameSettings.ExtendedVariety`, apagada por defecto y solo durante la sesión) que juega la partida con el generador v3, con seis tipos de enemigo (añade al huidor y al excavador). Está etiquetada como experimental porque el modelo de dificultad no está entrenado para esos dos enemigos: el HUD de la semilla lo avisa y la dificultad mostrada es solo orientativa (ver `docs/IA.md`, 11.6.4). El argumento `--generator=` y la tecla G de depuración mandan sobre la casilla.
 - **Dificultad:** la elegida se guarda en `GameSettings.Difficulty` mientras el juego está abierto (no se escribe en disco) y es el objetivo del director de IA (Fácil = `Easy`, Normal = `Normal`, Difícil = `Hard`). La partida la muestra en el HUD de la esquina inferior derecha. Antes solo se podía cambiar con atajos de depuración, que no existen en Release. Para el director, el orden de prioridad es: tecla de depuración, argumento `--difficulty=`, menú, valor del inspector de `RunManager`. Con F6 directo no hay elección del menú y manda el inspector (Normal).
 - **Imágenes opcionales:** si existen `assets/ui/logo_lullaby.png` y `assets/ui/fondo_menu.png`, el menú las usa; si no, funciona igual con el título en texto y un fondo de color. Se comprueba con `ResourceLoader.Exists`, así que su ausencia no da error ni en el juego ni en la exportación.
-- **Controles** (`ControlsPanel`, también dentro de la pausa), solo las teclas reales: **W, A, S, D** mover, **flechas** disparar lágrimas y **Esc o P** pausa.
+- **Controles** (`ControlsPanel`, también dentro de la pausa), solo las teclas reales: **W, A, S, D** mover, **flechas** disparar lágrimas, **Esc o P** pausa y **mantener Tab** para ampliar el minimapa.
 - **Pausa** (Esc o P): congela el juego con `SceneTree.Paused`, de modo que el jefe, los enemigos, los proyectiles, los efectos y los temporizadores se detienen y continúan donde estaban al reanudar. Ofrece **Reanudar**, **Controles**, **Reiniciar partida** (semilla nueva y misma dificultad) y **Volver al menú**. No se abre durante un cambio de sala, la victoria o la derrota. Los retrasos de las salas y del final de partida usan temporizadores que se detienen con la pausa, y reiniciar o volver al menú despausan antes de cambiar de escena.
 - **Derrota:** al morir Noah la partida termina una sola vez (Noah queda quieto y se eliminan los proyectiles), y tras un breve fundido aparece una de las tres frases de derrota con los botones **Reintentar** (semilla nueva, misma dificultad, objetos y salud reiniciados) y **Menú**. Si Noah muere en la pelea contra The Mother, no hay victoria aunque el jefe muera después. Las frases de victoria y de derrota se eligen con la semilla de partida, sin consumir ningún azar.
 - **Textos:** están copiados de `docs/equipo/textos.md` a constantes (`GameText`, `MotherTexts`), porque `docs/` no viaja en la exportación y no se lee en ejecución. Los controles del documento (clic izquierdo, interactuar) no existen en el juego y no se muestran.
@@ -428,7 +428,19 @@ Es solo visual y **opcional**: `RoomManager.DecorEnabled` (apagado por defecto, 
 
 Pruebas: `godot --headless --fixed-fps 60 --path . res://tests/RoomDecorBaseTest.tscn` (estructura) `res://tests/RoomDecorLayoutTest.tscn` (planes, reglas de colocación, encuadre de cámara, presupuesto y pedestales) y `res://tests/RoomDecorVarietyTest.tscn` (determinismo, variedad entre semillas, solapes, puertas, relieve y aislamiento del azar y de la generación).
 
-## 8.3. Audio
+## 8.3. Minimapa
+
+Arriba a la derecha (`scripts/ui/minimap/`, escena `scenes/ui/Minimap.tscn`, instanciada en `TestLevel`). **Solo lee** el nivel: el `LevelMap` (celdas en rejilla y tipos de sala) y las salas que carga `RoomManager` (`RoomLoaded`), de donde saca las visitadas; no cambia la generación, los hashes v1/v2 ni la IA. Funciona igual con los generadores v1, v2 y v3 y en la sala del jefe.
+
+- **Estados de sala:** actual (resaltada), visitada, vecina (contigua a una visitada: visible pero atenuada) y oculta (no se dibuja). Los iconos de tesoro y jefe solo se ven en salas vecinas, visitadas o actual. Las conexiones se dibujan entre una sala visitada y cualquier sala visible.
+- **Pequeño:** panel de 192×192 px con opacidad ~60 %, iconos de 32 px (x1), centrado en la sala actual y recortado al panel; una línea fina entre salas.
+- **Expandido:** se mantiene **Tab** (acción `minimapa_expandir`, propia: no usa `ui_focus_next`). Panel centrado de entre 320 y 512 px que se ajusta a las salas descubiertas, opacidad ~92 %, iconos x2 con el icono de puerta de 32 px entre salas si caben (si no, x1). El juego **no se pausa**; al soltar vuelve a pequeño, y si se pausa vuelve a pequeño y no reacciona a la tecla.
+- **Pixel art:** iconos `assets/ui/minimapa_*.png` (32×32) a escala entera y con filtro `Nearest`. Si falta alguno se dibuja por código (`ResourceLoader.Exists`). `minimapa_sala_desconocida.png` no se usa (las salas ocultas no se dibujan).
+- **Capas:** su capa (2) queda sobre los HUD y bajo el fundido, la pausa y las pantallas de victoria y derrota. No crea nodos por sala: al reintentar o volver al menú nace o se libera con la escena, sin residuos.
+
+Prueba: `godot --headless --fixed-fps 60 --path . res://tests/MinimapTest.tscn`.
+
+## 8.4. Audio
 
 Todo el sonido pasa por `AudioManager` (`scripts/audio/`, autoload). Los ids, archivos y límites están en constantes de C# (`SoundCatalog`); el juego no lee `docs/` en ejecución. Los efectos de Luis están en `assets/audio/sfx/` (créditos en `assets/audio/CREDITS.md`).
 
