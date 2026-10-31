@@ -174,9 +174,9 @@ El MVP adapta las ideas anteriores a cinco efectos sencillos. Los valores se def
 | Fotografía rota | +25 % de daño de las lágrimas | Caja naranja |
 | Chupete | +20 % de cadencia | Esfera rosa |
 | Oso de peluche | +1 punto de vida máxima efectiva y actual | Cápsula marrón |
-| Manta vieja | −20 % de daño recibido | Prisma verde |
+| Manta vieja | −50 % de daño recibido (cada golpe de 1 quita medio corazón; la explosión del explosivo, de 2, quita 1); ningún golpe quita menos de 0,5 | Prisma verde |
 
-La recogida se realiza por contacto. La curación es instantánea; las cuatro mejoras permanecen hasta morir o empezar otra partida y no se acumulan por duplicado. Los modificadores pertenecen a cada instancia del jugador: los valores base de salud, disparo y colisiones siguen intactos. El Sonajero, los efectos de miedo, revelar enemigos ocultos y la protección temporal quedan fuera de esta implementación.
+Los efectos de resistencia se combinan multiplicándose (cada uno reduce lo que deja el anterior) y ningún golpe puede quitar menos de 0,5 de vida (`PlayerHealth.MinHitDamage`, medio corazón), por muchas mantas que se acumulen; un golpe menor que ese mínimo conserva su valor. Hoy solo hay una Manta y no se duplica. La recogida se realiza por contacto. La curación es instantánea; las cuatro mejoras permanecen hasta morir o empezar otra partida y no se acumulan por duplicado. Los modificadores pertenecen a cada instancia del jugador: los valores base de salud, disparo y colisiones siguen intactos. El Sonajero, los efectos de miedo, revelar enemigos ocultos y la protección temporal quedan fuera de esta implementación.
 
 Cada tesoro ofrece un objeto por defecto. La cantidad se configura en `ItemCatalog.ItemsPerTreasure`, a través de `resources/items/Catalog.tres`. Con cantidades mayores, todas las ofertas son recogibles independientes: todavía no existe «elegir uno de N». En cada tesoro se agota el catálogo antes de repetir un objeto. Volver a una habitación conserva tanto las ofertas pendientes como las ya recogidas, sin cambiar su selección ni permitir recogerlas otra vez.
 
