@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/ui/MainMenu.cs" id="1_menu"]
 [ext_resource type="PackedScene" path="res://scenes/ui/ControlsPanel.tscn" id="2_controls"]
+[ext_resource type="PackedScene" path="res://scenes/ui/VolumeControls.tscn" id="3_volume"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_toggle_off"]
 bg_color = Color(0.3, 0.26, 0.42, 1)
@@ -189,6 +190,17 @@ layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
 text = "Salir"
+
+[node name="VolumeControls" parent="." instance=ExtResource("3_volume")]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -420.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 80.0
+grow_horizontal = 0
 
 [node name="ControlsPanel" parent="." instance=ExtResource("2_controls")]
 layout_mode = 1
