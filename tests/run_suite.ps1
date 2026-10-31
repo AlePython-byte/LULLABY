@@ -64,6 +64,8 @@ $tests = @(
     @{ Name = 'ItemMessageVarietyTest' },
     @{ Name = 'AudioEventsTest' },
     @{ Name = 'MinimapTest' },
+    @{ Name = 'HeartsHudTest' },
+    @{ Name = 'FloorControlsTest' },
     # Resistencia: recorre muchas salas con el nivel real (combate, tesoro y objetos) y en cada una comprueba que una lagrima hace dano
     # y que un proyectil enemigo hace dano. Una vez con el audio real y otra con el audio apagado.
     @{ Name = 'RoomEnduranceTest'; Label = 'RoomEnduranceTest-audio-real'; Args = @('--', '--audio=real', '--generator=3', '--rooms=14', '--seeds=12345,777', '--fight=1', '--items=1') },
