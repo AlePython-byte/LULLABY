@@ -1,0 +1,4701 @@
+{
+  "diagnostic_only": true,
+  "input_sha256": "e4d8ba7229f3425665d447b93dcf07aa17546963c3690b339addc0391da6a897",
+  "protocol_sha256": "91d0239fad57636476455b66eb06d49a1326b731d6777b2a166fa36aafb1e220",
+  "levels": 30,
+  "repetitions": 3,
+  "noise": {
+    "sim": {
+      "run_pairs": [
+        {
+          "runs": [
+            0,
+            1
+          ],
+          "spearman": 0.6695467225044828,
+          "ci95": [
+            0.37290287408006384,
+            0.858120563270818
+          ]
+        },
+        {
+          "runs": [
+            0,
+            2
+          ],
+          "spearman": 0.551317571636335,
+          "ci95": [
+            0.21153842587498176,
+            0.7918143898525203
+          ]
+        },
+        {
+          "runs": [
+            1,
+            2
+          ],
+          "spearman": 0.582027889879423,
+          "ci95": [
+            0.26264493852395476,
+            0.796583475202826
+          ]
+        }
+      ],
+      "mean_pairwise_spearman": 0.6009640613400803,
+      "one_run_vs_other_two": [
+        {
+          "held_out_run": 0,
+          "spearman": 0.6459987499001846
+        },
+        {
+          "held_out_run": 1,
+          "spearman": 0.6764003118612114
+        },
+        {
+          "held_out_run": 2,
+          "spearman": 0.615653097256572
+        }
+      ],
+      "icc_approximation": {
+        "single": 0.530627578986266,
+        "mean_of_three": 0.7722880550725157,
+        "between_mean_square": 21.372030651341,
+        "within_mean_square": 4.866666666666666
+      },
+      "damage_runs": [
+        [
+          6,
+          7,
+          14
+        ],
+        [
+          10,
+          8,
+          6
+        ],
+        [
+          9,
+          7,
+          6
+        ],
+        [
+          13,
+          13,
+          10
+        ],
+        [
+          4,
+          3,
+          7
+        ],
+        [
+          11,
+          9,
+          7
+        ],
+        [
+          9,
+          9,
+          12
+        ],
+        [
+          2,
+          6,
+          5
+        ],
+        [
+          10,
+          12,
+          11
+        ],
+        [
+          12,
+          11,
+          17
+        ],
+        [
+          11,
+          9,
+          7
+        ],
+        [
+          3,
+          5,
+          3
+        ],
+        [
+          8,
+          8,
+          7
+        ],
+        [
+          13,
+          12,
+          13
+        ],
+        [
+          15,
+          8,
+          10
+        ],
+        [
+          10,
+          10,
+          12
+        ],
+        [
+          3,
+          7,
+          6
+        ],
+        [
+          9,
+          6,
+          10
+        ],
+        [
+          11,
+          10,
+          11
+        ],
+        [
+          7,
+          9,
+          8
+        ],
+        [
+          19,
+          8,
+          13
+        ],
+        [
+          15,
+          13,
+          13
+        ],
+        [
+          9,
+          8,
+          9
+        ],
+        [
+          9,
+          9,
+          9
+        ],
+        [
+          14,
+          10,
+          10
+        ],
+        [
+          6,
+          6,
+          6
+        ],
+        [
+          8,
+          9,
+          9
+        ],
+        [
+          10,
+          9,
+          16
+        ],
+        [
+          11,
+          7,
+          8
+        ],
+        [
+          9,
+          7,
+          11
+        ]
+      ]
+    },
+    "real": {
+      "run_pairs": [
+        {
+          "runs": [
+            0,
+            1
+          ],
+          "spearman": 0.26591691477529783,
+          "ci95": [
+            -0.10607641643008461,
+            0.586310461444108
+          ]
+        },
+        {
+          "runs": [
+            0,
+            2
+          ],
+          "spearman": 0.29242530100651687,
+          "ci95": [
+            -0.09466186304522142,
+            0.6372014887217521
+          ]
+        },
+        {
+          "runs": [
+            1,
+            2
+          ],
+          "spearman": 0.7661061942491507,
+          "ci95": [
+            0.5627264942147052,
+            0.8736196071343254
+          ]
+        }
+      ],
+      "mean_pairwise_spearman": 0.44148280334365514,
+      "one_run_vs_other_two": [
+        {
+          "held_out_run": 0,
+          "spearman": 0.30002600829569526
+        },
+        {
+          "held_out_run": 1,
+          "spearman": 0.6450245570940635
+        },
+        {
+          "held_out_run": 2,
+          "spearman": 0.6629620539440471
+        }
+      ],
+      "icc_approximation": {
+        "single": 0.36765195551454144,
+        "mean_of_three": 0.6355980987154816,
+        "between_mean_square": 23.295402298850572,
+        "within_mean_square": 8.488888888888889
+      },
+      "damage_runs": [
+        [
+          10,
+          7,
+          7
+        ],
+        [
+          11,
+          10,
+          12
+        ],
+        [
+          11,
+          12,
+          9
+        ],
+        [
+          11,
+          11,
+          10
+        ],
+        [
+          3,
+          3,
+          4
+        ],
+        [
+          11,
+          10,
+          8
+        ],
+        [
+          9,
+          11,
+          10
+        ],
+        [
+          4,
+          8,
+          3
+        ],
+        [
+          12,
+          11,
+          12
+        ],
+        [
+          8,
+          18,
+          8
+        ],
+        [
+          18,
+          9,
+          7
+        ],
+        [
+          6,
+          3,
+          5
+        ],
+        [
+          11,
+          6,
+          8
+        ],
+        [
+          8,
+          10,
+          14
+        ],
+        [
+          9,
+          7,
+          7
+        ],
+        [
+          9,
+          8,
+          10
+        ],
+        [
+          12,
+          5,
+          3
+        ],
+        [
+          9,
+          14,
+          15
+        ],
+        [
+          6,
+          10,
+          8
+        ],
+        [
+          9,
+          4,
+          5
+        ],
+        [
+          14,
+          18,
+          9
+        ],
+        [
+          11,
+          5,
+          6
+        ],
+        [
+          5,
+          7,
+          7
+        ],
+        [
+          7,
+          9,
+          7
+        ],
+        [
+          11,
+          13,
+          12
+        ],
+        [
+          7,
+          6,
+          6
+        ],
+        [
+          11,
+          12,
+          19
+        ],
+        [
+          11,
+          9,
+          18
+        ],
+        [
+          14,
+          6,
+          4
+        ],
+        [
+          6,
+          8,
+          6
+        ]
+      ]
+    },
+    "independent_noise_pearson_proxy": 0.7006174558664436,
+    "proxy_limitations": "Modelo aditivo, errores independientes, misma dificultad latente; proxy de Pearson, no techo estricto de Spearman. Solo tres repeticiones por nivel."
+  },
+  "residuals": {
+    "top_five": [
+      {
+        "requested_seed": 600022,
+        "effective_seed": 607941,
+        "damage_runs_sim": [
+          15,
+          13,
+          13
+        ],
+        "damage_runs_real": [
+          11,
+          5,
+          6
+        ],
+        "mean_sim": 13.666666666666666,
+        "mean_real": 7.333333333333333,
+        "delta": 6.333333333333333,
+        "composition": {
+          "room_count": 11,
+          "combat_room_count": 9,
+          "total_enemies": 38,
+          "enemy_counts": {
+            "Chaser": 15,
+            "Digger": 4,
+            "Exploder": 4,
+            "Flyer": 4,
+            "Runner": 3,
+            "Shooter": 8
+          },
+          "combat_room_sizes": {
+            "16x26": 1,
+            "18x18": 1,
+            "20x20": 3,
+            "26x22": 2,
+            "26x26": 1,
+            "28x16": 1
+          },
+          "combat_area_mean": 467.55555555555554,
+          "combat_area_min": 324,
+          "combat_area_max": 676,
+          "flyer_room_count": 2,
+          "digger_room_count": 3
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              1,
+              2
+            ],
+            "template_id": "mixta_tiradores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Shooter": 2,
+              "Chaser": 2
+            },
+            "mean_sim": 3.6666666666666665,
+            "mean_real": 1.3333333333333333,
+            "delta": 2.333333333333333
+          },
+          {
+            "cell": [
+              4,
+              0
+            ],
+            "template_id": "jefe",
+            "size": [
+              26,
+              26
+            ],
+            "kinds": {
+              "Chaser": 6
+            },
+            "mean_sim": 5.333333333333333,
+            "mean_real": 3.6666666666666665,
+            "delta": 1.6666666666666665
+          },
+          {
+            "cell": [
+              3,
+              0
+            ],
+            "template_id": "normal_cuadrada",
+            "size": [
+              18,
+              18
+            ],
+            "kinds": {
+              "Chaser": 3
+            },
+            "mean_sim": 2.3333333333333335,
+            "mean_real": 1,
+            "delta": 1.3333333333333335
+          },
+          {
+            "cell": [
+              0,
+              1
+            ],
+            "template_id": "mixta_voladores",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Flyer": 3,
+              "Chaser": 1,
+              "Shooter": 1
+            },
+            "mean_sim": 0.6666666666666666,
+            "mean_real": 0,
+            "delta": 0.6666666666666666
+          },
+          {
+            "cell": [
+              -1,
+              2
+            ],
+            "template_id": "mixta_caos",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Runner": 1,
+              "Digger": 1,
+              "Exploder": 1,
+              "Shooter": 1,
+              "Flyer": 1
+            },
+            "mean_sim": 0,
+            "mean_real": 0.3333333333333333,
+            "delta": -0.3333333333333333
+          },
+          {
+            "cell": [
+              1,
+              0
+            ],
+            "template_id": "mixta_huidores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Runner": 2,
+              "Exploder": 1,
+              "Chaser": 1
+            },
+            "mean_sim": 0.3333333333333333,
+            "mean_real": 0,
+            "delta": 0.3333333333333333
+          },
+          {
+            "cell": [
+              2,
+              0
+            ],
+            "template_id": "mixta_tiradores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Shooter": 2,
+              "Chaser": 2
+            },
+            "mean_sim": 1.3333333333333333,
+            "mean_real": 1,
+            "delta": 0.33333333333333326
+          }
+        ]
+      },
+      {
+        "requested_seed": 600027,
+        "effective_seed": 600027,
+        "damage_runs_sim": [
+          8,
+          9,
+          9
+        ],
+        "damage_runs_real": [
+          11,
+          12,
+          19
+        ],
+        "mean_sim": 8.666666666666666,
+        "mean_real": 14,
+        "delta": -5.333333333333333,
+        "composition": {
+          "room_count": 11,
+          "combat_room_count": 9,
+          "total_enemies": 39,
+          "enemy_counts": {
+            "Chaser": 15,
+            "Digger": 2,
+            "Exploder": 6,
+            "Flyer": 5,
+            "Runner": 6,
+            "Shooter": 5
+          },
+          "combat_room_sizes": {
+            "16x26": 2,
+            "20x20": 3,
+            "26x22": 3,
+            "26x26": 1
+          },
+          "combat_area_mean": 491.55555555555554,
+          "combat_area_min": 400,
+          "combat_area_max": 676,
+          "flyer_room_count": 3,
+          "digger_room_count": 2
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              0,
+              -2
+            ],
+            "template_id": "mixta_tiradores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Shooter": 2,
+              "Chaser": 2
+            },
+            "mean_sim": 0.3333333333333333,
+            "mean_real": 3.6666666666666665,
+            "delta": -3.333333333333333
+          },
+          {
+            "cell": [
+              4,
+              -2
+            ],
+            "template_id": "mixta_emboscada",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Runner": 1,
+              "Exploder": 2,
+              "Flyer": 1,
+              "Chaser": 1
+            },
+            "mean_sim": 1,
+            "mean_real": 2,
+            "delta": -1
+          },
+          {
+            "cell": [
+              3,
+              -2
+            ],
+            "template_id": "mixta_voladores",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Flyer": 3,
+              "Chaser": 1,
+              "Shooter": 1
+            },
+            "mean_sim": 0.6666666666666666,
+            "mean_real": 1,
+            "delta": -0.33333333333333337
+          },
+          {
+            "cell": [
+              1,
+              -2
+            ],
+            "template_id": "normal_alta",
+            "size": [
+              16,
+              26
+            ],
+            "kinds": {
+              "Chaser": 3
+            },
+            "mean_sim": 1,
+            "mean_real": 1.3333333333333333,
+            "delta": -0.33333333333333326
+          },
+          {
+            "cell": [
+              3,
+              -3
+            ],
+            "template_id": "jefe",
+            "size": [
+              26,
+              26
+            ],
+            "kinds": {
+              "Chaser": 6
+            },
+            "mean_sim": 5.666666666666667,
+            "mean_real": 6,
+            "delta": -0.33333333333333304
+          }
+        ]
+      },
+      {
+        "requested_seed": 600018,
+        "effective_seed": 607937,
+        "damage_runs_sim": [
+          9,
+          6,
+          10
+        ],
+        "damage_runs_real": [
+          9,
+          14,
+          15
+        ],
+        "mean_sim": 8.333333333333334,
+        "mean_real": 12.666666666666666,
+        "delta": -4.333333333333333,
+        "composition": {
+          "room_count": 12,
+          "combat_room_count": 10,
+          "total_enemies": 37,
+          "enemy_counts": {
+            "Chaser": 10,
+            "Digger": 7,
+            "Exploder": 8,
+            "Flyer": 2,
+            "Runner": 3,
+            "Shooter": 7
+          },
+          "combat_room_sizes": {
+            "16x16": 1,
+            "16x26": 4,
+            "20x20": 1,
+            "26x22": 1,
+            "26x26": 1,
+            "28x16": 2
+          },
+          "combat_area_mean": 446.4,
+          "combat_area_min": 256,
+          "combat_area_max": 676,
+          "flyer_room_count": 2,
+          "digger_room_count": 6
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              -2,
+              1
+            ],
+            "template_id": "mixta_variada",
+            "size": [
+              28,
+              16
+            ],
+            "kinds": {
+              "Exploder": 1,
+              "Shooter": 1,
+              "Flyer": 1,
+              "Chaser": 1
+            },
+            "mean_sim": 1.3333333333333333,
+            "mean_real": 5,
+            "delta": -3.666666666666667
+          },
+          {
+            "cell": [
+              0,
+              1
+            ],
+            "template_id": "normal_pequena",
+            "size": [
+              16,
+              16
+            ],
+            "kinds": {
+              "Chaser": 2
+            },
+            "mean_sim": 0,
+            "mean_real": 0.3333333333333333,
+            "delta": -0.3333333333333333
+          },
+          {
+            "cell": [
+              2,
+              -2
+            ],
+            "template_id": "jefe",
+            "size": [
+              26,
+              26
+            ],
+            "kinds": {
+              "Chaser": 6
+            },
+            "mean_sim": 6,
+            "mean_real": 6.333333333333333,
+            "delta": -0.33333333333333304
+          }
+        ]
+      },
+      {
+        "requested_seed": 600003,
+        "effective_seed": 600003,
+        "damage_runs_sim": [
+          9,
+          7,
+          6
+        ],
+        "damage_runs_real": [
+          11,
+          12,
+          9
+        ],
+        "mean_sim": 7.333333333333333,
+        "mean_real": 10.666666666666666,
+        "delta": -3.3333333333333335,
+        "composition": {
+          "room_count": 12,
+          "combat_room_count": 10,
+          "total_enemies": 33,
+          "enemy_counts": {
+            "Chaser": 18,
+            "Digger": 1,
+            "Exploder": 7,
+            "Flyer": 2,
+            "Runner": 1,
+            "Shooter": 4
+          },
+          "combat_room_sizes": {
+            "16x16": 2,
+            "16x26": 1,
+            "18x18": 4,
+            "20x20": 1,
+            "26x26": 1,
+            "28x16": 1
+          },
+          "combat_area_mean": 374.8,
+          "combat_area_min": 256,
+          "combat_area_max": 676,
+          "flyer_room_count": 2,
+          "digger_room_count": 1
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              0,
+              3
+            ],
+            "template_id": "mixta_tiradores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Shooter": 2,
+              "Chaser": 2
+            },
+            "mean_sim": 0.3333333333333333,
+            "mean_real": 3,
+            "delta": -2.6666666666666665
+          },
+          {
+            "cell": [
+              0,
+              2
+            ],
+            "template_id": "mixta_variada",
+            "size": [
+              28,
+              16
+            ],
+            "kinds": {
+              "Exploder": 1,
+              "Shooter": 1,
+              "Flyer": 1,
+              "Chaser": 1
+            },
+            "mean_sim": 1,
+            "mean_real": 2,
+            "delta": -1
+          },
+          {
+            "cell": [
+              2,
+              3
+            ],
+            "template_id": "jefe",
+            "size": [
+              26,
+              26
+            ],
+            "kinds": {
+              "Chaser": 6
+            },
+            "mean_sim": 5.333333333333333,
+            "mean_real": 4.666666666666667,
+            "delta": 0.6666666666666661
+          },
+          {
+            "cell": [
+              0,
+              4
+            ],
+            "template_id": "normal_cuadrada",
+            "size": [
+              18,
+              18
+            ],
+            "kinds": {
+              "Chaser": 3
+            },
+            "mean_sim": 0,
+            "mean_real": 0.3333333333333333,
+            "delta": -0.3333333333333333
+          }
+        ]
+      },
+      {
+        "requested_seed": 600015,
+        "effective_seed": 600015,
+        "damage_runs_sim": [
+          15,
+          8,
+          10
+        ],
+        "damage_runs_real": [
+          9,
+          7,
+          7
+        ],
+        "mean_sim": 11,
+        "mean_real": 7.666666666666667,
+        "delta": 3.3333333333333335,
+        "composition": {
+          "room_count": 11,
+          "combat_room_count": 9,
+          "total_enemies": 34,
+          "enemy_counts": {
+            "Chaser": 16,
+            "Digger": 1,
+            "Exploder": 6,
+            "Flyer": 4,
+            "Runner": 3,
+            "Shooter": 4
+          },
+          "combat_room_sizes": {
+            "18x18": 5,
+            "20x20": 1,
+            "26x22": 1,
+            "26x26": 1,
+            "28x16": 1
+          },
+          "combat_area_mean": 412.8888888888889,
+          "combat_area_min": 324,
+          "combat_area_max": 676,
+          "flyer_room_count": 4,
+          "digger_room_count": 1
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              -1,
+              -2
+            ],
+            "template_id": "normal_cuadrada",
+            "size": [
+              18,
+              18
+            ],
+            "kinds": {
+              "Chaser": 3
+            },
+            "mean_sim": 2.3333333333333335,
+            "mean_real": 1,
+            "delta": 1.3333333333333335
+          },
+          {
+            "cell": [
+              -5,
+              -2
+            ],
+            "template_id": "jefe",
+            "size": [
+              26,
+              26
+            ],
+            "kinds": {
+              "Chaser": 6
+            },
+            "mean_sim": 7,
+            "mean_real": 5.666666666666667,
+            "delta": 1.333333333333333
+          },
+          {
+            "cell": [
+              -4,
+              0
+            ],
+            "template_id": "normal_cuadrada",
+            "size": [
+              18,
+              18
+            ],
+            "kinds": {
+              "Chaser": 3
+            },
+            "mean_sim": 0.3333333333333333,
+            "mean_real": 0,
+            "delta": 0.3333333333333333
+          },
+          {
+            "cell": [
+              -1,
+              0
+            ],
+            "template_id": "mixta_tiradores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Shooter": 2,
+              "Chaser": 2
+            },
+            "mean_sim": 1.3333333333333333,
+            "mean_real": 1,
+            "delta": 0.33333333333333326
+          }
+        ]
+      }
+    ],
+    "all_levels": [
+      {
+        "requested_seed": 600022,
+        "effective_seed": 607941,
+        "damage_runs_sim": [
+          15,
+          13,
+          13
+        ],
+        "damage_runs_real": [
+          11,
+          5,
+          6
+        ],
+        "mean_sim": 13.666666666666666,
+        "mean_real": 7.333333333333333,
+        "delta": 6.333333333333333,
+        "composition": {
+          "room_count": 11,
+          "combat_room_count": 9,
+          "total_enemies": 38,
+          "enemy_counts": {
+            "Chaser": 15,
+            "Digger": 4,
+            "Exploder": 4,
+            "Flyer": 4,
+            "Runner": 3,
+            "Shooter": 8
+          },
+          "combat_room_sizes": {
+            "16x26": 1,
+            "18x18": 1,
+            "20x20": 3,
+            "26x22": 2,
+            "26x26": 1,
+            "28x16": 1
+          },
+          "combat_area_mean": 467.55555555555554,
+          "combat_area_min": 324,
+          "combat_area_max": 676,
+          "flyer_room_count": 2,
+          "digger_room_count": 3
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              1,
+              2
+            ],
+            "template_id": "mixta_tiradores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Shooter": 2,
+              "Chaser": 2
+            },
+            "mean_sim": 3.6666666666666665,
+            "mean_real": 1.3333333333333333,
+            "delta": 2.333333333333333
+          },
+          {
+            "cell": [
+              4,
+              0
+            ],
+            "template_id": "jefe",
+            "size": [
+              26,
+              26
+            ],
+            "kinds": {
+              "Chaser": 6
+            },
+            "mean_sim": 5.333333333333333,
+            "mean_real": 3.6666666666666665,
+            "delta": 1.6666666666666665
+          },
+          {
+            "cell": [
+              3,
+              0
+            ],
+            "template_id": "normal_cuadrada",
+            "size": [
+              18,
+              18
+            ],
+            "kinds": {
+              "Chaser": 3
+            },
+            "mean_sim": 2.3333333333333335,
+            "mean_real": 1,
+            "delta": 1.3333333333333335
+          },
+          {
+            "cell": [
+              0,
+              1
+            ],
+            "template_id": "mixta_voladores",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Flyer": 3,
+              "Chaser": 1,
+              "Shooter": 1
+            },
+            "mean_sim": 0.6666666666666666,
+            "mean_real": 0,
+            "delta": 0.6666666666666666
+          },
+          {
+            "cell": [
+              -1,
+              2
+            ],
+            "template_id": "mixta_caos",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Runner": 1,
+              "Digger": 1,
+              "Exploder": 1,
+              "Shooter": 1,
+              "Flyer": 1
+            },
+            "mean_sim": 0,
+            "mean_real": 0.3333333333333333,
+            "delta": -0.3333333333333333
+          },
+          {
+            "cell": [
+              1,
+              0
+            ],
+            "template_id": "mixta_huidores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Runner": 2,
+              "Exploder": 1,
+              "Chaser": 1
+            },
+            "mean_sim": 0.3333333333333333,
+            "mean_real": 0,
+            "delta": 0.3333333333333333
+          },
+          {
+            "cell": [
+              2,
+              0
+            ],
+            "template_id": "mixta_tiradores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Shooter": 2,
+              "Chaser": 2
+            },
+            "mean_sim": 1.3333333333333333,
+            "mean_real": 1,
+            "delta": 0.33333333333333326
+          }
+        ]
+      },
+      {
+        "requested_seed": 600027,
+        "effective_seed": 600027,
+        "damage_runs_sim": [
+          8,
+          9,
+          9
+        ],
+        "damage_runs_real": [
+          11,
+          12,
+          19
+        ],
+        "mean_sim": 8.666666666666666,
+        "mean_real": 14,
+        "delta": -5.333333333333333,
+        "composition": {
+          "room_count": 11,
+          "combat_room_count": 9,
+          "total_enemies": 39,
+          "enemy_counts": {
+            "Chaser": 15,
+            "Digger": 2,
+            "Exploder": 6,
+            "Flyer": 5,
+            "Runner": 6,
+            "Shooter": 5
+          },
+          "combat_room_sizes": {
+            "16x26": 2,
+            "20x20": 3,
+            "26x22": 3,
+            "26x26": 1
+          },
+          "combat_area_mean": 491.55555555555554,
+          "combat_area_min": 400,
+          "combat_area_max": 676,
+          "flyer_room_count": 3,
+          "digger_room_count": 2
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              0,
+              -2
+            ],
+            "template_id": "mixta_tiradores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Shooter": 2,
+              "Chaser": 2
+            },
+            "mean_sim": 0.3333333333333333,
+            "mean_real": 3.6666666666666665,
+            "delta": -3.333333333333333
+          },
+          {
+            "cell": [
+              4,
+              -2
+            ],
+            "template_id": "mixta_emboscada",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Runner": 1,
+              "Exploder": 2,
+              "Flyer": 1,
+              "Chaser": 1
+            },
+            "mean_sim": 1,
+            "mean_real": 2,
+            "delta": -1
+          },
+          {
+            "cell": [
+              3,
+              -2
+            ],
+            "template_id": "mixta_voladores",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Flyer": 3,
+              "Chaser": 1,
+              "Shooter": 1
+            },
+            "mean_sim": 0.6666666666666666,
+            "mean_real": 1,
+            "delta": -0.33333333333333337
+          },
+          {
+            "cell": [
+              1,
+              -2
+            ],
+            "template_id": "normal_alta",
+            "size": [
+              16,
+              26
+            ],
+            "kinds": {
+              "Chaser": 3
+            },
+            "mean_sim": 1,
+            "mean_real": 1.3333333333333333,
+            "delta": -0.33333333333333326
+          },
+          {
+            "cell": [
+              3,
+              -3
+            ],
+            "template_id": "jefe",
+            "size": [
+              26,
+              26
+            ],
+            "kinds": {
+              "Chaser": 6
+            },
+            "mean_sim": 5.666666666666667,
+            "mean_real": 6,
+            "delta": -0.33333333333333304
+          }
+        ]
+      },
+      {
+        "requested_seed": 600018,
+        "effective_seed": 607937,
+        "damage_runs_sim": [
+          9,
+          6,
+          10
+        ],
+        "damage_runs_real": [
+          9,
+          14,
+          15
+        ],
+        "mean_sim": 8.333333333333334,
+        "mean_real": 12.666666666666666,
+        "delta": -4.333333333333333,
+        "composition": {
+          "room_count": 12,
+          "combat_room_count": 10,
+          "total_enemies": 37,
+          "enemy_counts": {
+            "Chaser": 10,
+            "Digger": 7,
+            "Exploder": 8,
+            "Flyer": 2,
+            "Runner": 3,
+            "Shooter": 7
+          },
+          "combat_room_sizes": {
+            "16x16": 1,
+            "16x26": 4,
+            "20x20": 1,
+            "26x22": 1,
+            "26x26": 1,
+            "28x16": 2
+          },
+          "combat_area_mean": 446.4,
+          "combat_area_min": 256,
+          "combat_area_max": 676,
+          "flyer_room_count": 2,
+          "digger_room_count": 6
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              -2,
+              1
+            ],
+            "template_id": "mixta_variada",
+            "size": [
+              28,
+              16
+            ],
+            "kinds": {
+              "Exploder": 1,
+              "Shooter": 1,
+              "Flyer": 1,
+              "Chaser": 1
+            },
+            "mean_sim": 1.3333333333333333,
+            "mean_real": 5,
+            "delta": -3.666666666666667
+          },
+          {
+            "cell": [
+              0,
+              1
+            ],
+            "template_id": "normal_pequena",
+            "size": [
+              16,
+              16
+            ],
+            "kinds": {
+              "Chaser": 2
+            },
+            "mean_sim": 0,
+            "mean_real": 0.3333333333333333,
+            "delta": -0.3333333333333333
+          },
+          {
+            "cell": [
+              2,
+              -2
+            ],
+            "template_id": "jefe",
+            "size": [
+              26,
+              26
+            ],
+            "kinds": {
+              "Chaser": 6
+            },
+            "mean_sim": 6,
+            "mean_real": 6.333333333333333,
+            "delta": -0.33333333333333304
+          }
+        ]
+      },
+      {
+        "requested_seed": 600003,
+        "effective_seed": 600003,
+        "damage_runs_sim": [
+          9,
+          7,
+          6
+        ],
+        "damage_runs_real": [
+          11,
+          12,
+          9
+        ],
+        "mean_sim": 7.333333333333333,
+        "mean_real": 10.666666666666666,
+        "delta": -3.3333333333333335,
+        "composition": {
+          "room_count": 12,
+          "combat_room_count": 10,
+          "total_enemies": 33,
+          "enemy_counts": {
+            "Chaser": 18,
+            "Digger": 1,
+            "Exploder": 7,
+            "Flyer": 2,
+            "Runner": 1,
+            "Shooter": 4
+          },
+          "combat_room_sizes": {
+            "16x16": 2,
+            "16x26": 1,
+            "18x18": 4,
+            "20x20": 1,
+            "26x26": 1,
+            "28x16": 1
+          },
+          "combat_area_mean": 374.8,
+          "combat_area_min": 256,
+          "combat_area_max": 676,
+          "flyer_room_count": 2,
+          "digger_room_count": 1
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              0,
+              3
+            ],
+            "template_id": "mixta_tiradores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Shooter": 2,
+              "Chaser": 2
+            },
+            "mean_sim": 0.3333333333333333,
+            "mean_real": 3,
+            "delta": -2.6666666666666665
+          },
+          {
+            "cell": [
+              0,
+              2
+            ],
+            "template_id": "mixta_variada",
+            "size": [
+              28,
+              16
+            ],
+            "kinds": {
+              "Exploder": 1,
+              "Shooter": 1,
+              "Flyer": 1,
+              "Chaser": 1
+            },
+            "mean_sim": 1,
+            "mean_real": 2,
+            "delta": -1
+          },
+          {
+            "cell": [
+              2,
+              3
+            ],
+            "template_id": "jefe",
+            "size": [
+              26,
+              26
+            ],
+            "kinds": {
+              "Chaser": 6
+            },
+            "mean_sim": 5.333333333333333,
+            "mean_real": 4.666666666666667,
+            "delta": 0.6666666666666661
+          },
+          {
+            "cell": [
+              0,
+              4
+            ],
+            "template_id": "normal_cuadrada",
+            "size": [
+              18,
+              18
+            ],
+            "kinds": {
+              "Chaser": 3
+            },
+            "mean_sim": 0,
+            "mean_real": 0.3333333333333333,
+            "delta": -0.3333333333333333
+          }
+        ]
+      },
+      {
+        "requested_seed": 600015,
+        "effective_seed": 600015,
+        "damage_runs_sim": [
+          15,
+          8,
+          10
+        ],
+        "damage_runs_real": [
+          9,
+          7,
+          7
+        ],
+        "mean_sim": 11,
+        "mean_real": 7.666666666666667,
+        "delta": 3.3333333333333335,
+        "composition": {
+          "room_count": 11,
+          "combat_room_count": 9,
+          "total_enemies": 34,
+          "enemy_counts": {
+            "Chaser": 16,
+            "Digger": 1,
+            "Exploder": 6,
+            "Flyer": 4,
+            "Runner": 3,
+            "Shooter": 4
+          },
+          "combat_room_sizes": {
+            "18x18": 5,
+            "20x20": 1,
+            "26x22": 1,
+            "26x26": 1,
+            "28x16": 1
+          },
+          "combat_area_mean": 412.8888888888889,
+          "combat_area_min": 324,
+          "combat_area_max": 676,
+          "flyer_room_count": 4,
+          "digger_room_count": 1
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              -1,
+              -2
+            ],
+            "template_id": "normal_cuadrada",
+            "size": [
+              18,
+              18
+            ],
+            "kinds": {
+              "Chaser": 3
+            },
+            "mean_sim": 2.3333333333333335,
+            "mean_real": 1,
+            "delta": 1.3333333333333335
+          },
+          {
+            "cell": [
+              -5,
+              -2
+            ],
+            "template_id": "jefe",
+            "size": [
+              26,
+              26
+            ],
+            "kinds": {
+              "Chaser": 6
+            },
+            "mean_sim": 7,
+            "mean_real": 5.666666666666667,
+            "delta": 1.333333333333333
+          },
+          {
+            "cell": [
+              -4,
+              0
+            ],
+            "template_id": "normal_cuadrada",
+            "size": [
+              18,
+              18
+            ],
+            "kinds": {
+              "Chaser": 3
+            },
+            "mean_sim": 0.3333333333333333,
+            "mean_real": 0,
+            "delta": 0.3333333333333333
+          },
+          {
+            "cell": [
+              -1,
+              0
+            ],
+            "template_id": "mixta_tiradores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Shooter": 2,
+              "Chaser": 2
+            },
+            "mean_sim": 1.3333333333333333,
+            "mean_real": 1,
+            "delta": 0.33333333333333326
+          }
+        ]
+      },
+      {
+        "requested_seed": 600002,
+        "effective_seed": 607921,
+        "damage_runs_sim": [
+          10,
+          8,
+          6
+        ],
+        "damage_runs_real": [
+          11,
+          10,
+          12
+        ],
+        "mean_sim": 8,
+        "mean_real": 11,
+        "delta": -3.0,
+        "composition": {
+          "room_count": 11,
+          "combat_room_count": 9,
+          "total_enemies": 40,
+          "enemy_counts": {
+            "Chaser": 17,
+            "Exploder": 3,
+            "Flyer": 12,
+            "Runner": 2,
+            "Shooter": 6
+          },
+          "combat_room_sizes": {
+            "16x26": 1,
+            "18x18": 1,
+            "20x20": 2,
+            "26x22": 4,
+            "26x26": 1
+          },
+          "combat_area_mean": 500.44444444444446,
+          "combat_area_min": 324,
+          "combat_area_max": 676,
+          "flyer_room_count": 4,
+          "digger_room_count": 0
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              1,
+              4
+            ],
+            "template_id": "jefe",
+            "size": [
+              26,
+              26
+            ],
+            "kinds": {
+              "Chaser": 6
+            },
+            "mean_sim": 2.6666666666666665,
+            "mean_real": 5,
+            "delta": -2.3333333333333335
+          },
+          {
+            "cell": [
+              1,
+              2
+            ],
+            "template_id": "mixta_voladores",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Flyer": 3,
+              "Chaser": 1,
+              "Shooter": 1
+            },
+            "mean_sim": 0,
+            "mean_real": 1,
+            "delta": -1
+          },
+          {
+            "cell": [
+              1,
+              0
+            ],
+            "template_id": "mixta_tiradores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Shooter": 2,
+              "Chaser": 2
+            },
+            "mean_sim": 1.3333333333333333,
+            "mean_real": 1.6666666666666667,
+            "delta": -0.3333333333333335
+          },
+          {
+            "cell": [
+              -1,
+              1
+            ],
+            "template_id": "mixta_voladores",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Flyer": 3,
+              "Chaser": 1,
+              "Shooter": 1
+            },
+            "mean_sim": 1,
+            "mean_real": 0.6666666666666666,
+            "delta": 0.33333333333333337
+          },
+          {
+            "cell": [
+              0,
+              1
+            ],
+            "template_id": "mixta_huidores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Runner": 2,
+              "Exploder": 1,
+              "Chaser": 1
+            },
+            "mean_sim": 0.3333333333333333,
+            "mean_real": 0,
+            "delta": 0.3333333333333333
+          }
+        ]
+      },
+      {
+        "requested_seed": 600019,
+        "effective_seed": 607938,
+        "damage_runs_sim": [
+          11,
+          10,
+          11
+        ],
+        "damage_runs_real": [
+          6,
+          10,
+          8
+        ],
+        "mean_sim": 10.666666666666666,
+        "mean_real": 8,
+        "delta": 2.6666666666666665,
+        "composition": {
+          "room_count": 11,
+          "combat_room_count": 9,
+          "total_enemies": 34,
+          "enemy_counts": {
+            "Chaser": 13,
+            "Digger": 2,
+            "Exploder": 7,
+            "Flyer": 5,
+            "Runner": 3,
+            "Shooter": 4
+          },
+          "combat_room_sizes": {
+            "16x26": 2,
+            "18x18": 3,
+            "20x20": 1,
+            "26x22": 1,
+            "26x26": 1,
+            "28x16": 1
+          },
+          "combat_area_mean": 433.3333333333333,
+          "combat_area_min": 324,
+          "combat_area_max": 676,
+          "flyer_room_count": 3,
+          "digger_room_count": 2
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              -2,
+              0
+            ],
+            "template_id": "mixta_huidores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Runner": 2,
+              "Exploder": 1,
+              "Chaser": 1
+            },
+            "mean_sim": 1.6666666666666667,
+            "mean_real": 0,
+            "delta": 1.6666666666666667
+          },
+          {
+            "cell": [
+              0,
+              -1
+            ],
+            "template_id": "mixta_voladores",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Flyer": 3,
+              "Chaser": 1,
+              "Shooter": 1
+            },
+            "mean_sim": 2,
+            "mean_real": 1.3333333333333333,
+            "delta": 0.6666666666666667
+          },
+          {
+            "cell": [
+              -4,
+              0
+            ],
+            "template_id": "mixta_relampago",
+            "size": [
+              18,
+              18
+            ],
+            "kinds": {
+              "Runner": 1,
+              "Exploder": 1,
+              "Flyer": 1
+            },
+            "mean_sim": 0.3333333333333333,
+            "mean_real": 0,
+            "delta": 0.3333333333333333
+          }
+        ]
+      },
+      {
+        "requested_seed": 600011,
+        "effective_seed": 607930,
+        "damage_runs_sim": [
+          11,
+          9,
+          7
+        ],
+        "damage_runs_real": [
+          18,
+          9,
+          7
+        ],
+        "mean_sim": 9,
+        "mean_real": 11.333333333333334,
+        "delta": -2.3333333333333335,
+        "composition": {
+          "room_count": 10,
+          "combat_room_count": 8,
+          "total_enemies": 36,
+          "enemy_counts": {
+            "Chaser": 14,
+            "Digger": 2,
+            "Exploder": 9,
+            "Flyer": 6,
+            "Runner": 3,
+            "Shooter": 2
+          },
+          "combat_room_sizes": {
+            "16x26": 1,
+            "18x18": 1,
+            "26x22": 4,
+            "26x26": 1,
+            "28x16": 1
+          },
+          "combat_area_mean": 519,
+          "combat_area_min": 324,
+          "combat_area_max": 676,
+          "flyer_room_count": 4,
+          "digger_room_count": 1
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              -2,
+              0
+            ],
+            "template_id": "jefe",
+            "size": [
+              26,
+              26
+            ],
+            "kinds": {
+              "Chaser": 6
+            },
+            "mean_sim": 2,
+            "mean_real": 3.3333333333333335,
+            "delta": -1.3333333333333335
+          },
+          {
+            "cell": [
+              -2,
+              -1
+            ],
+            "template_id": "mixta_emboscada",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Runner": 1,
+              "Exploder": 2,
+              "Flyer": 1,
+              "Chaser": 1
+            },
+            "mean_sim": 1,
+            "mean_real": 2,
+            "delta": -1
+          },
+          {
+            "cell": [
+              -1,
+              -1
+            ],
+            "template_id": "mixta_emboscada",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Runner": 1,
+              "Exploder": 2,
+              "Flyer": 1,
+              "Chaser": 1
+            },
+            "mean_sim": 1.3333333333333333,
+            "mean_real": 2,
+            "delta": -0.6666666666666667
+          },
+          {
+            "cell": [
+              1,
+              1
+            ],
+            "template_id": "mixta_emboscada",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Runner": 1,
+              "Exploder": 2,
+              "Flyer": 1,
+              "Chaser": 1
+            },
+            "mean_sim": 2,
+            "mean_real": 1.3333333333333333,
+            "delta": 0.6666666666666667
+          },
+          {
+            "cell": [
+              1,
+              0
+            ],
+            "template_id": "normal_alta",
+            "size": [
+              16,
+              26
+            ],
+            "kinds": {
+              "Chaser": 3
+            },
+            "mean_sim": 0.6666666666666666,
+            "mean_real": 1,
+            "delta": -0.33333333333333337
+          },
+          {
+            "cell": [
+              -3,
+              -1
+            ],
+            "template_id": "mixta_voladores",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Flyer": 3,
+              "Chaser": 1,
+              "Shooter": 1
+            },
+            "mean_sim": 2,
+            "mean_real": 1.6666666666666667,
+            "delta": 0.33333333333333326
+          }
+        ]
+      },
+      {
+        "requested_seed": 600023,
+        "effective_seed": 600023,
+        "damage_runs_sim": [
+          9,
+          8,
+          9
+        ],
+        "damage_runs_real": [
+          5,
+          7,
+          7
+        ],
+        "mean_sim": 8.666666666666666,
+        "mean_real": 6.333333333333333,
+        "delta": 2.3333333333333335,
+        "composition": {
+          "room_count": 10,
+          "combat_room_count": 8,
+          "total_enemies": 28,
+          "enemy_counts": {
+            "Chaser": 11,
+            "Digger": 5,
+            "Exploder": 5,
+            "Flyer": 1,
+            "Runner": 3,
+            "Shooter": 3
+          },
+          "combat_room_sizes": {
+            "16x16": 2,
+            "16x26": 1,
+            "18x18": 1,
+            "20x20": 1,
+            "26x26": 1,
+            "28x16": 2
+          },
+          "combat_area_mean": 403,
+          "combat_area_min": 256,
+          "combat_area_max": 676,
+          "flyer_room_count": 1,
+          "digger_room_count": 3
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              0,
+              -2
+            ],
+            "template_id": "jefe",
+            "size": [
+              26,
+              26
+            ],
+            "kinds": {
+              "Chaser": 6
+            },
+            "mean_sim": 6.333333333333333,
+            "mean_real": 5,
+            "delta": 1.333333333333333
+          },
+          {
+            "cell": [
+              -2,
+              -1
+            ],
+            "template_id": "mixta_excavadores",
+            "size": [
+              28,
+              16
+            ],
+            "kinds": {
+              "Digger": 2,
+              "Exploder": 1,
+              "Shooter": 1
+            },
+            "mean_sim": 0.3333333333333333,
+            "mean_real": 0,
+            "delta": 0.3333333333333333
+          },
+          {
+            "cell": [
+              -1,
+              -1
+            ],
+            "template_id": "normal_pequena",
+            "size": [
+              16,
+              16
+            ],
+            "kinds": {
+              "Chaser": 2
+            },
+            "mean_sim": 0.6666666666666666,
+            "mean_real": 0.3333333333333333,
+            "delta": 0.3333333333333333
+          },
+          {
+            "cell": [
+              -1,
+              0
+            ],
+            "template_id": "mixta_excavadores",
+            "size": [
+              28,
+              16
+            ],
+            "kinds": {
+              "Digger": 2,
+              "Exploder": 1,
+              "Shooter": 1
+            },
+            "mean_sim": 0.3333333333333333,
+            "mean_real": 0,
+            "delta": 0.3333333333333333
+          },
+          {
+            "cell": [
+              0,
+              1
+            ],
+            "template_id": "mixta_huidores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Runner": 2,
+              "Exploder": 1,
+              "Chaser": 1
+            },
+            "mean_sim": 0.3333333333333333,
+            "mean_real": 0.6666666666666666,
+            "delta": -0.3333333333333333
+          },
+          {
+            "cell": [
+              1,
+              1
+            ],
+            "template_id": "normal_pequena",
+            "size": [
+              16,
+              16
+            ],
+            "kinds": {
+              "Chaser": 2
+            },
+            "mean_sim": 0.3333333333333333,
+            "mean_real": 0,
+            "delta": 0.3333333333333333
+          }
+        ]
+      },
+      {
+        "requested_seed": 600030,
+        "effective_seed": 600030,
+        "damage_runs_sim": [
+          9,
+          7,
+          11
+        ],
+        "damage_runs_real": [
+          6,
+          8,
+          6
+        ],
+        "mean_sim": 9,
+        "mean_real": 6.666666666666667,
+        "delta": 2.3333333333333335,
+        "composition": {
+          "room_count": 12,
+          "combat_room_count": 10,
+          "total_enemies": 34,
+          "enemy_counts": {
+            "Chaser": 25,
+            "Digger": 2,
+            "Exploder": 4,
+            "Runner": 2,
+            "Shooter": 1
+          },
+          "combat_room_sizes": {
+            "16x16": 1,
+            "16x26": 3,
+            "18x18": 3,
+            "20x20": 1,
+            "26x26": 1,
+            "28x16": 1
+          },
+          "combat_area_mean": 400,
+          "combat_area_min": 256,
+          "combat_area_max": 676,
+          "flyer_room_count": 0,
+          "digger_room_count": 1
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              1,
+              0
+            ],
+            "template_id": "mixta_huidores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Runner": 2,
+              "Exploder": 1,
+              "Chaser": 1
+            },
+            "mean_sim": 2,
+            "mean_real": 0,
+            "delta": 2
+          },
+          {
+            "cell": [
+              -1,
+              0
+            ],
+            "template_id": "normal_pequena",
+            "size": [
+              16,
+              16
+            ],
+            "kinds": {
+              "Chaser": 2
+            },
+            "mean_sim": 0.6666666666666666,
+            "mean_real": 0,
+            "delta": 0.6666666666666666
+          },
+          {
+            "cell": [
+              -1,
+              -2
+            ],
+            "template_id": "normal_alta",
+            "size": [
+              16,
+              26
+            ],
+            "kinds": {
+              "Chaser": 3
+            },
+            "mean_sim": 0,
+            "mean_real": 0.3333333333333333,
+            "delta": -0.3333333333333333
+          }
+        ]
+      },
+      {
+        "requested_seed": 600010,
+        "effective_seed": 600010,
+        "damage_runs_sim": [
+          12,
+          11,
+          17
+        ],
+        "damage_runs_real": [
+          8,
+          18,
+          8
+        ],
+        "mean_sim": 13.333333333333334,
+        "mean_real": 11.333333333333334,
+        "delta": 2.0,
+        "composition": {
+          "room_count": 12,
+          "combat_room_count": 10,
+          "total_enemies": 42,
+          "enemy_counts": {
+            "Chaser": 15,
+            "Digger": 3,
+            "Exploder": 8,
+            "Flyer": 6,
+            "Runner": 5,
+            "Shooter": 5
+          },
+          "combat_room_sizes": {
+            "18x18": 3,
+            "20x20": 2,
+            "26x22": 3,
+            "26x26": 1,
+            "28x16": 1
+          },
+          "combat_area_mean": 461.2,
+          "combat_area_min": 324,
+          "combat_area_max": 676,
+          "flyer_room_count": 4,
+          "digger_room_count": 2
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              0,
+              -5
+            ],
+            "template_id": "jefe",
+            "size": [
+              26,
+              26
+            ],
+            "kinds": {
+              "Chaser": 6
+            },
+            "mean_sim": 5.333333333333333,
+            "mean_real": 4.333333333333333,
+            "delta": 1.0
+          },
+          {
+            "cell": [
+              0,
+              1
+            ],
+            "template_id": "mixta_emboscada",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Runner": 1,
+              "Exploder": 2,
+              "Flyer": 1,
+              "Chaser": 1
+            },
+            "mean_sim": 2,
+            "mean_real": 1,
+            "delta": 1
+          },
+          {
+            "cell": [
+              0,
+              -4
+            ],
+            "template_id": "mixta_tiradores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Shooter": 2,
+              "Chaser": 2
+            },
+            "mean_sim": 3.3333333333333335,
+            "mean_real": 3,
+            "delta": 0.3333333333333335
+          },
+          {
+            "cell": [
+              -2,
+              -3
+            ],
+            "template_id": "mixta_voladores",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Flyer": 3,
+              "Chaser": 1,
+              "Shooter": 1
+            },
+            "mean_sim": 1.6666666666666667,
+            "mean_real": 2,
+            "delta": -0.33333333333333326
+          }
+        ]
+      },
+      {
+        "requested_seed": 600014,
+        "effective_seed": 607933,
+        "damage_runs_sim": [
+          13,
+          12,
+          13
+        ],
+        "damage_runs_real": [
+          8,
+          10,
+          14
+        ],
+        "mean_sim": 12.666666666666666,
+        "mean_real": 10.666666666666666,
+        "delta": 2.0,
+        "composition": {
+          "room_count": 12,
+          "combat_room_count": 10,
+          "total_enemies": 36,
+          "enemy_counts": {
+            "Chaser": 20,
+            "Digger": 2,
+            "Exploder": 5,
+            "Flyer": 1,
+            "Runner": 2,
+            "Shooter": 6
+          },
+          "combat_room_sizes": {
+            "16x16": 2,
+            "18x18": 2,
+            "20x20": 3,
+            "26x26": 1,
+            "28x16": 2
+          },
+          "combat_area_mean": 393.2,
+          "combat_area_min": 256,
+          "combat_area_max": 676,
+          "flyer_room_count": 1,
+          "digger_room_count": 1
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              -2,
+              1
+            ],
+            "template_id": "mixta_tiradores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Shooter": 2,
+              "Chaser": 2
+            },
+            "mean_sim": 4,
+            "mean_real": 1.3333333333333333,
+            "delta": 2.666666666666667
+          },
+          {
+            "cell": [
+              3,
+              0
+            ],
+            "template_id": "jefe",
+            "size": [
+              26,
+              26
+            ],
+            "kinds": {
+              "Chaser": 6
+            },
+            "mean_sim": 6.333333333333333,
+            "mean_real": 5.333333333333333,
+            "delta": 1.0
+          },
+          {
+            "cell": [
+              0,
+              1
+            ],
+            "template_id": "mixta_tiradores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Shooter": 2,
+              "Chaser": 2
+            },
+            "mean_sim": 1.3333333333333333,
+            "mean_real": 2,
+            "delta": -0.6666666666666667
+          },
+          {
+            "cell": [
+              -3,
+              1
+            ],
+            "template_id": "mixta_huidores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Runner": 2,
+              "Exploder": 1,
+              "Chaser": 1
+            },
+            "mean_sim": 0,
+            "mean_real": 0.6666666666666666,
+            "delta": -0.6666666666666666
+          },
+          {
+            "cell": [
+              1,
+              1
+            ],
+            "template_id": "normal_cuadrada",
+            "size": [
+              18,
+              18
+            ],
+            "kinds": {
+              "Chaser": 3
+            },
+            "mean_sim": 0.6666666666666666,
+            "mean_real": 1,
+            "delta": -0.33333333333333337
+          }
+        ]
+      },
+      {
+        "requested_seed": 600020,
+        "effective_seed": 615858,
+        "damage_runs_sim": [
+          7,
+          9,
+          8
+        ],
+        "damage_runs_real": [
+          9,
+          4,
+          5
+        ],
+        "mean_sim": 8,
+        "mean_real": 6,
+        "delta": 2.0,
+        "composition": {
+          "room_count": 9,
+          "combat_room_count": 7,
+          "total_enemies": 30,
+          "enemy_counts": {
+            "Chaser": 14,
+            "Digger": 3,
+            "Exploder": 5,
+            "Flyer": 3,
+            "Runner": 2,
+            "Shooter": 3
+          },
+          "combat_room_sizes": {
+            "16x26": 1,
+            "18x18": 1,
+            "26x22": 2,
+            "26x26": 1,
+            "28x16": 2
+          },
+          "combat_area_mean": 493.7142857142857,
+          "combat_area_min": 324,
+          "combat_area_max": 676,
+          "flyer_room_count": 3,
+          "digger_room_count": 2
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              0,
+              3
+            ],
+            "template_id": "jefe",
+            "size": [
+              26,
+              26
+            ],
+            "kinds": {
+              "Chaser": 6
+            },
+            "mean_sim": 5.333333333333333,
+            "mean_real": 3.3333333333333335,
+            "delta": 1.9999999999999996
+          },
+          {
+            "cell": [
+              -2,
+              0
+            ],
+            "template_id": "mixta_caos",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Runner": 1,
+              "Digger": 1,
+              "Exploder": 1,
+              "Shooter": 1,
+              "Flyer": 1
+            },
+            "mean_sim": 0.3333333333333333,
+            "mean_real": 0.6666666666666666,
+            "delta": -0.3333333333333333
+          },
+          {
+            "cell": [
+              -1,
+              2
+            ],
+            "template_id": "normal_cuadrada",
+            "size": [
+              18,
+              18
+            ],
+            "kinds": {
+              "Chaser": 3
+            },
+            "mean_sim": 0.3333333333333333,
+            "mean_real": 0,
+            "delta": 0.3333333333333333
+          }
+        ]
+      },
+      {
+        "requested_seed": 600016,
+        "effective_seed": 600016,
+        "damage_runs_sim": [
+          10,
+          10,
+          12
+        ],
+        "damage_runs_real": [
+          9,
+          8,
+          10
+        ],
+        "mean_sim": 10.666666666666666,
+        "mean_real": 9,
+        "delta": 1.6666666666666667,
+        "composition": {
+          "room_count": 10,
+          "combat_room_count": 8,
+          "total_enemies": 31,
+          "enemy_counts": {
+            "Chaser": 18,
+            "Exploder": 5,
+            "Flyer": 1,
+            "Runner": 3,
+            "Shooter": 4
+          },
+          "combat_room_sizes": {
+            "16x16": 1,
+            "16x26": 1,
+            "18x18": 1,
+            "20x20": 3,
+            "26x22": 1,
+            "26x26": 1
+          },
+          "combat_area_mean": 430.5,
+          "combat_area_min": 256,
+          "combat_area_max": 676,
+          "flyer_room_count": 1,
+          "digger_room_count": 0
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              0,
+              2
+            ],
+            "template_id": "mixta_tiradores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Shooter": 2,
+              "Chaser": 2
+            },
+            "mean_sim": 1.6666666666666667,
+            "mean_real": 0,
+            "delta": 1.6666666666666667
+          },
+          {
+            "cell": [
+              1,
+              0
+            ],
+            "template_id": "mixta_emboscada",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Runner": 1,
+              "Exploder": 2,
+              "Flyer": 1,
+              "Chaser": 1
+            },
+            "mean_sim": 2,
+            "mean_real": 1.3333333333333333,
+            "delta": 0.6666666666666667
+          },
+          {
+            "cell": [
+              1,
+              2
+            ],
+            "template_id": "mixta_tiradores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Shooter": 2,
+              "Chaser": 2
+            },
+            "mean_sim": 1,
+            "mean_real": 1.6666666666666667,
+            "delta": -0.6666666666666667
+          }
+        ]
+      },
+      {
+        "requested_seed": 600004,
+        "effective_seed": 615842,
+        "damage_runs_sim": [
+          13,
+          13,
+          10
+        ],
+        "damage_runs_real": [
+          11,
+          11,
+          10
+        ],
+        "mean_sim": 12,
+        "mean_real": 10.666666666666666,
+        "delta": 1.3333333333333333,
+        "composition": {
+          "room_count": 12,
+          "combat_room_count": 10,
+          "total_enemies": 38,
+          "enemy_counts": {
+            "Chaser": 16,
+            "Digger": 4,
+            "Exploder": 7,
+            "Flyer": 2,
+            "Runner": 4,
+            "Shooter": 5
+          },
+          "combat_room_sizes": {
+            "16x26": 2,
+            "18x18": 3,
+            "20x20": 2,
+            "26x22": 1,
+            "26x26": 1,
+            "28x16": 1
+          },
+          "combat_area_mean": 430,
+          "combat_area_min": 324,
+          "combat_area_max": 676,
+          "flyer_room_count": 2,
+          "digger_room_count": 3
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              4,
+              0
+            ],
+            "template_id": "mixta_tiradores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Shooter": 2,
+              "Chaser": 2
+            },
+            "mean_sim": 2.3333333333333335,
+            "mean_real": 1.3333333333333333,
+            "delta": 1.0000000000000002
+          },
+          {
+            "cell": [
+              4,
+              -2
+            ],
+            "template_id": "jefe",
+            "size": [
+              26,
+              26
+            ],
+            "kinds": {
+              "Chaser": 6
+            },
+            "mean_sim": 6.333333333333333,
+            "mean_real": 5.666666666666667,
+            "delta": 0.6666666666666661
+          },
+          {
+            "cell": [
+              1,
+              0
+            ],
+            "template_id": "normal_cuadrada",
+            "size": [
+              18,
+              18
+            ],
+            "kinds": {
+              "Chaser": 3
+            },
+            "mean_sim": 0.6666666666666666,
+            "mean_real": 1,
+            "delta": -0.33333333333333337
+          },
+          {
+            "cell": [
+              2,
+              0
+            ],
+            "template_id": "normal_alta",
+            "size": [
+              16,
+              26
+            ],
+            "kinds": {
+              "Chaser": 3
+            },
+            "mean_sim": 1,
+            "mean_real": 1.3333333333333333,
+            "delta": -0.33333333333333326
+          },
+          {
+            "cell": [
+              6,
+              0
+            ],
+            "template_id": "mixta_caos",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Runner": 1,
+              "Digger": 1,
+              "Exploder": 1,
+              "Shooter": 1,
+              "Flyer": 1
+            },
+            "mean_sim": 1.3333333333333333,
+            "mean_real": 1,
+            "delta": 0.33333333333333326
+          }
+        ]
+      },
+      {
+        "requested_seed": 600005,
+        "effective_seed": 607924,
+        "damage_runs_sim": [
+          4,
+          3,
+          7
+        ],
+        "damage_runs_real": [
+          3,
+          3,
+          4
+        ],
+        "mean_sim": 4.666666666666667,
+        "mean_real": 3.3333333333333335,
+        "delta": 1.3333333333333333,
+        "composition": {
+          "room_count": 12,
+          "combat_room_count": 10,
+          "total_enemies": 39,
+          "enemy_counts": {
+            "Chaser": 13,
+            "Digger": 2,
+            "Exploder": 9,
+            "Flyer": 7,
+            "Runner": 5,
+            "Shooter": 3
+          },
+          "combat_room_sizes": {
+            "16x16": 1,
+            "18x18": 3,
+            "20x20": 1,
+            "26x22": 2,
+            "26x26": 1,
+            "28x16": 2
+          },
+          "combat_area_mean": 434.4,
+          "combat_area_min": 256,
+          "combat_area_max": 676,
+          "flyer_room_count": 5,
+          "digger_room_count": 1
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              -3,
+              1
+            ],
+            "template_id": "jefe",
+            "size": [
+              26,
+              26
+            ],
+            "kinds": {
+              "Chaser": 6
+            },
+            "mean_sim": 3.3333333333333335,
+            "mean_real": 2,
+            "delta": 1.3333333333333335
+          },
+          {
+            "cell": [
+              -4,
+              0
+            ],
+            "template_id": "mixta_excavadores",
+            "size": [
+              28,
+              16
+            ],
+            "kinds": {
+              "Digger": 2,
+              "Exploder": 1,
+              "Shooter": 1
+            },
+            "mean_sim": 0.3333333333333333,
+            "mean_real": 0,
+            "delta": 0.3333333333333333
+          },
+          {
+            "cell": [
+              -1,
+              0
+            ],
+            "template_id": "mixta_relampago",
+            "size": [
+              18,
+              18
+            ],
+            "kinds": {
+              "Runner": 1,
+              "Exploder": 1,
+              "Flyer": 1
+            },
+            "mean_sim": 0,
+            "mean_real": 0.3333333333333333,
+            "delta": -0.3333333333333333
+          }
+        ]
+      },
+      {
+        "requested_seed": 600017,
+        "effective_seed": 607936,
+        "damage_runs_sim": [
+          3,
+          7,
+          6
+        ],
+        "damage_runs_real": [
+          12,
+          5,
+          3
+        ],
+        "mean_sim": 5.333333333333333,
+        "mean_real": 6.666666666666667,
+        "delta": -1.3333333333333333,
+        "composition": {
+          "room_count": 9,
+          "combat_room_count": 7,
+          "total_enemies": 26,
+          "enemy_counts": {
+            "Chaser": 17,
+            "Exploder": 1,
+            "Flyer": 3,
+            "Runner": 2,
+            "Shooter": 3
+          },
+          "combat_room_sizes": {
+            "16x16": 2,
+            "16x26": 1,
+            "20x20": 2,
+            "26x22": 1,
+            "26x26": 1
+          },
+          "combat_area_mean": 425.14285714285717,
+          "combat_area_min": 256,
+          "combat_area_max": 676,
+          "flyer_room_count": 1,
+          "digger_room_count": 0
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              -1,
+              1
+            ],
+            "template_id": "normal_pequena",
+            "size": [
+              16,
+              16
+            ],
+            "kinds": {
+              "Chaser": 2
+            },
+            "mean_sim": 0,
+            "mean_real": 0.3333333333333333,
+            "delta": -0.3333333333333333
+          },
+          {
+            "cell": [
+              0,
+              1
+            ],
+            "template_id": "mixta_voladores",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Flyer": 3,
+              "Chaser": 1,
+              "Shooter": 1
+            },
+            "mean_sim": 0.6666666666666666,
+            "mean_real": 0.3333333333333333,
+            "delta": 0.3333333333333333
+          },
+          {
+            "cell": [
+              1,
+              2
+            ],
+            "template_id": "normal_pequena",
+            "size": [
+              16,
+              16
+            ],
+            "kinds": {
+              "Chaser": 2
+            },
+            "mean_sim": 0,
+            "mean_real": 0.3333333333333333,
+            "delta": -0.3333333333333333
+          },
+          {
+            "cell": [
+              2,
+              2
+            ],
+            "template_id": "mixta_huidores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Runner": 2,
+              "Exploder": 1,
+              "Chaser": 1
+            },
+            "mean_sim": 0.3333333333333333,
+            "mean_real": 0.6666666666666666,
+            "delta": -0.3333333333333333
+          },
+          {
+            "cell": [
+              1,
+              1
+            ],
+            "template_id": "mixta_tiradores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Shooter": 2,
+              "Chaser": 2
+            },
+            "mean_sim": 1,
+            "mean_real": 1.3333333333333333,
+            "delta": -0.33333333333333326
+          },
+          {
+            "cell": [
+              3,
+              2
+            ],
+            "template_id": "jefe",
+            "size": [
+              26,
+              26
+            ],
+            "kinds": {
+              "Chaser": 6
+            },
+            "mean_sim": 3.3333333333333335,
+            "mean_real": 3.6666666666666665,
+            "delta": -0.33333333333333304
+          }
+        ]
+      },
+      {
+        "requested_seed": 600024,
+        "effective_seed": 600024,
+        "damage_runs_sim": [
+          9,
+          9,
+          9
+        ],
+        "damage_runs_real": [
+          7,
+          9,
+          7
+        ],
+        "mean_sim": 9,
+        "mean_real": 7.666666666666667,
+        "delta": 1.3333333333333333,
+        "composition": {
+          "room_count": 11,
+          "combat_room_count": 9,
+          "total_enemies": 34,
+          "enemy_counts": {
+            "Chaser": 22,
+            "Digger": 2,
+            "Exploder": 3,
+            "Flyer": 1,
+            "Runner": 1,
+            "Shooter": 5
+          },
+          "combat_room_sizes": {
+            "16x16": 1,
+            "16x26": 1,
+            "18x18": 2,
+            "20x20": 2,
+            "26x22": 1,
+            "26x26": 1,
+            "28x16": 1
+          },
+          "combat_area_mean": 424,
+          "combat_area_min": 256,
+          "combat_area_max": 676,
+          "flyer_room_count": 1,
+          "digger_room_count": 1
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              0,
+              -1
+            ],
+            "template_id": "mixta_tiradores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Shooter": 2,
+              "Chaser": 2
+            },
+            "mean_sim": 1,
+            "mean_real": 0,
+            "delta": 1
+          },
+          {
+            "cell": [
+              1,
+              3
+            ],
+            "template_id": "mixta_tiradores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Shooter": 2,
+              "Chaser": 2
+            },
+            "mean_sim": 0.3333333333333333,
+            "mean_real": 1,
+            "delta": -0.6666666666666667
+          },
+          {
+            "cell": [
+              1,
+              1
+            ],
+            "template_id": "normal_cuadrada",
+            "size": [
+              18,
+              18
+            ],
+            "kinds": {
+              "Chaser": 3
+            },
+            "mean_sim": 0.6666666666666666,
+            "mean_real": 0,
+            "delta": 0.6666666666666666
+          },
+          {
+            "cell": [
+              -1,
+              -3
+            ],
+            "template_id": "jefe",
+            "size": [
+              26,
+              26
+            ],
+            "kinds": {
+              "Chaser": 6
+            },
+            "mean_sim": 5,
+            "mean_real": 4.666666666666667,
+            "delta": 0.33333333333333304
+          }
+        ]
+      },
+      {
+        "requested_seed": 600001,
+        "effective_seed": 600001,
+        "damage_runs_sim": [
+          6,
+          7,
+          14
+        ],
+        "damage_runs_real": [
+          10,
+          7,
+          7
+        ],
+        "mean_sim": 9,
+        "mean_real": 8,
+        "delta": 1.0,
+        "composition": {
+          "room_count": 12,
+          "combat_room_count": 10,
+          "total_enemies": 40,
+          "enemy_counts": {
+            "Chaser": 19,
+            "Digger": 1,
+            "Exploder": 7,
+            "Flyer": 6,
+            "Runner": 1,
+            "Shooter": 6
+          },
+          "combat_room_sizes": {
+            "18x18": 4,
+            "20x20": 1,
+            "26x22": 2,
+            "26x26": 1,
+            "28x16": 2
+          },
+          "combat_area_mean": 441.2,
+          "combat_area_min": 324,
+          "combat_area_max": 676,
+          "flyer_room_count": 4,
+          "digger_room_count": 1
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              0,
+              -1
+            ],
+            "template_id": "mixta_tiradores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Shooter": 2,
+              "Chaser": 2
+            },
+            "mean_sim": 2.6666666666666665,
+            "mean_real": 0.3333333333333333,
+            "delta": 2.333333333333333
+          },
+          {
+            "cell": [
+              -2,
+              -3
+            ],
+            "template_id": "jefe",
+            "size": [
+              26,
+              26
+            ],
+            "kinds": {
+              "Chaser": 6
+            },
+            "mean_sim": 5,
+            "mean_real": 5.666666666666667,
+            "delta": -0.666666666666667
+          },
+          {
+            "cell": [
+              -2,
+              -1
+            ],
+            "template_id": "normal_cuadrada",
+            "size": [
+              18,
+              18
+            ],
+            "kinds": {
+              "Chaser": 3
+            },
+            "mean_sim": 0,
+            "mean_real": 0.3333333333333333,
+            "delta": -0.3333333333333333
+          },
+          {
+            "cell": [
+              2,
+              -1
+            ],
+            "template_id": "mixta_variada",
+            "size": [
+              28,
+              16
+            ],
+            "kinds": {
+              "Exploder": 1,
+              "Shooter": 1,
+              "Flyer": 1,
+              "Chaser": 1
+            },
+            "mean_sim": 0.3333333333333333,
+            "mean_real": 0.6666666666666666,
+            "delta": -0.3333333333333333
+          }
+        ]
+      },
+      {
+        "requested_seed": 600012,
+        "effective_seed": 600012,
+        "damage_runs_sim": [
+          3,
+          5,
+          3
+        ],
+        "damage_runs_real": [
+          6,
+          3,
+          5
+        ],
+        "mean_sim": 3.6666666666666665,
+        "mean_real": 4.666666666666667,
+        "delta": -1.0,
+        "composition": {
+          "room_count": 9,
+          "combat_room_count": 7,
+          "total_enemies": 28,
+          "enemy_counts": {
+            "Chaser": 12,
+            "Digger": 3,
+            "Exploder": 3,
+            "Flyer": 3,
+            "Runner": 2,
+            "Shooter": 5
+          },
+          "combat_room_sizes": {
+            "16x16": 1,
+            "16x26": 1,
+            "20x20": 2,
+            "26x22": 1,
+            "26x26": 1,
+            "28x16": 1
+          },
+          "combat_area_mean": 452.57142857142856,
+          "combat_area_min": 256,
+          "combat_area_max": 676,
+          "flyer_room_count": 1,
+          "digger_room_count": 2
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              2,
+              2
+            ],
+            "template_id": "jefe",
+            "size": [
+              26,
+              26
+            ],
+            "kinds": {
+              "Chaser": 6
+            },
+            "mean_sim": 2,
+            "mean_real": 3,
+            "delta": -1
+          }
+        ]
+      },
+      {
+        "requested_seed": 600028,
+        "effective_seed": 600028,
+        "damage_runs_sim": [
+          10,
+          9,
+          16
+        ],
+        "damage_runs_real": [
+          11,
+          9,
+          18
+        ],
+        "mean_sim": 11.666666666666666,
+        "mean_real": 12.666666666666666,
+        "delta": -1.0,
+        "composition": {
+          "room_count": 12,
+          "combat_room_count": 10,
+          "total_enemies": 40,
+          "enemy_counts": {
+            "Chaser": 15,
+            "Digger": 2,
+            "Exploder": 10,
+            "Flyer": 5,
+            "Runner": 3,
+            "Shooter": 5
+          },
+          "combat_room_sizes": {
+            "16x16": 1,
+            "18x18": 2,
+            "20x20": 1,
+            "26x22": 2,
+            "26x26": 1,
+            "28x16": 3
+          },
+          "combat_area_mean": 446.8,
+          "combat_area_min": 256,
+          "combat_area_max": 676,
+          "flyer_room_count": 5,
+          "digger_room_count": 1
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              0,
+              3
+            ],
+            "template_id": "mixta_variada",
+            "size": [
+              28,
+              16
+            ],
+            "kinds": {
+              "Exploder": 1,
+              "Shooter": 1,
+              "Flyer": 1,
+              "Chaser": 1
+            },
+            "mean_sim": 1,
+            "mean_real": 2.3333333333333335,
+            "delta": -1.3333333333333335
+          },
+          {
+            "cell": [
+              -1,
+              2
+            ],
+            "template_id": "mixta_emboscada",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Runner": 1,
+              "Exploder": 2,
+              "Flyer": 1,
+              "Chaser": 1
+            },
+            "mean_sim": 1,
+            "mean_real": 2,
+            "delta": -1
+          },
+          {
+            "cell": [
+              0,
+              -1
+            ],
+            "template_id": "mixta_variada",
+            "size": [
+              28,
+              16
+            ],
+            "kinds": {
+              "Exploder": 1,
+              "Shooter": 1,
+              "Flyer": 1,
+              "Chaser": 1
+            },
+            "mean_sim": 1.3333333333333333,
+            "mean_real": 0.3333333333333333,
+            "delta": 1.0
+          },
+          {
+            "cell": [
+              0,
+              1
+            ],
+            "template_id": "mixta_tiradores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Shooter": 2,
+              "Chaser": 2
+            },
+            "mean_sim": 1.6666666666666667,
+            "mean_real": 1.3333333333333333,
+            "delta": 0.3333333333333335
+          }
+        ]
+      },
+      {
+        "requested_seed": 600006,
+        "effective_seed": 615844,
+        "damage_runs_sim": [
+          11,
+          9,
+          7
+        ],
+        "damage_runs_real": [
+          11,
+          10,
+          8
+        ],
+        "mean_sim": 9,
+        "mean_real": 9.666666666666666,
+        "delta": -0.6666666666666666,
+        "composition": {
+          "room_count": 12,
+          "combat_room_count": 10,
+          "total_enemies": 39,
+          "enemy_counts": {
+            "Chaser": 14,
+            "Digger": 3,
+            "Exploder": 6,
+            "Flyer": 6,
+            "Runner": 7,
+            "Shooter": 3
+          },
+          "combat_room_sizes": {
+            "16x16": 1,
+            "16x26": 1,
+            "18x18": 2,
+            "20x20": 2,
+            "26x22": 2,
+            "26x26": 1,
+            "28x16": 1
+          },
+          "combat_area_mean": 438.8,
+          "combat_area_min": 256,
+          "combat_area_max": 676,
+          "flyer_room_count": 4,
+          "digger_room_count": 2
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              -3,
+              -1
+            ],
+            "template_id": "mixta_huidores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Runner": 2,
+              "Exploder": 1,
+              "Chaser": 1
+            },
+            "mean_sim": 0,
+            "mean_real": 1,
+            "delta": -1
+          },
+          {
+            "cell": [
+              -2,
+              0
+            ],
+            "template_id": "mixta_voladores",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Flyer": 3,
+              "Chaser": 1,
+              "Shooter": 1
+            },
+            "mean_sim": 1,
+            "mean_real": 1.6666666666666667,
+            "delta": -0.6666666666666667
+          },
+          {
+            "cell": [
+              -1,
+              0
+            ],
+            "template_id": "mixta_huidores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Runner": 2,
+              "Exploder": 1,
+              "Chaser": 1
+            },
+            "mean_sim": 0.6666666666666666,
+            "mean_real": 0,
+            "delta": 0.6666666666666666
+          },
+          {
+            "cell": [
+              -4,
+              -3
+            ],
+            "template_id": "jefe",
+            "size": [
+              26,
+              26
+            ],
+            "kinds": {
+              "Chaser": 6
+            },
+            "mean_sim": 6.333333333333333,
+            "mean_real": 6.666666666666667,
+            "delta": -0.3333333333333339
+          },
+          {
+            "cell": [
+              -4,
+              -1
+            ],
+            "template_id": "mixta_caos",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Runner": 1,
+              "Digger": 1,
+              "Exploder": 1,
+              "Shooter": 1,
+              "Flyer": 1
+            },
+            "mean_sim": 0.6666666666666666,
+            "mean_real": 0.3333333333333333,
+            "delta": 0.3333333333333333
+          },
+          {
+            "cell": [
+              -2,
+              -1
+            ],
+            "template_id": "mixta_relampago",
+            "size": [
+              18,
+              18
+            ],
+            "kinds": {
+              "Runner": 1,
+              "Exploder": 1,
+              "Flyer": 1
+            },
+            "mean_sim": 0.3333333333333333,
+            "mean_real": 0,
+            "delta": 0.3333333333333333
+          }
+        ]
+      },
+      {
+        "requested_seed": 600008,
+        "effective_seed": 615846,
+        "damage_runs_sim": [
+          2,
+          6,
+          5
+        ],
+        "damage_runs_real": [
+          4,
+          8,
+          3
+        ],
+        "mean_sim": 4.333333333333333,
+        "mean_real": 5,
+        "delta": -0.6666666666666666,
+        "composition": {
+          "room_count": 12,
+          "combat_room_count": 10,
+          "total_enemies": 39,
+          "enemy_counts": {
+            "Chaser": 17,
+            "Digger": 2,
+            "Exploder": 6,
+            "Flyer": 4,
+            "Runner": 8,
+            "Shooter": 2
+          },
+          "combat_room_sizes": {
+            "16x26": 2,
+            "18x18": 3,
+            "20x20": 2,
+            "26x22": 2,
+            "26x26": 1
+          },
+          "combat_area_mean": 442.4,
+          "combat_area_min": 324,
+          "combat_area_max": 676,
+          "flyer_room_count": 4,
+          "digger_room_count": 2
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              -3,
+              2
+            ],
+            "template_id": "mixta_caos",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Runner": 1,
+              "Digger": 1,
+              "Exploder": 1,
+              "Shooter": 1,
+              "Flyer": 1
+            },
+            "mean_sim": 0.3333333333333333,
+            "mean_real": 1,
+            "delta": -0.6666666666666667
+          },
+          {
+            "cell": [
+              -3,
+              3
+            ],
+            "template_id": "jefe",
+            "size": [
+              26,
+              26
+            ],
+            "kinds": {
+              "Chaser": 6
+            },
+            "mean_sim": 3,
+            "mean_real": 2.6666666666666665,
+            "delta": 0.3333333333333335
+          },
+          {
+            "cell": [
+              -2,
+              2
+            ],
+            "template_id": "mixta_caos",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Runner": 1,
+              "Digger": 1,
+              "Exploder": 1,
+              "Shooter": 1,
+              "Flyer": 1
+            },
+            "mean_sim": 1,
+            "mean_real": 1.3333333333333333,
+            "delta": -0.33333333333333326
+          }
+        ]
+      },
+      {
+        "requested_seed": 600009,
+        "effective_seed": 600009,
+        "damage_runs_sim": [
+          10,
+          12,
+          11
+        ],
+        "damage_runs_real": [
+          12,
+          11,
+          12
+        ],
+        "mean_sim": 11,
+        "mean_real": 11.666666666666666,
+        "delta": -0.6666666666666666,
+        "composition": {
+          "room_count": 8,
+          "combat_room_count": 6,
+          "total_enemies": 26,
+          "enemy_counts": {
+            "Chaser": 14,
+            "Exploder": 2,
+            "Flyer": 7,
+            "Runner": 1,
+            "Shooter": 2
+          },
+          "combat_room_sizes": {
+            "16x16": 1,
+            "16x26": 1,
+            "26x22": 3,
+            "26x26": 1
+          },
+          "combat_area_mean": 510.6666666666667,
+          "combat_area_min": 256,
+          "combat_area_max": 676,
+          "flyer_room_count": 3,
+          "digger_room_count": 0
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              1,
+              -4
+            ],
+            "template_id": "jefe",
+            "size": [
+              26,
+              26
+            ],
+            "kinds": {
+              "Chaser": 6
+            },
+            "mean_sim": 6,
+            "mean_real": 5.333333333333333,
+            "delta": 0.666666666666667
+          },
+          {
+            "cell": [
+              2,
+              -2
+            ],
+            "template_id": "normal_pequena",
+            "size": [
+              16,
+              16
+            ],
+            "kinds": {
+              "Chaser": 2
+            },
+            "mean_sim": 0,
+            "mean_real": 0.3333333333333333,
+            "delta": -0.3333333333333333
+          },
+          {
+            "cell": [
+              0,
+              -2
+            ],
+            "template_id": "mixta_voladores",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Flyer": 3,
+              "Chaser": 1,
+              "Shooter": 1
+            },
+            "mean_sim": 1.6666666666666667,
+            "mean_real": 2,
+            "delta": -0.33333333333333326
+          },
+          {
+            "cell": [
+              1,
+              -3
+            ],
+            "template_id": "mixta_voladores",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Flyer": 3,
+              "Chaser": 1,
+              "Shooter": 1
+            },
+            "mean_sim": 1.6666666666666667,
+            "mean_real": 2,
+            "delta": -0.33333333333333326
+          },
+          {
+            "cell": [
+              1,
+              -2
+            ],
+            "template_id": "mixta_emboscada",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Runner": 1,
+              "Exploder": 2,
+              "Flyer": 1,
+              "Chaser": 1
+            },
+            "mean_sim": 1.6666666666666667,
+            "mean_real": 2,
+            "delta": -0.33333333333333326
+          }
+        ]
+      },
+      {
+        "requested_seed": 600013,
+        "effective_seed": 607932,
+        "damage_runs_sim": [
+          8,
+          8,
+          7
+        ],
+        "damage_runs_real": [
+          11,
+          6,
+          8
+        ],
+        "mean_sim": 7.666666666666667,
+        "mean_real": 8.333333333333334,
+        "delta": -0.6666666666666666,
+        "composition": {
+          "room_count": 10,
+          "combat_room_count": 8,
+          "total_enemies": 32,
+          "enemy_counts": {
+            "Chaser": 12,
+            "Exploder": 8,
+            "Flyer": 7,
+            "Runner": 3,
+            "Shooter": 2
+          },
+          "combat_room_sizes": {
+            "18x18": 4,
+            "20x20": 1,
+            "26x22": 2,
+            "26x26": 1
+          },
+          "combat_area_mean": 439.5,
+          "combat_area_min": 324,
+          "combat_area_max": 676,
+          "flyer_room_count": 3,
+          "digger_room_count": 0
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              -2,
+              -2
+            ],
+            "template_id": "mixta_voladores",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Flyer": 3,
+              "Chaser": 1,
+              "Shooter": 1
+            },
+            "mean_sim": 1.3333333333333333,
+            "mean_real": 2,
+            "delta": -0.6666666666666667
+          },
+          {
+            "cell": [
+              -3,
+              -1
+            ],
+            "template_id": "mixta_relampago",
+            "size": [
+              18,
+              18
+            ],
+            "kinds": {
+              "Runner": 1,
+              "Exploder": 1,
+              "Flyer": 1
+            },
+            "mean_sim": 0.3333333333333333,
+            "mean_real": 0,
+            "delta": 0.3333333333333333
+          },
+          {
+            "cell": [
+              -2,
+              -3
+            ],
+            "template_id": "jefe",
+            "size": [
+              26,
+              26
+            ],
+            "kinds": {
+              "Chaser": 6
+            },
+            "mean_sim": 5,
+            "mean_real": 5.333333333333333,
+            "delta": -0.33333333333333304
+          }
+        ]
+      },
+      {
+        "requested_seed": 600025,
+        "effective_seed": 600025,
+        "damage_runs_sim": [
+          14,
+          10,
+          10
+        ],
+        "damage_runs_real": [
+          11,
+          13,
+          12
+        ],
+        "mean_sim": 11.333333333333334,
+        "mean_real": 12,
+        "delta": -0.6666666666666666,
+        "composition": {
+          "room_count": 11,
+          "combat_room_count": 9,
+          "total_enemies": 37,
+          "enemy_counts": {
+            "Chaser": 15,
+            "Digger": 3,
+            "Exploder": 8,
+            "Flyer": 3,
+            "Runner": 5,
+            "Shooter": 3
+          },
+          "combat_room_sizes": {
+            "16x26": 2,
+            "18x18": 2,
+            "20x20": 1,
+            "26x22": 3,
+            "26x26": 1
+          },
+          "combat_area_mean": 474.6666666666667,
+          "combat_area_min": 324,
+          "combat_area_max": 676,
+          "flyer_room_count": 3,
+          "digger_room_count": 3
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              0,
+              -4
+            ],
+            "template_id": "jefe",
+            "size": [
+              26,
+              26
+            ],
+            "kinds": {
+              "Chaser": 6
+            },
+            "mean_sim": 4.333333333333333,
+            "mean_real": 6,
+            "delta": -1.666666666666667
+          },
+          {
+            "cell": [
+              2,
+              -1
+            ],
+            "template_id": "normal_cuadrada",
+            "size": [
+              18,
+              18
+            ],
+            "kinds": {
+              "Chaser": 3
+            },
+            "mean_sim": 2,
+            "mean_real": 1,
+            "delta": 1
+          },
+          {
+            "cell": [
+              -1,
+              -3
+            ],
+            "template_id": "mixta_caos",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Runner": 1,
+              "Digger": 1,
+              "Exploder": 1,
+              "Shooter": 1,
+              "Flyer": 1
+            },
+            "mean_sim": 0.6666666666666666,
+            "mean_real": 0.3333333333333333,
+            "delta": 0.3333333333333333
+          },
+          {
+            "cell": [
+              -1,
+              -1
+            ],
+            "template_id": "mixta_emboscada",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Runner": 1,
+              "Exploder": 2,
+              "Flyer": 1,
+              "Chaser": 1
+            },
+            "mean_sim": 1.6666666666666667,
+            "mean_real": 2,
+            "delta": -0.33333333333333326
+          }
+        ]
+      },
+      {
+        "requested_seed": 600029,
+        "effective_seed": 607948,
+        "damage_runs_sim": [
+          11,
+          7,
+          8
+        ],
+        "damage_runs_real": [
+          14,
+          6,
+          4
+        ],
+        "mean_sim": 8.666666666666666,
+        "mean_real": 8,
+        "delta": 0.6666666666666666,
+        "composition": {
+          "room_count": 10,
+          "combat_room_count": 8,
+          "total_enemies": 30,
+          "enemy_counts": {
+            "Chaser": 19,
+            "Digger": 1,
+            "Exploder": 1,
+            "Flyer": 3,
+            "Shooter": 6
+          },
+          "combat_room_sizes": {
+            "16x16": 1,
+            "16x26": 2,
+            "18x18": 1,
+            "20x20": 2,
+            "26x22": 1,
+            "26x26": 1
+          },
+          "combat_area_mean": 432.5,
+          "combat_area_min": 256,
+          "combat_area_max": 676,
+          "flyer_room_count": 1,
+          "digger_room_count": 1
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              3,
+              3
+            ],
+            "template_id": "mixta_voladores",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Flyer": 3,
+              "Chaser": 1,
+              "Shooter": 1
+            },
+            "mean_sim": 1,
+            "mean_real": 0.3333333333333333,
+            "delta": 0.6666666666666667
+          },
+          {
+            "cell": [
+              1,
+              1
+            ],
+            "template_id": "mixta_tiradores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Shooter": 2,
+              "Chaser": 2
+            },
+            "mean_sim": 2,
+            "mean_real": 2.6666666666666665,
+            "delta": -0.6666666666666665
+          },
+          {
+            "cell": [
+              3,
+              5
+            ],
+            "template_id": "jefe",
+            "size": [
+              26,
+              26
+            ],
+            "kinds": {
+              "Chaser": 6
+            },
+            "mean_sim": 3,
+            "mean_real": 2.3333333333333335,
+            "delta": 0.6666666666666665
+          },
+          {
+            "cell": [
+              2,
+              3
+            ],
+            "template_id": "mixta_tiradores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Shooter": 2,
+              "Chaser": 2
+            },
+            "mean_sim": 1.3333333333333333,
+            "mean_real": 1.6666666666666667,
+            "delta": -0.3333333333333335
+          },
+          {
+            "cell": [
+              1,
+              3
+            ],
+            "template_id": "normal_pequena",
+            "size": [
+              16,
+              16
+            ],
+            "kinds": {
+              "Chaser": 2
+            },
+            "mean_sim": 0.3333333333333333,
+            "mean_real": 0,
+            "delta": 0.3333333333333333
+          }
+        ]
+      },
+      {
+        "requested_seed": 600021,
+        "effective_seed": 607940,
+        "damage_runs_sim": [
+          19,
+          8,
+          13
+        ],
+        "damage_runs_real": [
+          14,
+          18,
+          9
+        ],
+        "mean_sim": 13.333333333333334,
+        "mean_real": 13.666666666666666,
+        "delta": -0.3333333333333333,
+        "composition": {
+          "room_count": 10,
+          "combat_room_count": 8,
+          "total_enemies": 31,
+          "enemy_counts": {
+            "Chaser": 17,
+            "Exploder": 6,
+            "Flyer": 2,
+            "Runner": 3,
+            "Shooter": 3
+          },
+          "combat_room_sizes": {
+            "16x16": 1,
+            "18x18": 2,
+            "20x20": 2,
+            "26x22": 1,
+            "26x26": 1,
+            "28x16": 1
+          },
+          "combat_area_mean": 425,
+          "combat_area_min": 256,
+          "combat_area_max": 676,
+          "flyer_room_count": 2,
+          "digger_room_count": 0
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              3,
+              0
+            ],
+            "template_id": "mixta_huidores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Runner": 2,
+              "Exploder": 1,
+              "Chaser": 1
+            },
+            "mean_sim": 1.6666666666666667,
+            "mean_real": 0,
+            "delta": 1.6666666666666667
+          },
+          {
+            "cell": [
+              0,
+              2
+            ],
+            "template_id": "mixta_variada",
+            "size": [
+              28,
+              16
+            ],
+            "kinds": {
+              "Exploder": 1,
+              "Shooter": 1,
+              "Flyer": 1,
+              "Chaser": 1
+            },
+            "mean_sim": 2.6666666666666665,
+            "mean_real": 3.3333333333333335,
+            "delta": -0.666666666666667
+          },
+          {
+            "cell": [
+              2,
+              -2
+            ],
+            "template_id": "jefe",
+            "size": [
+              26,
+              26
+            ],
+            "kinds": {
+              "Chaser": 6
+            },
+            "mean_sim": 5.666666666666667,
+            "mean_real": 6.333333333333333,
+            "delta": -0.6666666666666661
+          },
+          {
+            "cell": [
+              1,
+              0
+            ],
+            "template_id": "mixta_emboscada",
+            "size": [
+              26,
+              22
+            ],
+            "kinds": {
+              "Runner": 1,
+              "Exploder": 2,
+              "Flyer": 1,
+              "Chaser": 1
+            },
+            "mean_sim": 2,
+            "mean_real": 2.3333333333333335,
+            "delta": -0.3333333333333335
+          },
+          {
+            "cell": [
+              1,
+              2
+            ],
+            "template_id": "normal_pequena",
+            "size": [
+              16,
+              16
+            ],
+            "kinds": {
+              "Chaser": 2
+            },
+            "mean_sim": 0,
+            "mean_real": 0.3333333333333333,
+            "delta": -0.3333333333333333
+          }
+        ]
+      },
+      {
+        "requested_seed": 600026,
+        "effective_seed": 600026,
+        "damage_runs_sim": [
+          6,
+          6,
+          6
+        ],
+        "damage_runs_real": [
+          7,
+          6,
+          6
+        ],
+        "mean_sim": 6,
+        "mean_real": 6.333333333333333,
+        "delta": -0.3333333333333333,
+        "composition": {
+          "room_count": 10,
+          "combat_room_count": 8,
+          "total_enemies": 30,
+          "enemy_counts": {
+            "Chaser": 13,
+            "Exploder": 7,
+            "Flyer": 5,
+            "Runner": 4,
+            "Shooter": 1
+          },
+          "combat_room_sizes": {
+            "16x26": 1,
+            "18x18": 4,
+            "20x20": 1,
+            "26x22": 1,
+            "26x26": 1
+          },
+          "combat_area_mean": 420,
+          "combat_area_min": 324,
+          "combat_area_max": 676,
+          "flyer_room_count": 3,
+          "digger_room_count": 0
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              0,
+              -4
+            ],
+            "template_id": "jefe",
+            "size": [
+              26,
+              26
+            ],
+            "kinds": {
+              "Chaser": 6
+            },
+            "mean_sim": 5,
+            "mean_real": 5.333333333333333,
+            "delta": -0.33333333333333304
+          }
+        ]
+      },
+      {
+        "requested_seed": 600007,
+        "effective_seed": 600007,
+        "damage_runs_sim": [
+          9,
+          9,
+          12
+        ],
+        "damage_runs_real": [
+          9,
+          11,
+          10
+        ],
+        "mean_sim": 10,
+        "mean_real": 10,
+        "delta": 0.0,
+        "composition": {
+          "room_count": 11,
+          "combat_room_count": 9,
+          "total_enemies": 37,
+          "enemy_counts": {
+            "Chaser": 16,
+            "Digger": 1,
+            "Exploder": 3,
+            "Flyer": 9,
+            "Runner": 2,
+            "Shooter": 6
+          },
+          "combat_room_sizes": {
+            "16x16": 1,
+            "16x26": 1,
+            "18x18": 1,
+            "20x20": 1,
+            "26x22": 3,
+            "26x26": 1,
+            "28x16": 1
+          },
+          "combat_area_mean": 470.6666666666667,
+          "combat_area_min": 256,
+          "combat_area_max": 676,
+          "flyer_room_count": 5,
+          "digger_room_count": 1
+        },
+        "room_residuals": [
+          {
+            "cell": [
+              -2,
+              0
+            ],
+            "template_id": "normal_alta",
+            "size": [
+              16,
+              26
+            ],
+            "kinds": {
+              "Chaser": 3
+            },
+            "mean_sim": 0,
+            "mean_real": 0.3333333333333333,
+            "delta": -0.3333333333333333
+          },
+          {
+            "cell": [
+              0,
+              3
+            ],
+            "template_id": "mixta_tiradores",
+            "size": [
+              20,
+              20
+            ],
+            "kinds": {
+              "Shooter": 2,
+              "Chaser": 2
+            },
+            "mean_sim": 0.6666666666666666,
+            "mean_real": 0.3333333333333333,
+            "delta": 0.3333333333333333
+          }
+        ]
+      }
+    ],
+    "descriptive_comparison": {
+      "top_five": {
+        "levels": 5,
+        "median_rooms": 11,
+        "median_total_enemies": 37,
+        "median_combat_area": 446.4,
+        "levels_with_all_six": 5,
+        "median_flyers": 4,
+        "median_diggers": 2
+      },
+      "all_thirty": {
+        "levels": 30,
+        "median_rooms": 11.0,
+        "median_total_enemies": 35.0,
+        "median_combat_area": 439.15,
+        "levels_with_all_six": 21,
+        "median_flyers": 4.0,
+        "median_diggers": 2.0
+      }
+    },
+    "warning": "Seleccion posterior por residuo; coincidencias descriptivas, no causas ni evidencia de importancia de features."
+  },
+  "log": {
+    "gchandle_lines": [
+      {
+        "line": 176,
+        "text": "   at System.Runtime.InteropServices.GCHandle.FromIntPtr(IntPtr value)"
+      },
+      {
+        "line": 177,
+        "text": "   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak) in /root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:line 1284"
+      },
+      {
+        "line": 182,
+        "text": "       [2] Godot.NativeInterop.godot_bool Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(nint, System.IntPtr*, Godot.NativeInterop.godot_bool) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:1284)"
+      },
+      {
+        "line": 195,
+        "text": "   at System.Runtime.InteropServices.GCHandle.FromIntPtr(IntPtr value)"
+      },
+      {
+        "line": 196,
+        "text": "   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak) in /root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:line 1284"
+      },
+      {
+        "line": 201,
+        "text": "       [2] Godot.NativeInterop.godot_bool Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(nint, System.IntPtr*, Godot.NativeInterop.godot_bool) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:1284)"
+      }
+    ],
+    "illegal_instruction_lines": [],
+    "errors": [
+      {
+        "line": 3,
+        "header": "ERROR: Failed to read the root certificate store.",
+        "last_completed_pair": null,
+        "block": "ERROR: Failed to read the root certificate store.\n   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)\nCobertura development: Chaser=30, Digger=23, Exploder=30, Flyer=29, Runner=29, Shooter=30\nCobertura acceptance: Chaser=90, Digger=80, Exploder=89, Flyer=86, Runner=81, Shooter=89\nCobertura reserve: Chaser=90, Digger=75, Exploder=90, Flyer=85, Runner=80, Shooter=86"
+      },
+      {
+        "line": 175,
+        "header": "ERROR: System.InvalidOperationException: Handle is not initialized.",
+        "last_completed_pair": "Par 55/90: semilla 600019, repeticion 0; dano sim/real 11,0/6,0; tiempo sim/real 83,3/82,3; pared 3,4 s.",
+        "block": "ERROR: System.InvalidOperationException: Handle is not initialized.\n   at System.Runtime.InteropServices.GCHandle.FromIntPtr(IntPtr value)\n   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak) in /root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:line 1284\n   at: void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/NativeInterop/ExceptionUtils.cs:113)\n   C# backtrace (most recent call first):\n       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)\n       [1] void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/NativeInterop/ExceptionUtils.cs:113)\n       [2] Godot.NativeInterop.godot_bool Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(nint, System.IntPtr*, Godot.NativeInterop.godot_bool) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:1284)\n       [3] void Godot.NativeInterop.NativeFuncs.godotsharp_method_bind_ptrcall(nint, nint, System.Void**, System.Void*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Godot.SourceGenerators.Internal/Godot.SourceGenerators.Internal.UnmanagedCallbacksGenerator/Godot.NativeInterop.NativeFuncs.generated.cs:380)\n       [4] Godot.GodotObject Godot.NativeCalls.godot_icall_3_1268(nint, nint, string, string, int) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/NativeCalls.cs:11611)\n       [5] Godot.Resource Godot.ResourceLoader.Load(string, string, Godot.ResourceLoader+CacheMode) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/ResourceLoader.cs:120)\n       [6] T Godot.ResourceLoader.Load<T>(string, string, Godot.ResourceLoader+CacheMode) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Extensions/ResourceLoaderExtensions.cs:27)\n       [7] T Godot.GD.Load<T>(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:129)\n       [8] Godot.PackedScene EnemyKinds.Scene(EnemyKind) (C:\\Users\\ALEJANDRO\\Documents\\lullaby-ia\\scripts\\enemies\\EnemyKind.cs:50)\n       [9] Godot.PackedScene RoomController.EnemySceneFor(int) (C:\\Users\\ALEJANDRO\\Documents\\lullaby-ia\\scripts\\systems\\RoomController.cs:341)\n       [10] void RoomController+<StartCombat>d__122.MoveNext() (C:\\Users\\ALEJANDRO\\Documents\\lullaby-ia\\scripts\\systems\\RoomController.cs:321)\n       [11] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)\n       [12] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext(System.Threading.Thread)\n       [13] void Godot.SignalAwaiter.SignalCallback(nint, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_bool*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/SignalAwaiter.cs:65)"
+      },
+      {
+        "line": 194,
+        "header": "ERROR: System.InvalidOperationException: Handle is not initialized.",
+        "last_completed_pair": "Par 55/90: semilla 600019, repeticion 0; dano sim/real 11,0/6,0; tiempo sim/real 83,3/82,3; pared 3,4 s.",
+        "block": "ERROR: System.InvalidOperationException: Handle is not initialized.\n   at System.Runtime.InteropServices.GCHandle.FromIntPtr(IntPtr value)\n   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak) in /root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:line 1284\n   at: void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/NativeInterop/ExceptionUtils.cs:113)\n   C# backtrace (most recent call first):\n       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)\n       [1] void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/NativeInterop/ExceptionUtils.cs:113)\n       [2] Godot.NativeInterop.godot_bool Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(nint, System.IntPtr*, Godot.NativeInterop.godot_bool) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:1284)\n       [3] void Godot.NativeInterop.NativeFuncs.godotsharp_method_bind_ptrcall(nint, nint, System.Void**, System.Void*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Godot.SourceGenerators.Internal/Godot.SourceGenerators.Internal.UnmanagedCallbacksGenerator/Godot.NativeInterop.NativeFuncs.generated.cs:380)\n       [4] Godot.GodotObject Godot.NativeCalls.godot_icall_3_1268(nint, nint, string, string, int) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/NativeCalls.cs:11611)\n       [5] Godot.Resource Godot.ResourceLoader.Load(string, string, Godot.ResourceLoader+CacheMode) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/ResourceLoader.cs:120)\n       [6] T Godot.ResourceLoader.Load<T>(string, string, Godot.ResourceLoader+CacheMode) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Extensions/ResourceLoaderExtensions.cs:27)\n       [7] T Godot.GD.Load<T>(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:129)\n       [8] Godot.PackedScene EnemyKinds.Scene(EnemyKind) (C:\\Users\\ALEJANDRO\\Documents\\lullaby-ia\\scripts\\enemies\\EnemyKind.cs:50)\n       [9] Godot.PackedScene RoomController.EnemySceneFor(int) (C:\\Users\\ALEJANDRO\\Documents\\lullaby-ia\\scripts\\systems\\RoomController.cs:341)\n       [10] void RoomController+<StartCombat>d__122.MoveNext() (C:\\Users\\ALEJANDRO\\Documents\\lullaby-ia\\scripts\\systems\\RoomController.cs:321)\n       [11] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)\n       [12] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext(System.Threading.Thread)\n       [13] void Godot.SignalAwaiter.SignalCallback(nint, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_bool*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/SignalAwaiter.cs:65)"
+      }
+    ]
+  }
+}
