@@ -15,6 +15,11 @@ public static class PropModels
 {
 	public const string Shelf = "estanteria_gigante";
 	public const string Curtain = "cortina_ventana";
+	public const string Picture = "cuadro_infantil";
+	public const string Clock = "reloj_pared";
+	public const string ToyShelf = "repisa_juguetes";
+	public const string StarLamp = "aplique_estrella";
+	public const string CoatRack = "perchero_pared";
 	public const string Rug = "alfombra";
 	public const string Pedestal = "pedestal_tesoro";
 	public const string Blocks = "bloques_letras";
