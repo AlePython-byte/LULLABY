@@ -1,7 +1,8 @@
 # Diagnóstico v3: ruido, residuos e incidente de carga
 
-Estado: análisis de los datos originales terminado; **pendientes las tres
-repeticiones de 600019:1 y la confirmación de equipo libre solicitada**.
+Estado: análisis de los datos originales y **tres repeticiones de 600019:1
+terminados**. La curva posterior de diez repeticiones se prepara como diagnóstico
+independiente; sus datos todavía no se han ejecutado.
 No se aplicaron correcciones al simulador, bot o juego real. No se modificó el
 protocolo ni sus umbrales. No se ejecutaron aceptación ni reserva.
 
@@ -132,7 +133,7 @@ guardaron trazas por fotograma ni un censo de apariciones real suficiente para
 demostrar que todo enemigo cargó y actuó exactamente igual. El par se conserva;
 no se excluye ni se sustituye para subir Spearman.
 
-### Tres repeticiones preparadas, pendientes de ejecución
+### Tres repeticiones ejecutadas
 
 `tests/FidelityV3RepeatPair.tscn` fija 600019 y repetición 1 y hace tres intentos
 consecutivos, con un trabajador. Verifica los hashes del código y recursos
@@ -145,13 +146,29 @@ las 55 partidas previas al incidente**; si no fallan, eso no descarta un fallo
 que dependa del estado acumulado o sea infrecuente. No se amplía automáticamente
 la prueba a esas 55 partidas.
 
-Al iniciar el diagnóstico había un proceso de Godot activo. Se solicitó
-confirmación de editor cerrado y equipo libre antes de ejecutar; no se lanzó
-la escena de repetición ni se abrió el editor. La estimación comunicada fue de
-30–60 s y 250–500 MiB de RAM, dejando 1 GiB disponible. La escena compiló desde
-`git archive`, pero su ejecución permanece pendiente de esa confirmación.
+Tras la confirmación posterior de equipo libre y editor cerrado se ejecutaron
+los tres intentos, en un proceso, con el mismo índice de repetición 1 y la misma
+semilla del bot en todos ellos. La ejecución interna completa tardó **11,20 s**
+y alcanzó **188,0 MiB** de memoria residente máxima.
 
-Comandos previstos, solo tras confirmación, desde la raíz:
+| Intento adicional | Daño sim/real | Tiempo sim/real, s | GCHandle | Illegal instruction |
+|---|---|---|---:|---:|
+| 1 | 10 / 10 | 77,96667 / 78,083336 | 0 | 0 |
+| 2 | 10 / 10 | 77,96667 / 78,083336 | 0 | 0 |
+| 3 | 10 / 10 | 77,96667 / 78,083336 | 0 | 0 |
+
+Los objetos `result` completos, no solo los totales, son iguales a los originales
+en ambos entornos y en los tres intentos: incluyen fuentes, contactos por tipo,
+visitas y tiempos. **No se observa afectación en ninguna medida almacenada del
+par original y el incidente no se reprodujo en estas tres pruebas.** No se
+recrearon las 55 partidas previas; esto no demuestra ausencia de un problema de
+estado acumulado ni de efectos internos no medidos. El mensaje de certificados
+de Windows se registró aparte de las excepciones de manejadores.
+
+`repeats.zip` conserva los cinco JSON originales y el log completo, con un índice
+de SHA-256. Los originales locales se conservan en `repeats/`.
+
+Comando utilizado tras la confirmación, desde la raíz:
 
 ```powershell
 dotnet build
