@@ -4,12 +4,17 @@ using Godot;
 
 /// <summary>
 /// Plan determinista de la decoración de una SALA DE COMBATE (tipo Normal): solo piezas pegadas a la pared (estanterías y cortinas,
-/// con la parte trasera hacia la pared y el frente hacia el interior) y una alfombra plana. Nada con colisión y nada que cambie
-/// el juego que la IA evaluó. Sin pared sur: la cámara no la ve (RoomDecorator.SkipSouth).
+/// con la parte trasera hacia la pared y el frente hacia el interior) y alfombras planas. Nada con colisión y nada que cambie el
+/// juego que la IA evaluó. Sin pared sur: la cámara no la ve (RoomDecorator.SkipSouth).
 ///
-/// Las piezas de pared sobresalen como mucho MaxRelief (0,3 m): se hunden Embed metros en la pared, que mide 1 m de grosor.
-/// Quedan a CornerMargin de las esquinas y a DoorClear del centro de cada pared con puerta. El azar sale de SeedMix (generador
-/// propio por sala), así que la misma semilla de partida y celda dan siempre las mismas piezas.
+/// Variedad por semilla: en cada pared (norte, este, oeste) se eligen al azar la cantidad (0 a 2), la pieza, la posición a lo largo de
+/// la pared y el espejado; y de 0 a 2 alfombras con posición y giro propios. En una sala de combate solo caben dos piezas de pared
+/// distintas (estantería y cortina): el resto del catálogo tiene más de 0,3 m de fondo y vive en las salas de inicio, tesoro y
+/// jefe (FreeDecorPlanner).
+///
+/// Reglas: relieve de MaxRelief (0,3 m) como mucho (las piezas se hunden Embed metros en la pared de 1 m), a CornerMargin de las
+/// esquinas, a DoorClear del centro de cada pared con puerta, a MinGap entre sí y como mucho MaxWallPieces por sala. El azar sale de
+/// SeedMix (generador propio por sala): la misma semilla de partida y celda dan siempre las mismas piezas.
 /// </summary>
 public static class WallDecorPlanner
 {
@@ -17,70 +22,98 @@ public static class WallDecorPlanner
 	public const float Embed = 0.03f;
 	public const float CornerMargin = 1.2f;
 	public const float DoorClear = 2.3f;
+	public const float MinGap = 0.6f;
 	public const int MaxWallPieces = 4;
-	public const float RugChance = 0.6f;
 	public const float RugMargin = 3.2f;
+	public const float RugGap = 0.3f;
 
 	private const ulong Salt = 0x57414C4CUL;
+	private const int Attempts = 14;
 
 	public static List<DecorPiece> Plan(int gameSeed, Vector2I cell, Vector2 size, IReadOnlyCollection<DoorSide> doors)
 	{
 		RandomNumberGenerator random = SeedMix.RandomFor(gameSeed, cell, Salt);
 		List<DecorPiece> pieces = new();
+		List<Aabb> footprints = new();
 		float hx = size.X / 2.0f;
 		float hz = size.Y / 2.0f;
 
 		string[] kinds = { PropModels.Shelf, PropModels.Curtain };
 		foreach (DoorSide side in new[] { DoorSide.North, DoorSide.East, DoorSide.West })
 		{
+			float roll = random.Randf();
+			int count = roll < 0.25f ? 0 : roll < 0.70f ? 1 : 2;
 			float half = (side == DoorSide.North ? size.X : size.Y) / 2.0f;
-			List<(float From, float To)> segments = new();
-			if (doors.Contains(side))
+			for (int i = 0; i < count; i++)
 			{
-				segments.Add((-half + CornerMargin, -DoorClear));
-				segments.Add((DoorClear, half - CornerMargin));
-			}
-			else
-			{
-				segments.Add((-half + CornerMargin, half - CornerMargin));
-			}
-
-			foreach ((float from, float to) in segments)
-			{
-				float cursor = from + random.RandfRange(0.0f, 1.0f);
-				while (true)
+				for (int attempt = 0; attempt < Attempts; attempt++)
 				{
 					string kind = kinds[random.Randf() < 0.5f ? 0 : 1];
-					float gap = random.RandfRange(0.8f, 2.5f);
+					bool mirror = random.Randf() < 0.5f;
+					float along = random.RandfRange(-half, half);
 					Aabb? box = ModelLibrary.BoundsOf(PropModels.Path(kind));
 					if (!box.HasValue)
 					{
-						break;
+						continue;
 					}
 
 					float width = box.Value.Size.X;
-					if (cursor + width > to)
+					if (Mathf.Abs(along) + width / 2.0f > half - CornerMargin)
 					{
-						break;
+						continue;
 					}
 
-					pieces.Add(OnWall(side, cursor + width / 2.0f, kind, box.Value.Size.Z, hx, hz));
-					cursor += width + gap;
+					if (doors.Contains(side) && Mathf.Abs(along) - width / 2.0f < DoorClear)
+					{
+						continue;
+					}
+
+					DecorPiece piece = OnWall(side, along, kind, box.Value.Size.Z, hx, hz) with { Mirror = mirror };
+					Aabb footprint = DecorGeometry.Footprint(piece);
+					if (footprints.Any(other => DecorGeometry.Overlaps(footprint, other, MinGap)))
+					{
+						continue;
+					}
+
+					pieces.Add(piece);
+					footprints.Add(footprint);
+					break;
 				}
 			}
 		}
 
 		while (pieces.Count > MaxWallPieces)
 		{
-			pieces.RemoveAt(random.RandiRange(0, pieces.Count - 1));
+			int removed = random.RandiRange(0, pieces.Count - 1);
+			pieces.RemoveAt(removed);
+			footprints.RemoveAt(removed);
 		}
 
-		if (random.Randf() < RugChance && ModelLibrary.BoundsOf(PropModels.Path(PropModels.Rug)).HasValue)
+		float rugRoll = random.Randf();
+		int rugs = rugRoll < 0.35f ? 0 : rugRoll < 0.85f ? 1 : 2;
+		string rugPath = PropModels.Path(PropModels.Rug);
+		if (ModelLibrary.BoundsOf(rugPath).HasValue)
 		{
-			float x = random.RandfRange(-(hx - RugMargin), hx - RugMargin);
-			float z = random.RandfRange(-(hz - RugMargin), hz - RugMargin);
-			float yaw = random.RandiRange(0, 3) * Mathf.Pi / 2.0f;
-			pieces.Add(new DecorPiece(PropModels.Rug, new Vector3(x, 0.0f, z), yaw));
+			List<Aabb> rugFootprints = new();
+			for (int i = 0; i < rugs; i++)
+			{
+				for (int attempt = 0; attempt < Attempts; attempt++)
+				{
+					float x = random.RandfRange(-(hx - RugMargin), hx - RugMargin);
+					float z = random.RandfRange(-(hz - RugMargin), hz - RugMargin);
+					float yaw = random.RandiRange(0, 3) * Mathf.Pi / 2.0f;
+					DecorPiece rug = new(PropModels.Rug, new Vector3(x, 0.0f, z), yaw, random.Randf() < 0.5f);
+					Aabb footprint = DecorGeometry.Footprint(rug);
+					if (rugFootprints.Any(other => DecorGeometry.Overlaps(footprint, other, RugGap)))
+					{
+						continue;
+					}
+
+					pieces.Add(rug);
+					rugFootprints.Add(footprint);
+					break;
+				}
+			}
 		}
 
 		return pieces;
@@ -89,21 +122,8 @@ public static class WallDecorPlanner
 	/// <summary>Pieza con la espalda contra la cara interior de la pared (hundida Embed) y el frente (-Z del modelo) hacia el interior.</summary>
 	public static DecorPiece OnWall(DoorSide side, float along, string model, float depth, float hx, float hz)
 	{
-		Vector3 inward = side switch
-		{
-			DoorSide.North => Vector3.Back,
-			DoorSide.South => Vector3.Forward,
-			DoorSide.East => Vector3.Left,
-			_ => Vector3.Right,
-		};
-		Vector3 wallPoint = side switch
-		{
-			DoorSide.North => new Vector3(along, 0.0f, -hz),
-			DoorSide.South => new Vector3(along, 0.0f, hz),
-			DoorSide.East => new Vector3(hx, 0.0f, along),
-			_ => new Vector3(-hx, 0.0f, along),
-		};
-		Vector3 position = wallPoint + inward * (depth / 2.0f - Embed);
-		return new DecorPiece(model, position, Mathf.Atan2(-inward.X, -inward.Z));
+		Vector3 inward = DecorGeometry.Inward(side);
+		Vector3 position = DecorGeometry.WallPoint(side, along, hx, hz) + inward * (depth / 2.0f - Embed);
+		return new DecorPiece(model, position, DecorGeometry.FacingYaw(side));
 	}
 }
