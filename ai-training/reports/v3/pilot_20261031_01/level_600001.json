@@ -1,0 +1,503 @@
+{
+  "requested_seed": 600001,
+  "effective_seed": 600001,
+  "map": {
+    "start": [
+      0,
+      0
+    ],
+    "boss": [
+      -2,
+      -3
+    ],
+    "rooms": [
+      {
+        "cell": [
+          -3,
+          -1
+        ],
+        "type": "Normal",
+        "template_id": "mixta_explosivos",
+        "size": [
+          18,
+          18
+        ],
+        "spawns": [
+          {
+            "position": [
+              -6.5,
+              -6.5
+            ],
+            "kind": "Exploder"
+          },
+          {
+            "position": [
+              6.5,
+              -6.5
+            ],
+            "kind": "Exploder"
+          },
+          {
+            "position": [
+              6.5,
+              6.5
+            ],
+            "kind": "Chaser"
+          }
+        ],
+        "categories": [
+          "with_exploder"
+        ]
+      },
+      {
+        "cell": [
+          -2,
+          -3
+        ],
+        "type": "Boss",
+        "template_id": "jefe",
+        "size": [
+          26,
+          26
+        ],
+        "spawns": [
+          {
+            "position": [
+              -5,
+              -5
+            ],
+            "kind": "Chaser"
+          },
+          {
+            "position": [
+              5,
+              -5
+            ],
+            "kind": "Chaser"
+          },
+          {
+            "position": [
+              -5,
+              5
+            ],
+            "kind": "Chaser"
+          },
+          {
+            "position": [
+              5,
+              5
+            ],
+            "kind": "Chaser"
+          },
+          {
+            "position": [
+              -10,
+              -10
+            ],
+            "kind": "Chaser"
+          },
+          {
+            "position": [
+              10,
+              -10
+            ],
+            "kind": "Chaser"
+          }
+        ],
+        "categories": [
+          "basic_only"
+        ]
+      },
+      {
+        "cell": [
+          -2,
+          -2
+        ],
+        "type": "Normal",
+        "template_id": "mixta_caos",
+        "size": [
+          26,
+          22
+        ],
+        "spawns": [
+          {
+            "position": [
+              -6,
+              -5
+            ],
+            "kind": "Runner"
+          },
+          {
+            "position": [
+              6,
+              -5
+            ],
+            "kind": "Digger"
+          },
+          {
+            "position": [
+              -6,
+              5
+            ],
+            "kind": "Exploder"
+          },
+          {
+            "position": [
+              6,
+              5
+            ],
+            "kind": "Shooter"
+          },
+          {
+            "position": [
+              0,
+              0
+            ],
+            "kind": "Flyer"
+          }
+        ],
+        "categories": [
+          "with_shooter",
+          "with_exploder",
+          "with_flyer",
+          "with_runner",
+          "with_digger"
+        ]
+      },
+      {
+        "cell": [
+          -2,
+          -1
+        ],
+        "type": "Normal",
+        "template_id": "normal_cuadrada",
+        "size": [
+          18,
+          18
+        ],
+        "spawns": [
+          {
+            "position": [
+              -6.5,
+              -6.5
+            ],
+            "kind": "Chaser"
+          },
+          {
+            "position": [
+              6.5,
+              -6.5
+            ],
+            "kind": "Chaser"
+          },
+          {
+            "position": [
+              6.5,
+              6.5
+            ],
+            "kind": "Chaser"
+          }
+        ],
+        "categories": [
+          "basic_only"
+        ]
+      },
+      {
+        "cell": [
+          -1,
+          -1
+        ],
+        "type": "Normal",
+        "template_id": "normal_cuadrada",
+        "size": [
+          18,
+          18
+        ],
+        "spawns": [
+          {
+            "position": [
+              -6.5,
+              -6.5
+            ],
+            "kind": "Chaser"
+          },
+          {
+            "position": [
+              6.5,
+              -6.5
+            ],
+            "kind": "Chaser"
+          },
+          {
+            "position": [
+              6.5,
+              6.5
+            ],
+            "kind": "Chaser"
+          }
+        ],
+        "categories": [
+          "basic_only"
+        ]
+      },
+      {
+        "cell": [
+          0,
+          -2
+        ],
+        "type": "Treasure",
+        "template_id": "tesoro",
+        "size": [
+          12,
+          12
+        ],
+        "spawns": [],
+        "categories": []
+      },
+      {
+        "cell": [
+          0,
+          -1
+        ],
+        "type": "Normal",
+        "template_id": "mixta_tiradores",
+        "size": [
+          20,
+          20
+        ],
+        "spawns": [
+          {
+            "position": [
+              -7.5,
+              -7.5
+            ],
+            "kind": "Shooter"
+          },
+          {
+            "position": [
+              7.5,
+              -7.5
+            ],
+            "kind": "Shooter"
+          },
+          {
+            "position": [
+              -7.5,
+              7.5
+            ],
+            "kind": "Chaser"
+          },
+          {
+            "position": [
+              7.5,
+              7.5
+            ],
+            "kind": "Chaser"
+          }
+        ],
+        "categories": [
+          "with_shooter"
+        ]
+      },
+      {
+        "cell": [
+          0,
+          0
+        ],
+        "type": "Start",
+        "template_id": "inicio",
+        "size": [
+          16,
+          16
+        ],
+        "spawns": [],
+        "categories": []
+      },
+      {
+        "cell": [
+          1,
+          0
+        ],
+        "type": "Normal",
+        "template_id": "mixta_voladores",
+        "size": [
+          26,
+          22
+        ],
+        "spawns": [
+          {
+            "position": [
+              -6,
+              -5
+            ],
+            "kind": "Flyer"
+          },
+          {
+            "position": [
+              6,
+              -5
+            ],
+            "kind": "Flyer"
+          },
+          {
+            "position": [
+              -6,
+              5
+            ],
+            "kind": "Flyer"
+          },
+          {
+            "position": [
+              6,
+              5
+            ],
+            "kind": "Chaser"
+          },
+          {
+            "position": [
+              0,
+              0
+            ],
+            "kind": "Shooter"
+          }
+        ],
+        "categories": [
+          "with_shooter",
+          "with_flyer"
+        ]
+      },
+      {
+        "cell": [
+          1,
+          1
+        ],
+        "type": "Normal",
+        "template_id": "mixta_explosivos",
+        "size": [
+          18,
+          18
+        ],
+        "spawns": [
+          {
+            "position": [
+              -6.5,
+              -6.5
+            ],
+            "kind": "Exploder"
+          },
+          {
+            "position": [
+              6.5,
+              -6.5
+            ],
+            "kind": "Exploder"
+          },
+          {
+            "position": [
+              6.5,
+              6.5
+            ],
+            "kind": "Chaser"
+          }
+        ],
+        "categories": [
+          "with_exploder"
+        ]
+      },
+      {
+        "cell": [
+          2,
+          -1
+        ],
+        "type": "Normal",
+        "template_id": "mixta_variada",
+        "size": [
+          28,
+          16
+        ],
+        "spawns": [
+          {
+            "position": [
+              -5,
+              0
+            ],
+            "kind": "Exploder"
+          },
+          {
+            "position": [
+              5,
+              0
+            ],
+            "kind": "Shooter"
+          },
+          {
+            "position": [
+              -11.5,
+              -6.5
+            ],
+            "kind": "Flyer"
+          },
+          {
+            "position": [
+              11.5,
+              6.5
+            ],
+            "kind": "Chaser"
+          }
+        ],
+        "categories": [
+          "with_shooter",
+          "with_exploder",
+          "with_flyer"
+        ]
+      },
+      {
+        "cell": [
+          2,
+          0
+        ],
+        "type": "Normal",
+        "template_id": "mixta_variada",
+        "size": [
+          28,
+          16
+        ],
+        "spawns": [
+          {
+            "position": [
+              -5,
+              0
+            ],
+            "kind": "Exploder"
+          },
+          {
+            "position": [
+              5,
+              0
+            ],
+            "kind": "Shooter"
+          },
+          {
+            "position": [
+              -11.5,
+              -6.5
+            ],
+            "kind": "Flyer"
+          },
+          {
+            "position": [
+              11.5,
+              6.5
+            ],
+            "kind": "Chaser"
+          }
+        ],
+        "categories": [
+          "with_shooter",
+          "with_exploder",
+          "with_flyer"
+        ]
+      }
+    ]
+  }
+}

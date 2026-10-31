@@ -1,0 +1,290 @@
+{
+  "requested_seed": 600001,
+  "effective_seed": 600001,
+  "run": 0,
+  "bot_seed": "208151688774401750",
+  "result": {
+    "damage_total": 10,
+    "damage_critical": 8,
+    "time_total": 94.41667,
+    "time_to_boss": 83.15,
+    "timed_out": false,
+    "would_die": true,
+    "damage_by_source": [
+      10,
+      0,
+      0
+    ],
+    "hits_by_source": [
+      10,
+      0,
+      0
+    ],
+    "visits": [
+      {
+        "cell": [
+          0,
+          0
+        ],
+        "enter_time": 0.016666668,
+        "clear_time": 0.016666668,
+        "damage": 0,
+        "damage_by_source": [
+          0,
+          0,
+          0
+        ],
+        "contact_by_kind": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "cell": [
+          1,
+          0
+        ],
+        "enter_time": 1.4666667,
+        "clear_time": 6.3833337,
+        "damage": 1,
+        "damage_by_source": [
+          1,
+          0,
+          0
+        ],
+        "contact_by_kind": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "cell": [
+          2,
+          0
+        ],
+        "enter_time": 9.316668,
+        "clear_time": 14.466667,
+        "damage": 0,
+        "damage_by_source": [
+          0,
+          0,
+          0
+        ],
+        "contact_by_kind": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "cell": [
+          2,
+          -1
+        ],
+        "enter_time": 16.650002,
+        "clear_time": 21.95,
+        "damage": 1,
+        "damage_by_source": [
+          1,
+          0,
+          0
+        ],
+        "contact_by_kind": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "cell": [
+          1,
+          1
+        ],
+        "enter_time": 30.100002,
+        "clear_time": 34.76667,
+        "damage": 0,
+        "damage_by_source": [
+          0,
+          0,
+          0
+        ],
+        "contact_by_kind": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "cell": [
+          0,
+          -1
+        ],
+        "enter_time": 40.733334,
+        "clear_time": 47.800003,
+        "damage": 1,
+        "damage_by_source": [
+          1,
+          0,
+          0
+        ],
+        "contact_by_kind": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "cell": [
+          0,
+          -2
+        ],
+        "enter_time": 48.95,
+        "clear_time": 48.95,
+        "damage": 0,
+        "damage_by_source": [
+          0,
+          0,
+          0
+        ],
+        "contact_by_kind": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "cell": [
+          -1,
+          -1
+        ],
+        "enter_time": 52.100002,
+        "clear_time": 56.51667,
+        "damage": 0,
+        "damage_by_source": [
+          0,
+          0,
+          0
+        ],
+        "contact_by_kind": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "cell": [
+          -2,
+          -1
+        ],
+        "enter_time": 59.133335,
+        "clear_time": 63.950005,
+        "damage": 1,
+        "damage_by_source": [
+          1,
+          0,
+          0
+        ],
+        "contact_by_kind": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "cell": [
+          -3,
+          -1
+        ],
+        "enter_time": 66.433334,
+        "clear_time": 69.91667,
+        "damage": 0,
+        "damage_by_source": [
+          0,
+          0,
+          0
+        ],
+        "contact_by_kind": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "cell": [
+          -2,
+          -2
+        ],
+        "enter_time": 73.183334,
+        "clear_time": 80.433334,
+        "damage": 0,
+        "damage_by_source": [
+          0,
+          0,
+          0
+        ],
+        "contact_by_kind": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "cell": [
+          -2,
+          -3
+        ],
+        "enter_time": 83.15,
+        "clear_time": 94.41667,
+        "damage": 6,
+        "damage_by_source": [
+          6,
+          0,
+          0
+        ],
+        "contact_by_kind": [
+          6,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ]
+  }
+}
