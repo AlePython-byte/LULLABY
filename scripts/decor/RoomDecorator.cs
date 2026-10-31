@@ -10,9 +10,9 @@ using Godot;
 ///   - un marco de puerta (marco_puerta) alrededor de cada hueco; su hueco libre mide 3 m, como el de la puerta;
 ///   - los barrotes (puerta_barrotes) como visual de la puerta cerrada, colgando de Door (se ocultan al abrir);
 ///   - columnas (columna_esquina) en las esquinas interiores del lado norte;
-///   - con el tipo de sala: en las de combate (Normal), estanterías, cortinas y una alfombra plana pegadas a la pared (WallDecorPlanner,
-///     con azar propio por semilla de partida y celda); en inicio, tesoro y jefe, piezas exentas en una disposición fija
-///     (FixedRoomLayouts). Ninguna lleva colisión.
+///   - con el tipo de sala: en las de combate (Normal), estanterías, cortinas y alfombras planas pegadas a la pared (WallDecorPlanner);
+///     en inicio, tesoro y jefe, un subconjunto del catálogo de piezas exentas junto a las paredes (FreeDecorPlanner). Las dos
+///     cosas con azar propio por semilla de partida y celda, y sin colisión.
 ///
 /// La cámara mira desde el sur con 60° de inclinación: la pared sur oculta el suelo que tiene delante, así que sus esquinas no
 /// llevan columna (SkipSouth). Una pieza que falte en assets/ simplemente no se pone.
@@ -30,10 +30,10 @@ public static class RoomDecorator
 	// Las caras del marco (1 m de fondo) coinciden con las de la pared (1 m de grosor); un poco más de fondo evita el parpadeo.
 	private const float FrameDepthScale = 1.03f;
 
-	/// <summary>Piezas de una sala según su tipo: plan de pared con azar propio (combate) o disposición fija (inicio, tesoro, jefe).</summary>
+	/// <summary>Piezas de una sala según su tipo: plan de pared (combate) o piezas exentas (inicio, tesoro, jefe), ambos con azar propio por semilla y celda.</summary>
 	public static List<DecorPiece> PiecesFor(RoomType type, Vector2 size, Vector2I cell, int gameSeed, IReadOnlyCollection<DoorSide> doors)
 	{
-		return type == RoomType.Normal ? WallDecorPlanner.Plan(gameSeed, cell, size, doors) : FixedRoomLayouts.For(type, size);
+		return type == RoomType.Normal ? WallDecorPlanner.Plan(gameSeed, cell, size, doors) : FreeDecorPlanner.Plan(type, size, cell, gameSeed);
 	}
 
 	/// <summary>
@@ -119,6 +119,11 @@ public static class RoomDecorator
 			model.Name = $"{piece.Model}_{i}";
 			model.Position = piece.Position;
 			model.Rotation = new Vector3(0.0f, piece.Yaw, 0.0f);
+			if (piece.Mirror)
+			{
+				model.Scale = new Vector3(-1.0f, 1.0f, 1.0f);
+			}
+
 			decor.AddChild(model);
 
 			// Las piezas bajas y planas no proyectan sombra: cuestan sin aportar.
