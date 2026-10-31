@@ -16,6 +16,11 @@ public partial class ShootBehavior : EnemyBehavior
 	[Export] public float FirstShotDelay { get; set; } = 1.0f;
 	[Export] public float SpawnDistance { get; set; } = 0.7f;
 
+	public override void _Ready()
+	{
+		Fired += _ => AudioManager.PlayAt(SoundCatalog.ShooterShot, GetParent<Node3D>().GlobalPosition);
+	}
+
 	private float _cooldown = float.NaN;
 	private float _warnTimer;
 	private bool _warning;
