@@ -1,0 +1,58 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/audio/VolumeControls.cs" id="1_volume"]
+
+[node name="VolumeControls" type="VBoxContainer"]
+custom_minimum_size = Vector2(380, 0)
+theme_override_constants/separation = 6
+script = ExtResource("1_volume")
+
+[node name="MasterRow" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Name" type="Label" parent="MasterRow"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Volumen general"
+
+[node name="Slider" type="HSlider" parent="MasterRow"]
+custom_minimum_size = Vector2(150, 24)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+step = 5.0
+value = 80.0
+
+[node name="Value" type="Label" parent="MasterRow"]
+custom_minimum_size = Vector2(56, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "80%"
+horizontal_alignment = 2
+
+[node name="SfxRow" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Name" type="Label" parent="SfxRow"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Efectos"
+
+[node name="Slider" type="HSlider" parent="SfxRow"]
+custom_minimum_size = Vector2(150, 24)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+step = 5.0
+value = 100.0
+
+[node name="Value" type="Label" parent="SfxRow"]
+custom_minimum_size = Vector2(56, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "100%"
+horizontal_alignment = 2
