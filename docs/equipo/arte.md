@@ -88,7 +88,15 @@ Renderizados con canal alfa transparente (RGBA), vista 3/4 frontal e iluminació
 - **`icono_manta.png`** (128×128 y 512×512)
 
 ### 3.4. Props de Escenario y Ambientación (`assets/models/props/`)
-16 piezas modulares: Cuna de barrotes, marco de puerta, puerta con barrotes, pedestal de tesoro, lámpara de noche, caja de música, bloque de letras, alfombra circular, tambor, xilófono, tren de madera, pelota de colores, libro de cuentos abierto, mecedora gigante, reloj de péndulo y móvil colgante de cuna.
+21 piezas modulares distribuidas en props de suelo, estructurales y piezas de pared (con relieve $\le 0.3$ m para no obstruir el *AI Director*):
+- **Props de Pared Nuevos (x5):**
+  - `cuadro_infantil.glb`: Marco de madera con lienzo crema, barquito en relieve y sol infantil (136 tris, $0.82 \times 0.24 \times 0.70$ m).
+  - `reloj_pared.glb`: Reloj cucú de madera con tejadillo rojo, esfera y péndulo dorado oscilante (196 tris, $0.48 \times 0.16 \times 1.13$ m).
+  - `repisa_juguetes.glb`: Repisa de madera flotante con patito de goma, libros y cubo (182 tris, $1.05 \times 0.22 \times 0.38$ m).
+  - `aplique_estrella.glb`: Lámpara de pared en forma de estrella de 5 puntas con cordón tirador y cuenta rosa (132 tris, $0.40 \times 0.07 \times 0.64$ m).
+  - `perchero_pared.glb`: Perchero de pared con 3 pomos redondos de colores y saquito de bebé colgado (216 tris, $0.75 \times 0.09 \times 0.45$ m).
+- **Props de Suelo y Sala (x16):**
+  - Cuna de barrotes, cuna gigante, marco de puerta, puerta con barrotes, pedestal de tesoro, lámpara de velador, baúl de juguetes, bloques de letras, castillo de bloques, alfombra circular, tambor, xilófono, tren de madera, pelota de colores, libro de cuentos abierto, mecedora gigante, columna de esquina y móvil colgante de cuna.
 
 ---
 
@@ -111,3 +119,4 @@ Para la difusión y presentación del proyecto:
 
 3. **¿Cómo se verificó la coherencia de escala?**  
    Se utilizó una referencia métrica constante ($1.0 \text{ unidad} = 1.0 \text{ metro}$): Noah mide 0.9 m, los enemigos entre 0.8 y 1.2 m, y The Mother alcanza 2.8 m, transmitiendo inmediatamente la sensación de indefensión del jugador.
+
