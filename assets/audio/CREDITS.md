@@ -10,3 +10,4 @@ Todos los efectos de sonido y pistas musicales utilizados en el proyecto cuentan
 | noah_muere.ogg      | Derrota o muerte de Noah                   | blukotek    | https://freesound.org/people/blukotek/sounds/431644/    | CC0      |
 | enemigo_golpe.ogg   | Daño recibido por un enemigo               | DSPena      | https://freesound.org/people/DSPena/sounds/243701/      | CC0      |
 | explosion.ogg       | Explosión o ataque de área                 | craigsmith  | https://freesound.org/people/craigsmith/sounds/674879/  | CC0      |
+| tirador_disparo.ogg | Disparo de proyectil enemigo               | qubodup     | https://freesound.org/people/qubodup/sounds/816113/     | CC0      |
