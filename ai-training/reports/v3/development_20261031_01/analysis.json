@@ -1,0 +1,198 @@
+{
+  "complete_development": true,
+  "levels": 30,
+  "pairs": 90,
+  "verdict": "fail",
+  "failures": [
+    "spearman_damage_total"
+  ],
+  "correlations": {
+    "damage_total": {
+      "spearman": 0.5278809516282509,
+      "mean_sim": 9.188888888888888,
+      "mean_real": 9.033333333333333,
+      "bias": 0.017220172201722086
+    },
+    "time_total": {
+      "spearman": 0.985761957730812,
+      "mean_sim": 88.38500391111111,
+      "mean_real": 88.48685612222222,
+      "bias": -0.0011510433930484744
+    }
+  },
+  "sources": {
+    "contact": {
+      "sim_damage": 809,
+      "real_damage": 802,
+      "sim_hits": 809,
+      "real_hits": 802,
+      "bias": 0.008728179551122194,
+      "verdict": "pass",
+      "ci": {
+        "low": -0.08270382371835054,
+        "high": 0.10520685213449076,
+        "valid_resamples": 2000,
+        "unit": "level"
+      }
+    },
+    "projectile": {
+      "sim_damage": 18,
+      "real_damage": 9,
+      "sim_hits": 18,
+      "real_hits": 9,
+      "bias": 1.0,
+      "verdict": "insufficient_evidence",
+      "ci": {
+        "low": 0.2857142857142857,
+        "high": 3.5,
+        "valid_resamples": 1997,
+        "unit": "level"
+      }
+    },
+    "explosion": {
+      "sim_damage": 0,
+      "real_damage": 2,
+      "sim_hits": 0,
+      "real_hits": 1,
+      "bias": -1.0,
+      "verdict": "insufficient_evidence",
+      "ci": {
+        "low": -1.0,
+        "high": -1.0,
+        "valid_resamples": 1278,
+        "unit": "level"
+      }
+    }
+  },
+  "compositions": {
+    "basic_only": {
+      "room_runs": 264,
+      "sim_time_sum": 1887.150075,
+      "real_time_sum": 1867.9501225,
+      "time_bias": 0.01027862161239271,
+      "sim_damage": 515.0,
+      "real_damage": 499.0,
+      "verdict": "pass",
+      "time_bias_ci": {
+        "low": -0.009148511550343182,
+        "high": 0.029915789835859588,
+        "valid_resamples": 2000,
+        "unit": "level"
+      }
+    },
+    "with_shooter": {
+      "room_runs": 300,
+      "sim_time_sum": 2021.3334107,
+      "real_time_sum": 2021.9167697,
+      "time_bias": -0.0002885178107932348,
+      "sim_damage": 218.0,
+      "real_damage": 228.0,
+      "verdict": "pass",
+      "time_bias_ci": {
+        "low": -0.023857941296217832,
+        "high": 0.022085085801888466,
+        "valid_resamples": 2000,
+        "unit": "level"
+      }
+    },
+    "with_exploder": {
+      "room_runs": 399,
+      "sim_time_sum": 2374.3001224,
+      "real_time_sum": 2378.4667952,
+      "time_bias": -0.001751831393403854,
+      "sim_damage": 142.0,
+      "real_damage": 151.0,
+      "verdict": "pass",
+      "time_bias_ci": {
+        "low": -0.014816985508714573,
+        "high": 0.012763233033932762,
+        "valid_resamples": 2000,
+        "unit": "level"
+      }
+    },
+    "with_flyer": {
+      "room_runs": 243,
+      "sim_time_sum": 1392.0167199,
+      "real_time_sum": 1420.3833832,
+      "time_bias": -0.01997113148148242,
+      "sim_damage": 181.0,
+      "real_damage": 208.0,
+      "verdict": "pass",
+      "time_bias_ci": {
+        "low": -0.03662636465897408,
+        "high": -0.0017734743446635671,
+        "valid_resamples": 2000,
+        "unit": "level"
+      }
+    },
+    "with_runner": {
+      "room_runs": 207,
+      "sim_time_sum": 1242.266713,
+      "real_time_sum": 1243.5000685,
+      "time_bias": -0.0009918419236500558,
+      "sim_damage": 113.0,
+      "real_damage": 107.0,
+      "verdict": "pass",
+      "time_bias_ci": {
+        "low": -0.021253877926489154,
+        "high": 0.02594435285374436,
+        "valid_resamples": 2000,
+        "unit": "level"
+      }
+    },
+    "with_digger": {
+      "room_runs": 129,
+      "sim_time_sum": 917.2166916,
+      "real_time_sum": 914.8667438,
+      "time_bias": 0.0025686230436568584,
+      "sim_damage": 24.0,
+      "real_damage": 23.0,
+      "verdict": "pass",
+      "time_bias_ci": {
+        "low": -0.013217579618926712,
+        "high": 0.015237586033954822,
+        "valid_resamples": 2000,
+        "unit": "level"
+      }
+    }
+  },
+  "contact_by_kind": {
+    "Chaser": {
+      "sim": 737,
+      "real": 737
+    },
+    "Shooter": {
+      "sim": 0,
+      "real": 0
+    },
+    "Exploder": {
+      "sim": 0,
+      "real": 0
+    },
+    "Flyer": {
+      "sim": 54,
+      "real": 49
+    },
+    "Runner": {
+      "sim": 18,
+      "real": 16
+    },
+    "Digger": {
+      "sim": 0,
+      "real": 0
+    }
+  },
+  "timeouts": {
+    "sim": 0,
+    "real": 0
+  },
+  "mode": "development",
+  "protocol_sha256": "91d0239fad57636476455b66eb06d49a1326b731d6777b2a166fa36aafb1e220",
+  "wall_seconds": 323.0742296,
+  "memory": {
+    "working_set64": 183410688,
+    "peak_working_set64": 231260160,
+    "private_memory_size64": 155373568
+  },
+  "behavior_checks": "Ver pruebas funcionales; una puerta estadistica no sustituye las pruebas de comportamiento"
+}
