@@ -58,7 +58,7 @@ public partial class ItemSystemTest : Node
 		Near(_catalog.Find("fotografia_rota").Amount, 0.25f, "Daño");
 		Near(_catalog.Find("chupete").Amount, 0.2f, "Cadencia");
 		Near(_catalog.Find("oso_peluche").Amount, 1.0f, "Vida máxima");
-		Near(_catalog.Find("manta_vieja").Amount, 0.2f, "Resistencia");
+		Near(_catalog.Find("manta_vieja").Amount, 0.5f, "Resistencia");
 		GD.Print("Catálogo y presentación: OK");
 	}
 
@@ -143,10 +143,10 @@ public partial class ItemSystemTest : Node
 		Near(health.CurrentHealth, 5.0f, "Oso añade un punto actual");
 		Near(health.MaxHealth, 5.0f, "Oso conserva el máximo base");
 		Require(items.TryCollect(_catalog.Find("manta_vieja")), "Manta recogida");
-		Near(protection.DamageTakenMultiplier, 0.8f, "Resistencia");
+		Near(protection.DamageTakenMultiplier, 0.5f, "Resistencia");
 		Require(protection.TakeHit(1.0f), "Golpe con resistencia");
-		Near(health.CurrentHealth, 4.2f, "Daño reducido un 20 %");
-		Require(Hearts(hud) == "FFFFEE", "HUD muestra salud fraccionaria y máximo efectivo en corazones (4,2 de 6: 4 llenos y 2 vacíos)");
+		Near(health.CurrentHealth, 4.5f, "Daño reducido un 50 % (medio corazón)");
+		Require(Hearts(hud) == "FFFFME", "HUD muestra la salud en corazones (4,5 de 6: 4 llenos, 1 medio y 1 vacío)");
 		Require(!protection.TakeHit(1.0f), "Se conserva la invulnerabilidad");
 
 		Input.ActionPress(PlayerShooter.ShootRight);
