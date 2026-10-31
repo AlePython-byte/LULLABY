@@ -27,7 +27,12 @@ public partial class FidelityV3RepetitionCurve : FidelityV3Check
 		try
 		{
 			string[] args = OS.GetCmdlineUserArgs();
-			if (args.Length != 1 || !args[0].StartsWith("--out-dir=")) throw new ArgumentException("Solo --out-dir=carpeta_nueva.");
+			if (args.Length != 3 || !args[0].StartsWith("--out-dir=") || !args[1].StartsWith("--first-seed=") || !args[2].StartsWith("--level-count="))
+				throw new ArgumentException("Usar --out-dir=carpeta_nueva --first-seed=N --level-count=5.");
+			int firstSeed = int.Parse(args[1][13..]);
+			int levelCount = int.Parse(args[2][14..]);
+			if (levelCount != 5 || firstSeed < 600001 || firstSeed + levelCount > 600031 || (firstSeed - 600001) % 5 != 0)
+				throw new ArgumentException("Solo lotes de cinco niveles de desarrollo.");
 			string path = Path.GetFullPath(args[0][10..]);
 			if (!path.StartsWith(Path.GetFullPath("ai-training/reports/v3") + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
 				throw new ArgumentException("Salida fuera de informes v3.");
@@ -67,11 +72,13 @@ public partial class FidelityV3RepetitionCurve : FidelityV3Check
 				GameplayParameters = parameters.ToDictionary(), Fingerprints = frozen,
 				OriginalArchiveSha256 = FidelityV3Protocol.HashFile("ai-training/reports/v3/development_20261031_01/raw_results.zip"),
 				RealGameMethod = "FidelityV3Check.PlayReal, cuerpo original sin cambios",
+				BatchFirstSeed = firstSeed, BatchLevelCount = levelCount,
+				TieredCompilation = System.Environment.GetEnvironmentVariable("DOTNET_TieredCompilation"),
 			});
 			MethodInfo playReal = typeof(FidelityV3Check).GetMethod("PlayReal", BindingFlags.Instance | BindingFlags.NonPublic)
 				?? throw new MissingMethodException("PlayReal");
 			int completed = 0;
-			for (int seed = 600001; seed <= 600030; seed++)
+			for (int seed = firstSeed; seed < firstSeed + levelCount; seed++)
 			{
 				_activeSeed = seed;
 				var generated = generator.Generate(seed, new DungeonGenerator.Settings { GeneratorVersion = 3 });
@@ -114,7 +121,7 @@ public partial class FidelityV3RepetitionCurve : FidelityV3Check
 					AssertFrozen(frozen);
 					completed++;
 					_phase = "between_pairs";
-					GD.Print($"CURVE_END pair={completed}/300 seed={seed} run={run} damage={sim.DamageTotal}/{real.DamageTotal} " +
+					GD.Print($"CURVE_END pair={completed}/{levelCount * 10} seed={seed} run={run} damage={sim.DamageTotal}/{real.DamageTotal} " +
 						$"time={sim.TimeTotal:0.000}/{real.TimeTotal:0.000} wall={simSeconds + realSeconds:0.0}s");
 				}
 			}
