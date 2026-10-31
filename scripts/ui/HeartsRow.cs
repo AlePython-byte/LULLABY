@@ -94,6 +94,10 @@ public partial class HeartsRow : Control
 			{
 				remaining = ShakeTime;
 			}
+			else if (i < _states.Count && next[i] > _states[i])
+			{
+				remaining = 0.0f; // un corazón que se recupera deja de sacudirse
+			}
 
 			shake.Add(remaining);
 		}
