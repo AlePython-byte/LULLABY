@@ -25,6 +25,14 @@ public partial class PlayerHealth : Node
 		_health = HealthComponent.FindIn(player);
 		_mesh = player.GetNode<Node3D>("Visual");
 		_health.Died += OnDied;
+		// Un golpe que no mata suena como daño; el que mata suena solo como muerte (OnDied).
+		_health.Damaged += (amount, current) =>
+		{
+			if (current > 0.0f)
+			{
+				AudioManager.Play(SoundCatalog.NoahHurt);
+			}
+		};
 	}
 
 	public override void _Process(double delta)
@@ -81,6 +89,7 @@ public partial class PlayerHealth : Node
 			return;
 		}
 
+		AudioManager.Play(SoundCatalog.NoahDies);
 		if (Defeated != null)
 		{
 			Defeated.Invoke();
