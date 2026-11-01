@@ -538,12 +538,57 @@ public partial class BossPhasesTest : Node
 
 		Vector2 half = behavior.ArenaSize / 2.0f;
 		Vector3 at = boss.Position;
-		Require(shots.Count <= MotherSpiral.TotalProjectiles && shots.Count >= MotherSpiral.TotalProjectiles - 6,
-			$"La espiral tiene {shots.Count} proyectiles, no {MotherSpiral.TotalProjectiles}. Jefe en ({at.X:0.00}, {at.Z:0.00}); vivos por brazo [{string.Join(", ", perArm)}]; "
+
+		// Lo que dispara el comportamiento, con su propia función: todas las tandas de todos los brazos salvo las que nacerían a menos de
+		// RingSafeDistance de Noah (MotherRing.SpawnsOnTarget). El jefe y Noah no se mueven durante la espiral.
+		List<(Vector3 Direction, bool Skipped)> plan = new();
+		for (int emission = 0; emission < MotherSpiral.Emissions; emission++)
+		{
+			foreach (Vector3 direction in MotherSpiral.Directions(emission, gap, behavior.SpiralReverse))
+			{
+				plan.Add((direction, MotherRing.SpawnsOnTarget(boss.GlobalPosition, direction, behavior.RingSpawnDistance, player.GlobalPosition, behavior.RingSafeDistance)));
+			}
+		}
+
+		int omitted = plan.Count(entry => entry.Skipped);
+		string detail = $"Jefe en ({at.X:0.00}, {at.Z:0.00}); vivos por brazo [{string.Join(", ", perArm)}]; "
 			+ $"distancia a las paredes: oeste {at.X + half.X:0.00}, este {half.X - at.X:0.00}, norte {at.Z + half.Y:0.00}, sur {half.Y - at.Z:0.00}; "
 			+ $"hueco hacia ({gap.X:0.00}, {gap.Z:0.00}), giro {(behavior.SpiralReverse ? "inverso" : "directo")}; "
 			+ $"Noah en ({player.GlobalPosition.X:0.00}, {player.GlobalPosition.Z:0.00}) a {(player.GlobalPosition with { Y = 0.0f }).DistanceTo(boss.GlobalPosition with { Y = 0.0f }):0.00} m del jefe; "
-			+ $"omitidos previstos por Noah (SpawnsOnTarget) por brazo [{string.Join(", ", SkippedPerArm(boss, player, behavior))}]");
+			+ $"omitidos previstos por Noah (SpawnsOnTarget) por brazo [{string.Join(", ", SkippedPerArm(boss, player, behavior))}]";
+
+		// (a) Vivos = todos menos los omitidos por Noah.
+		Require(shots.Count == MotherSpiral.TotalProjectiles - omitted, $"La espiral tiene {shots.Count} proyectiles, no {MotherSpiral.TotalProjectiles} - {omitted} omitidos. {detail}");
+
+		// (b) y (c) Cada proyectil vivo es uno del plan que no debía omitirse (sin repetir), ninguno de los omitidos existe y ninguno
+		// nació a menos de RingSafeDistance de Noah.
+		bool[] matched = new bool[plan.Count];
+		Vector3 bossFlat = boss.GlobalPosition with { Y = 0.0f };
+		Vector3 noahFlat = player.GlobalPosition with { Y = 0.0f };
+		foreach (var shot in shots)
+		{
+			Vector3 ray = (shot.Position with { Y = 0.0f }) - bossFlat;
+			int best = 0;
+			float bestAngle = 360.0f;
+			for (int i = 0; i < plan.Count; i++)
+			{
+				float angle = Mathf.RadToDeg(ray.AngleTo(plan[i].Direction));
+				if (angle < bestAngle) { bestAngle = angle; best = i; }
+			}
+
+			Require(bestAngle < 0.6f, $"Un proyectil de la espiral no coincide con ninguna dirección del plan ({bestAngle:0.00}° de la más cercana). {detail}");
+			Require(!plan[best].Skipped, $"Existe un proyectil de la espiral que debía omitirse por nacer junto a Noah (dirección {best}). {detail}");
+			Require(!matched[best], $"Dos proyectiles de la espiral comparten dirección ({best}). {detail}");
+			matched[best] = true;
+			Vector3 spawn = bossFlat + plan[best].Direction * behavior.RingSpawnDistance;
+			Require(spawn.DistanceTo(noahFlat) >= behavior.RingSafeDistance, $"Un proyectil de la espiral nació a {spawn.DistanceTo(noahFlat):0.00} m de Noah. {detail}");
+		}
+
+		for (int i = 0; i < plan.Count; i++)
+		{
+			Require(plan[i].Skipped || matched[i], $"Falta el proyectil de la espiral {i}, que no debía omitirse. {detail}");
+		}
+
 		Vector3 origin = boss.GlobalPosition with { Y = 0.0f };
 		Vector3 target = player.GlobalPosition with { Y = 0.0f };
 		Vector2 arena = behavior.ArenaSize;
@@ -556,7 +601,6 @@ public partial class BossPhasesTest : Node
 			Require(Mathf.Abs(shot.Position.X) <= arena.X / 2.0f && Mathf.Abs(shot.Position.Z) <= arena.Y / 2.0f, "Un proyectil de la espiral nace fuera de la sala");
 			float angle = Mathf.RadToDeg(gap.SignedAngleTo(offset, Vector3.Up));
 			Require(!MotherSpiral.InGap(angle, 1.5f), $"Un proyectil de la espiral invade un hueco ({angle:0.0}°)");
-			Require(((shot.Position with { Y = 0.0f }) - target).Length() >= behavior.RingSafeDistance - 0.3f, "Un proyectil de la espiral nace encima de Noah");
 			Require(shot.Speed == MotherSpiral.ProjectileSpeed && shot.Damage <= 1.0f, "Un proyectil de la espiral va más rápido o hace más daño de lo permitido");
 		}
 
