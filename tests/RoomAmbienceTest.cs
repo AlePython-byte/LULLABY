@@ -138,7 +138,8 @@ public partial class RoomAmbienceTest : Node
 		{
 			Toys(seed, Sizes[1]);
 			RoomLights.Plan(Sizes[1], CellOf(seed), seed);
-			RoomLook.Vary(new Color(0.5f, 0.4f, 0.4f), SeedMix.RandomFor(seed, CellOf(seed)));
+			using RandomNumberGenerator random = SeedMix.RandomFor(seed, CellOf(seed));
+			RoomLook.Vary(new Color(0.5f, 0.4f, 0.4f), random);
 		}
 
 		Check("el azar global no cambia al planear", GD.Randi() == expected, "consumió el azar global");

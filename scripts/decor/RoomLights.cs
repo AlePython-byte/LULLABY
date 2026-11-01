@@ -31,7 +31,7 @@ public static class RoomLights
 	/// <summary>Plan de las luces de una sala (no depende de Enabled): 1 o 2; con dos, una en cada mitad (oeste y este).</summary>
 	public static List<LightSpec> Plan(Vector2 size, Vector2I cell, int gameSeed)
 	{
-		RandomNumberGenerator random = SeedMix.RandomFor(gameSeed, cell, Salt);
+		using RandomNumberGenerator random = SeedMix.RandomFor(gameSeed, cell, Salt);
 		float reachX = size.X / 2.0f - EdgeMargin;
 		float reachZ = size.Y / 2.0f - EdgeMargin;
 		int count = random.Randf() < 0.5f ? 1 : 2;

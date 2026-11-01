@@ -78,7 +78,7 @@ public static class FloorPropsPlanner
 
 	public static List<DecorPiece> Plan(Vector2 size, Vector2I cell, int gameSeed, IReadOnlyCollection<DecorPiece> existing, int usedMeshes, int usedTriangles)
 	{
-		RandomNumberGenerator random = SeedMix.RandomFor(gameSeed, cell, Salt);
+		using RandomNumberGenerator random = SeedMix.RandomFor(gameSeed, cell, Salt);
 		List<DecorPiece> pieces = new();
 		List<Aabb> footprints = existing.Select(DecorGeometry.Footprint).ToList();
 		float hx = size.X / 2.0f;

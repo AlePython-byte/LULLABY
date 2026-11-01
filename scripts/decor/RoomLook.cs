@@ -49,7 +49,7 @@ public static class RoomLook
 			return null;
 		}
 
-		RandomNumberGenerator random = SeedMix.RandomFor(gameSeed, cell, floor ? FloorSalt : WallSalt);
+		using RandomNumberGenerator random = SeedMix.RandomFor(gameSeed, cell, floor ? FloorSalt : WallSalt);
 		return available[random.RandiRange(0, available.Count - 1)];
 	}
 
@@ -89,7 +89,8 @@ public static class RoomLook
 		// Sin variante: la textura de siempre si existe; si no, el mismo color con una variación sutil propia de la sala.
 		if (standard.AlbedoTexture == null)
 		{
-			standard.AlbedoColor = Vary(color, SeedMix.RandomFor(gameSeed, cell, salt));
+			using RandomNumberGenerator random = SeedMix.RandomFor(gameSeed, cell, salt);
+			standard.AlbedoColor = Vary(color, random);
 		}
 
 		return standard;

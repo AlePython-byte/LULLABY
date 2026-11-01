@@ -60,7 +60,7 @@ public static class FreeDecorPlanner
 
 	public static List<DecorPiece> Plan(RoomType type, Vector2 size, Vector2I cell, int gameSeed)
 	{
-		RandomNumberGenerator random = SeedMix.RandomFor(gameSeed, cell, Salt + (ulong)type);
+		using RandomNumberGenerator random = SeedMix.RandomFor(gameSeed, cell, Salt + (ulong)type);
 		List<DecorPiece> pieces = new();
 		List<Aabb> footprints = new();
 		float hx = size.X / 2.0f;

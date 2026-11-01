@@ -49,7 +49,7 @@ public static class WallDecorPlanner
 
 	public static List<DecorPiece> Plan(int gameSeed, Vector2I cell, Vector2 size, IReadOnlyCollection<DoorSide> doors)
 	{
-		RandomNumberGenerator random = SeedMix.RandomFor(gameSeed, cell, Salt);
+		using RandomNumberGenerator random = SeedMix.RandomFor(gameSeed, cell, Salt);
 		List<DecorPiece> pieces = new();
 		List<Aabb> footprints = new();
 		float hx = size.X / 2.0f;
