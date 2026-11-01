@@ -16,6 +16,22 @@ public partial class MotherVisual : Node
 	[Export] public float RingGapLaneLength { get; set; } = 7.0f;
 	[Export] public float RingGapLaneWidth { get; set; } = 1.8f;
 
+	// Identidad sostenida de cada fase (aspecto del modelo, no avisos): se mezcla con LookBlendTime al cambiar de fase.
+	[ExportGroup("Fases")]
+	[Export] public float LookBlendTime { get; set; } = 0.6f;
+	[Export] public Color PhaseTwoTint { get; set; } = new(1.0f, 0.55f, 0.12f);
+	[Export] public float PhaseTwoTintStrength { get; set; } = 0.55f;
+	[Export] public Color PhaseTwoEyes { get; set; } = new(1.0f, 0.78f, 0.25f);
+	[Export] public float PhaseTwoEyeEnergy { get; set; } = 2.0f;
+	[Export] public Color PhaseThreeTint { get; set; } = new(0.62f, 0.03f, 0.05f);
+	[Export] public float PhaseThreeTintStrength { get; set; } = 0.75f;
+	[Export] public Color PhaseThreeEyes { get; set; } = new(1.0f, 0.12f, 0.08f);
+	[Export] public float PhaseThreeEyeEnergy { get; set; } = 4.0f;
+
+	/// <summary>Respiración de la fase 3: amplitud relativa de la escala del modelo y su frecuencia (Hz). Solo visual: la colisión no cambia.</summary>
+	[Export] public float BreathAmplitude { get; set; } = 0.04f;
+	[Export] public float BreathFrequency { get; set; } = 1.1f;
+
 	private MeshInstance3D _ring;
 	private MeshInstance3D _gapLane;
 	private BoxMesh _gapMesh;
@@ -34,11 +50,20 @@ public partial class MotherVisual : Node
 	private HealthComponent _health;
 	private Node3D _player;
 
+	// Aspecto actual (se acerca al de la fase) y base del nodo Visual.
+	private Color _tint = Colors.White;
+	private float _tintStrength;
+	private Color _eyes = Colors.White;
+	private float _eyeEnergy;
+	private float _breath;
+	private Vector3 _visualScale = Vector3.One;
+
 	public override void _Ready()
 	{
 		_enemy = GetParent<EnemyBase>();
 		_behavior = _enemy.GetNode<MotherBehavior>("Attacks");
 		_visual = _enemy.GetNode<Node3D>("Visual");
+		_visualScale = _visual.Scale;
 		_phrase = _enemy.GetNode<Label3D>("EntranceText");
 		_phrase.Text = MotherTexts.Entrance;
 		foreach (string name in new[] { "Body", "Head", "ArmL", "ArmR", "Base", "Eyes" })
@@ -107,9 +132,50 @@ public partial class MotherVisual : Node
 		_phraseUntil = _age + PhaseTextTime;
 	}
 
+	/// <summary>Aspecto al que tiende la fase dada: color y fuerza del tinte, color y energía de los ojos y amplitud de la respiración.</summary>
+	public (Color Tint, float TintStrength, Color Eyes, float EyeEnergy, float Breath) LookFor(int phase) => phase switch
+	{
+		>= 3 => (PhaseThreeTint, PhaseThreeTintStrength, PhaseThreeEyes, PhaseThreeEyeEnergy, BreathAmplitude),
+		2 => (PhaseTwoTint, PhaseTwoTintStrength, PhaseTwoEyes, PhaseTwoEyeEnergy, 0.0f),
+		_ => (Colors.White, 0.0f, Colors.White, 0.0f, 0.0f),
+	};
+
+	// Acerca el aspecto actual al de la fase (suavizado exponencial: ~95 % en LookBlendTime segundos) y lo aplica. La respiración solo
+	// escala el nodo Visual.
+	private void UpdateLook(float delta)
+	{
+		(Color tint, float strength, Color eyes, float eyeEnergy, float breath) = LookFor(_behavior.Phase);
+		float k = 1.0f - Mathf.Exp(-3.0f * delta / Mathf.Max(0.05f, LookBlendTime));
+
+		bool settled = Mathf.Abs(_tintStrength - strength) < 0.001f && Mathf.Abs(_eyeEnergy - eyeEnergy) < 0.01f;
+		if (!settled)
+		{
+			// Al salir de "sin aspecto" los colores parten ya del de la fase, para que solo se mezcle la fuerza y no el matiz.
+			if (strength > 0.0f && _tintStrength < 0.01f) _tint = tint;
+			if (eyeEnergy > 0.0f && _eyeEnergy < 0.01f) _eyes = eyes;
+			_tint = _tint.Lerp(strength > 0.0f ? tint : _tint, k);
+			_eyes = _eyes.Lerp(eyeEnergy > 0.0f ? eyes : _eyes, k);
+			_tintStrength = Mathf.Lerp(_tintStrength, strength, k);
+			_eyeEnergy = Mathf.Lerp(_eyeEnergy, eyeEnergy, k);
+			if (Mathf.Abs(_tintStrength - strength) < 0.001f && Mathf.Abs(_eyeEnergy - eyeEnergy) < 0.01f)
+			{
+				(_tintStrength, _eyeEnergy) = (strength, eyeEnergy);
+			}
+
+			_enemy.Visual?.SetModelLook(_tint, _tintStrength, IsEye, _eyes, _eyeEnergy);
+		}
+
+		_breath = Mathf.Lerp(_breath, breath, k);
+		float pulse = _breath > 0.0005f ? 1.0f + _breath * Mathf.Sin(_age * Mathf.Tau * BreathFrequency) : 1.0f;
+		_visual.Scale = _visualScale * pulse;
+	}
+
+	private bool IsEye(MeshInstance3D mesh) => _parts.TryGetValue("Eyes", out Node3D eyes) && (eyes == mesh || eyes.IsAncestorOf(mesh));
+
 	public override void _Process(double delta)
 	{
 		_age += (float)delta;
+		UpdateLook((float)delta);
 		_phrase.Visible = _age < EntranceTextTime || _age < _phraseUntil;
 		if (_behavior.PhaseChangeActive)
 		{
