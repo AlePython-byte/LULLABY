@@ -116,7 +116,21 @@
       },
       "caution": "El IC con diez incluye valores inferiores a 0.7. Esta mejora en desarrollo no constituye aceptacion ni demuestra que solo el ruido explique el desacuerdo."
     },
-    "sample_assignment": "Instruccion actual: aceptacion 610001..610090, reserva 620001..620090, como en el protocolo original. Sustituye notas previas condicionadas a una correccion no aplicada que proponian usar 620001 para aceptacion; esas notas historicas se conservan. No se inspeccionan aqui resultados de combates de ninguna de las dos muestras."
+    "sample_assignment": "Instruccion actual: aceptacion 610001..610090, reserva 620001..620090, como en el protocolo original. Sustituye notas previas condicionadas a una correccion no aplicada que proponian usar 620001 para aceptacion; esas notas historicas se conservan. No se inspeccionan aqui resultados de combates de ninguna de las dos muestras.",
+    "amendments": [
+      {
+        "date_utc": "2026-11-01T16:05:24+00:00",
+        "previous_v2_sha256": "e1ab71ac414cd0624c79ebb96c68e044e32a01e0c2896e51e7c4ccb18d332e27",
+        "acceptance_results_observed": false,
+        "authorized_change": "Excepcion exacta y acotada del error de certificados del arranque, tras revisar el codigo del motor y los logs existentes. No cambia criterios, semillas, repeticiones, politica de calidad ni el maximo de tres intentos.",
+        "engine_sources": [
+          "https://github.com/godotengine/godot/blob/4.7.2-stable/platform/windows/os_windows.cpp#L2404",
+          "https://github.com/godotengine/godot/blob/4.7.2-stable/modules/mbedtls/crypto_mbedtls.cpp#L322",
+          "https://github.com/godotengine/godot/blob/4.7.2-stable/main/main.cpp#L4413"
+        ],
+        "scope": "Carga del almacen ROOT para TLS antes de instanciar la escena. Este ensayo offline no usa TLS; no es una excepcion general para aplicaciones de red ni certifica la confianza TLS del equipo. No modificar configuracion TLS ni el motor para ocultar el mensaje."
+      }
+    ]
   },
   "run_indices": [
     0,
@@ -153,18 +167,23 @@
       "error:"
     ],
     "all_process_errors_invalid": true,
-    "allowlisted_error_messages": [],
-    "certificate_store_error": "Tambien invalida. Resolver en desarrollo/entorno antes de abrir aceptacion; no ignorar ni filtrar este mensaje.",
+    "allowlisted_error_messages": [
+      "ERROR: Failed to read the root certificate store."
+    ],
+    "certificate_store_error": "Solo esta linea completa puede exceptuarse, una vez por log y antes de FIDELITY_V2_BEGIN. Conservarla y contarla; no filtrar el archivo. Cualquier variante, repeticion adicional, aparicion posterior o cualquier otro ERROR invalida.",
     "warnings": "Conservar y asociar al par activo. Un WARNING sin ERROR no invalida por si solo; un comportamiento reproduciblemente incorrecto bloquea por el criterio original.",
     "successful_exit_required": true,
     "complete_results_and_hash_verified_required": true,
     "scan_after_process_exit_including_shutdown": true,
-    "capture": "Guardar salida estandar y error combinadas y log nativo de Godot; cualquiera de ambos puede invalidar. No contar dos veces un mismo log al resumir incidencias.",
+    "capture": "Guardar stdout y stderr combinadas y log nativo sin modificar. Validar ambos por separado despues del cierre; la excepcion exacta se aplica a cada canal, sin duplicar incidentes al sumar procesos.",
     "retries": "Solo errores tecnicos del proceso o del motor. Mismas semillas y parametros; directorios nuevos, registros originales intactos, sin resetear el contador al reanudar.",
     "interrupted_supervisor": "Sin cierre y codigo de salida persistido y verificado el intento es invalido, aunque contenga CURVE_COMPLETE; cuenta dentro de tres.",
     "quality_failures_override_retry_policy": "Timeout, sala pendiente o imposible, atasco sospechado o fallo reproducible de comportamiento detienen y bloquean. No esconderlos bajo un reintento tecnico o exclusion para aprobar.",
     "on_exhaustion": "Detener como aceptacion incompleta. Enumerar los 50 pares del lote sin intento limpio y los no iniciados; conservar par, entorno/fase, motivo, intento, codigo, hash de logs e historial.",
-    "no_silent_exclusions": true
+    "no_silent_exclusions": true,
+    "allowlisted_error_match": "case_sensitive_ordinal_full_line_without_trimming_or_patterns",
+    "allowlisted_error_max_occurrences_per_log": 1,
+    "allowlisted_error_phase": "startup_before_FIDELITY_V2_BEGIN"
   },
   "acceptance_completeness": {
     "required_levels": 90,
@@ -190,7 +209,7 @@
       "explicit_user_ok",
       "user_confirms_machine_free",
       "no_other_godot_session_in_any_worktree",
-      "development_preflight_with_strict_error_free_logs",
+      "development_preflight_without_non_allowlisted_errors",
       "v2_compatible_harness_and_analyzer_validated_without_acceptance_results",
       "frozen_protocol_code_parameters_and_assembly_hashes"
     ],
@@ -202,7 +221,7 @@
     "measurement_reference_manifest": "execution/batch_600001_attempt_1/manifest.json",
     "measurement_reference_manifest_sha256": "544ec15249d5ec3d07cdb6027b1884f4211aceec9b128fc3fa24bf7cac067de5",
     "core": "Mantener sin cambios simulador version 4, bot policy version 1, parametros, escenas, recursos, colisiones y cuerpo de PlayReal de la medicion de desarrollo; comparar hashes de las fuentes del nucleo con el manifiesto de referencia.",
-    "implementation_status": "Este JSON congela el diseno, no habilita el ejecutor actual: el lector y el arnes siguen limitados al protocolo original y desarrollo. Falta una adaptacion aislada de orquestacion y analisis v2, sin alterar el nucleo de medicion.",
+    "implementation_status": "Esta enmienda autoriza adaptar y probar el arnes/analizador v2 con un preflight de desarrollo, un nivel y un par. La validacion de implementacion se registra aparte; aceptacion y reserva no estan autorizadas.",
     "before_first_acceptance_combat": "Registrar SHA-256 del protocolo, orquestador, analizador, parametros, fuentes, recursos y ensamblado realmente ejecutado; pruebas sinteticas y de integridad antes de firmar el manifiesto.",
     "after_opening": "Aceptar o fallar una sola vez. Corregir solo en desarrollo; cualquier correccion del nucleo exige version nueva y usar la reserva 620001..620090, una vez y con OK explicito. Si reserva falla, detener y reportar; no abrir otra muestra."
   }

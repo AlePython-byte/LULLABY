@@ -1,0 +1,312 @@
+{
+  "exact_line": "ERROR: Failed to read the root certificate store.",
+  "matching": "full_line_case_sensitive_no_trim",
+  "scope": "startup_tls_initialization_only_offline_experiment",
+  "records": [
+    {
+      "archive": "ai-training/reports/v3/repetition_curve_20261031_02/raw_results.zip",
+      "archive_sha256": "fb6c143ed983b27d82db26176661b155cfc0f347b9c9d86a0ab35366d9fa050c",
+      "log": "execution/batch_600001_attempt_1.engine.log",
+      "channel": "native",
+      "count": 1,
+      "line_numbers": [
+        3
+      ],
+      "first_pair_begin_line": 5,
+      "before_first_pair": true
+    },
+    {
+      "archive": "ai-training/reports/v3/repetition_curve_20261031_02/raw_results.zip",
+      "archive_sha256": "fb6c143ed983b27d82db26176661b155cfc0f347b9c9d86a0ab35366d9fa050c",
+      "log": "execution/batch_600001_attempt_1.log",
+      "channel": "combined_stdout_stderr",
+      "count": 1,
+      "line_numbers": [
+        3
+      ],
+      "first_pair_begin_line": 5,
+      "before_first_pair": true
+    },
+    {
+      "archive": "ai-training/reports/v3/repetition_curve_20261031_02/raw_results.zip",
+      "archive_sha256": "fb6c143ed983b27d82db26176661b155cfc0f347b9c9d86a0ab35366d9fa050c",
+      "log": "execution/batch_600006_attempt_1.engine.log",
+      "channel": "native",
+      "count": 1,
+      "line_numbers": [
+        3
+      ],
+      "first_pair_begin_line": 5,
+      "before_first_pair": true
+    },
+    {
+      "archive": "ai-training/reports/v3/repetition_curve_20261031_02/raw_results.zip",
+      "archive_sha256": "fb6c143ed983b27d82db26176661b155cfc0f347b9c9d86a0ab35366d9fa050c",
+      "log": "execution/batch_600006_attempt_1.log",
+      "channel": "combined_stdout_stderr",
+      "count": 1,
+      "line_numbers": [
+        3
+      ],
+      "first_pair_begin_line": 5,
+      "before_first_pair": true
+    },
+    {
+      "archive": "ai-training/reports/v3/repetition_curve_20261031_02/raw_results.zip",
+      "archive_sha256": "fb6c143ed983b27d82db26176661b155cfc0f347b9c9d86a0ab35366d9fa050c",
+      "log": "execution/batch_600006_attempt_2.engine.log",
+      "channel": "native",
+      "count": 1,
+      "line_numbers": [
+        3
+      ],
+      "first_pair_begin_line": 5,
+      "before_first_pair": true
+    },
+    {
+      "archive": "ai-training/reports/v3/repetition_curve_20261031_02/raw_results.zip",
+      "archive_sha256": "fb6c143ed983b27d82db26176661b155cfc0f347b9c9d86a0ab35366d9fa050c",
+      "log": "execution/batch_600006_attempt_2.log",
+      "channel": "combined_stdout_stderr",
+      "count": 1,
+      "line_numbers": [
+        3
+      ],
+      "first_pair_begin_line": 5,
+      "before_first_pair": true
+    },
+    {
+      "archive": "ai-training/reports/v3/repetition_curve_20261031_02/raw_results.zip",
+      "archive_sha256": "fb6c143ed983b27d82db26176661b155cfc0f347b9c9d86a0ab35366d9fa050c",
+      "log": "execution/batch_600011_attempt_1.engine.log",
+      "channel": "native",
+      "count": 1,
+      "line_numbers": [
+        3
+      ],
+      "first_pair_begin_line": 5,
+      "before_first_pair": true
+    },
+    {
+      "archive": "ai-training/reports/v3/repetition_curve_20261031_02/raw_results.zip",
+      "archive_sha256": "fb6c143ed983b27d82db26176661b155cfc0f347b9c9d86a0ab35366d9fa050c",
+      "log": "execution/batch_600011_attempt_1.log",
+      "channel": "combined_stdout_stderr",
+      "count": 1,
+      "line_numbers": [
+        3
+      ],
+      "first_pair_begin_line": 5,
+      "before_first_pair": true
+    },
+    {
+      "archive": "ai-training/reports/v3/repetition_curve_20261031_02/raw_results.zip",
+      "archive_sha256": "fb6c143ed983b27d82db26176661b155cfc0f347b9c9d86a0ab35366d9fa050c",
+      "log": "execution/batch_600016_attempt_1.engine.log",
+      "channel": "native",
+      "count": 1,
+      "line_numbers": [
+        3
+      ],
+      "first_pair_begin_line": 5,
+      "before_first_pair": true
+    },
+    {
+      "archive": "ai-training/reports/v3/repetition_curve_20261031_02/raw_results.zip",
+      "archive_sha256": "fb6c143ed983b27d82db26176661b155cfc0f347b9c9d86a0ab35366d9fa050c",
+      "log": "execution/batch_600016_attempt_1.log",
+      "channel": "combined_stdout_stderr",
+      "count": 1,
+      "line_numbers": [
+        3
+      ],
+      "first_pair_begin_line": 5,
+      "before_first_pair": true
+    },
+    {
+      "archive": "ai-training/reports/v3/repetition_curve_20261031_02/raw_results.zip",
+      "archive_sha256": "fb6c143ed983b27d82db26176661b155cfc0f347b9c9d86a0ab35366d9fa050c",
+      "log": "execution/batch_600021_attempt_1.engine.log",
+      "channel": "native",
+      "count": 1,
+      "line_numbers": [
+        3
+      ],
+      "first_pair_begin_line": 5,
+      "before_first_pair": true
+    },
+    {
+      "archive": "ai-training/reports/v3/repetition_curve_20261031_02/raw_results.zip",
+      "archive_sha256": "fb6c143ed983b27d82db26176661b155cfc0f347b9c9d86a0ab35366d9fa050c",
+      "log": "execution/batch_600021_attempt_1.log",
+      "channel": "combined_stdout_stderr",
+      "count": 1,
+      "line_numbers": [
+        3
+      ],
+      "first_pair_begin_line": 5,
+      "before_first_pair": true
+    },
+    {
+      "archive": "ai-training/reports/v3/repetition_curve_20261031_02/raw_results.zip",
+      "archive_sha256": "fb6c143ed983b27d82db26176661b155cfc0f347b9c9d86a0ab35366d9fa050c",
+      "log": "execution/batch_600026_attempt_1.engine.log",
+      "channel": "native",
+      "count": 1,
+      "line_numbers": [
+        3
+      ],
+      "first_pair_begin_line": 5,
+      "before_first_pair": true
+    },
+    {
+      "archive": "ai-training/reports/v3/repetition_curve_20261031_02/raw_results.zip",
+      "archive_sha256": "fb6c143ed983b27d82db26176661b155cfc0f347b9c9d86a0ab35366d9fa050c",
+      "log": "execution/batch_600026_attempt_1.log",
+      "channel": "combined_stdout_stderr",
+      "count": 1,
+      "line_numbers": [
+        3
+      ],
+      "first_pair_begin_line": 5,
+      "before_first_pair": true
+    },
+    {
+      "archive": "ai-training/reports/v3/repetition_curve_20261031_02/raw_results.zip",
+      "archive_sha256": "fb6c143ed983b27d82db26176661b155cfc0f347b9c9d86a0ab35366d9fa050c",
+      "log": "execution/batch_600026_attempt_2.engine.log",
+      "channel": "native",
+      "count": 1,
+      "line_numbers": [
+        3
+      ],
+      "first_pair_begin_line": 5,
+      "before_first_pair": true
+    },
+    {
+      "archive": "ai-training/reports/v3/repetition_curve_20261031_02/raw_results.zip",
+      "archive_sha256": "fb6c143ed983b27d82db26176661b155cfc0f347b9c9d86a0ab35366d9fa050c",
+      "log": "execution/batch_600026_attempt_2.log",
+      "channel": "combined_stdout_stderr",
+      "count": 1,
+      "line_numbers": [
+        3
+      ],
+      "first_pair_begin_line": 5,
+      "before_first_pair": true
+    },
+    {
+      "archive": "ai-training/reports/v3/repetition_curve_20261031_02/raw_results.zip",
+      "archive_sha256": "fb6c143ed983b27d82db26176661b155cfc0f347b9c9d86a0ab35366d9fa050c",
+      "log": "execution/batch_600026_attempt_3.engine.log",
+      "channel": "native",
+      "count": 1,
+      "line_numbers": [
+        3
+      ],
+      "first_pair_begin_line": 5,
+      "before_first_pair": true
+    },
+    {
+      "archive": "ai-training/reports/v3/repetition_curve_20261031_02/raw_results.zip",
+      "archive_sha256": "fb6c143ed983b27d82db26176661b155cfc0f347b9c9d86a0ab35366d9fa050c",
+      "log": "execution/batch_600026_attempt_3.log",
+      "channel": "combined_stdout_stderr",
+      "count": 1,
+      "line_numbers": [
+        3
+      ],
+      "first_pair_begin_line": 5,
+      "before_first_pair": true
+    },
+    {
+      "archive": "ai-training/reports/v3/tiered_comparison_20261031_01/results.zip",
+      "archive_sha256": "8860d15dde4e7c263f3d074fe62b63fc660a7130b26187bf13aea99e0bb34139",
+      "log": "default/execution/batch_600001_attempt_1.log",
+      "channel": "combined_stdout_stderr",
+      "count": 1,
+      "line_numbers": [
+        7
+      ],
+      "first_pair_begin_line": 9,
+      "before_first_pair": true
+    },
+    {
+      "archive": "ai-training/reports/v3/tiered_comparison_20261031_01/results.zip",
+      "archive_sha256": "8860d15dde4e7c263f3d074fe62b63fc660a7130b26187bf13aea99e0bb34139",
+      "log": "disabled/execution/batch_600001_attempt_1.log",
+      "channel": "combined_stdout_stderr",
+      "count": 1,
+      "line_numbers": [
+        7
+      ],
+      "first_pair_begin_line": 9,
+      "before_first_pair": true
+    },
+    {
+      "archive": "ai-training/reports/v3/tiered_comparison_20261031_01/results.zip",
+      "archive_sha256": "8860d15dde4e7c263f3d074fe62b63fc660a7130b26187bf13aea99e0bb34139",
+      "log": "disabled/execution/batch_600001_attempt_2.log",
+      "channel": "combined_stdout_stderr",
+      "count": 1,
+      "line_numbers": [
+        7
+      ],
+      "first_pair_begin_line": 9,
+      "before_first_pair": true
+    },
+    {
+      "archive": "ai-training/reports/v3/tiered_comparison_20261031_02/results.zip",
+      "archive_sha256": "3fb8a5354f21c4fbf101f1c758c80f8334026d9a95473584a622354fbce2057e",
+      "log": "default/execution/batch_600001_attempt_1.engine.log",
+      "channel": "native",
+      "count": 1,
+      "line_numbers": [
+        3
+      ],
+      "first_pair_begin_line": 5,
+      "before_first_pair": true
+    },
+    {
+      "archive": "ai-training/reports/v3/tiered_comparison_20261031_02/results.zip",
+      "archive_sha256": "3fb8a5354f21c4fbf101f1c758c80f8334026d9a95473584a622354fbce2057e",
+      "log": "default/execution/batch_600001_attempt_1.log",
+      "channel": "combined_stdout_stderr",
+      "count": 1,
+      "line_numbers": [
+        3
+      ],
+      "first_pair_begin_line": 5,
+      "before_first_pair": true
+    },
+    {
+      "archive": "ai-training/reports/v3/tiered_comparison_20261031_02/results.zip",
+      "archive_sha256": "3fb8a5354f21c4fbf101f1c758c80f8334026d9a95473584a622354fbce2057e",
+      "log": "disabled/execution/batch_600001_attempt_1.engine.log",
+      "channel": "native",
+      "count": 1,
+      "line_numbers": [
+        3
+      ],
+      "first_pair_begin_line": 5,
+      "before_first_pair": true
+    },
+    {
+      "archive": "ai-training/reports/v3/tiered_comparison_20261031_02/results.zip",
+      "archive_sha256": "3fb8a5354f21c4fbf101f1c758c80f8334026d9a95473584a622354fbce2057e",
+      "log": "disabled/execution/batch_600001_attempt_1.log",
+      "channel": "combined_stdout_stderr",
+      "count": 1,
+      "line_numbers": [
+        3
+      ],
+      "first_pair_begin_line": 5,
+      "before_first_pair": true
+    }
+  ],
+  "logs_total": 25,
+  "primary_logs": 14,
+  "native_logs": 11,
+  "new_protocol_sha256": "2104f07db9bfdef73283283210f9bee67bbe2b8ef416dcbe2a0d4cfc1c10108f",
+  "previous_protocol_v2_sha256": "e1ab71ac414cd0624c79ebb96c68e044e32a01e0c2896e51e7c4ccb18d332e27"
+}
