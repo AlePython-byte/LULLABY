@@ -191,7 +191,11 @@ Pruebas: `tests/ItemSystemTest.tscn` comprueba efectos, recogidas y parámetros 
 El juego arranca en el **menú principal** (`scenes/ui/MainMenu.tscn`, escena principal del proyecto). `TestLevel.tscn` sigue pudiendo lanzarse directo con F6 y por las pruebas, sin pasar por el menú.
 
 - **Menú principal:** título y subtítulo, **Jugar**, **Dificultad** (Fácil / Normal / Difícil), **Controles** y **Salir**.
-- **Variedad extendida (experimental):** casilla del menú (`GameSettings.ExtendedVariety`, apagada por defecto y solo durante la sesión) que juega la partida con el generador v3, con seis tipos de enemigo (añade al huidor y al excavador). Está etiquetada como experimental porque el modelo de dificultad no está entrenado para esos dos enemigos: el HUD de la semilla lo avisa y la dificultad mostrada es solo orientativa (ver `docs/IA.md`, 11.6.4). El argumento `--generator=` y la tecla G de depuración mandan sobre la casilla.
+- **Arte del menú** (todo opcional y por nombre, con `ResourceLoader.Exists`: se puede reemplazar un PNG por otro con el mismo nombre y medidas, y si falta no pasa nada):
+  - **Carátula animada** (`MenuCover`, `assets/ui/caratula/capa_0_fondo`, `capa_1_cuna_noah`, `capa_2_movil` y `capa_3_particulas`, de 1920×1080): capas a pantalla completa, sin deformarse, con un parallax mínimo (senos de 12 a 18 s desfasados; desplazamientos de ±3, ±6, ±10 y ±16 px). No usa shaders ni partículas y no procesa nada si no hay capas. La capa `capa_4_titulo` no se usa: el título va en el logo.
+  - **Logo** (`assets/ui/caratula/logo_lullaby.png`, 952×173): sustituye al título y al subtítulo en texto, porque ya trae el subtítulo en su cinta. Con borde oscuro, se lee sobre el papel claro.
+  - **Panel de papel** (`assets/ui/panel_menu_papel.png`, 760×980) detrás del menú. Con panel, el menú pasa a la mitad derecha de la ventana (la cuna de la carátula queda a la vista), se compacta para caber en 648 px de alto, el papel se ajusta al menú conservando más o menos su proporción, los textos pasan a marrón oscuro y el volumen baja a la esquina inferior izquierda. Sin panel, el menú queda centrado como antes.
+- **Variedad extendida (experimental):** casilla del menú (`GameSettings.ExtendedVariety`, apagada por defecto y solo durante la sesión) que juega la partida con el generador v3, con seis tipos de enemigo (añade al huidor y al excavador). Está etiquetada como experimental porque el modelo de dificultad no está entrenado para esos dos enemigos: el HUD de la semilla lo avisa (en dos líneas, para que quepa en su etiqueta) y la dificultad mostrada es solo orientativa (ver `docs/IA.md`, 11.6.4). El argumento `--generator=` y la tecla G de depuración mandan sobre la casilla.
 - **Dificultad:** la elegida se guarda en `GameSettings.Difficulty` mientras el juego está abierto (no se escribe en disco) y es el objetivo del director de IA (Fácil = `Easy`, Normal = `Normal`, Difícil = `Hard`). La partida la muestra en el HUD de la esquina inferior derecha. Antes solo se podía cambiar con atajos de depuración, que no existen en Release. Para el director, el orden de prioridad es: tecla de depuración, argumento `--difficulty=`, menú, valor del inspector de `RunManager`. Con F6 directo no hay elección del menú y manda el inspector (Normal).
 - **Imágenes opcionales:** si existen `assets/ui/logo_lullaby.png` y `assets/ui/fondo_menu.png`, el menú las usa; si no, funciona igual con el título en texto y un fondo de color. Se comprueba con `ResourceLoader.Exists`, así que su ausencia no da error ni en el juego ni en la exportación.
 - **Controles** (`ControlsPanel`, también dentro de la pausa), solo las teclas reales: **W, A, S, D** mover, **flechas** disparar lágrimas, **Esc o P** pausa y **mantener Tab** para ampliar el minimapa.
@@ -199,7 +203,7 @@ El juego arranca en el **menú principal** (`scenes/ui/MainMenu.tscn`, escena pr
 - **Derrota:** al morir Noah la partida termina una sola vez (Noah queda quieto y se eliminan los proyectiles), y tras un breve fundido aparece una de las tres frases de derrota con los botones **Reintentar** (semilla nueva, misma dificultad, objetos y salud reiniciados) y **Menú**. Si Noah muere en la pelea contra The Mother, no hay victoria aunque el jefe muera después. Las frases de victoria y de derrota se eligen con la semilla de partida, sin consumir ningún azar.
 - **Textos:** están copiados de `docs/equipo/textos.md` a constantes (`GameText`, `MotherTexts`), porque `docs/` no viaja en la exportación y no se lee en ejecución. Los controles del documento (clic izquierdo, interactuar) no existen en el juego y no se muestran.
 
-Pruebas, en headless: `tests/MenuFlowTest.tscn` (menú, imágenes opcionales, controles y dificultad hasta el director y el HUD), `tests/PauseTest.tscn` (pausa con el jefe atacando y con el retraso de la sala, Esc y P, casos ignorados, reiniciar y menú) y `tests/DefeatTest.tscn` (derrota, reintentar, menú y recarga de respaldo).
+Pruebas, en headless: `tests/MenuFlowTest.tscn` (menú, imágenes opcionales, carátula, panel y parallax, controles y dificultad hasta el director y el HUD), `tests/PauseTest.tscn` (pausa con el jefe atacando y con el retraso de la sala, Esc y P, casos ignorados, reiniciar y menú) y `tests/DefeatTest.tscn` (derrota, reintentar, menú y recarga de respaldo).
 
 # 5. Jefes principales
 
@@ -345,6 +349,12 @@ La primera habitación conecta con una sala grande, seguida de una habitación c
 El nivel presenta habitaciones estrechas, más obstáculos, enemigos a distancia y una distribución diferente de recompensas.
 
 En las tres partidas se utilizan recursos del mismo mundo, pero cambia la composición del nivel.
+
+## 7.3b. Retraso de aparición de enemigos (limitación conocida con el simulador)
+
+Los enemigos de una sala aparecen **0,7 s** después de empezar el combate en el juego real (`RoomController.SpawnDelay`, editable en `Room.tscn`; la pausa lo detiene). El simulador (`LevelSimulator`) sigue esperando **1 s** (`RoomController.StartDelay`, que lee `GameplayParameters` y que figura como `start_delay: 1` en los metadatos de los datasets de etiquetas): los modelos de dificultad se entrenaron con ese valor y no se ha regenerado nada.
+
+**Consecuencia:** el juego real da a Noah 0,3 s menos de margen que el simulador antes de que aparezcan los enemigos, así que la dificultad real puede ser algo mayor que la predicha. Es una diferencia pequeña y aceptada por ahora. Para eliminarla habría que bajar los dos valores a 0,7 s, regenerar las etiquetas y volver a entrenar los modelos. `PauseTest` fija ambos valores (los enemigos nacen a ~0,7 s y el simulador lee 1 s) para que no se cambien sin querer.
 
 ## 7.4. Enfoque técnico de la IA
 
