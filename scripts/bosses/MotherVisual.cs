@@ -32,6 +32,8 @@ public partial class MotherVisual : Node
 	[Export] public float BreathAmplitude { get; set; } = 0.04f;
 	[Export] public float BreathFrequency { get; set; } = 1.1f;
 
+	private readonly MeshInstance3D[] _spiralGaps = new MeshInstance3D[MotherSpiral.Arms];
+	private readonly MeshInstance3D[] _spiralArms = new MeshInstance3D[MotherSpiral.Arms];
 	private MeshInstance3D _ring;
 	private MeshInstance3D _gapLane;
 	private BoxMesh _gapMesh;
@@ -114,6 +116,25 @@ public partial class MotherVisual : Node
 		};
 		AddChild(_ring);
 		AddChild(_gapLane);
+
+		// Aviso de la espiral: los tres huecos de escape (azules) y por dónde arranca cada brazo (rojo).
+		StandardMaterial3D gapMaterial = new()
+		{
+			AlbedoColor = new Color(0.4f, 0.8f, 1.0f, 0.5f),
+			Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
+			ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
+		};
+		StandardMaterial3D armMaterial = new()
+		{
+			AlbedoColor = new Color(1.0f, 0.2f, 0.15f, 0.7f),
+			Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
+			ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
+		};
+		for (int i = 0; i < MotherSpiral.Arms; i++)
+		{
+			_spiralGaps[i] = NewSpiralMark($"SpiralGapWarning{i}", new Vector3(RingGapLaneWidth, 0.025f, RingGapLaneLength), gapMaterial);
+			_spiralArms[i] = NewSpiralMark($"SpiralArmWarning{i}", new Vector3(0.15f, 0.03f, RingGapLaneLength), armMaterial);
+		}
 
 		_behavior.PhaseChanged += OnPhaseChanged;
 		_health = HealthComponent.FindIn(_enemy);
@@ -198,7 +219,7 @@ public partial class MotherVisual : Node
 
 		float bob = Mathf.Sin(_age * BobSpeed) * BobHeight;
 		bool warning = _behavior.ShotWarningActive || _behavior.DashWarningActive || _behavior.RingWarningActive
-			|| _behavior.PhaseChangeActive;
+			|| _behavior.PhaseChangeActive || _behavior.SpiralWarningActive || _behavior.SpiralActive;
 		foreach (string name in _parts.Keys)
 		{
 			Node3D part = _parts[name];
@@ -224,16 +245,49 @@ public partial class MotherVisual : Node
 			_lane.Rotation = new Vector3(0.0f, Mathf.Atan2(-direction.X, -direction.Z), 0.0f);
 		}
 
-		_ring.Visible = _gapLane.Visible = _behavior.RingWarningActive;
+		bool spiralWarning = _behavior.SpiralWarningActive;
+		_ring.Visible = _behavior.RingWarningActive || spiralWarning;
+		_gapLane.Visible = _behavior.RingWarningActive;
 		if (_ring.Visible)
 		{
-			Vector3 gap = _behavior.RingGapDirection;
 			_ring.GlobalPosition = _enemy.GlobalPosition with { Y = 0.05f };
 			_ringMaterial.AlbedoColor = new Color(1.0f, 0.2f, 0.15f, 0.45f + 0.25f * Mathf.Sin(_age * 18.0f));
+		}
+
+		if (_gapLane.Visible)
+		{
+			Vector3 gap = _behavior.RingGapDirection;
 			_gapLane.GlobalPosition = (_enemy.GlobalPosition + gap * (_behavior.RingSpawnDistance + RingGapLaneLength * 0.5f))
 				with { Y = 0.045f };
 			_gapLane.Rotation = new Vector3(0.0f, Mathf.Atan2(-gap.X, -gap.Z), 0.0f);
 		}
+
+		for (int i = 0; i < MotherSpiral.Arms; i++)
+		{
+			_spiralGaps[i].Visible = _spiralArms[i].Visible = spiralWarning;
+			if (!spiralWarning) continue;
+			Vector3 gapCenter = _behavior.SpiralGapDirection.Rotated(Vector3.Up, Mathf.DegToRad(MotherSpiral.ArmSpacingDegrees * i));
+			PlaceSpiralMark(_spiralGaps[i], gapCenter, 0.045f);
+			PlaceSpiralMark(_spiralArms[i], MotherSpiral.Direction(i, 0, _behavior.SpiralGapDirection, _behavior.SpiralReverse), 0.05f);
+		}
+	}
+
+	private MeshInstance3D NewSpiralMark(string name, Vector3 size, StandardMaterial3D material)
+	{
+		MeshInstance3D mark = new()
+		{
+			Name = name, TopLevel = true, Visible = false, Mesh = new BoxMesh { Size = size }, MaterialOverride = material,
+			CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+		};
+		AddChild(mark);
+		return mark;
+	}
+
+	// Pone una marca alargada en el suelo que parte de la distancia de nacimiento del anillo en la dirección dada.
+	private void PlaceSpiralMark(MeshInstance3D mark, Vector3 direction, float height)
+	{
+		mark.GlobalPosition = (_enemy.GlobalPosition + direction * (_behavior.RingSpawnDistance + RingGapLaneLength * 0.5f)) with { Y = height };
+		mark.Rotation = new Vector3(0.0f, Mathf.Atan2(-direction.X, -direction.Z), 0.0f);
 	}
 
 	private void OnDied()
