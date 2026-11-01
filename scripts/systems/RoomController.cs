@@ -174,8 +174,8 @@ public partial class RoomController : Node3D
 				RoomType.Treasure => DecorTreasureFloorColor,
 				_ => DecorFloorColor,
 			};
-			floorMaterial = RoomSurfaces.Floor(_data.Type, decorFloor, TextureTileMeters);
-			wallMaterial = RoomSurfaces.Wall(DecorWallColor, TextureTileMeters);
+			floorMaterial = RoomLook.Floor(_data.Type, decorFloor, TextureTileMeters, DecorSeed, _data.Cell);
+			wallMaterial = RoomLook.Wall(_data.Type, DecorWallColor, TextureTileMeters, DecorSeed, _data.Cell);
 		}
 
 		RoomLayout layout = RoomLayout.Build(_data.Size, _connectedDoors, WallHeight, WallThickness, DoorWidth,

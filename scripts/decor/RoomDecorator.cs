@@ -100,7 +100,10 @@ public static class RoomDecorator
 
 		if (type.HasValue)
 		{
-			AddPieces(decor, PiecesFor(type.Value, roomSize, cell, gameSeed, layout.Doors.Select(door => door.Side).ToList()));
+			List<DecorPiece> pieces = PiecesFor(type.Value, roomSize, cell, gameSeed, layout.Doors.Select(door => door.Side).ToList());
+			AddPieces(decor, pieces);
+			AddPieces(decor, FloorPropsFor(type.Value, roomSize, cell, gameSeed, pieces, layout.Doors.Count), "Toy");
+			RoomLights.Build(room, roomSize, cell, gameSeed);
 
 			// Solo la sala de inicio lleva los controles pintados en el piso (si existe la textura).
 			if (type.Value == RoomType.Start)
@@ -112,7 +115,37 @@ public static class RoomDecorator
 		return decor;
 	}
 
-	private static void AddPieces(Node3D decor, List<DecorPiece> pieces)
+	/// <summary>
+	/// Juguetes sueltos de las salas de combate (FloorPropsPlanner), que se suman a las piezas de pared. Con lo ya gastado en mallas y
+	/// triángulos por los marcos, los barrotes, las dos columnas y las piezas de pared, para respetar el presupuesto de la sala.
+	/// Vacío en los demás tipos de sala.
+	/// </summary>
+	public static List<DecorPiece> FloorPropsFor(RoomType type, Vector2 size, Vector2I cell, int gameSeed, IReadOnlyCollection<DecorPiece> wallPieces, int doorCount)
+	{
+		if (type != RoomType.Normal)
+		{
+			return new List<DecorPiece>();
+		}
+
+		(int frameMeshes, int frameTriangles) = FloorPropsPlanner.CostOf(FramePath);
+		(int barMeshes, int barTriangles) = FloorPropsPlanner.CostOf(BarsPath);
+		(int columnMeshes, int columnTriangles) = FloorPropsPlanner.CostOf(ColumnPath);
+		int columns = SkipSouth ? 2 : 4;
+		int meshes = doorCount * (frameMeshes + barMeshes) + columns * columnMeshes;
+		int triangles = doorCount * (frameTriangles + barTriangles) + columns * columnTriangles;
+		foreach (DecorPiece piece in wallPieces)
+		{
+			(int pieceMeshes, int pieceTriangles) = FloorPropsPlanner.CostOf(piece.Path);
+			meshes += pieceMeshes;
+			triangles += pieceTriangles;
+		}
+
+		return FloorPropsPlanner.Plan(size, cell, gameSeed, wallPieces, meshes, triangles);
+	}
+
+	// Con prefix, las piezas se llaman "{prefix}{i}{modelo sin guiones bajos}": las pruebas de la decoración de pared cuentan como pieza
+	// solo los nodos con guion bajo, así que los juguetes no alteran esos recuentos.
+	private static void AddPieces(Node3D decor, List<DecorPiece> pieces, string prefix = null)
 	{
 		for (int i = 0; i < pieces.Count; i++)
 		{
@@ -123,7 +156,7 @@ public static class RoomDecorator
 				continue;
 			}
 
-			model.Name = $"{piece.Model}_{i}";
+			model.Name = prefix == null ? $"{piece.Model}_{i}" : $"{prefix}{i}{piece.Model.Replace("_", "")}";
 			model.Position = piece.Position;
 			model.Rotation = new Vector3(0.0f, piece.Yaw, 0.0f);
 			model.Scale = piece.ModelScale;

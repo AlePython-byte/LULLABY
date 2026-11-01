@@ -62,6 +62,17 @@ public static class RoomLook
 		return Color.FromHsv(hue, saturation, value, color.A);
 	}
 
+	/// <summary>El color es el original con, como mucho, la variación de Vary (tono, saturación y brillo dentro de sus rangos).</summary>
+	public static bool IsVariationOf(Color original, Color varied)
+	{
+		const float epsilon = 0.002f;
+		float hue = Mathf.Abs(varied.H - original.H);
+		hue = Mathf.Min(hue, 1.0f - hue);
+		return hue <= HueRange + epsilon
+			&& Mathf.Abs(varied.S - original.S) <= original.S * SaturationRange + epsilon
+			&& Mathf.Abs(varied.V - original.V) <= original.V * ValueRange + epsilon;
+	}
+
 	private static StandardMaterial3D Build(RoomType type, string[] variants, ulong salt, StandardMaterial3D standard, Color color,
 		float tileMeters, int gameSeed, Vector2I cell)
 	{

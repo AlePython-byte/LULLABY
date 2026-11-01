@@ -117,8 +117,8 @@ public partial class RoomDecorBaseTest : Node
 					RoomType.Treasure => room.DecorTreasureFloorColor,
 					_ => room.DecorFloorColor,
 				};
-				Check($"{type}: sin texturas, suelo de color pastel propio", floor.AlbedoTexture == null && floor.AlbedoColor.IsEqualApprox(expected), $"color {floor.AlbedoColor}");
-				Check($"{type}: sin texturas, paredes de color pastel", Material(room, "WallNorthA").AlbedoTexture == null && Material(room, "WallNorthA").AlbedoColor.IsEqualApprox(room.DecorWallColor), "paredes");
+				Check($"{type}: sin texturas, suelo de color pastel propio (con variación sutil por sala)", floor.AlbedoTexture == null && RoomLook.IsVariationOf(expected, floor.AlbedoColor), $"color {floor.AlbedoColor}");
+				Check($"{type}: sin texturas, paredes de color pastel", Material(room, "WallNorthA").AlbedoTexture == null && RoomLook.IsVariationOf(room.DecorWallColor, Material(room, "WallNorthA").AlbedoColor), "paredes");
 				room.Free();
 			}
 
