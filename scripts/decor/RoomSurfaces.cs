@@ -45,8 +45,13 @@ public static class RoomSurfaces
 
 	private static StandardMaterial3D Surface(string textureName, Color color, float tileMeters)
 	{
+		return Textured(LoadOptional(textureName), color, tileMeters);
+	}
+
+	/// <summary>Material triplanar de espacio mundo con la textura (una repetición cada tileMeters metros); sin textura, solo el color.</summary>
+	public static StandardMaterial3D Textured(Texture2D texture, Color color, float tileMeters)
+	{
 		StandardMaterial3D material = new() { AlbedoColor = color };
-		Texture2D texture = LoadOptional(textureName);
 		if (texture == null)
 		{
 			return material;
