@@ -16,7 +16,7 @@ using Godot;
 ///   ya despejada                       si es así, no hay enemigos y las puertas están abiertas.
 ///
 /// Parámetros propios (inspector de Room.tscn): WallHeight, WallThickness, DoorWidth, EntryMargin,
-/// StartDelay, DoorScene, FloorColor, WallColor.
+/// StartDelay, SpawnDelay, DoorScene, FloorColor, WallColor.
 ///
 /// Estados: Unvisited → Combat → Cleared. Señales: RoomCleared (murió el último enemigo) y
 /// DoorCrossed (el jugador cruzó una puerta abierta; el lado va como int de DoorSide).
@@ -51,7 +51,18 @@ public partial class RoomController : Node3D
 	[Export] public float WallThickness { get; set; } = 1.0f;
 	[Export] public float DoorWidth { get; set; } = 3.0f;
 	[Export] public float EntryMargin { get; set; } = 1.5f;
+	/// <summary>
+	/// Retraso de inicio de combate que REPLICA el simulador (LevelSimulator lo lee de Room.tscn con GameplayParameters y los datasets y
+	/// modelos de dificultad se generaron con él: 1 s). El juego real no lo usa: lo que se espera de verdad es SpawnDelay. No se cambia
+	/// sin regenerar las etiquetas y volver a entrenar.
+	/// </summary>
 	[Export] public float StartDelay { get; set; }
+
+	/// <summary>
+	/// Segundos que tardan en aparecer los enemigos en el juego real tras empezar el combate (la pausa los detiene). Es más corto que
+	/// StartDelay a propósito: el simulador espera 0,3 s más que el juego, una diferencia conocida (ver docs/LULLABY.md).
+	/// </summary>
+	[Export] public float SpawnDelay { get; set; } = 0.7f;
 
 	[Export] public PackedScene DoorScene { get; set; }
 
@@ -305,10 +316,10 @@ public partial class RoomController : Node3D
 			return;
 		}
 
-		if (StartDelay > 0.0f)
+		if (SpawnDelay > 0.0f)
 		{
 			// processAlways = false: la pausa también detiene este retraso.
-			await ToSignal(GetTree().CreateTimer(StartDelay, false), SceneTreeTimer.SignalName.Timeout);
+			await ToSignal(GetTree().CreateTimer(SpawnDelay, false), SceneTreeTimer.SignalName.Timeout);
 
 			if (!IsInstanceValid(this) || !IsInsideTree())
 			{
