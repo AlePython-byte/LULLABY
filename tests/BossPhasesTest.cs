@@ -525,9 +525,22 @@ public partial class BossPhasesTest : Node
 
 	private void CheckSpiralShots(List<EnemyProjectile> shots, EnemyBase boss, PlayerController player, MotherBehavior behavior)
 	{
-		Require(shots.Count <= MotherSpiral.TotalProjectiles && shots.Count >= MotherSpiral.TotalProjectiles - 6,
-			$"La espiral tiene {shots.Count} proyectiles, no {MotherSpiral.TotalProjectiles}");
 		Vector3 gap = behavior.SpiralGapDirection;
+		int[] perArm = new int[MotherSpiral.Arms];
+		foreach (EnemyProjectile shot in shots)
+		{
+			// Brazo al que pertenece cada proyectil: su sector de barrido, medido desde el centro del hueco.
+			float angle = Mathf.PosMod(Mathf.RadToDeg(gap.SignedAngleTo(shot.GlobalPosition with { Y = 0.0f } - boss.GlobalPosition with { Y = 0.0f }, Vector3.Up))
+				- MotherSpiral.GapDegrees * 0.5f + 2.0f, 360.0f);
+			perArm[Mathf.Clamp((int)(angle / MotherSpiral.ArmSpacingDegrees), 0, MotherSpiral.Arms - 1)]++;
+		}
+
+		Vector2 half = behavior.ArenaSize / 2.0f;
+		Vector3 at = boss.Position;
+		Require(shots.Count <= MotherSpiral.TotalProjectiles && shots.Count >= MotherSpiral.TotalProjectiles - 6,
+			$"La espiral tiene {shots.Count} proyectiles, no {MotherSpiral.TotalProjectiles}. Jefe en ({at.X:0.00}, {at.Z:0.00}); vivos por brazo [{string.Join(", ", perArm)}]; "
+			+ $"distancia a las paredes: oeste {at.X + half.X:0.00}, este {half.X - at.X:0.00}, norte {at.Z + half.Y:0.00}, sur {half.Y - at.Z:0.00}; "
+			+ $"hueco hacia ({gap.X:0.00}, {gap.Z:0.00}), giro {(behavior.SpiralReverse ? "inverso" : "directo")}");
 		Vector3 origin = boss.GlobalPosition with { Y = 0.0f };
 		Vector3 target = player.GlobalPosition with { Y = 0.0f };
 		Vector2 arena = behavior.ArenaSize;
