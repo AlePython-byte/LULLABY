@@ -173,16 +173,22 @@ public partial class BossPhasesTest : Node
 	// Noah (velocidad real) sale de los sectores a tiempo desde cualquier punto de la arena, con el jefe en cualquier lugar permitido.
 	// Se simulan los proyectiles uno a uno: Noah reacciona 0,4 s después de empezar el aviso, corre al 85 % de su velocidad en línea
 	// recta hasta el centro de algún hueco (a cualquier distancia razonable) y se queda ahí. Es esquivable si algún destino lo logra.
+	// Quedarse quieto solo cuenta como destino si Noah está más allá del alcance de los proyectiles; dentro de él exige una ruta real.
 	private void CheckSpiralEscape(float noahSpeed, MotherBehavior behavior)
 	{
-		const float reaction = 0.4f, hit = 0.9f, step = 1.0f / 30.0f, lifetime = 3.0f;
+		const float reaction = 0.4f, hit = 0.9f, step = 1.0f / 30.0f;
+		EnemyProjectile sample = behavior.ProjectileScene.Instantiate<EnemyProjectile>();
+		float lifetime = sample.Lifetime;
+		sample.Free();
 		Vector2 arena = behavior.ArenaSize;
 		float bossX = arena.X / 2.0f - behavior.ArenaMargin, bossZ = arena.Y / 2.0f - behavior.ArenaMargin;
 		float walkX = arena.X / 2.0f - 1.0f, walkZ = arena.Y / 2.0f - 1.0f;
 		float spawn = behavior.RingSpawnDistance;
 		float minimumRadius = spawn + behavior.RingSafeDistance + 0.6f;
 		float speed = noahSpeed * 0.85f;
-		int cases = 0;
+		// Más allá de este alcance (nacimiento + velocidad x vida + radio de impacto) ningún proyectil de la espiral llega a Noah.
+		float reach = spawn + MotherSpiral.ProjectileSpeed * lifetime + hit;
+		int cases = 0, outOfReach = 0;
 		Vector2[] bosses = { new(0.0f, 0.0f), new(-bossX, -bossZ), new(bossX, -bossZ), new(-bossX, bossZ), new(bossX, bossZ) };
 		foreach (Vector2 boss in bosses)
 		{
@@ -206,6 +212,13 @@ public partial class BossPhasesTest : Node
 						}
 
 						List<Vector2> targets = new();
+						bool beyondReach = offset.Length() > reach;
+						if (beyondReach)
+						{
+							targets.Add(noah);
+							outOfReach++;
+						}
+
 						for (int k = 0; k < MotherSpiral.Arms; k++)
 						{
 							Vector3 center = gap.Rotated(Vector3.Up, Mathf.DegToRad(MotherSpiral.ArmSpacingDegrees * k));
@@ -230,7 +243,7 @@ public partial class BossPhasesTest : Node
 			}
 		}
 
-		GD.Print($"Espiral esquivable a {noahSpeed:0.0} m/s de Noah desde {cases} posiciones y lados: OK");
+		GD.Print($"Espiral esquivable a {noahSpeed:0.0} m/s de Noah desde {cases} posiciones y lados ({outOfReach} fuera de alcance, el resto con ruta de escape): OK");
 	}
 
 	private static bool SpiralPathIsSafe(Vector2 from, Vector2 to, Vector2 boss, List<(Vector2 Direction, float Start)> rays, float speed,
