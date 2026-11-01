@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://scripts/ui/MainMenu.cs" id="1_menu"]
 [ext_resource type="PackedScene" path="res://scenes/ui/ControlsPanel.tscn" id="2_controls"]
 [ext_resource type="PackedScene" path="res://scenes/ui/VolumeControls.tscn" id="3_volume"]
+[ext_resource type="Script" path="res://scripts/ui/MenuCover.cs" id="4_cover"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_toggle_off"]
 bg_color = Color(0.3, 0.26, 0.42, 1)
@@ -76,6 +77,23 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 color = Color(0.04, 0.03, 0.07, 1)
+
+[node name="Cover" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("4_cover")
+
+[node name="MenuPanel" type="TextureRect" parent="."]
+visible = false
+layout_mode = 0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 0
 
 [node name="Center" type="CenterContainer" parent="."]
 layout_mode = 1
