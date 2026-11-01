@@ -541,7 +541,9 @@ public partial class BossPhasesTest : Node
 		Require(shots.Count <= MotherSpiral.TotalProjectiles && shots.Count >= MotherSpiral.TotalProjectiles - 6,
 			$"La espiral tiene {shots.Count} proyectiles, no {MotherSpiral.TotalProjectiles}. Jefe en ({at.X:0.00}, {at.Z:0.00}); vivos por brazo [{string.Join(", ", perArm)}]; "
 			+ $"distancia a las paredes: oeste {at.X + half.X:0.00}, este {half.X - at.X:0.00}, norte {at.Z + half.Y:0.00}, sur {half.Y - at.Z:0.00}; "
-			+ $"hueco hacia ({gap.X:0.00}, {gap.Z:0.00}), giro {(behavior.SpiralReverse ? "inverso" : "directo")}");
+			+ $"hueco hacia ({gap.X:0.00}, {gap.Z:0.00}), giro {(behavior.SpiralReverse ? "inverso" : "directo")}; "
+			+ $"Noah en ({player.GlobalPosition.X:0.00}, {player.GlobalPosition.Z:0.00}) a {(player.GlobalPosition with { Y = 0.0f }).DistanceTo(boss.GlobalPosition with { Y = 0.0f }):0.00} m del jefe; "
+			+ $"omitidos previstos por Noah (SpawnsOnTarget) por brazo [{string.Join(", ", SkippedPerArm(boss, player, behavior))}]");
 		Vector3 origin = boss.GlobalPosition with { Y = 0.0f };
 		Vector3 target = player.GlobalPosition with { Y = 0.0f };
 		Vector2 arena = behavior.ArenaSize;
@@ -560,6 +562,22 @@ public partial class BossPhasesTest : Node
 
 		float towardPlayer = Mathf.RadToDeg((target - origin).AngleTo(gap));
 		Require(Mathf.Abs(towardPlayer - MotherSpiral.GapOffsetDegrees) < 3.0f, $"El hueco está a {towardPlayer:0.0}° de Noah, no a {MotherSpiral.GapOffsetDegrees:0.0}°");
+	}
+
+	// Cuántos disparos de cada brazo omite el comportamiento por nacer a menos de RingSafeDistance de Noah (la misma función que usa él).
+	private static int[] SkippedPerArm(EnemyBase boss, PlayerController player, MotherBehavior behavior)
+	{
+		int[] skipped = new int[MotherSpiral.Arms];
+		for (int emission = 0; emission < MotherSpiral.Emissions; emission++)
+		{
+			for (int arm = 0; arm < MotherSpiral.Arms; arm++)
+			{
+				Vector3 direction = MotherSpiral.Direction(arm, emission, behavior.SpiralGapDirection, behavior.SpiralReverse);
+				if (MotherRing.SpawnsOnTarget(boss.GlobalPosition, direction, behavior.RingSpawnDistance, player.GlobalPosition, behavior.RingSafeDistance)) skipped[arm]++;
+			}
+		}
+
+		return skipped;
 	}
 
 	// Cuenta los pasos que dura un aviso; cuando se apaga comprueba que duró lo debido.
