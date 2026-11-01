@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Godot;
 
@@ -9,6 +11,8 @@ using Godot;
 /// Casos:
 ///   1. TestLevel lanzado directo (F6, las pruebas) sigue sin pasar por el menú: dificultad del inspector (Normal).
 ///   2. El menú muestra los textos del juego, funciona con o sin las imágenes opcionales y recuerda la dificultad.
+///   2b. Arte del menú (carátula animada, logo y panel de papel): se carga por nombre solo lo que existe, el panel rodea al menú y
+///      queda a la derecha dentro de la ventana, el parallax es mínimo y acotado, y sin las capas el menú se construye igual.
 ///   3. La pantalla de Controles muestra solo las teclas reales (WASD, flechas, Esc o P).
 ///   4. Jugar con cada dificultad carga TestLevel con esa dificultad como objetivo del director y la muestra en el HUD,
 ///      despausa el juego y descarta una semilla pendiente (la partida del menú toma una aleatoria).
@@ -25,6 +29,7 @@ public partial class MenuFlowTest : Node
 			GD.Print($"=== MenuFlowTest ({(OS.IsDebugBuild() ? "Debug" : "Release")}) ===");
 			await CheckLevelWithoutMenu();
 			await CheckMenuContents();
+			await CheckMenuArt();
 			await CheckControlsText();
 			await CheckPlayWithEachDifficulty();
 			GD.Print($"MenuFlowTest: {_checks} comprobaciones. RESULTADO: OK");
@@ -93,6 +98,72 @@ public partial class MenuFlowTest : Node
 		await BossTestHarness.Restore(tree, testScene, again);
 		GameSettings.Difficulty = null;
 		GD.Print("Menú: textos, imágenes opcionales y dificultad recordada: OK");
+	}
+
+	private async Task CheckMenuArt()
+	{
+		SceneTree tree = GetTree();
+		Node testScene = tree.CurrentScene;
+		string folder = MenuCover.Folder;
+		try
+		{
+			// Con lo que haya en assets/: las capas cargadas son exactamente las que existen, en su orden.
+			MainMenu menu = await OpenMenu();
+			await BossTestHarness.Frames(tree, 3);
+			List<string> expected = MenuCover.LayerSpecs.Where(spec => ResourceLoader.Exists($"{MenuCover.Folder}{spec.Name}.png")).Select(spec => spec.Name).ToList();
+			Require(menu.Cover.LoadedNames.SequenceEqual(expected) && menu.HasCover == expected.Count > 0, $"La carátula carga exactamente las capas que existen ({expected.Count})");
+			Require(menu.HasPanel == ResourceLoader.Exists(MainMenu.PanelPath), "El panel de papel se usa solo si existe");
+			Require(!menu.HasLogo || (!menu.GetNode<Label>("Center/Box/Title").Visible && !menu.GetNode<Label>("Center/Box/Subtitle").Visible),
+				"Con logo, el título y el subtítulo en texto se ocultan (el logo ya los trae)");
+			Require(menu.PlayButton.HasFocus(), "Jugar tiene el foco con o sin arte");
+
+			if (menu.HasPanel)
+			{
+				Rect2 viewport = new(Vector2.Zero, menu.GetViewportRect().Size);
+				Rect2 panel = menu.PanelRect;
+				Rect2 box = menu.GetNode<Control>("Center/Box").GetGlobalRect();
+				Require(panel.Encloses(box), $"El panel rodea al menú (panel {panel}, menú {box})");
+				Require(viewport.Grow(1.0f).Encloses(panel), $"El panel cabe en la ventana ({panel} en {viewport})");
+				Require(panel.Position.X >= viewport.Size.X * 0.5f, "El panel queda a la derecha y deja a la vista el centro de la carátula");
+				Require(panel.Size.X / panel.Size.Y > 0.70f && panel.Size.X / panel.Size.Y < 0.95f, $"El papel no se deforma de más (proporción {panel.Size.X / panel.Size.Y:0.00})");
+				Rect2 volume = menu.GetNode<Control>("VolumeControls").GetGlobalRect();
+				Require(!volume.Intersects(panel), "El volumen no se solapa con el panel");
+				Require(volume.Position.X >= 0.0f && volume.End.Y <= viewport.Size.Y + 1.0f, "El volumen cabe en la ventana");
+			}
+
+			if (menu.HasCover)
+			{
+				Require(menu.Cover.IsProcessing(), "La carátula se mueve");
+				List<float> before = Enumerable.Range(0, menu.Cover.LayerCount).Select(menu.Cover.DisplacementOf).ToList();
+				await BossTestHarness.Frames(tree, 150);
+				float moved = 0.0f;
+				for (int i = 0; i < menu.Cover.LayerCount; i++)
+				{
+					float now = menu.Cover.DisplacementOf(i);
+					Require(Mathf.Abs(now) <= menu.Cover.MaxDisplacementOf(i) + 0.01f, $"El parallax de la capa {i} queda dentro de su amplitud ({now:0.00} px)");
+					moved = Mathf.Max(moved, Mathf.Abs(now - before[i]));
+				}
+
+				Require(moved > 0.05f, $"Alguna capa se movió ({moved:0.00} px)");
+				Require(Enumerable.Range(0, menu.Cover.LayerCount).All(i => menu.Cover.MaxDisplacementOf(i) <= 16.0f), "El movimiento es mínimo (16 px como mucho)");
+			}
+
+			await BossTestHarness.Restore(tree, testScene, menu);
+
+			// Sin ninguna capa: el menú se construye y se puede jugar, sin procesar nada.
+			MenuCover.Folder = "res://tests/fixtures/none/";
+			MainMenu bare = await OpenMenu();
+			await BossTestHarness.Frames(tree, 3);
+			Require(!bare.HasCover && bare.Cover.LayerCount == 0 && !bare.Cover.IsProcessing(), "Sin capas, la carátula queda vacía y no procesa");
+			Require(bare.PlayButton.HasFocus() && bare.PlayButton.Text == GameText.Play, "Sin capas el menú sigue funcional");
+			await BossTestHarness.Restore(tree, testScene, bare);
+		}
+		finally
+		{
+			MenuCover.Folder = folder;
+		}
+
+		GD.Print("Arte del menú: capas por nombre, panel a la derecha, parallax mínimo y menú sin capas: OK");
 	}
 
 	private async Task CheckControlsText()
