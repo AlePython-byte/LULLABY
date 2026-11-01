@@ -168,6 +168,23 @@ public partial class ItemMessageVarietyTest : Node
 			if (extended)
 			{
 				Require(hud.Contains("generador v3") && hud.Contains(GameText.ExtendedVarietyWarning), "marcada: partida con el generador v3 y el aviso experimental en el HUD");
+
+				// El aviso cabe en la etiqueta: cada línea mide menos que su ancho y la etiqueta no se sale de la ventana.
+				Label hudLabel = level.GetNode<Label>("SeedHud/Label");
+				Font font = hudLabel.GetThemeFont("font");
+				int fontSize = hudLabel.GetThemeFontSize("font_size");
+				await BossTestHarness.Frames(tree, 2);
+				foreach (string line in hud.Split('\n'))
+				{
+					float width = font.GetStringSize(line, HorizontalAlignment.Left, -1, fontSize).X;
+					Require(width <= hudLabel.Size.X, $"El HUD cabe en su etiqueta: «{line}» mide {width:0} px y la etiqueta {hudLabel.Size.X:0}");
+				}
+
+				Require(GameText.ExtendedVarietyWarning.Contains('\n') && hudLabel.AutowrapMode != TextServer.AutowrapMode.Off, "El aviso viene en dos líneas y la etiqueta ajusta el texto");
+				Rect2 labelRect = hudLabel.GetGlobalRect();
+				Rect2 window = hudLabel.GetViewportRect();
+				Require(labelRect.Position.X >= -0.5f && labelRect.End.X <= window.End.X + 0.5f && labelRect.Position.Y >= -0.5f && labelRect.End.Y <= window.End.Y + 0.5f,
+					$"La etiqueta del HUD queda dentro de la ventana ({labelRect} en {window})");
 				level.GetNode<RunManager>("RunManager").StartNewRun();
 				Node next = await BossTestHarness.WaitForScene(tree, level, GameSettings.LevelScene);
 				Require(next.GetNode<Label>("SeedHud/Label").Text.Contains("generador v3"), "al reintentar sigue en v3");
