@@ -163,7 +163,7 @@ public partial class MainMenu : Control
 		HasPanel = true;
 
 		Control center = GetNode<Control>("Center");
-		center.AnchorLeft = 0.5f;
+		center.AnchorLeft = 0.56f;
 
 		Control box = GetNode<Control>("Center/Box");
 		box.AddThemeConstantOverride("separation", 10);
