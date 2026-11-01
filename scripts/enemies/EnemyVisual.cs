@@ -50,9 +50,16 @@ public partial class EnemyVisual : Node3D
 	private sealed class ModelMaterial
 	{
 		public BaseMaterial3D Material;
+		public MeshInstance3D Mesh;
 		public bool Enabled;
 		public Color Color;
 		public float Energy;
+
+		// Valores del modelo tal como vino: SetModelLook parte siempre de ellos.
+		public Color Albedo;
+		public bool OriginalEnabled;
+		public Color OriginalColor;
+		public float OriginalEnergy;
 	}
 
 	private readonly List<MeshInstance3D> _meshes = new();
@@ -152,6 +159,27 @@ public partial class EnemyVisual : Node3D
 		Refresh();
 	}
 
+	/// <summary>
+	/// Aspecto SOSTENIDO de un modelo con sus propios colores (UseKindColor = false), distinto del aviso y del destello: mezcla el albedo
+	/// de las piezas con `tint` (tintStrength de 0 a 1; 0 deja el original) y, en las piezas que cumplan `glows`, pone una emisión
+	/// base de `glowColor` y `glowEnergy` (con energía casi nula vuelve a la del modelo). Las piezas que brillan no se tiñen.
+	/// El aviso y el destello siguen mostrándose encima y, al apagarse, vuelven a este aspecto. Siempre parte del modelo original,
+	/// así que se puede llamar cada fotograma. Sin efecto con UseKindColor = true.
+	/// </summary>
+	public void SetModelLook(Color tint, float tintStrength, System.Func<MeshInstance3D, bool> glows, Color glowColor, float glowEnergy)
+	{
+		foreach (ModelMaterial entry in _model)
+		{
+			bool glow = glows != null && glows(entry.Mesh) && glowEnergy > 0.01f;
+			entry.Material.AlbedoColor = glow ? entry.Albedo : entry.Albedo.Lerp(tint, Mathf.Clamp(tintStrength, 0.0f, 1.0f));
+			entry.Enabled = glow || entry.OriginalEnabled;
+			entry.Color = glow ? glowColor : entry.OriginalColor;
+			entry.Energy = glow ? glowEnergy : entry.OriginalEnergy;
+		}
+
+		Refresh();
+	}
+
 	public virtual void SetHighlight(bool on)
 	{
 		_highlight = on;
@@ -209,9 +237,14 @@ public partial class EnemyVisual : Node3D
 				_model.Add(new ModelMaterial
 				{
 					Material = copy,
+					Mesh = mesh,
 					Enabled = copy.EmissionEnabled,
 					Color = copy.Emission,
 					Energy = copy.EmissionEnergyMultiplier,
+					Albedo = copy.AlbedoColor,
+					OriginalEnabled = copy.EmissionEnabled,
+					OriginalColor = copy.Emission,
+					OriginalEnergy = copy.EmissionEnergyMultiplier,
 				});
 			}
 		}
