@@ -1,0 +1,209 @@
+{
+  "protocol_version": 2,
+  "generator_version": 3,
+  "simulator_version": 4,
+  "status": "frozen_after_development_before_acceptance_results",
+  "scope": "Composicion base de seis tipos, sin objetos, sin The Mother y con vida ilimitada; jefe historico de seis basicos.",
+  "bot": {
+    "profile": "competent_v3",
+    "novice_profile": false,
+    "reaction_frames": 6,
+    "reaction_jitter": 3,
+    "policy": "Prioridad: explosivo cercano, tirador o excavador vulnerable, huidor, volador, resto. No apuntar al excavador enterrado; avisos y vulnerabilidad con la misma observacion retrasada; esquiva perpendicular al aviso del huidor sin conocer su direccion interna.",
+    "freeze": "Congelar codigo, parametros y hashes antes de aceptacion. Cualquier correccion posterior requiere la muestra de reserva."
+  },
+  "physics_ticks_per_second": 60,
+  "max_seconds_per_run": 600,
+  "runs_per_level_per_environment": 10,
+  "bot_seed": "BotBrainV3.SeedFor(effective_seed, run_index)",
+  "samples": {
+    "development": {
+      "first_seed": 600001,
+      "count": 30
+    },
+    "acceptance": {
+      "first_seed": 610001,
+      "count": 90
+    },
+    "reserve": {
+      "first_seed": 620001,
+      "count": 90
+    },
+    "coverage": "Antes de combates, exigir presencia de los seis EnemyKind en cada muestra y al menos 10 niveles con Runner y 10 con Digger en aceptacion. Si no se cumple, detenerse y registrar una enmienda antes de ver resultados; no seleccionar por dano. Verificar semillas efectivas distintas y ausencia de solapamiento entre muestras."
+  },
+  "criteria": {
+    "spearman": {
+      "damage_total_mean_min": 0.7,
+      "time_total_mean_min": 0.7,
+      "unit": "level_mean"
+    },
+    "contact": {
+      "absolute_relative_bias_max": 0.25,
+      "minimum_real_hits": 1
+    },
+    "composition_time": {
+      "absolute_relative_bias_max": 0.3,
+      "groups": [
+        "basic_only",
+        "with_shooter",
+        "with_exploder",
+        "with_flyer",
+        "with_runner",
+        "with_digger"
+      ],
+      "missing_group": "fail_coverage"
+    },
+    "projectile_and_explosion": {
+      "absolute_relative_bias_max": 0.3,
+      "minimum_real_hits_per_source": 30,
+      "below_minimum": "insufficient_evidence_nonblocking_report_limitation"
+    },
+    "timeouts": {
+      "simulator_max": 0,
+      "real_game_max": 0
+    },
+    "behavior": "Deben pasar pruebas controladas de aviso, embestida, bloqueo, retroceso, fases del excavador, vulnerabilidad, colisiones, disparo y emergencia forzada. Un fallo reproducible de comportamiento bloquea aunque los agregados pasen.",
+    "undefined_metric": "Spearman no finito o contacto sin golpes reales bloquea; no convertirlo en aprobado."
+  },
+  "relative_bias_formula": "(sum_simulated - sum_real) / sum_real",
+  "uncertainty": {
+    "method": "paired_bootstrap_over_levels",
+    "resamples": 2000,
+    "seed": 20261031,
+    "confidence": 0.95,
+    "interval_role": "informative_point_estimate_decides"
+  },
+  "diagnostics": [
+    "damage_and_hits_by_source",
+    "contact_by_enemy_kind",
+    "damage_and_time_by_room_composition",
+    "controlled_rare_events",
+    "coverage",
+    "timeouts"
+  ],
+  "retry_policy": "Conservar todos los informes. Fallar aceptacion impide etiquetado masivo; diagnosticar en desarrollo, congelar nueva version y evaluar reserva una vez. Si reserva falla, detenerse y reportar sin abrir otra muestra.",
+  "execution": "Solo headless y un trabajador. No ejecutar Godot, aceptacion ni reserva hasta OK explicito y confirmacion de equipo libre. La congelacion documental no autoriza la ejecucion.",
+  "checkpoint": "2026-11-03",
+  "hard_cutoff": "2026-11-08",
+  "registration": {
+    "frozen_at_utc": "2026-11-01T15:11:41Z",
+    "parent_protocol": "ai-training/protocols/v3_fidelity.json",
+    "parent_sha256": "91d0239fad57636476455b66eb06d49a1326b731d6777b2a166fa36aafb1e220",
+    "original_preserved_byte_for_byte": true,
+    "criteria_equal_to_parent": true,
+    "acceptance_combat_results_used_to_choose_protocol": false,
+    "coverage_maps_previously_inspected": true,
+    "coverage_reference": "ai-training/reports/v3/stage2_preparation.md",
+    "not_blind_to_development": true,
+    "reason": "Adaptacion informada por ruido de desarrollo, no una confirmacion independiente. Las medias de tres repeticiones no cumplieron el umbral original de dano; diez mejoraron su ordenacion. Se fija diez antes de abrir resultados de aceptacion, sin bajar umbrales ni sustituir el original.",
+    "development_evidence": {
+      "analysis": "ai-training/reports/v3/repetition_curve_20261031_02/analysis.json",
+      "analysis_sha256": "c690c8c63daf7c291e7c6250a5de8e1fa29ce9a18b20332686c01492b12753d8",
+      "raw_archive": "ai-training/reports/v3/repetition_curve_20261031_02/raw_results.zip",
+      "raw_archive_sha256": "fb6c143ed983b27d82db26176661b155cfc0f347b9c9d86a0ab35366d9fa050c",
+      "levels": 30,
+      "valid_pairs": 300,
+      "excluded_pairs": 0,
+      "damage_spearman_at_3": 0.5336843498506466,
+      "damage_spearman_at_10": 0.8254234331184876,
+      "damage_ci95_at_10": {
+        "low": 0.6734707711674284,
+        "high": 0.9139873267168579,
+        "valid_resamples": 2000,
+        "undefined_resamples": 0,
+        "unit": "level",
+        "method": "paired_percentile_bootstrap"
+      },
+      "caution": "El IC con diez incluye valores inferiores a 0.7. Esta mejora en desarrollo no constituye aceptacion ni demuestra que solo el ruido explique el desacuerdo."
+    },
+    "sample_assignment": "Instruccion actual: aceptacion 610001..610090, reserva 620001..620090, como en el protocolo original. Sustituye notas previas condicionadas a una correccion no aplicada que proponian usar 620001 para aceptacion; esas notas historicas se conservan. No se inspeccionan aqui resultados de combates de ninguna de las dos muestras."
+  },
+  "run_indices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "aggregation": {
+    "unit": "requested_level",
+    "runs_per_mean": 10,
+    "prefix": "exactly_run_indices_0_to_9",
+    "paired_environments": true,
+    "same_effective_seed_and_bot_seed_per_pair": true,
+    "damage_and_time": "Spearman entre las 90 medias de diez repeticiones de cada entorno, con rango medio en empates.",
+    "bias": "Sumas de dano y tiempo de los pares y salas validos completos, no media de porcentajes individuales; formula del protocolo original.",
+    "missing_runs": "No imputar, reducir denominador, elegir otras repeticiones, sustituir semillas ni seleccionar por resultados."
+  },
+  "attempt_validity": {
+    "max_attempts_including_first": 3,
+    "unit": "entire_batch_process_log",
+    "levels_per_batch": 5,
+    "pairs_per_batch": 50,
+    "select": "first_complete_clean_attempt_only",
+    "case_insensitive": true,
+    "invalid_log_substrings": [
+      "gchandle",
+      "illegal instruction",
+      "error:"
+    ],
+    "all_process_errors_invalid": true,
+    "allowlisted_error_messages": [],
+    "certificate_store_error": "Tambien invalida. Resolver en desarrollo/entorno antes de abrir aceptacion; no ignorar ni filtrar este mensaje.",
+    "warnings": "Conservar y asociar al par activo. Un WARNING sin ERROR no invalida por si solo; un comportamiento reproduciblemente incorrecto bloquea por el criterio original.",
+    "successful_exit_required": true,
+    "complete_results_and_hash_verified_required": true,
+    "scan_after_process_exit_including_shutdown": true,
+    "capture": "Guardar salida estandar y error combinadas y log nativo de Godot; cualquiera de ambos puede invalidar. No contar dos veces un mismo log al resumir incidencias.",
+    "retries": "Solo errores tecnicos del proceso o del motor. Mismas semillas y parametros; directorios nuevos, registros originales intactos, sin resetear el contador al reanudar.",
+    "interrupted_supervisor": "Sin cierre y codigo de salida persistido y verificado el intento es invalido, aunque contenga CURVE_COMPLETE; cuenta dentro de tres.",
+    "quality_failures_override_retry_policy": "Timeout, sala pendiente o imposible, atasco sospechado o fallo reproducible de comportamiento detienen y bloquean. No esconderlos bajo un reintento tecnico o exclusion para aprobar.",
+    "on_exhaustion": "Detener como aceptacion incompleta. Enumerar los 50 pares del lote sin intento limpio y los no iniciados; conservar par, entorno/fase, motivo, intento, codigo, hash de logs e historial.",
+    "no_silent_exclusions": true
+  },
+  "acceptance_completeness": {
+    "required_levels": 90,
+    "required_valid_pairs": 900,
+    "required_valid_games": 1800,
+    "all_requested_levels_required": true,
+    "all_runs_required_in_both_environments": true,
+    "exclusions_block_acceptance": true,
+    "partial_statistics": "Solo diagnosticas, rotuladas incompletas; nunca aprobar con una cohorte reducida ni cambiar el umbral.",
+    "undefined_or_empty_metrics": "Bloquean segun el protocolo original.",
+    "rare_sources_below_30": "Se mantiene la regla original de evidencia insuficiente no bloqueante. No declarar validados proyectiles ni explosiones sin 30 impactos reales por fuente."
+  },
+  "execution_policy": {
+    "godot_headless_only": true,
+    "workers": 1,
+    "concurrent_environments": false,
+    "tiered_compilation_environment": "unset",
+    "tiered_selection_reason": "La comparacion nueva dio cero errores en ambas configuraciones e igualdad en cinco niveles; desempate a favor de variable ausente. No demuestra que elimine GCHandle.",
+    "physics_ticks_per_second": 60,
+    "time_scale": 1,
+    "acceptance_launch_authorized": false,
+    "launch_requires": [
+      "explicit_user_ok",
+      "user_confirms_machine_free",
+      "no_other_godot_session_in_any_worktree",
+      "development_preflight_with_strict_error_free_logs",
+      "v2_compatible_harness_and_analyzer_validated_without_acceptance_results",
+      "frozen_protocol_code_parameters_and_assembly_hashes"
+    ],
+    "no_automatic_reserve_or_mass_labeling": true
+  },
+  "freeze_contract": {
+    "protocol_changes_after_acceptance_opened": "No modificar retrospectivamente criterios, repeticiones, validez, rangos ni exclusiones. Conservar version y registrar cualquier enmienda por separado; no reutilizar para ajustar la muestra ya abierta.",
+    "measurement_reference_archive": "ai-training/reports/v3/repetition_curve_20261031_02/raw_results.zip",
+    "measurement_reference_manifest": "execution/batch_600001_attempt_1/manifest.json",
+    "measurement_reference_manifest_sha256": "544ec15249d5ec3d07cdb6027b1884f4211aceec9b128fc3fa24bf7cac067de5",
+    "core": "Mantener sin cambios simulador version 4, bot policy version 1, parametros, escenas, recursos, colisiones y cuerpo de PlayReal de la medicion de desarrollo; comparar hashes de las fuentes del nucleo con el manifiesto de referencia.",
+    "implementation_status": "Este JSON congela el diseno, no habilita el ejecutor actual: el lector y el arnes siguen limitados al protocolo original y desarrollo. Falta una adaptacion aislada de orquestacion y analisis v2, sin alterar el nucleo de medicion.",
+    "before_first_acceptance_combat": "Registrar SHA-256 del protocolo, orquestador, analizador, parametros, fuentes, recursos y ensamblado realmente ejecutado; pruebas sinteticas y de integridad antes de firmar el manifiesto.",
+    "after_opening": "Aceptar o fallar una sola vez. Corregir solo en desarrollo; cualquier correccion del nucleo exige version nueva y usar la reserva 620001..620090, una vez y con OK explicito. Si reserva falla, detener y reportar; no abrir otra muestra."
+  }
+}
