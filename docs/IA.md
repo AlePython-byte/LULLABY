@@ -17,6 +17,7 @@ Este documento explica qué hace la IA, cómo se construyó, qué resultados dio
 9. [Cómo reproducir todo](#9-cómo-reproducir-todo)
 10. [Anexo: glosario de métricas y archivos](#10-anexo-glosario-de-métricas-y-archivos)
 11. [Versión 2: tipos de enemigo](#11-versión-2-tipos-de-enemigo)
+12. [Versión 3: aceptación no aprobada y diagnóstico](#12-versión-3-aceptación-no-aprobada-y-diagnóstico)
 
 Las secciones 1 a 10 describen la **versión 1** (generador v1, un solo tipo de enemigo). La sección 11 describe la **versión 2**, que añade el tirador, el explosivo y el volador. La versión 1 sigue intacta y reproducible.
 
@@ -678,6 +679,8 @@ El menú principal ofrece la casilla «Variedad extendida (experimental)» (`Gam
 
 Prueba: `godot --headless --fixed-fps 60 --path . res://tests/ItemMessageVarietyTest.tscn`.
 
+La fidelidad de v3 **no superó el protocolo de aceptación v2** por un timeout real en `610006:0`. V3 permanece experimental; el resultado y su diagnóstico se detallan en la [sección 12](#12-versión-3-aceptación-no-aprobada-y-diagnóstico).
+
 ### 11.7 Limitaciones de la versión 2
 
 1. **El simulador subestima el daño por contacto**, tanto en v1 como en v2. En la prueba de fidelidad v1 (30 niveles) el daño total, todo por contacto, fue 13.24 en el simulador frente a 16.00 en el juego (−17 %). En la v2 (90 niveles), el contacto da −12.9 % (IC 95 % de −16.6 % a −9.2 %).
@@ -713,3 +716,13 @@ godot --path . -- --generator=1
 ```
 
 Sin `--version` (o con `--version 1`), todos los comandos producen los artefactos v1 de siempre.
+
+## 12. Versión 3: aceptación no aprobada y diagnóstico
+
+**Estado al 1 de noviembre de 2026: aceptación no aprobada; v3 experimental.** El protocolo de fidelidad v2 para el generador v3, simulador v4 y bot v3 fijó 90 niveles (`610001..610090`), diez repeticiones por nivel y entorno y ninguna partida con timeout. No debe confundirse esta versión del protocolo con la IA v2 descrita en la sección 11.
+
+La ejecución se detuvo por un fallo de calidad en `610006:0`, entorno real: timeout a los 600,00006 s virtuales, con 4 de 12 salas visitadas y 3 despejadas. Solo el primer lote quedó validado: **50 pares válidos, uno con timeout y 849 sin iniciar**. Las estadísticas de los cinco niveles completados son parciales y no permiten aprobar la aceptación. El fallo de finalización bloquea por sí mismo; no se reintentó como error técnico. Véase el [informe de aceptación](../ai-training/reports/v3/acceptance_v2_20261101_02/README.md).
+
+Una única reproducción diagnóstica con el mismo mapa, bot, semillas y llamada original al juego real produjo un resultado completo idéntico, sin GCHandle. En la sala `(−2,0)`, plantilla `mixta_trinchera`, quedó un tirador con 1 de vida junto a una esquina. El bot osciló sin conseguir alinearse para disparar; las puertas permanecieron cerradas de forma coherente con el enemigo vivo. La traza y la lectura del código sustentan la clasificación **enemigo inalcanzable para la política de alineación del bot**, por la interacción entre su margen de pared y el disparo cardinal. No demuestran inaccesibilidad física, dificultad injusta para un jugador humano ni determinismo universal. Véase el [diagnóstico y su evidencia](../ai-training/reports/v3/timeout_trace_610006_20261101_01/README.md).
+
+El diagnóstico no corrige ni sustituye el resultado de aceptación. No se modificaron el bot, el simulador ni los protocolos, no se ejecutaron combates de reserva y no se abrió el etiquetado masivo. Los datos, modelos, benchmarks y hashes históricos de v1 y v2 se conservan intactos. V3 continúa disponible únicamente como variedad extendida experimental, con las limitaciones de predicción indicadas en la sección 11.6.4.
