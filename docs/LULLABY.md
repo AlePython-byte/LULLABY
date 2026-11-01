@@ -235,6 +235,20 @@ Tiene **180 puntos de vida** (una lágrima base hace 1 de daño) y se mueve a 1.
 - Hace 1 punto de daño por contacto (con 1 s entre golpes) y 1 por proyectil (velocidad 5 m/s, desaparece a los 3 s o al chocar). Noah conserva su segundo de invulnerabilidad tras un golpe.
 - La vida del jefe se muestra en la parte inferior de la pantalla mientras dura el combate.
 
+### Fases
+
+La vida (180) decide la fase. Los umbrales son el 66 % (118,8) y el 33 % (59,4). Un golpe grande puede saltarse la fase intermedia: se aplica la más alta alcanzada, con una sola invulnerabilidad.
+
+| Fase | Vida | Cambios respecto a la fase 1 |
+|---|---|---|
+| 1 | 100 % a 66 % | El ciclo de la tabla anterior |
+| 2 | 66 % a 33 % | Tras la salva se desplaza en arco (**órbita**, 1.6 s, radio 6 m, 2.5 m/s) en vez de la pausa quieta. Tras la embestida lanza un **anillo de 10 proyectiles** (5 m/s) con aviso de 0.6 s |
+| 3 | 33 % a 0 % | Salva cada 1.0 s, órbita de 1.0 s, **dos embestidas encadenadas** (avisos de 0.7 s y 0.6 s), anillo de 12 proyectiles y recuperación de 0.9 s |
+
+- **Cambio de fase:** corta el ataque en curso y deja al jefe quieto e **invulnerable 1.2 s**, parpadeando con el color de aviso, y muestra una frase (`MotherTexts.PhaseTwo` y `PhaseThree`). Los proyectiles ya lanzados siguen su camino. Después hay 0.5 s de recuperación. La victoria funciona también en este instante (`Kill` ignora la invulnerabilidad).
+- **Anillo:** el aviso dibuja un círculo rojo en el suelo y una franja azul sobre el **hueco** por el que escapar (50° en la fase 2, 44° en la 3). El hueco se fija al empezar el aviso: en la fase 2 mira a Noah; en la 3 se desvía 25° (alterna de lado) para obligar a moverse. Los proyectiles nacen a 2.4 m del centro del jefe y no se dispara el que nacería a menos de 1.2 m de Noah.
+- **Sonido:** `jefe_fase` (opcional, sin archivo no suena ni da error).
+
 ### Fin de la partida
 
 Al derrotar a The Mother la partida termina **una sola vez**:
@@ -252,10 +266,11 @@ En compilaciones de depuración, **B** lleva a la sala del jefe y **U** le quita
 ```
 godot --headless --path . res://tests/BossEncounterTest.tscn
 godot --headless --path . res://tests/BossVictoryTest.tscn
+godot --headless --path . res://tests/BossPhasesTest.tscn
 godot --headless --path . res://tests/HistoricalIntegrityTest.tscn
 ```
 
-`BossEncounterTest` comprueba la composición con y sin el jefe alternativo, los avisos completos antes de cada ataque, que nunca haya dos ataques a la vez y que la embestida respete las paredes. `BossVictoryTest` mata al jefe en cada estado de su ciclo y comprueba que la partida termina una vez, que no quedan proyectiles y que **Nueva partida** cambia la semilla y deja el inventario vacío y la salud completa. `HistoricalIntegrityTest` fija los datos históricos de la IA, la sala de seis básicos y las colisiones de Noah (1×1) y del básico (0.9×0.9).
+`BossEncounterTest` comprueba la composición con y sin el jefe alternativo, los avisos completos antes de cada ataque, que nunca haya dos ataques a la vez y que la embestida respete las paredes. `BossVictoryTest` mata al jefe en cada estado de su ciclo y comprueba que la partida termina una vez, que no quedan proyectiles y que **Nueva partida** cambia la semilla y deja el inventario vacío y la salud completa. `BossPhasesTest` comprueba los umbrales, la invulnerabilidad del cambio de fase, que los ataques nuevos tengan aviso completo, no se solapen y no salgan de la arena, el hueco y la seguridad del anillo, y que reintentar no deje residuos. `HistoricalIntegrityTest` fija los datos históricos de la IA, la sala de seis básicos y las colisiones de Noah (1×1) y del básico (0.9×0.9).
 
 # 6. Stack tecnológico
 
