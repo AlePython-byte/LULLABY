@@ -4,11 +4,11 @@ using Godot;
 /// <summary>
 /// Una fase de combate: pausa inicial, tres disparos, embestida y recuperación. Solo ejecuta un ataque a la vez.
 /// Con la vida baja pasa a la fase 2 (66 %) y a la 3 (33 %): órbita entre ataques, anillo de proyectiles tras la embestida
-/// y, en la 3, embestidas encadenadas. Cada cambio de fase la deja quieta e invulnerable PhaseChangeTime segundos.
+/// y, en la 3, embestidas encadenadas y una espiral (MotherSpiral) que alterna con el anillo. Cada cambio de fase la deja quieta e invulnerable PhaseChangeTime segundos.
 /// </summary>
 public partial class MotherBehavior : EnemyBehavior
 {
-	public enum AttackState { Entrance, Volley, BeforeDash, Approach, Dash, Recovery, Orbit, RingWarning, PhaseChange }
+	public enum AttackState { Entrance, Volley, BeforeDash, Approach, Dash, Recovery, Orbit, RingWarning, PhaseChange, SpiralWarning, Spiral }
 	[Export] public float EntrancePause { get; set; } = 1.5f;
 	[Export] public PackedScene ProjectileScene { get; set; }
 	[Export] public int VolleyShots { get; set; } = 3;
@@ -39,6 +39,12 @@ public partial class MotherBehavior : EnemyBehavior
 	public bool DashWarningActive => State == AttackState.Dash && _dash?.State == DashBehavior.DashState.Warning;
 	public bool RingWarningActive => State == AttackState.RingWarning;
 	public bool PhaseChangeActive => State == AttackState.PhaseChange;
+	public bool SpiralWarningActive => State == AttackState.SpiralWarning;
+	public bool SpiralActive => State == AttackState.Spiral;
+
+	/// <summary>Centro de uno de los tres huecos de la espiral en curso (fijado al empezar su aviso) y si gira en sentido contrario.</summary>
+	public Vector3 SpiralGapDirection { get; private set; } = Vector3.Forward;
+	public bool SpiralReverse { get; private set; }
 	public Vector2 ArenaSize => _room?.Data.Size ?? FallbackRoomSize;
 
 	/// <summary>Se emite al entrar en una fase nueva (2 o 3), al empezar su cambio.</summary>
@@ -55,6 +61,11 @@ public partial class MotherBehavior : EnemyBehavior
 	private int _orbitDirection = -1;
 	private int _ringSide = -1;
 	private bool _ringGapSet;
+	private int _attacksInPhase;
+	private int _spiralSide = -1;
+	private bool _spiralGapSet;
+	private float _spiralTime;
+	private int _spiralEmitted;
 	private bool _shotWarning;
 	private Vector3 _dashOrigin;
 
@@ -113,6 +124,21 @@ public partial class MotherBehavior : EnemyBehavior
 				_timer -= delta;
 				if (_timer <= 0.0f) FireRing(enemy, player);
 				break;
+			case AttackState.SpiralWarning:
+				if (!_spiralGapSet)
+				{
+					SpiralGapDirection = MotherSpiral.GapCenter(PlanarToPlayer(enemy, player), _spiralSide);
+					SpiralReverse = _spiralSide < 0;
+					_spiralGapSet = true;
+				}
+				_timer -= delta;
+				if (_timer <= 0.0f) BeginSpiral();
+				break;
+			case AttackState.Spiral:
+				_spiralTime += delta;
+				FireSpiral(enemy, player);
+				if (_spiralEmitted >= MotherSpiral.Emissions) EndSpiral();
+				break;
 			case AttackState.Approach:
 				if (PlanarToPlayer(enemy, player).Length() <= DashTriggerDistance) BeginDash();
 				else _chase.TryGetVelocity(enemy, player, delta, out velocity);
@@ -152,6 +178,7 @@ public partial class MotherBehavior : EnemyBehavior
 		EnemyBase enemy = GetParent<EnemyBase>();
 		CancelAttacks(enemy);
 		Phase = phase;
+		_attacksInPhase = 0;
 		State = AttackState.PhaseChange;
 		_timer = PhaseChangeTime;
 		_health.Invulnerable = true;
@@ -174,6 +201,7 @@ public partial class MotherBehavior : EnemyBehavior
 		if (_dash != null) { RemoveChild(_dash); _dash.QueueFree(); _dash = null; }
 		_shotWarning = false;
 		_ringGapSet = false;
+		_spiralGapSet = false;
 		enemy.Visual?.SetHighlight(false);
 	}
 
@@ -245,6 +273,18 @@ public partial class MotherBehavior : EnemyBehavior
 		}
 		else if (Phase >= 2)
 		{
+			// En la fase 3 el anillo y la espiral se alternan: primero el anillo tras el cambio de fase, luego la espiral, y así.
+			bool spiral = Phase >= 3 && _attacksInPhase % 2 == 1;
+			_attacksInPhase++;
+			if (spiral)
+			{
+				State = AttackState.SpiralWarning;
+				_timer = MotherSpiral.Warning;
+				_spiralSide = -_spiralSide;
+				_spiralGapSet = false;
+				return;
+			}
+
 			State = AttackState.RingWarning;
 			_timer = RingWarning;
 			_ringSide = -_ringSide;
@@ -255,6 +295,41 @@ public partial class MotherBehavior : EnemyBehavior
 			State = AttackState.Recovery;
 			_timer = RecoveryTime;
 		}
+	}
+
+	private void BeginSpiral()
+	{
+		_spiralTime = 0.0f;
+		_spiralEmitted = 0;
+		State = AttackState.Spiral;
+	}
+
+	// Emite las tandas que ya tocan (una por brazo cada MotherSpiral.Interval). Como el anillo, no dispara lo que nacería sobre Noah.
+	private void FireSpiral(EnemyBase enemy, Node3D player)
+	{
+		while (_spiralEmitted < MotherSpiral.Emissions && _spiralTime >= _spiralEmitted * MotherSpiral.Interval)
+		{
+			if (ProjectileScene != null)
+			{
+				Vector3 origin = enemy.GlobalPosition;
+				Vector3 target = player.GlobalPosition;
+				foreach (Vector3 direction in MotherSpiral.Directions(_spiralEmitted, SpiralGapDirection, SpiralReverse))
+				{
+					if (MotherRing.SpawnsOnTarget(origin, direction, RingSpawnDistance, target, RingSafeDistance)) continue;
+					EnemyProjectile.FireFrom(enemy, ProjectileScene, direction, RingSpawnDistance, MotherSpiral.ProjectileSpeed);
+				}
+			}
+
+			if (_spiralEmitted % 2 == 0) AudioManager.PlayFrom(SoundCatalog.ShooterShot, this);
+			_spiralEmitted++;
+		}
+	}
+
+	private void EndSpiral()
+	{
+		_spiralGapSet = false;
+		State = AttackState.Recovery;
+		_timer = Settings.RecoveryTime;
 	}
 
 	// Dispara el anillo. Los proyectiles que nacerían encima de Noah no se disparan, así que nada aparece sobre él.
