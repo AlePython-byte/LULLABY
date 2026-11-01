@@ -11,7 +11,17 @@ public partial class MotherVisual : Node
 	[Export] public float WarningWidth { get; set; } = 2.4f;
 	[Export] public float DeathEffectTime { get; set; } = 0.7f;
 	[Export] public float FramingHeight { get; set; } = 4.5f;
+	[Export] public float PhaseTextTime { get; set; } = 2.5f;
+	[Export] public float PhaseBlinkInterval { get; set; } = 0.1f;
+	[Export] public float RingGapLaneLength { get; set; } = 7.0f;
+	[Export] public float RingGapLaneWidth { get; set; } = 1.8f;
 
+	private MeshInstance3D _ring;
+	private MeshInstance3D _gapLane;
+	private BoxMesh _gapMesh;
+	private StandardMaterial3D _ringMaterial;
+	private float _phraseUntil;
+	private bool _blinking;
 	private EnemyBase _enemy;
 	private MotherBehavior _behavior;
 	private Node3D _visual;
@@ -51,19 +61,67 @@ public partial class MotherVisual : Node
 			},
 		};
 		AddChild(_lane);
+
+		// Aviso del anillo: círculo en el suelo a la distancia de nacimiento y franja azulada sobre el hueco por el que escapar.
+		_ringMaterial = new StandardMaterial3D
+		{
+			AlbedoColor = new Color(1.0f, 0.2f, 0.15f, 0.7f),
+			Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
+			ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
+		};
+		_ring = new MeshInstance3D
+		{
+			Name = "RingWarning", TopLevel = true, Visible = false, MaterialOverride = _ringMaterial,
+			CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+			Mesh = new TorusMesh { InnerRadius = _behavior.RingSpawnDistance - 0.12f, OuterRadius = _behavior.RingSpawnDistance + 0.12f },
+		};
+		_gapMesh = new BoxMesh { Size = new Vector3(RingGapLaneWidth, 0.025f, RingGapLaneLength) };
+		_gapLane = new MeshInstance3D
+		{
+			Name = "RingGapWarning", TopLevel = true, Visible = false, Mesh = _gapMesh,
+			CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+			MaterialOverride = new StandardMaterial3D
+			{
+				AlbedoColor = new Color(0.4f, 0.8f, 1.0f, 0.5f),
+				Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
+				ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
+			},
+		};
+		AddChild(_ring);
+		AddChild(_gapLane);
+
+		_behavior.PhaseChanged += OnPhaseChanged;
 		_health = HealthComponent.FindIn(_enemy);
 		_health.Died += OnDied;
 	}
 
 	public override void _ExitTree()
 	{
+		if (IsInstanceValid(_behavior)) _behavior.PhaseChanged -= OnPhaseChanged;
 		if (IsInstanceValid(_health)) _health.Died -= OnDied;
+	}
+
+	private void OnPhaseChanged(int phase)
+	{
+		_phrase.Text = phase >= 3 ? MotherTexts.PhaseThree : MotherTexts.PhaseTwo;
+		_phraseUntil = _age + PhaseTextTime;
 	}
 
 	public override void _Process(double delta)
 	{
 		_age += (float)delta;
-		_phrase.Visible = _age < EntranceTextTime;
+		_phrase.Visible = _age < EntranceTextTime || _age < _phraseUntil;
+		if (_behavior.PhaseChangeActive)
+		{
+			// Parpadeo con el color de aviso mientras es invulnerable.
+			_enemy.Visual?.SetHighlight((int)(_age / Mathf.Max(0.01f, PhaseBlinkInterval)) % 2 == 0);
+			_blinking = true;
+		}
+		else if (_blinking)
+		{
+			_enemy.Visual?.SetHighlight(false);
+			_blinking = false;
+		}
 		if (!IsInstanceValid(_player)) _player = GetTree().GetFirstNodeInGroup(GameNames.PlayerGroup) as Node3D;
 		Vector3 direction = _behavior.DashWarningActive
 			|| _behavior.State == MotherBehavior.AttackState.Dash
@@ -73,7 +131,8 @@ public partial class MotherVisual : Node
 			_visual.Rotation = new Vector3(0.0f, Mathf.Atan2(-direction.X, -direction.Z), 0.0f);
 
 		float bob = Mathf.Sin(_age * BobSpeed) * BobHeight;
-		bool warning = _behavior.ShotWarningActive || _behavior.DashWarningActive;
+		bool warning = _behavior.ShotWarningActive || _behavior.DashWarningActive || _behavior.RingWarningActive
+			|| _behavior.PhaseChangeActive;
 		foreach (string name in _parts.Keys)
 		{
 			Node3D part = _parts[name];
@@ -97,6 +156,17 @@ public partial class MotherVisual : Node
 			_lane.GlobalPosition = _enemy.GlobalPosition + travel * 0.5f;
 			_lane.GlobalPosition = _lane.GlobalPosition with { Y = 0.04f };
 			_lane.Rotation = new Vector3(0.0f, Mathf.Atan2(-direction.X, -direction.Z), 0.0f);
+		}
+
+		_ring.Visible = _gapLane.Visible = _behavior.RingWarningActive;
+		if (_ring.Visible)
+		{
+			Vector3 gap = _behavior.RingGapDirection;
+			_ring.GlobalPosition = _enemy.GlobalPosition with { Y = 0.05f };
+			_ringMaterial.AlbedoColor = new Color(1.0f, 0.2f, 0.15f, 0.45f + 0.25f * Mathf.Sin(_age * 18.0f));
+			_gapLane.GlobalPosition = (_enemy.GlobalPosition + gap * (_behavior.RingSpawnDistance + RingGapLaneLength * 0.5f))
+				with { Y = 0.045f };
+			_gapLane.Rotation = new Vector3(0.0f, Mathf.Atan2(-gap.X, -gap.Z), 0.0f);
 		}
 	}
 
