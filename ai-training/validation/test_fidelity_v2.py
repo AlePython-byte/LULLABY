@@ -229,10 +229,12 @@ class OrchestrationTests(unittest.TestCase):
         with patch.object(runner, "assert_godot_idle"), patch.object(fidelity, "verify_sources", return_value={}), \
              patch.object(fidelity, "validate_batch", return_value=([], {"fingerprints": {}}, {})), \
              patch.object(fidelity, "analyze", return_value={}), \
-             patch.object(runner.subprocess, "Popen", side_effect=self.fake_process(text, code)) as process:
+             patch.object(runner.subprocess, "Popen", side_effect=self.fake_process(text, code)) as process, \
+             patch.object(runner.time, "sleep") as pause:
             runner.execute_locked(folder, execution, Path("godot.exe"), mode, auth, auth_hash, self.protocol)
             state = json.loads((execution / "state.json").read_text(encoding="utf-8"))
             calls = list(process.call_args_list)
+            self.pause_calls = list(pause.call_args_list)
         return state, calls
 
     def test_preflight_executes_one_pair_only_with_unset_tiered(self):
@@ -257,9 +259,11 @@ class OrchestrationTests(unittest.TestCase):
             attempt = {"log": "stdout.log", "engine_log": "native.log", "folder": "batch"}
             self.assertFalse(runner.record_attempt(folder, attempt, 0, self.protocol))
 
-    def test_three_unclean_acceptance_attempts_stop_with_explicit_exclusions(self):
+    def test_six_unclean_acceptance_attempts_stop_with_explicit_exclusions_and_pauses(self):
         state, calls = self.run_fixture(BEGIN + "GCHandle\n", "acceptance", code=1)
-        self.assertEqual(len(calls), 3)
+        self.assertEqual(len(calls), 6)
+        self.assertEqual([call.args for call in self.pause_calls], [(10,)] * 5)
+        self.assertEqual(state["config"]["retry_pause_seconds"], 10)
         self.assertEqual(len(state["excluded_pairs"]), 50)
         self.assertEqual(len(state["unstarted_pairs"]), 850)
         self.assertEqual(state["status"], "incomplete_retry_limit")
@@ -268,6 +272,34 @@ class OrchestrationTests(unittest.TestCase):
         state, calls = self.run_fixture(BEGIN + "V2_QUALITY_FAILURE\nERROR: Timeout\n", "acceptance", code=1)
         self.assertEqual(len(calls), 1)
         self.assertEqual(state["status"], "failed_quality")
+        self.assertEqual(self.pause_calls, [])
+
+    def test_resume_preserves_first_invalid_attempt_and_waits_before_second(self):
+        text = BEGIN + "GCHandle\n"
+        state, calls = self.run_fixture(text, "acceptance", code=1)
+        command = calls[0].args[0]
+        original = Path(command[command.index("--log-file") + 1]).parent.parent
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        folder = Path(temporary.name)
+        (folder / "execution").mkdir()
+        (folder / "authorization.json").write_bytes((original / "authorization.json").read_bytes())
+        for channel in ("log", "engine_log"):
+            relative = state["attempts"][0][channel]
+            (folder / relative).write_bytes((original / relative).read_bytes())
+        state.update(status="running", attempts=state["attempts"][:1], excluded_pairs=[], unstarted_pairs=[])
+        runner.save(folder / "execution/state.json", state)
+        auth = folder / "authorization.json"
+        with patch.object(runner, "assert_godot_idle"), patch.object(fidelity, "verify_sources", return_value={}), \
+             patch.object(fidelity, "analyze", return_value={}), \
+             patch.object(runner.subprocess, "Popen", side_effect=self.fake_process(text, 1)) as launch, \
+             patch.object(runner.time, "sleep") as pause:
+            runner.execute_locked(folder, folder / "execution", Path("godot.exe"), "acceptance", auth,
+                                  fidelity.authorization(auth, "acceptance"), self.protocol)
+        result = json.loads((folder / "execution/state.json").read_text(encoding="utf-8"))
+        self.assertEqual([a["attempt"] for a in result["attempts"]], list(range(1, 7)))
+        self.assertEqual(launch.call_count, 5)
+        self.assertEqual([call.args for call in pause.call_args_list], [(10,)] * 5)
 
     def resume_fixture(self, calls, mode):
         command = calls[0].args[0]

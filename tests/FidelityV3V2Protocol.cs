@@ -9,7 +9,7 @@ using System.Text.Json;
 public sealed class FidelityV3V2Protocol : IDisposable
 {
 	public const string ProtocolPath = "ai-training/protocols/v3_fidelity_v2.json";
-	public const string RegisteredHash = "2104f07db9bfdef73283283210f9bee67bbe2b8ef416dcbe2a0d4cfc1c10108f";
+	public const string RegisteredHash = "6cdb35ad0531dc2c5fe48b835d41052bd8288fe228f4f793fbbcd51ce93dc5f1";
 	private readonly JsonDocument _document;
 	public JsonElement Root => _document.RootElement;
 	public int Runs => Root.GetProperty("runs_per_level_per_environment").GetInt32();

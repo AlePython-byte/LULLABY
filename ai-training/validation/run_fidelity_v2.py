@@ -78,10 +78,11 @@ def execute_locked(folder, execution, godot, mode, authorization_path, auth_hash
     sample = {"first_seed": 600001, "count": 1} if mode == "preflight" else protocol["samples"][mode]
     count, runs = (1, 1) if mode == "preflight" else (5, 10)
     limit = 1 if mode == "preflight" else protocol["attempt_validity"]["max_attempts_including_first"]
+    pause = 0 if mode == "preflight" else protocol["attempt_validity"]["retry_pause_seconds"]
     provenance = fidelity.verify_sources(protocol)
     config = {"mode": mode, "protocol_sha256": fidelity.PROTOCOL_SHA256, "worker_count": 1,
               "first_seed": sample["first_seed"], "levels": sample["count"], "runs": runs,
-              "levels_per_batch": count, "max_attempts": limit, "tiered_compilation_environment": "unset",
+              "levels_per_batch": count, "max_attempts": limit, "retry_pause_seconds": pause, "tiered_compilation_environment": "unset",
               "authorization_sha256": auth_hash, "godot": str(godot),
               "source_sha256": {name: fidelity.digest(ROOT / name) for name in (
                   "tests/FidelityV3V2Protocol.cs", "tests/FidelityV3V2Check.cs", "tests/FidelityV3V2Check.tscn",
@@ -133,6 +134,10 @@ def execute_locked(folder, execution, godot, mode, authorization_path, auth_hash
             save(state_path, state)
             continue
         for number in range(len(previous) + 1, limit + 1):
+            if number > 1:
+                with (folder / "progress.log").open("a", encoding="utf-8") as progress:
+                    progress.write(f"RETRY_PAUSE seed={first} attempt={number} seconds={pause} started={time.time()}\n")
+                time.sleep(pause)
             assert_godot_idle()
             if fidelity.verify_sources(protocol) != provenance:
                 raise ValueError("Nucleo historico alterado antes de lote")

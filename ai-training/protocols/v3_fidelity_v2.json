@@ -129,6 +129,19 @@
           "https://github.com/godotengine/godot/blob/4.7.2-stable/main/main.cpp#L4413"
         ],
         "scope": "Carga del almacen ROOT para TLS antes de instanciar la escena. Este ensayo offline no usa TLS; no es una excepcion general para aplicaciones de red ni certifica la confianza TLS del equipo. No modificar configuracion TLS ni el motor para ocultar el mensaje."
+      },
+      {
+        "date_utc": "2026-11-01T18:11:07.329490+00:00",
+        "previous_v2_sha256": "2104f07db9bfdef73283283210f9bee67bbe2b8ef416dcbe2a0d4cfc1c10108f",
+        "authorized_change": "Maximo de intentos tecnicos por lote de 3 a 6, incluidos primero y reintentos; pausa minima de 10 segundos antes de cada reintento, tambien al reanudar. No cambia criterios, semillas, repeticiones, unidad de validez ni reglas de calidad.",
+        "acceptance_quality_gate_evaluated": false,
+        "results_observed": "La aceptacion anterior agoto tres intentos contaminados del primer lote: cero pares validos seleccionados y ningun criterio de fidelidad evaluable. La reproduccion tecnica autorizada en reposo completo tres lotes: uno limpio, 12 lineas GCHandle en 610004:0 y 6 en 610003:0. Se han observado logs y resultados individuales; no se afirma ceguera a estos datos. No se calcularon estadisticas de fidelidad con el lote limpio de diagnostico.",
+        "evidence_report": "ai-training/reports/v3/gchandle_idle_reproduction_20261101_01/README.md",
+        "evidence_analysis_sha256": "cdb6f76844f12098ff8434f64cfc73f722b6fda55aa7950059fcadd8af6afa21",
+        "reason": "Errores tecnicos esporadicos incluso en reposo; mas oportunidades para obtener un lote completo limpio. La hipotesis de compilaciones concurrentes no queda probada y no se modifican umbrales con datos de fidelidad.",
+        "limitations": "Seleccionar el primer intento limpio puede inducir seleccion por estabilidad del motor. Se conservan todos los intentos; no se ocultan fallos de calidad ni se aprueba con exclusiones.",
+        "new_execution": "Aceptacion completa nueva 610001..610090, diez repeticiones por entorno; sin reutilizar partidas diagnosticas ni intentos anteriores. Estado anterior terminal y todos los historicos conservados. Sin combates de reserva.",
+        "original_protocol_preserved_byte_for_byte": true
       }
     ]
   },
@@ -155,7 +168,7 @@
     "missing_runs": "No imputar, reducir denominador, elegir otras repeticiones, sustituir semillas ni seleccionar por resultados."
   },
   "attempt_validity": {
-    "max_attempts_including_first": 3,
+    "max_attempts_including_first": 6,
     "unit": "entire_batch_process_log",
     "levels_per_batch": 5,
     "pairs_per_batch": 50,
@@ -176,14 +189,15 @@
     "complete_results_and_hash_verified_required": true,
     "scan_after_process_exit_including_shutdown": true,
     "capture": "Guardar stdout y stderr combinadas y log nativo sin modificar. Validar ambos por separado despues del cierre; la excepcion exacta se aplica a cada canal, sin duplicar incidentes al sumar procesos.",
-    "retries": "Solo errores tecnicos del proceso o del motor. Mismas semillas y parametros; directorios nuevos, registros originales intactos, sin resetear el contador al reanudar.",
-    "interrupted_supervisor": "Sin cierre y codigo de salida persistido y verificado el intento es invalido, aunque contenga CURVE_COMPLETE; cuenta dentro de tres.",
+    "retries": "Solo errores tecnicos del proceso o del motor. Mismas semillas y parametros; directorios nuevos, registros originales intactos, sin resetear el contador al reanudar. Pausa minima de 10 s antes de cada reintento, tambien al reanudar.",
+    "interrupted_supervisor": "Sin cierre y codigo de salida persistido y verificado el intento es invalido, aunque contenga CURVE_COMPLETE; cuenta dentro de seis.",
     "quality_failures_override_retry_policy": "Timeout, sala pendiente o imposible, atasco sospechado o fallo reproducible de comportamiento detienen y bloquean. No esconderlos bajo un reintento tecnico o exclusion para aprobar.",
     "on_exhaustion": "Detener como aceptacion incompleta. Enumerar los 50 pares del lote sin intento limpio y los no iniciados; conservar par, entorno/fase, motivo, intento, codigo, hash de logs e historial.",
     "no_silent_exclusions": true,
     "allowlisted_error_match": "case_sensitive_ordinal_full_line_without_trimming_or_patterns",
     "allowlisted_error_max_occurrences_per_log": 1,
-    "allowlisted_error_phase": "startup_before_FIDELITY_V2_BEGIN"
+    "allowlisted_error_phase": "startup_before_FIDELITY_V2_BEGIN",
+    "retry_pause_seconds": 10
   },
   "acceptance_completeness": {
     "required_levels": 90,

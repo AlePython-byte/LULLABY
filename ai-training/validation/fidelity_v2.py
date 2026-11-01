@@ -15,7 +15,7 @@ import v3_fidelity as original
 
 ROOT = original.ROOT
 PROTOCOL_FILE = ROOT / "ai-training/protocols/v3_fidelity_v2.json"
-PROTOCOL_SHA256 = "2104f07db9bfdef73283283210f9bee67bbe2b8ef416dcbe2a0d4cfc1c10108f"
+PROTOCOL_SHA256 = "6cdb35ad0531dc2c5fe48b835d41052bd8288fe228f4f793fbbcd51ce93dc5f1"
 CERTIFICATE_LINE = "ERROR: Failed to read the root certificate store."
 digest = original.digest
 
