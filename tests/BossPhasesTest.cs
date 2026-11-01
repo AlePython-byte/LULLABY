@@ -413,7 +413,7 @@ public partial class BossPhasesTest : Node
 		int stateTicks = 0, shotWarnTicks = 0, dashWarnTicks = 0, ringWarnTicks = 0, spiralWarnTicks = 0;
 		int rings = 0, orbits = 0, dashesSinceRing = 0, dashesCounted = 0, spirals = 0, spiralTicks = 0;
 		bool counting = false;
-		List<EnemyProjectile> spiralShots = new();
+		List<(Vector3 Position, float Speed, float Damage)> spiralShots = new();
 		List<MotherBehavior.AttackState> sequence = new();
 
 		for (int tick = 0; tick < 9000 && (rings < 2 || (phase == 3 && spirals < 2)); tick++)
@@ -476,7 +476,8 @@ public partial class BossPhasesTest : Node
 			// Los proyectiles de la espiral se acumulan hasta que termina; el resto de comprobaciones no los ven.
 			if (previous == MotherBehavior.AttackState.Spiral || state == MotherBehavior.AttackState.Spiral)
 			{
-				spiralShots.AddRange(fresh);
+				// Se guardan sus datos al verlos: los que chocan con una pared se liberan antes de que acabe la espiral.
+				foreach (EnemyProjectile projectile in fresh) spiralShots.Add((projectile.GlobalPosition, projectile.Speed, projectile.Damage));
 				fresh.Clear();
 			}
 
@@ -523,14 +524,14 @@ public partial class BossPhasesTest : Node
 		await BossTestHarness.Close(tree, level);
 	}
 
-	private void CheckSpiralShots(List<EnemyProjectile> shots, EnemyBase boss, PlayerController player, MotherBehavior behavior)
+	private void CheckSpiralShots(List<(Vector3 Position, float Speed, float Damage)> shots, EnemyBase boss, PlayerController player, MotherBehavior behavior)
 	{
 		Vector3 gap = behavior.SpiralGapDirection;
 		int[] perArm = new int[MotherSpiral.Arms];
-		foreach (EnemyProjectile shot in shots)
+		foreach (var shot in shots)
 		{
 			// Brazo al que pertenece cada proyectil: su sector de barrido, medido desde el centro del hueco.
-			float angle = Mathf.PosMod(Mathf.RadToDeg(gap.SignedAngleTo(shot.GlobalPosition with { Y = 0.0f } - boss.GlobalPosition with { Y = 0.0f }, Vector3.Up))
+			float angle = Mathf.PosMod(Mathf.RadToDeg(gap.SignedAngleTo(shot.Position with { Y = 0.0f } - boss.GlobalPosition with { Y = 0.0f }, Vector3.Up))
 				- MotherSpiral.GapDegrees * 0.5f + 2.0f, 360.0f);
 			perArm[Mathf.Clamp((int)(angle / MotherSpiral.ArmSpacingDegrees), 0, MotherSpiral.Arms - 1)]++;
 		}
@@ -546,14 +547,14 @@ public partial class BossPhasesTest : Node
 		Vector2 arena = behavior.ArenaSize;
 		Require(Mathf.Abs(origin.X) <= arena.X / 2.0f - behavior.ArenaMargin + Tolerance && Mathf.Abs(origin.Z) <= arena.Y / 2.0f - behavior.ArenaMargin + Tolerance,
 			"The Mother no está en la arena durante la espiral");
-		foreach (EnemyProjectile shot in shots)
+		foreach (var shot in shots)
 		{
-			Vector3 offset = (shot.GlobalPosition with { Y = 0.0f }) - origin;
+			Vector3 offset = (shot.Position with { Y = 0.0f }) - origin;
 			Require(offset.Length() < behavior.RingSpawnDistance + 0.5f, $"Un proyectil de la espiral nace a {offset.Length():0.00} m del jefe");
-			Require(Mathf.Abs(shot.GlobalPosition.X) <= arena.X / 2.0f && Mathf.Abs(shot.GlobalPosition.Z) <= arena.Y / 2.0f, "Un proyectil de la espiral nace fuera de la sala");
+			Require(Mathf.Abs(shot.Position.X) <= arena.X / 2.0f && Mathf.Abs(shot.Position.Z) <= arena.Y / 2.0f, "Un proyectil de la espiral nace fuera de la sala");
 			float angle = Mathf.RadToDeg(gap.SignedAngleTo(offset, Vector3.Up));
 			Require(!MotherSpiral.InGap(angle, 1.5f), $"Un proyectil de la espiral invade un hueco ({angle:0.0}°)");
-			Require(((shot.GlobalPosition with { Y = 0.0f }) - target).Length() >= behavior.RingSafeDistance - 0.3f, "Un proyectil de la espiral nace encima de Noah");
+			Require(((shot.Position with { Y = 0.0f }) - target).Length() >= behavior.RingSafeDistance - 0.3f, "Un proyectil de la espiral nace encima de Noah");
 			Require(shot.Speed == MotherSpiral.ProjectileSpeed && shot.Damage <= 1.0f, "Un proyectil de la espiral va más rápido o hace más daño de lo permitido");
 		}
 
