@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Godot;
 
@@ -16,8 +17,11 @@ using Godot;
 ///      en Approach, Dash u Orbit, nunca sale de la arena ni se acerca a las puertas, ningún estado se eterniza, el anillo
 ///      tiene su cantidad, su hueco hacia donde escapar, nada nace encima de Noah ni va más rápido de 5,01 m/s, y en la
 ///      fase 3 hay dos embestidas por anillo.
+///      La fase 3 alterna el anillo con la espiral (MotherSpiral): tres brazos, ~2 s, 5 m/s, aviso de 0,8 s y tres huecos de 75°.
+///      Se prueba su geometría, que es esquivable con la velocidad real de Noah desde cualquier punto de la arena (simulando los
+///      proyectiles), que dura lo debido, que nada nace sobre Noah ni se sale de los huecos y que The Mother se queda quieta.
 ///   4. Daño: ningún proyectil ni el contacto del jefe hace más de 1 de daño.
-///   5. Reintentar y volver al menú: sin proyectiles ni jefe, aunque se cierre en pleno cambio de fase.
+///   5. Reintentar y volver al menú: sin proyectiles ni jefe, aunque se cierre en pleno cambio de fase o en plena espiral.
 /// Noah se queda quieto y tiene vida de sobra. Sale con código 0 si todo pasa.
 /// </summary>
 public partial class BossPhasesTest : Node
@@ -36,6 +40,7 @@ public partial class BossPhasesTest : Node
 			GD.Print($"=== BossPhasesTest ({(OS.IsDebugBuild() ? "Debug" : "Release")}) ===");
 			CheckPhaseThresholds();
 			CheckRing();
+			CheckSpiral();
 			CheckOrbit();
 			CheckHitDamage();
 			await CheckPhaseChange();
@@ -43,6 +48,7 @@ public partial class BossPhasesTest : Node
 			await CheckCombat(2, 70.0f);
 			await CheckCombat(3, 130.0f);
 			await CheckRetryLeavesNothing();
+			await CheckRetryDuringSpiral();
 			GD.Print($"BossPhasesTest: {_checks} comprobaciones. RESULTADO: OK");
 			GetTree().Quit();
 		}
@@ -107,6 +113,144 @@ public partial class BossPhasesTest : Node
 		Require(!MotherRing.SpawnsOnTarget(Vector3.Zero, Vector3.Right, 2.4f, new Vector3(5.0f, 0.0f, 0.0f), 1.2f), "Lejos de Noah: se dispara");
 		Require(!MotherRing.SpawnsOnTarget(Vector3.Zero, Vector3.Left, 2.4f, new Vector3(1.0f, 0.0f, 0.0f), 1.2f), "Noah dentro del anillo no estorba");
 		GD.Print("Anillo de proyectiles: OK");
+	}
+
+	private void CheckSpiral()
+	{
+		Require(MotherSpiral.Arms == 3, "La espiral tiene tres brazos");
+		Require(Mathf.Abs(MotherSpiral.Interval * (MotherSpiral.Emissions - 1) - MotherSpiral.Duration) < 0.001f
+			&& MotherSpiral.Duration >= 1.8f && MotherSpiral.Duration <= 2.2f, "La espiral dura unos 2 s");
+		Require(MotherSpiral.ProjectileSpeed == 5.0f && MotherSpiral.Warning >= 0.6f, "Proyectiles a 5 m/s y aviso de 0,6 s o más");
+		Require(MotherSpiral.GapDegrees >= 60.0f && Mathf.IsEqualApprox(MotherSpiral.GapDegrees + MotherSpiral.SweepDegrees, 120.0f),
+			$"Cada hueco de escape mide {MotherSpiral.GapDegrees}°, al menos 60°");
+		Require(MotherSpiral.TotalProjectiles == 3 * MotherSpiral.Emissions, "Cada brazo emite todas sus tandas");
+		Require(MotherSpiral.Warning >= MotherPhases.For(3).DashWarning, "El aviso no es más corto que el de la embestida de la fase 3");
+
+		Vector3 center = new Vector3(0.4f, 0.0f, -1.0f).Normalized();
+		foreach (bool reverse in new[] { false, true })
+		{
+			float lowest = 360.0f, highest = -360.0f;
+			for (int emission = 0; emission < MotherSpiral.Emissions; emission++)
+			{
+				List<Vector3> directions = MotherSpiral.Directions(emission, center, reverse);
+				Require(directions.Count == MotherSpiral.Arms, "Una dirección por brazo en cada tanda");
+				for (int arm = 0; arm < directions.Count; arm++)
+				{
+					Vector3 direction = directions[arm];
+					Require(Mathf.IsEqualApprox(direction.Length(), 1.0f) && Mathf.Abs(direction.Y) < 0.0001f, "Cada dirección es unitaria y plana");
+					float offset = MotherSpiral.OffsetDegrees(arm, emission, reverse);
+					Require(!MotherSpiral.InGap(offset, 1.0f), $"Un proyectil de la espiral cae en un hueco ({offset:0.0}°)");
+					float measured = Mathf.PosMod(Mathf.RadToDeg(center.SignedAngleTo(direction, Vector3.Up)), 360.0f);
+					Require(Mathf.Abs(Mathf.PosMod(offset, 360.0f) - measured) < 0.05f, "La dirección coincide con su ángulo");
+					if (arm == 0)
+					{
+						lowest = Mathf.Min(lowest, offset);
+						highest = Mathf.Max(highest, offset);
+					}
+				}
+			}
+
+			Require(Mathf.Abs(highest - lowest - MotherSpiral.SweepDegrees) < 0.01f, "Cada brazo barre sus 45°");
+		}
+
+		// El primer y el último disparo de un brazo son los extremos del barrido, y el sentido contrario los invierte.
+		Require(Mathf.IsEqualApprox(MotherSpiral.OffsetDegrees(0, 0, false), MotherSpiral.OffsetDegrees(0, MotherSpiral.Emissions - 1, true)),
+			"Girar al revés invierte el barrido");
+		Require(MotherSpiral.InGap(0.0f) && MotherSpiral.InGap(120.0f) && MotherSpiral.InGap(-120.0f) && !MotherSpiral.InGap(60.0f), "Hay un hueco cada 120°");
+
+		// Noah queda fuera del hueco (en un sector), a 55° de su centro, y el desvío cambia de lado.
+		Vector3 toPlayer = new(0.0f, 0.0f, -5.0f);
+		foreach (int side in new[] { 1, -1 })
+		{
+			float angle = Mathf.RadToDeg(MotherSpiral.GapCenter(toPlayer, side).AngleTo(Vector3.Forward));
+			Require(Mathf.Abs(angle - MotherSpiral.GapOffsetDegrees) < 0.01f && !MotherSpiral.InGap(MotherSpiral.GapOffsetDegrees), "El hueco queda a 55° de Noah");
+		}
+
+		Require(MotherSpiral.TimeToFirstHit(10.0f, 2.4f) > MotherSpiral.TimeToFirstHit(4.0f, 2.4f), "Cuanto más lejos, más tiempo tiene Noah");
+		GD.Print("Espiral: geometría, huecos y sentidos: OK");
+	}
+
+	// Noah (velocidad real) sale de los sectores a tiempo desde cualquier punto de la arena, con el jefe en cualquier lugar permitido.
+	// Se simulan los proyectiles uno a uno: Noah reacciona 0,4 s después de empezar el aviso, corre al 85 % de su velocidad en línea
+	// recta hasta el centro de algún hueco (a cualquier distancia razonable) y se queda ahí. Es esquivable si algún destino lo logra.
+	private void CheckSpiralEscape(float noahSpeed, MotherBehavior behavior)
+	{
+		const float reaction = 0.4f, hit = 0.9f, step = 1.0f / 30.0f, lifetime = 3.0f;
+		Vector2 arena = behavior.ArenaSize;
+		float bossX = arena.X / 2.0f - behavior.ArenaMargin, bossZ = arena.Y / 2.0f - behavior.ArenaMargin;
+		float walkX = arena.X / 2.0f - 1.0f, walkZ = arena.Y / 2.0f - 1.0f;
+		float spawn = behavior.RingSpawnDistance;
+		float minimumRadius = spawn + behavior.RingSafeDistance + 0.6f;
+		float speed = noahSpeed * 0.85f;
+		int cases = 0;
+		Vector2[] bosses = { new(0.0f, 0.0f), new(-bossX, -bossZ), new(bossX, -bossZ), new(-bossX, bossZ), new(bossX, bossZ) };
+		foreach (Vector2 boss in bosses)
+		{
+			for (float x = -walkX; x <= walkX + 0.01f; x += 3.0f)
+			{
+				for (float z = -walkZ; z <= walkZ + 0.01f; z += 3.0f)
+				{
+					Vector2 noah = new(x, z);
+					Vector2 offset = noah - boss;
+					if (offset.Length() < minimumRadius) continue;
+					foreach (int side in new[] { 1, -1 })
+					{
+						Vector3 gap = MotherSpiral.GapCenter(new Vector3(offset.X, 0.0f, offset.Y), side);
+						List<(Vector2 Direction, float Start)> rays = new();
+						for (int emission = 0; emission < MotherSpiral.Emissions; emission++)
+						{
+							foreach (Vector3 direction in MotherSpiral.Directions(emission, gap, side < 0))
+							{
+								rays.Add((new Vector2(direction.X, direction.Z), MotherSpiral.Warning + emission * MotherSpiral.Interval));
+							}
+						}
+
+						List<Vector2> targets = new();
+						for (int k = 0; k < MotherSpiral.Arms; k++)
+						{
+							Vector3 center = gap.Rotated(Vector3.Up, Mathf.DegToRad(MotherSpiral.ArmSpacingDegrees * k));
+							foreach (float radius in new[] { offset.Length(), offset.Length() * 0.75f, offset.Length() * 0.5f, minimumRadius })
+							{
+								Vector2 target = boss + new Vector2(center.X, center.Z) * Mathf.Max(radius, minimumRadius);
+								if (Mathf.Abs(target.X) <= walkX && Mathf.Abs(target.Y) <= walkZ) targets.Add(target);
+							}
+						}
+
+						targets.Sort((a, b) => noah.DistanceTo(a).CompareTo(noah.DistanceTo(b)));
+						bool escaped = false;
+						foreach (Vector2 target in targets)
+						{
+							if (SpiralPathIsSafe(noah, target, boss, rays, speed, reaction, hit, step, spawn, lifetime)) { escaped = true; break; }
+						}
+
+						Require(escaped, $"Sin salida de la espiral: Noah en {noah}, jefe en {boss}, lado {side}, a {offset.Length():0.0} m");
+						cases++;
+					}
+				}
+			}
+		}
+
+		GD.Print($"Espiral esquivable a {noahSpeed:0.0} m/s de Noah desde {cases} posiciones y lados: OK");
+	}
+
+	private static bool SpiralPathIsSafe(Vector2 from, Vector2 to, Vector2 boss, List<(Vector2 Direction, float Start)> rays, float speed,
+		float reaction, float hit, float step, float spawn, float lifetime)
+	{
+		float travel = from.DistanceTo(to) / Mathf.Max(0.01f, speed);
+		float end = MotherSpiral.Warning + MotherSpiral.Duration + lifetime + 0.5f;
+		for (float t = 0.0f; t <= end; t += step)
+		{
+			float moved = Mathf.Clamp((t - reaction) / Mathf.Max(0.01f, travel), 0.0f, 1.0f);
+			Vector2 position = from.Lerp(to, moved);
+			foreach ((Vector2 direction, float start) in rays)
+			{
+				float age = t - start;
+				if (age < 0.0f || age > lifetime) continue;
+				if ((boss + direction * (spawn + MotherSpiral.ProjectileSpeed * age) - position).Length() < hit) return false;
+			}
+		}
+
+		return true;
 	}
 
 	private void CheckOrbit()
@@ -244,6 +388,7 @@ public partial class BossPhasesTest : Node
 		MotherPhases.Settings settings = MotherPhases.For(phase);
 		boss.Health.TakeDamage(damage);
 		Require(behavior.Phase == phase, $"Con {damage} de daño está en la fase {phase}");
+		if (phase == 3) CheckSpiralEscape(level.Player.Speed, behavior);
 
 		Vector2 arena = behavior.ArenaSize;
 		Vector2 limit = new(arena.X / 2.0f - behavior.ArenaMargin, arena.Y / 2.0f - behavior.ArenaMargin);
@@ -252,24 +397,29 @@ public partial class BossPhasesTest : Node
 		HashSet<ulong> seen = new();
 		MotherBehavior.AttackState previous = behavior.State;
 		Vector3 previousPosition = boss.Position;
-		int stateTicks = 0, shotWarnTicks = 0, dashWarnTicks = 0, ringWarnTicks = 0;
-		int rings = 0, orbits = 0, dashesSinceRing = 0, dashesCounted = 0;
+		int stateTicks = 0, shotWarnTicks = 0, dashWarnTicks = 0, ringWarnTicks = 0, spiralWarnTicks = 0;
+		int rings = 0, orbits = 0, dashesSinceRing = 0, dashesCounted = 0, spirals = 0, spiralTicks = 0;
 		bool counting = false;
+		List<EnemyProjectile> spiralShots = new();
+		List<MotherBehavior.AttackState> sequence = new();
 
-		for (int tick = 0; tick < 5000 && rings < 2; tick++)
+		for (int tick = 0; tick < 9000 && (rings < 2 || (phase == 3 && spirals < 2)); tick++)
 		{
 			await tree.ToSignal(tree, SceneTree.SignalName.PhysicsFrame);
 			MotherBehavior.AttackState state = behavior.State;
 			Vector3 position = boss.Position;
 
 			int warnings = (behavior.ShotWarningActive ? 1 : 0) + (behavior.DashWarningActive ? 1 : 0) + (behavior.RingWarningActive ? 1 : 0)
-				+ (behavior.PhaseChangeActive ? 1 : 0);
+				+ (behavior.PhaseChangeActive ? 1 : 0) + (behavior.SpiralWarningActive ? 1 : 0) + (behavior.SpiralActive ? 1 : 0);
 			Require(warnings <= 1, "Dos avisos o ataques a la vez");
 
 			// Avisos completos: cada aviso se mide hasta que se apaga.
 			shotWarnTicks = Count(behavior.ShotWarningActive, shotWarnTicks, MinShotWarningTicks, "disparo");
 			dashWarnTicks = Count(behavior.DashWarningActive, dashWarnTicks, MinWarningTicks, "embestida");
 			ringWarnTicks = Count(behavior.RingWarningActive, ringWarnTicks, MinWarningTicks, "anillo");
+			spiralWarnTicks = Count(behavior.SpiralWarningActive, spiralWarnTicks, MinWarningTicks, "espiral");
+			Require(phase == 3 || (!behavior.SpiralWarningActive && !behavior.SpiralActive), "La espiral solo existe en la fase 3");
+			spiralTicks = behavior.SpiralActive ? spiralTicks + 1 : spiralTicks;
 
 			Vector3 step = position - previousPosition;
 			step.Y = 0.0f;
@@ -285,6 +435,7 @@ public partial class BossPhasesTest : Node
 			Require(Mathf.Abs(position.X) + BodyRadius <= wallClearance && Mathf.Abs(position.Z) + BodyRadius <= wallClearance,
 				$"Su cuerpo llegó demasiado cerca de la pared y las puertas: {position}");
 
+			if (state != previous && (state == MotherBehavior.AttackState.RingWarning || state == MotherBehavior.AttackState.SpiralWarning)) sequence.Add(state);
 			stateTicks = state == previous ? stateTicks + 1 : 0;
 			Require(stateTicks < 1200, $"Atascado en el estado {state} durante {stateTicks} pasos");
 
@@ -302,10 +453,29 @@ public partial class BossPhasesTest : Node
 			}
 
 			bool ringFired = previous == MotherBehavior.AttackState.RingWarning && state == MotherBehavior.AttackState.Recovery;
+			bool spiralDone = previous == MotherBehavior.AttackState.Spiral && state == MotherBehavior.AttackState.Recovery;
 			List<EnemyProjectile> fresh = new();
 			foreach (Node node in room.ProjectilesRoot.GetChildren())
 			{
 				if (node is EnemyProjectile projectile && seen.Add(projectile.GetInstanceId())) fresh.Add(projectile);
+			}
+
+			// Los proyectiles de la espiral se acumulan hasta que termina; el resto de comprobaciones no los ven.
+			if (previous == MotherBehavior.AttackState.Spiral || state == MotherBehavior.AttackState.Spiral)
+			{
+				spiralShots.AddRange(fresh);
+				fresh.Clear();
+			}
+
+			if (spiralDone)
+			{
+				spirals++;
+				CheckSpiralShots(spiralShots, boss, level.Player, behavior);
+				Require(spiralTicks >= 110 && spiralTicks <= 135, $"La espiral dura {spiralTicks} pasos, no unos 2 s");
+				if (counting) Require(dashesSinceRing == settings.DashCount, $"Fase {phase}: {dashesSinceRing} embestidas antes de la espiral, no {settings.DashCount}");
+				dashesSinceRing = 0;
+				spiralShots.Clear();
+				spiralTicks = 0;
 			}
 
 			if (ringFired)
@@ -329,10 +499,40 @@ public partial class BossPhasesTest : Node
 		}
 
 		Require(rings >= 2, $"Fase {phase}: se vieron {rings} anillos");
+		Require(phase < 3 || spirals >= 2, $"Fase 3: se vieron {spirals} espirales");
+		Require(phase < 3 || (sequence.Count >= 3 && sequence[0] == MotherBehavior.AttackState.RingWarning
+			&& sequence.Zip(sequence.Skip(1), (a, b) => a != b).All(different => different)),
+			$"Fase 3: el anillo y la espiral deben alternar empezando por el anillo ({string.Join(",", sequence)})");
+		Require(phase == 3 || sequence.All(state => state == MotherBehavior.AttackState.RingWarning), "Fase 2: solo anillos");
 		Require(orbits >= 1, $"Fase {phase}: se vio la órbita entre ataques");
 		Require(phase < 3 || dashesCounted >= 4, $"Fase 3: embestidas encadenadas ({dashesCounted})");
-		GD.Print($"Fase {phase}: {rings} anillos, {orbits} órbitas, avisos completos, dentro de la arena y sin atascos: OK");
+		GD.Print($"Fase {phase}: {rings} anillos, {spirals} espirales, {orbits} órbitas, avisos completos, dentro de la arena y sin atascos: OK");
 		await BossTestHarness.Close(tree, level);
+	}
+
+	private void CheckSpiralShots(List<EnemyProjectile> shots, EnemyBase boss, PlayerController player, MotherBehavior behavior)
+	{
+		Require(shots.Count <= MotherSpiral.TotalProjectiles && shots.Count >= MotherSpiral.TotalProjectiles - 6,
+			$"La espiral tiene {shots.Count} proyectiles, no {MotherSpiral.TotalProjectiles}");
+		Vector3 gap = behavior.SpiralGapDirection;
+		Vector3 origin = boss.GlobalPosition with { Y = 0.0f };
+		Vector3 target = player.GlobalPosition with { Y = 0.0f };
+		Vector2 arena = behavior.ArenaSize;
+		Require(Mathf.Abs(origin.X) <= arena.X / 2.0f - behavior.ArenaMargin + Tolerance && Mathf.Abs(origin.Z) <= arena.Y / 2.0f - behavior.ArenaMargin + Tolerance,
+			"The Mother no está en la arena durante la espiral");
+		foreach (EnemyProjectile shot in shots)
+		{
+			Vector3 offset = (shot.GlobalPosition with { Y = 0.0f }) - origin;
+			Require(offset.Length() < behavior.RingSpawnDistance + 0.5f, $"Un proyectil de la espiral nace a {offset.Length():0.00} m del jefe");
+			Require(Mathf.Abs(shot.GlobalPosition.X) <= arena.X / 2.0f && Mathf.Abs(shot.GlobalPosition.Z) <= arena.Y / 2.0f, "Un proyectil de la espiral nace fuera de la sala");
+			float angle = Mathf.RadToDeg(gap.SignedAngleTo(offset, Vector3.Up));
+			Require(!MotherSpiral.InGap(angle, 1.5f), $"Un proyectil de la espiral invade un hueco ({angle:0.0}°)");
+			Require(((shot.GlobalPosition with { Y = 0.0f }) - target).Length() >= behavior.RingSafeDistance - 0.3f, "Un proyectil de la espiral nace encima de Noah");
+			Require(shot.Speed == MotherSpiral.ProjectileSpeed && shot.Damage <= 1.0f, "Un proyectil de la espiral va más rápido o hace más daño de lo permitido");
+		}
+
+		float towardPlayer = Mathf.RadToDeg((target - origin).AngleTo(gap));
+		Require(Mathf.Abs(towardPlayer - MotherSpiral.GapOffsetDegrees) < 3.0f, $"El hueco está a {towardPlayer:0.0}° de Noah, no a {MotherSpiral.GapOffsetDegrees:0.0}°");
 	}
 
 	// Cuenta los pasos que dura un aviso; cuando se apaga comprueba que duró lo debido.
@@ -366,6 +566,27 @@ public partial class BossPhasesTest : Node
 		float towardPlayer = Mathf.RadToDeg((target - origin).AngleTo(gap));
 		float expected = Mathf.Abs(settings.RingGapOffsetDegrees);
 		Require(Mathf.Abs(towardPlayer - expected) < 3.0f, $"El hueco está a {towardPlayer:0.0}° de Noah, no a {expected:0.0}°");
+	}
+
+	private async Task CheckRetryDuringSpiral()
+	{
+		SceneTree tree = GetTree();
+		var (level, room, boss, behavior) = await OpenBoss(tree, this);
+		boss.Health.TakeDamage(130.0f);
+		await BossTestHarness.WaitTicks(tree, () => behavior.SpiralActive && room.ProjectilesRoot.GetChildCount() > 0, 9000, "la espiral con proyectiles en vuelo");
+		Require(behavior.Phase == 3 && room.ProjectilesRoot.GetChildCount() > 0, "En plena espiral de la fase 3");
+		await BossTestHarness.Close(tree, level);
+
+		Require(!GodotObject.IsInstanceValid(boss), "El jefe desaparece con el nivel");
+		Require(tree.GetNodesInGroup("enemy_projectiles").Count == 0 && tree.GetNodesInGroup("bosses").Count == 0,
+			"No quedan proyectiles ni jefes tras cerrar en plena espiral");
+
+		// Un jefe nuevo no hereda nada de la espiral.
+		var (level2, room2, boss2, behavior2) = await OpenBoss(tree, this);
+		Require(behavior2.Phase == 1 && !behavior2.SpiralActive && !behavior2.SpiralWarningActive && room2.ProjectilesRoot.GetChildCount() == 0
+			&& behavior2.State == MotherBehavior.AttackState.Entrance, "Un jefe nuevo empieza sin espiral ni proyectiles");
+		await BossTestHarness.Close(tree, level2);
+		GD.Print("Cerrar en plena espiral no deja residuos: OK");
 	}
 
 	// --- 5. Reintentar y volver al menú -----------------------------------------------------------------------------------

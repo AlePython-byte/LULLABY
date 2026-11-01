@@ -100,6 +100,8 @@ public partial class BossVictoryTest : Node
 			&& r.ProjectilesRoot.GetChildCount() > 0, 70.0f);
 		await CheckDeathIn("cambio a la fase 3", (b, r, e) => b.State == MotherBehavior.AttackState.PhaseChange && b.Phase == 3, 130.0f);
 		await CheckDeathIn("aviso de embestida de la fase 3", (b, r, e) => b.DashWarningActive && b.Phase == 3, 130.0f);
+		await CheckDeathIn("aviso de la espiral", (b, r, e) => b.SpiralWarningActive, 130.0f);
+		await CheckDeathIn("espiral con proyectiles en vuelo", (b, r, e) => b.SpiralActive && r.ProjectilesRoot.GetChildCount() > 0, 130.0f);
 	}
 
 	private async Task CheckDeathIn(string name, Func<MotherBehavior, RoomController, EnemyBase, bool> inState, float preDamage = 0.0f)
