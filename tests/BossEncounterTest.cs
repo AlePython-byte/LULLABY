@@ -73,7 +73,7 @@ public partial class BossEncounterTest : Node
 		Require(room.Data.SpawnPoints.Length == 6 && room.Data.TemplateId == "jefe",
 			"La sala del jefe sigue usando la plantilla histórica (seis puntos)");
 		await BossTestHarness.WaitUntil(GetTree(), () => room.BossEnemy != null, 300, "la aparición de The Mother");
-		// StartDelay de la sala es 1 s (60 pasos): si el override dejara salir a los básicos, ya habrían nacido.
+		// El retraso de aparición de la sala (SpawnDelay) es 0,7 s (42 pasos): si el override dejara salir a los básicos, ya habrían nacido.
 		await BossTestHarness.Frames(GetTree(), 90);
 
 		CountEnemies(room, out int mothers, out int basics, out int others);

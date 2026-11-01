@@ -10,7 +10,8 @@ using Godot;
 ///   1. Pausa durante el aviso de un disparo y de una embestida de The Mother: el jefe y su aviso quedan congelados, no
 ///      nace ningún proyectil ni empieza la carga mientras dura la pausa, y al reanudar el aviso continúa donde estaba
 ///      (los pasos de aviso antes y después de la pausa suman el aviso completo).
-///   2. El retraso de la sala (StartDelay) también se detiene: con la pausa no nacen los seis básicos.
+///   2. El retraso de aparición de la sala (SpawnDelay, 0,7 s) también se detiene: con la pausa no nacen los seis básicos.
+///      Los enemigos nacen a los 0,7 s de empezar el combate, y el simulador sigue leyendo el StartDelay de 1 s de siempre.
 ///   3. Esc y P abren y cierran la pausa; Esc dentro de Controles solo cierra el panel.
 ///   4. Esc/P se ignoran durante un cambio de sala, la victoria y la derrota.
 ///   5. Reiniciar partida (semilla nueva, misma dificultad) y Volver al menú despausan antes de cambiar de escena.
@@ -27,6 +28,7 @@ public partial class PauseTest : Node
 			GD.Print($"=== PauseTest ({(OS.IsDebugBuild() ? "Debug" : "Release")}) ===");
 			await CheckBossAttackPause("aviso de disparo", WarningKind.Shot, 42);
 			await CheckBossAttackPause("aviso de embestida", WarningKind.Dash, 60);
+			await CheckSpawnDelay();
 			await CheckRoomDelayPause();
 			await CheckKeys();
 			await CheckIgnoredWhenNotPlayable();
@@ -120,6 +122,35 @@ public partial class PauseTest : Node
 		await BossTestHarness.Close(tree, level);
 	}
 
+	// Los enemigos de una sala normal nacen SpawnDelay (0,7 s = 42 pasos) después de empezar el combate. StartDelay (1 s) no cambia:
+	// es el valor que replica el simulador, y sus datasets y modelos se generaron con él.
+	private async Task CheckSpawnDelay()
+	{
+		SceneTree tree = GetTree();
+		GameplayParameters simulated = GameplayParameters.FromScenes();
+		Require(Mathf.IsEqualApprox(simulated.StartDelay, 1.0f), $"El simulador sigue leyendo un retraso de 1 s ({simulated.StartDelay} s)");
+
+		BossTestHarness.Level level = BossTestHarness.Open(this, BossTestHarness.Seed, withMother: false);
+		await BossTestHarness.GoToBoss(tree, level);
+		RoomController room = level.Rooms.CurrentRoom;
+		Node enemies = room.GetNode("Enemies");
+		Require(Mathf.IsEqualApprox(room.StartDelay, 1.0f) && Mathf.IsEqualApprox(room.SpawnDelay, 0.7f), "La sala real tiene StartDelay 1 s y SpawnDelay 0,7 s");
+
+		await BossTestHarness.WaitTicks(tree, () => room.State == RoomState.Combat, 300, "el inicio del combate");
+		int ticks = 0;
+		while (enemies.GetChildCount() == 0 && ticks < 200)
+		{
+			await tree.ToSignal(tree, SceneTree.SignalName.PhysicsFrame);
+			ticks++;
+		}
+
+		int expected = Mathf.RoundToInt(room.SpawnDelay * Engine.PhysicsTicksPerSecond);
+		Require(Mathf.Abs(ticks - expected) <= 6, $"Los enemigos nacen a los {ticks} pasos del combate, no a unos {expected} (0,7 s)");
+		Require(ticks < Mathf.RoundToInt(room.StartDelay * Engine.PhysicsTicksPerSecond), "Nacen antes del segundo que esperaba el simulador");
+		GD.Print($"Retraso de aparición: {ticks} pasos (0,7 s); el simulador sigue en 1 s: OK");
+		await BossTestHarness.Close(tree, level);
+	}
+
 	private async Task CheckRoomDelayPause()
 	{
 		SceneTree tree = GetTree();
@@ -136,7 +167,7 @@ public partial class PauseTest : Node
 			await tree.ToSignal(tree, SceneTree.SignalName.PhysicsFrame);
 		}
 
-		Require(enemies.GetChildCount() == 0, "Con la pausa, el retraso de la sala (1 s) no avanza y no nacen enemigos");
+		Require(enemies.GetChildCount() == 0, "Con la pausa, el retraso de la sala (0,7 s) no avanza y no nacen enemigos");
 		pause.Resume();
 		await BossTestHarness.WaitUntil(tree, () => enemies.GetChildCount() >= 6, 400, "los seis básicos tras reanudar");
 		GD.Print("Pausa durante el retraso de la sala: los enemigos nacen al reanudar: OK");
