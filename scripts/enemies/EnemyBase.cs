@@ -87,6 +87,7 @@ public partial class EnemyBase : CharacterBody3D
 	{
 		if (!Health.IsDead)
 		{
+			Health.Invulnerable = false;
 			Health.TakeDamage(Health.CurrentHealth);
 		}
 	}

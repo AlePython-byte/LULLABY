@@ -125,6 +125,8 @@ public partial class BossEncounterTest : Node
 		MotherBehavior behavior = boss.Behavior<MotherBehavior>();
 		Vector2 arena = behavior.ArenaSize;
 		Vector2 limit = new(arena.X / 2.0f - behavior.ArenaMargin, arena.Y / 2.0f - behavior.ArenaMargin);
+		// Noah no le hace daño: con la vida completa el jefe sigue en la fase 1 (sin órbita ni anillo) todo el ciclo.
+		Require(behavior.Phase == 1 && boss.Health.CurrentHealth == boss.Health.EffectiveMaxHealth, "El jefe empieza en la fase 1 con la vida completa");
 
 		HashSet<ulong> seen = new();
 		MotherBehavior.AttackState previous = behavior.State;
@@ -199,6 +201,7 @@ public partial class BossEncounterTest : Node
 				dashWarningTicks = 0;
 			}
 
+			Require(behavior.Phase == 1, "Sin recibir daño no cambia de fase");
 			previous = state;
 			previousPosition = position;
 		}

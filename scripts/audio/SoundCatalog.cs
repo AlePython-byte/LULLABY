@@ -35,6 +35,7 @@ public static class SoundCatalog
 	public const string UiClick = "ui_click";
 	public const string BossHit = "jefe_golpe";
 	public const string BossDies = "jefe_muere";
+	public const string BossPhase = "jefe_fase";
 
 	public sealed record Sound(string Id, bool Positional = false, float VolumeDb = 0.0f, float PitchVariation = 0.0f, int MaxVoices = 4,
 		float MinInterval = 0.0f, bool Priority = false, string Fallback = null, float FallbackPitch = 1.0f)
@@ -64,6 +65,8 @@ public static class SoundCatalog
 		// Hasta que existan jefe_golpe y jefe_muere, The Mother usa los de los enemigos con el tono un 20 % más grave.
 		[BossHit] = new Sound(BossHit, Positional: true, VolumeDb: -3.0f, PitchVariation: RepeatedPitchVariation, MaxVoices: 4, MinInterval: 0.05f, Fallback: EnemyHit, FallbackPitch: 0.8f),
 		[BossDies] = new Sound(BossDies, Positional: true, MaxVoices: 2, Priority: true, Fallback: EnemyDies, FallbackPitch: 0.8f),
+		// Cambio de fase del jefe. Sin su archivo no suena (no tiene sonido de respaldo) y no da error.
+		[BossPhase] = new Sound(BossPhase, Positional: true, MaxVoices: 1, Priority: true),
 	};
 
 	public static Sound Get(string id) => id != null && Sounds.TryGetValue(id, out Sound sound) ? sound : null;

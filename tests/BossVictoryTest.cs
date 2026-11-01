@@ -11,7 +11,8 @@ using Godot;
 /// Casos:
 ///   1. Cadenas de victoria: son las tres del juego y la semilla elige siempre la misma.
 ///   2. Muerte del jefe en cada estado (entrada, aviso de disparo, salva con proyectiles, pausa previa, acercamiento, aviso
-///      de embestida, embestida, recuperación): al instante la partida termina UNA vez, Noah queda quieto y sin disparar,
+///      de embestida, embestida, recuperación y, en las fases 2 y 3, cambio de fase invulnerable, órbita, aviso del anillo y
+///      embestidas): al instante la partida termina UNA vez, Noah queda quieto y sin disparar,
 ///      las transiciones se bloquean, no queda ningún proyectil enemigo ni nace otro, y la pantalla de victoria aparece
 ///      una sola vez con una de las cadenas.
 ///   3. Nueva partida en el mismo proceso (PrepareNewRun): semilla distinta de la actual y que manda sobre UseFixedSeed,
@@ -88,9 +89,20 @@ public partial class BossVictoryTest : Node
 		await CheckDeathIn("embestida en movimiento", (b, r, e) => b.State == MotherBehavior.AttackState.Dash
 			&& !b.DashWarningActive && e.Velocity.Length() > 1.0f);
 		await CheckDeathIn("recuperación", (b, r, e) => b.State == MotherBehavior.AttackState.Recovery);
+
+		// Fases 2 y 3: antes de esperar el estado se le quita vida (70 la lleva a la fase 2; 130, a la 3). El cambio de fase es
+		// invulnerable, pero Kill() lo ignora: la victoria no puede quedar bloqueada por la invulnerabilidad.
+		await CheckDeathIn("cambio de fase invulnerable", (b, r, e) => b.State == MotherBehavior.AttackState.PhaseChange
+			&& e.Health.Invulnerable, 70.0f);
+		await CheckDeathIn("órbita de la fase 2", (b, r, e) => b.State == MotherBehavior.AttackState.Orbit, 70.0f);
+		await CheckDeathIn("aviso del anillo", (b, r, e) => b.RingWarningActive, 70.0f);
+		await CheckDeathIn("recuperación tras el anillo con proyectiles en vuelo", (b, r, e) => b.State == MotherBehavior.AttackState.Recovery
+			&& r.ProjectilesRoot.GetChildCount() > 0, 70.0f);
+		await CheckDeathIn("cambio a la fase 3", (b, r, e) => b.State == MotherBehavior.AttackState.PhaseChange && b.Phase == 3, 130.0f);
+		await CheckDeathIn("aviso de embestida de la fase 3", (b, r, e) => b.DashWarningActive && b.Phase == 3, 130.0f);
 	}
 
-	private async Task CheckDeathIn(string name, Func<MotherBehavior, RoomController, EnemyBase, bool> inState)
+	private async Task CheckDeathIn(string name, Func<MotherBehavior, RoomController, EnemyBase, bool> inState, float preDamage = 0.0f)
 	{
 		SceneTree tree = GetTree();
 		BossTestHarness.Level level = BossTestHarness.Open(this, BossTestHarness.Seed);
@@ -106,6 +118,7 @@ public partial class BossVictoryTest : Node
 		PlayerShooter shooter = level.Player.GetNode<PlayerShooter>("Shooter");
 		PlayerHealth playerHealth = level.Player.GetNode<PlayerHealth>("PlayerHealth");
 		room.ProjectilesRoot.ChildEnteredTree += _ => spawnedAfterDeath++;
+		if (preDamage > 0.0f) boss.Health.TakeDamage(preDamage);
 
 		await BossTestHarness.WaitTicks(tree, () => inState(behavior, room, boss), 4000, $"el estado «{name}»");
 		spawnedAfterDeath = 0;

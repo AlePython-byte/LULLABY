@@ -13,16 +13,20 @@ public partial class HealthComponent : Node
 	public float EffectiveMaxHealth => MaxHealth + MaxHealthBonus;
 	public bool IsDead => CurrentHealth <= 0.0f;
 
+	/// <summary>Mientras sea true, TakeDamage no hace nada (el jefe lo usa al cambiar de fase). EnemyBase.Kill lo ignora.</summary>
+	public bool Invulnerable { get; set; }
+
 	// Se inicializa al entrar al árbol para que ya sea válida cuando cualquier nodo haga _Ready.
 	public override void _EnterTree()
 	{
 		MaxHealthBonus = 0.0f;
 		CurrentHealth = MaxHealth;
+		Invulnerable = false;
 	}
 
 	public void TakeDamage(float amount)
 	{
-		if (IsDead || amount <= 0.0f)
+		if (IsDead || Invulnerable || amount <= 0.0f)
 		{
 			return;
 		}
