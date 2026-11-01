@@ -16,7 +16,7 @@ public static class GameText
 	public const string SfxVolume = "Efectos";
 	public const string ExtendedVariety = "Variedad extendida (experimental)";
 	public const string ExtendedVarietyHint = "Añade al huidor y al excavador. El modelo de dificultad no está entrenado para ellos: la dificultad mostrada es solo orientativa.";
-	public const string ExtendedVarietyWarning = "AVISO (experimental): el modelo de dificultad no está entrenado para el excavador ni el huidor";
+	public const string ExtendedVarietyWarning = "AVISO (experimental): el modelo de dificultad\nno está entrenado para el excavador ni el huidor";
 	public const string Quit = "Salir";
 	public const string Back = "Volver";
 
