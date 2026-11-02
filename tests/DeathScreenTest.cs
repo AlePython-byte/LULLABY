@@ -16,8 +16,9 @@ using Godot;
 ///   4. De extremo a extremo: morir por cada causa (Excavador, The Mother y sin causa) muestra su frase y su nombre, congela el juego,
 ///      pide el sonido «derrota» y el audio sigue funcionando con el árbol en pausa.
 ///   5. Teclas: Enter reinicia y Esc sale al menú, una sola vez; la pantalla libera la pausa al salir del árbol.
-///   6. Maquetación en 1152×648 con las imágenes reales: la hoja y su texto caben, las notas tienen la proporción de su imagen, pisan
-///      poco la hoja y no tapan el texto; lo mismo en la pausa. Sin las notas o sin la hoja cae al diseño anterior sin error.
+///   6. Maquetación en 1152×648 con las imágenes reales: la hoja y su texto caben; las notas van por delante de la hoja, tienen la
+///      proporción de su imagen, su papel visible pisa el borde de la hoja sin tapar el texto y el texto de cada nota (y su tecla) queda
+///      dentro del papel visible; lo mismo en la pausa. Sin las notas o sin la hoja cae al diseño anterior sin error.
 /// Antes de salir recolecta los envoltorios de C# (BossTestHarness.CollectWrappers). Sale con código 0 si todo pasa.
 /// </summary>
 public partial class DeathScreenTest : Node
@@ -262,6 +263,7 @@ public partial class DeathScreenTest : Node
 
 		Rect2 box = screen.GetNode<Control>("Root/Center/Box").GetGlobalRect();
 		Require(inner.Grow(1.0f).Encloses(box), $"El texto completo cabe en la hoja con la frase más larga ({box} en {inner})");
+		Require(screen.GetNode("Root").GetNode("Notes").GetIndex() > screen.GetNode("Root").GetNode("Sheet").GetIndex(), "Las notas van por delante de la hoja");
 		foreach ((Button button, string texturePath, int side, string text, string key) in new[]
 		{
 			(screen.RetryButton, DefeatScreen.DefaultRetryNotePath, 1, "Reiniciar", "Enter"),
@@ -269,16 +271,33 @@ public partial class DeathScreenTest : Node
 		})
 		{
 			Texture2D texture = GD.Load<Texture2D>(texturePath);
-			Rect2 note = button.GetGlobalRect();
+			// La nota está girada unos grados: la geometría se calcula sin girar, a partir de sus márgenes (los de su colocación).
+			Rect2 note = new(DesignSize / 2.0f + new Vector2(button.OffsetLeft, button.OffsetTop), button.Size);
+			Rect2 visible = DefeatScreen.VisiblePart(texture);
+			Rect2 paper = new(note.Position + visible.Position, visible.Size);
 			float ratio = note.Size.X / note.Size.Y, textureRatio = texture.GetWidth() / (float)texture.GetHeight();
 			Require(button.IsVisibleInTree() && window.Encloses(note), $"{text}: la nota se ve y cabe en la ventana ({note})");
 			Require(Mathf.Abs(ratio - textureRatio) < 0.01f, $"{text}: conserva la proporción de su imagen ({ratio:0.000} frente a {textureRatio:0.000})");
-			Require(side > 0 ? note.Position.X > sheet.GetCenter().X : note.End.X < sheet.GetCenter().X, $"{text}: a {(side > 0 ? "la derecha" : "la izquierda")} de la hoja");
-			float overlap = side > 0 ? sheet.End.X - note.Position.X : note.End.X - sheet.Position.X;
-			Require(overlap > 0.0f && overlap <= DefeatScreen.NoteOverlap + 1.0f, $"{text}: pisa la hoja {overlap:0.0} px (como mucho {DefeatScreen.NoteOverlap})");
-			Require(!note.Intersects(inner), $"{text}: no tapa el texto de la hoja");
+			Require(side > 0 ? paper.GetCenter().X > sheet.GetCenter().X : paper.GetCenter().X < sheet.GetCenter().X, $"{text}: a {(side > 0 ? "la derecha" : "la izquierda")} de la hoja");
+			float overlap = side > 0 ? sheet.End.X - paper.Position.X : paper.End.X - sheet.Position.X;
+			Require(Mathf.Abs(overlap - DefeatScreen.NoteOverlap) < 1.5f, $"{text}: su papel pisa el borde de la hoja {overlap:0.0} px (esperado {DefeatScreen.NoteOverlap})");
+			Require(!paper.Intersects(inner), $"{text}: no tapa el texto de la hoja");
 			Require(button.Text == text && button.GetNode<Label>("KeyHint").Text == key, $"{text}: texto y tecla dibujados por el juego («{button.Text}», «{button.GetNode<Label>("KeyHint").Text}»)");
 			Require(Mathf.Abs(Mathf.Abs(button.RotationDegrees) - 4.0f) < 0.01f, $"{text}: ligeramente girada");
+
+			// El texto de la nota queda dentro de su papel visible (en el espacio de la propia nota, que no depende del giro).
+			StyleBox style = button.GetThemeStylebox("normal");
+			Rect2 content = new(style.GetMargin(Side.Left), style.GetMargin(Side.Top), button.Size.X - style.GetMargin(Side.Left) - style.GetMargin(Side.Right),
+				button.Size.Y - style.GetMargin(Side.Top) - style.GetMargin(Side.Bottom));
+			Font font = button.GetThemeFont("font");
+			int fontSize = button.GetThemeFontSize("font_size");
+			Vector2 textSize = new(font.GetStringSize(text, HorizontalAlignment.Left, -1, fontSize).X, font.GetHeight(fontSize));
+			Rect2 textRect = new(content.GetCenter() - textSize / 2.0f, textSize);
+			Require(visible.Encloses(textRect), $"{text}: el texto ({textSize.X:0}×{textSize.Y:0} px, letra {fontSize}) queda dentro del papel visible de la nota ({visible})");
+			Label hint = button.GetNode<Label>("KeyHint");
+			Rect2 hintRect = new(hint.OffsetLeft, hint.OffsetTop, hint.OffsetRight - hint.OffsetLeft, hint.OffsetBottom - hint.OffsetTop);
+			float hintWidth = hint.GetThemeFont("font").GetStringSize(key, HorizontalAlignment.Left, -1, hint.GetThemeFontSize("font_size")).X;
+			Require(visible.Encloses(hintRect) && hintWidth <= hintRect.Size.X, $"{text}: la tecla «{key}» queda dentro del papel visible");
 		}
 
 		screen.QueueFree();
