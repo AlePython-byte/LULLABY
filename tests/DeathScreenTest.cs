@@ -104,8 +104,29 @@ public partial class DeathScreenTest : Node
 			Require(Enumerable.Range(0, 6).Select(seed => DeathTexts.PhraseFor(cause, seed)).Distinct().Count() == phrases.Count, $"{cause}: todas sus frases se usan según la semilla");
 		}
 
-		Require(DeathTexts.PhrasesOf(DeathCause.Unknown) == GameText.DefeatMessages && DeathTexts.PhraseFor(DeathCause.Unknown, 7) == GameText.DefeatMessageFor(7),
-			"Sin causa se usan las tres frases de siempre");
+		// Sin causa hay dos frases propias, con las mismas reglas que el resto.
+		IReadOnlyList<string> unknown = DeathTexts.PhrasesOf(DeathCause.Unknown);
+		Require(unknown.Count == 2 && unknown.All(p => !string.IsNullOrWhiteSpace(p) && p.Length <= 100) && unknown.All(all.Add), "Sin causa hay dos frases propias, cortas y distintas");
+		Require(Enumerable.Range(-3, 9).All(seed => unknown.Contains(DeathTexts.PhraseFor(DeathCause.Unknown, seed))) && DeathTexts.NameOf(DeathCause.Unknown) == "Desconocido",
+			"Sin causa se elige entre ellas y se llama «Desconocido»");
+
+		// Las frases aprobadas, en primera persona, con sus tildes y signos.
+		Dictionary<DeathCause, string[]> approved = new()
+		{
+			[DeathCause.Chaser] = new[] { "Hoy me abrazaron tan fuerte que me quedé sin aire. Qué cariñoso.", "El más sencillo de todos me ganó. Me arrullé yo solo con eso." },
+			[DeathCause.Shooter] = new[] { "Hoy aprendí que sí hay quien apunta bien a una cabecita.", "Me dispararon desde lejos. Ni me dio tiempo de llorar." },
+			[DeathCause.Projectile] = new[] { "Me llegó una lágrima ajena. Qué mal sabe el llanto del vecino.", "Algo salió volando y yo no lo vi venir." },
+			[DeathCause.Exploder] = new[] { "Alguien me quiso tanto que explotó a mi lado.", "Me dieron un abrazo con mecha. Qué detalle." },
+			[DeathCause.Flyer] = new[] { "Me arrulló un zumbido con alas. Los bebés confiamos en todo.", "Me picó el sueño, con alas." },
+			[DeathCause.Runner] = new[] { "Me corrieron encima mientras miraba para otro lado.", "Ni lo vi venir: se hacía el tímido." },
+			[DeathCause.Digger] = new[] { "Salió algo de debajo de la cuna. Siempre hay algo debajo de la cuna.", "Algo me jaló desde el suelo. Debí mirar debajo de la cuna." },
+			[DeathCause.TheMother] = new[] { "Mamá me arropó para siempre. Las nanas siempre acaban así.", "Mamá cantó hasta que me dormí. Esta vez fue para siempre." },
+			[DeathCause.Unknown] = new[] { "No sé qué pasó, pero fue un día largo.", "Algo me pasó y no sé qué. Fue un día muy largo." },
+		};
+		foreach ((DeathCause cause, string[] phrases) in approved)
+		{
+			Require(DeathTexts.PhrasesOf(cause).SequenceEqual(phrases), $"{cause}: sus dos frases aprobadas");
+		}
 		Require(DeathTexts.PhraseFor(DeathCause.Digger, int.MinValue).Length > 0, "Una semilla negativa también elige frase");
 		Require(DeathTexts.Title == "Fin de la nana" && DeathTexts.KilledBy == "Te venció:", "Título y etiqueta aprobados");
 		Require(DeathTexts.DiaryGreeting == "Querido diario," && DeathTexts.DiaryCause == "Morí a causa de:", "Saludo y línea de la causa del diario");
@@ -127,7 +148,8 @@ public partial class DeathScreenTest : Node
 			EnemyBase enemy = GD.Load<PackedScene>(info.ScenePath).Instantiate<EnemyBase>();
 			Require(DeathCauses.FromEnemy(enemy) == byKind[info.Kind], $"{info.Name}: su contacto da {byKind[info.Kind]}");
 			DeathCause projectile = DeathCauses.ForProjectile(enemy);
-			Require(projectile == (info.Kind == EnemyKind.Digger ? DeathCause.Digger : DeathCause.Projectile), $"{info.Name}: su proyectil da {projectile}");
+			DeathCause expectedProjectile = info.Kind switch { EnemyKind.Digger => DeathCause.Digger, EnemyKind.Shooter => DeathCause.Shooter, _ => DeathCause.Projectile };
+			Require(projectile == expectedProjectile, $"{info.Name}: su proyectil da {projectile}");
 			enemy.Free();
 		}
 
@@ -135,6 +157,7 @@ public partial class DeathScreenTest : Node
 		Require(DeathCauses.FromEnemy(mother) == DeathCause.TheMother && DeathCauses.ForProjectile(mother) == DeathCause.TheMother, "The Mother, de contacto y con sus proyectiles");
 		mother.Free();
 		Require(DeathCauses.FromEnemy(null) == DeathCause.Unknown, "Sin enemigo, causa desconocida");
+		Require(DeathCauses.ForProjectile(null) == DeathCause.Projectile, "Un proyectil sin dueño conocido es solo un proyectil");
 		EnemyProjectile shot = GD.Load<PackedScene>("res://scenes/combat/EnemyProjectile.tscn").Instantiate<EnemyProjectile>();
 		Require(shot.Cause == DeathCause.Projectile, "Un proyectil nuevo es un proyectil");
 		shot.Free();
@@ -360,6 +383,14 @@ public partial class DeathScreenTest : Node
 		{
 			string path = DeathArt.PathOf(cause);
 			Require(path == $"res://assets/ui/muerte/asesino_{name}.png" && ResourceLoader.Exists(path) && GD.Load<Texture2D>(path) != null, $"{cause}: {path}");
+		}
+
+		// Cada archivo muestra a su enemigo (los dibujos se confundieron una vez): la forma de cada uno se reconoce por su proporción.
+		// cubo rosa = básico (512×441), esfera naranja con antena = explosivo (512×685), oso = huidor (512×621), tortuga con aros = tirador (512×344).
+		Dictionary<string, Vector2I> shapes = new() { ["basico"] = new(512, 441), ["explosivo"] = new(512, 685), ["huidor"] = new(512, 621), ["tirador"] = new(512, 344) };
+		foreach ((string name, Vector2I size) in shapes)
+		{
+			Require(GD.Load<Texture2D>($"res://assets/ui/muerte/asesino_{name}.png").GetSize() == (Vector2)size, $"asesino_{name}.png es el dibujo de su enemigo");
 		}
 
 		Require(ResourceLoader.Exists(DeathArt.ArrowPath) && DeathArt.ArrowPath.EndsWith("flecha_out.png"), "La flecha existe con su nombre real");
