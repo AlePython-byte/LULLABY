@@ -120,6 +120,20 @@ public static class BossTestHarness
 		}
 	}
 
+	/// <summary>
+	/// Recolecta los envoltorios de C# de lo que la prueba ya liberó (niveles, salas, menús, recursos). Se llama justo antes de salir: los
+	/// envoltorios siguen vivos hasta que pasa el recolector y, si el finalizador los encuentra con el motor ya cerrado, el proceso cae al
+	/// salir (-1073741819 o -1073741795) aunque todas las comprobaciones hayan pasado. También evita que el recolector actúe en mitad de
+	/// un cambio de escena posterior ("Handle is not initialized").
+	/// </summary>
+	public static async Task CollectWrappers(SceneTree tree)
+	{
+		await Frames(tree, 2);
+		GC.Collect();
+		GC.WaitForPendingFinalizers();
+		await Frames(tree, 2);
+	}
+
 	public static async Task WaitUntil(SceneTree tree, Func<bool> condition, int maxFrames, string what)
 	{
 		for (int i = 0; i < maxFrames; i++)
