@@ -13,7 +13,7 @@ using Godot;
 ///   2. El retraso de aparición de la sala (SpawnDelay, 0,7 s) también se detiene: con la pausa no nacen los seis básicos.
 ///      Los enemigos nacen a los 0,7 s de empezar el combate, y el simulador sigue leyendo el StartDelay de 1 s de siempre.
 ///   3. Esc y P abren y cierran la pausa; Esc dentro de Controles solo cierra el panel.
-///   4. Esc/P se ignoran durante un cambio de sala, la victoria y la derrota.
+///   4. Esc/P se ignoran durante un cambio de sala y la victoria; durante la derrota la pausa no se abre (la pantalla de derrota congela el juego).
 ///   5. Reiniciar partida (semilla nueva, misma dificultad) y Volver al menú despausan antes de cambiar de escena.
 /// Convierte el nivel en la escena actual cuando hay recarga o cambio de escena. Sale con código 0 si todo pasa.
 /// </summary>
@@ -234,9 +234,10 @@ public partial class PauseTest : Node
 		await BossTestHarness.Frames(tree, 3);
 		level.Health.TakeDamage(1000.0f);
 		Require(level.Run.RunEnded && !pause.CanPause, "No se pausa con la partida perdida");
-		await SendKey(Key.Escape);
+		// La pantalla de derrota congela el juego por su cuenta y usa Esc para salir al menú (DeathScreenTest): aquí solo importa que la pausa
+		// no se abra, con P y con la pausa que pida cualquiera.
 		await SendKey(Key.P);
-		Require(!pause.IsOpen && !tree.Paused, "Esc y P se ignoran durante la derrota");
+		Require(!pause.IsOpen && !pause.TryPause(), "P se ignora durante la derrota y la pausa no se abre");
 		GD.Print("Esc/P ignorados durante el cambio de sala, la victoria y la derrota: OK");
 		await BossTestHarness.Close(tree, level);
 	}
