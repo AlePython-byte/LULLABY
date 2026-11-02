@@ -47,12 +47,7 @@ public partial class RoomDecorBaseTest : Node
 
 		GD.Print(_failures.Count == 0 ? "RESULTADO: OK" : $"RESULTADO: FALLO ({_failures.Count} comprobaciones)");
 
-		// Las salas y sus recursos ya están liberados, pero sus envoltorios de C# siguen vivos hasta que pase el recolector: si el
-		// finalizador los encuentra con el motor ya cerrado, el proceso cae al salir (-1073741795) aunque todo haya pasado.
-		await Frames(2);
-		System.GC.Collect();
-		System.GC.WaitForPendingFinalizers();
-		await Frames(2);
+		await BossTestHarness.CollectWrappers(GetTree());
 		GetTree().Quit(_failures.Count == 0 ? 0 : 1);
 	}
 
