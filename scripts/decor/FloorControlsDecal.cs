@@ -6,9 +6,11 @@ using Godot;
 /// imagen hacia el norte (-Z), que es "arriba" para la cámara. Se dibuja antes que lo demás (RenderPriority negativo, y a ras de suelo
 /// queda bajo Noah, los enemigos y los objetos). Si la textura no existe no se crea nada y no pasa nada.
 ///
-/// Mide 7,2 x 2,7 m (la proporción 8:3 de la imagen), centrado: deja libres las puertas (huecos de ±2,3 m a menos de 2 m de cada pared) y las
-/// zonas de llegada (cuadrados de ±1,5 m a 2,5 m de cada pared). FreeDecorPlanner reserva ese rectángulo (con ReserveMargin) en el
-/// inicio, haya textura o no, para que la decoración no dependa de si el archivo existe.
+/// Mide 10 x 3,75 m (la proporción 8:3 de la imagen), centrado: deja libres las puertas (huecos de ±2,3 m a menos de 2 m de cada pared) y
+/// los puntos de llegada del jugador, y queda a más de 2 m de las paredes. Con 10 m de ancho el cartel entra un poco en el cuadrado de
+/// ±1,5 m de las llegadas este y oeste (a 5,5 m del centro en la sala de 16 m), lo que no importa: es una imagen plana a ras de suelo y
+/// el punto de llegada de Noah queda libre. FreeDecorPlanner reserva ese rectángulo (con ReserveMargin) en el inicio, haya textura o no,
+/// para que la decoración no dependa de si el archivo existe.
 /// </summary>
 public static class FloorControlsDecal
 {
@@ -21,7 +23,7 @@ public static class FloorControlsDecal
 	public const float ReserveMargin = 0.3f;
 
 	/// <summary>Tamaño del cartel en metros (X, Z).</summary>
-	public static readonly Vector2 Size = new(7.2f, 2.7f);
+	public static readonly Vector2 Size = new(10.0f, 3.75f);
 
 	/// <summary>Ruta de la textura (las pruebas la apuntan a otra para comprobar que su ausencia no rompe nada).</summary>
 	public static string TexturePath { get; set; } = "res://assets/ui/controles_piso.png";
