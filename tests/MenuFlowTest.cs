@@ -13,6 +13,7 @@ using Godot;
 ///   2. El menú muestra los textos del juego, funciona con o sin las imágenes opcionales y recuerda la dificultad.
 ///   2b. Arte del menú (carátula animada, logo y panel de papel): se carga por nombre solo lo que existe, el panel rodea al menú y
 ///      queda a la derecha dentro de la ventana, el parallax es mínimo y acotado, y sin las capas el menú se construye igual.
+///      Con el arte real presente, el menú completo (logo incluido) cabe en 1152×648 y el logo se dibuja con su proporción original.
 ///   3. La pantalla de Controles muestra solo las teclas reales (WASD, flechas, Esc o P).
 ///   4. Jugar con cada dificultad carga TestLevel con esa dificultad como objetivo del director y la muestra en el HUD,
 ///      despausa el juego y descarta una semilla pendiente (la partida del menú toma una aleatoria).
@@ -105,9 +106,12 @@ public partial class MenuFlowTest : Node
 		SceneTree tree = GetTree();
 		Node testScene = tree.CurrentScene;
 		string folder = MenuCover.Folder;
+		Vector2I originalSize = tree.Root.Size;
 		try
 		{
-			// Con lo que haya en assets/: las capas cargadas son exactamente las que existen, en su orden.
+			// Con lo que haya en assets/: las capas cargadas son exactamente las que existen, en su orden. La ventana de la prueba pasa a medir
+			// exactamente 1152×648 (la de diseño; la ventana headless no tiene esa medida) y se restaura al terminar.
+			tree.Root.Size = new Vector2I(1152, 648);
 			MainMenu menu = await OpenMenu();
 			await BossTestHarness.Frames(tree, 3);
 			List<string> expected = MenuCover.LayerSpecs.Where(spec => ResourceLoader.Exists($"{MenuCover.Folder}{spec.Name}.png")).Select(spec => spec.Name).ToList();
@@ -116,6 +120,9 @@ public partial class MenuFlowTest : Node
 			Require(!menu.HasLogo || (!menu.GetNode<Label>("Center/Box/Title").Visible && !menu.GetNode<Label>("Center/Box/Subtitle").Visible),
 				"Con logo, el título y el subtítulo en texto se ocultan (el logo ya los trae)");
 			Require(menu.PlayButton.HasFocus(), "Jugar tiene el foco con o sin arte");
+			GD.Print($"  carátula: {menu.Cover.LayerCount} de {MenuCover.LayerSpecs.Length} capas ({string.Join(", ", menu.Cover.LoadedNames)}); logo: {menu.HasLogo}; panel: {menu.HasPanel}");
+			Require(menu.HasCover && menu.Cover.LayerCount == MenuCover.LayerSpecs.Length && menu.HasLogo && menu.HasPanel,
+				"Está el arte real del menú: todas las capas, el logo y el panel");
 
 			if (menu.HasPanel)
 			{
@@ -126,6 +133,29 @@ public partial class MenuFlowTest : Node
 				Require(viewport.Grow(1.0f).Encloses(panel), $"El panel cabe en la ventana ({panel} en {viewport})");
 				Require(panel.Position.X >= viewport.Size.X * 0.5f, "El panel queda a la derecha y deja a la vista el centro de la carátula");
 				Require(panel.Size.X / panel.Size.Y > 0.70f && panel.Size.X / panel.Size.Y < 0.95f, $"El papel no se deforma de más (proporción {panel.Size.X / panel.Size.Y:0.00})");
+
+				// El menú completo cabe en 1152×648, logo incluido: cada elemento visible queda dentro de la ventana y del papel.
+				Vector2 designSize = new(1152.0f, 648.0f);
+				Require(viewport.Size.IsEqualApprox(designSize), $"La ventana de la prueba mide {viewport.Size}, no {designSize}");
+				Rect2 window = new(Vector2.Zero, designSize);
+				Control menuBox = menu.GetNode<Control>("Center/Box");
+				Require(window.Encloses(box), $"El menú completo cabe en {designSize} ({box})");
+				foreach (Control child in menuBox.GetChildren().OfType<Control>().Where(c => c.Visible))
+				{
+					Rect2 childRect = child.GetGlobalRect();
+					Require(window.Encloses(childRect) && panel.Encloses(childRect), $"«{child.Name}» queda dentro de la ventana y del papel ({childRect})");
+				}
+
+				// El logo se dibuja por ancho con la proporción real de su textura (no una fija).
+				TextureRect logo = menu.GetNode<TextureRect>("Center/Box/Logo");
+				Require(logo.Visible && logo.Texture != null, "El logo se ve");
+				float textureRatio = (float)logo.Texture.GetWidth() / logo.Texture.GetHeight();
+				float drawnRatio = logo.Size.X / logo.Size.Y;
+				GD.Print($"  logo: textura {logo.Texture.GetWidth()}x{logo.Texture.GetHeight()} (proporción {textureRatio:0.000}), dibujado {logo.Size.X:0}x{logo.Size.Y:0} (proporción {drawnRatio:0.000})");
+				Require(Mathf.Abs(drawnRatio - textureRatio) < 0.01f, $"El logo conserva su proporción original ({drawnRatio:0.000} frente a {textureRatio:0.000})");
+				Require(logo.Size.X >= 300.0f && logo.Size.X <= 340.0f, $"El logo mide de 300 a 340 px de ancho ({logo.Size.X:0})");
+				Require(logo.StretchMode == TextureRect.StretchModeEnum.KeepAspectCentered, "El logo se dibuja manteniendo su proporción");
+
 				Rect2 volume = menu.GetNode<Control>("VolumeControls").GetGlobalRect();
 				Require(!volume.Intersects(panel), "El volumen no se solapa con el panel");
 				Require(volume.Position.X >= 0.0f && volume.End.Y <= viewport.Size.Y + 1.0f, "El volumen cabe en la ventana");
@@ -149,6 +179,7 @@ public partial class MenuFlowTest : Node
 			}
 
 			await BossTestHarness.Restore(tree, testScene, menu);
+			tree.Root.Size = originalSize;
 
 			// Sin ninguna capa: el menú se construye y se puede jugar, sin procesar nada.
 			MenuCover.Folder = "res://tests/fixtures/none/";
@@ -161,7 +192,15 @@ public partial class MenuFlowTest : Node
 		finally
 		{
 			MenuCover.Folder = folder;
+			tree.Root.Size = originalSize;
 		}
+
+		// Los menús y sus texturas ya están liberados, pero sus envoltorios de C# siguen vivos hasta que pase el recolector: si lo hace justo
+		// al cambiar de escena en las pruebas siguientes, el motor registra "Handle is not initialized" aunque todo haya pasado.
+		await BossTestHarness.Frames(tree, 2);
+		System.GC.Collect();
+		System.GC.WaitForPendingFinalizers();
+		await BossTestHarness.Frames(tree, 2);
 
 		GD.Print("Arte del menú: capas por nombre, panel a la derecha, parallax mínimo y menú sin capas: OK");
 	}

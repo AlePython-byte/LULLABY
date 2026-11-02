@@ -18,11 +18,17 @@ public partial class MainMenu : Control
 	public const string BackgroundPath = "res://assets/ui/fondo_menu.png";
 	public const string PanelPath = "res://assets/ui/panel_menu_papel.png";
 
-	// Margen del papel alrededor del menú: más arriba, por las chinchetas. El papel conserva su proporción (760×980) si cabe el menú.
-	private const float PanelMarginTop = 72.0f;
-	private const float PanelMarginBottom = 48.0f;
-	private const float PanelMarginSide = 40.0f;
+	// Papel de 760×980 con las chinchetas arriba, el margen rojo a la izquierda y la esquina doblada abajo a la derecha: el menú ocupa
+	// la zona útil del papel, que va de estas fracciones de su alto (arriba y abajo) y de su ancho (izquierda y derecha). El papel
+	// conserva su proporción si cabe el menú.
 	private const float PanelAspect = 760.0f / 980.0f;
+	private const float PanelTop = 0.095f;
+	private const float PanelBottom = 0.07f;
+	private const float PanelLeft = 0.19f;
+	private const float PanelRight = 0.955f;
+
+	/// <summary>Ancho (px) del logo dentro del panel; el alto sale de la proporción real de su textura.</summary>
+	public const float LogoWidth = 316.0f;
 	private static readonly Color PaperText = new(0.25f, 0.16f, 0.1f);
 	private static readonly Color PaperHint = new(0.42f, 0.27f, 0.12f);
 
@@ -165,15 +171,31 @@ public partial class MainMenu : Control
 		Control center = GetNode<Control>("Center");
 		center.AnchorLeft = 0.56f;
 
+		// Todo el menú cabe en 1152×648: separaciones y botones compactos, y el logo por ancho con la proporción real de su textura.
 		Control box = GetNode<Control>("Center/Box");
-		box.AddThemeConstantOverride("separation", 10);
-		GetNode<Control>("Center/Box/Logo").CustomMinimumSize = new Vector2(400.0f, 73.0f);
-		GetNode<Control>("Center/Box/Spacer").CustomMinimumSize = new Vector2(0.0f, 6.0f);
-		GetNode<Control>("Center/Box/Play").CustomMinimumSize = new Vector2(320.0f, 52.0f);
-		GetNode<Control>("Center/Box/ExtendedVariety").CustomMinimumSize = new Vector2(400.0f, 44.0f);
-		GetNode<Control>("Center/Box/ExtendedVarietyHint").CustomMinimumSize = new Vector2(400.0f, 0.0f);
-		GetNode<Control>("Center/Box/ControlsButton").CustomMinimumSize = new Vector2(320.0f, 44.0f);
-		GetNode<Control>("Center/Box/Quit").CustomMinimumSize = new Vector2(320.0f, 44.0f);
+		box.AddThemeConstantOverride("separation", 5);
+		TextureRect logo = GetNode<TextureRect>("Center/Box/Logo");
+		if (logo.Texture != null)
+		{
+			float height = LogoWidth * logo.Texture.GetHeight() / logo.Texture.GetWidth();
+			logo.CustomMinimumSize = new Vector2(LogoWidth, height);
+			logo.ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize;
+			logo.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
+			logo.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
+		}
+
+		Compact("Spacer", new Vector2(0.0f, 2.0f));
+		Compact("Play", new Vector2(300.0f, 44.0f), 24);
+		Compact("DifficultyLabel", Vector2.Zero, 17);
+		foreach (string difficulty in new[] { "Easy", "Normal", "Hard" })
+		{
+			Compact($"Difficulties/{difficulty}", new Vector2(96.0f, 36.0f), 18);
+		}
+
+		Compact("ExtendedVariety", new Vector2(330.0f, 36.0f), 17);
+		Compact("ExtendedVarietyHint", new Vector2(330.0f, 0.0f), 13);
+		Compact("ControlsButton", new Vector2(300.0f, 36.0f), 20);
+		Compact("Quit", new Vector2(300.0f, 36.0f), 20);
 
 		foreach (string name in new[] { "Subtitle", "DifficultyLabel" })
 		{
@@ -198,14 +220,27 @@ public partial class MainMenu : Control
 		PlacePanel();
 	}
 
-	// El papel rodea al menú: alto = el del menú más los márgenes, ancho según la proporción del papel (o más, si el menú no cabe).
+	// Tamaño mínimo y, si se da, tamaño de letra de un hijo del menú compacto.
+	private void Compact(string path, Vector2 minimum, int fontSize = 0)
+	{
+		Control control = GetNode<Control>($"Center/Box/{path}");
+		control.CustomMinimumSize = minimum;
+		if (fontSize > 0)
+		{
+			control.AddThemeFontSizeOverride("font_size", fontSize);
+		}
+	}
+
+	// El papel rodea al menú: el alto sale de que el menú ocupe la zona útil del papel (entre las chinchetas y la esquina doblada), el ancho
+	// de la proporción del papel (o más, si el menú no cabe entre el margen rojo y el borde derecho).
 	private void PlacePanel()
 	{
 		TextureRect paper = GetNode<TextureRect>("MenuPanel");
 		Rect2 box = GetNode<Control>("Center/Box").GetGlobalRect();
-		float height = box.Size.Y + PanelMarginTop + PanelMarginBottom;
-		float width = Mathf.Max(height * PanelAspect, box.Size.X + 2.0f * PanelMarginSide);
-		paper.GlobalPosition = new Vector2(box.GetCenter().X - width / 2.0f, box.Position.Y - PanelMarginTop);
+		float height = box.Size.Y / (1.0f - PanelTop - PanelBottom);
+		float width = Mathf.Max(height * PanelAspect, (box.Size.X + 16.0f) / (PanelRight - PanelLeft));
+		float x = box.GetCenter().X - width * (PanelLeft + PanelRight) / 2.0f;
+		paper.GlobalPosition = new Vector2(x, box.Position.Y - height * PanelTop);
 		paper.Size = new Vector2(width, height);
 	}
 
