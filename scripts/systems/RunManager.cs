@@ -83,6 +83,9 @@ public partial class RunManager : Node
 	[Export] public int MinBossDistance { get; set; } = 4;
 	[Export] public int MaxAttempts { get; set; } = 20;
 
+	/// <summary>Probabilidad de que una sala de combate despejada suelte un corazón (+1 de vida). 0 lo apaga. Ver HeartDropper.</summary>
+	[Export(PropertyHint.Range, "0,1,0.05")] public float HeartDropChance { get; set; } = HeartDropper.DefaultChance;
+
 	[Export] public bool UseFixedSeed { get; set; }
 	[Export] public int FixedSeed { get; set; }
 
@@ -157,6 +160,10 @@ public partial class RunManager : Node
 			AddChild(log);
 			log.Begin(this, Rooms, _generatorVersion);
 		}
+
+		HeartDropper hearts = new() { Name = "HeartDropper" };
+		AddChild(hearts);
+		hearts.Begin(Rooms, TreasureItems, _seed, HeartDropChance);
 
 		if (_pendingMap != null)
 		{

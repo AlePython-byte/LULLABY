@@ -52,6 +52,7 @@ $tests = @(
     @{ Name = 'EnemySpawnTest' },
     @{ Name = 'ItemSystemTest' },
     @{ Name = 'TreasureItemsTest' },
+    @{ Name = 'HeartDropTest' },
     @{ Name = 'MenuFlowTest' },
     @{ Name = 'PlaytestLogTest' },
     @{ Name = 'PauseTest' },
