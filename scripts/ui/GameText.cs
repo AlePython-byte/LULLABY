@@ -23,11 +23,15 @@ public static class GameText
 	public const string Pause = "Pausa";
 	public const string Resume = "Reanudar";
 	public const string Restart = "Reiniciar partida";
-	public const string BackToMenu = "Volver al menú";
+	public const string BackToMenu = "Salir al menú";
 
 	public const string Defeat = "Derrota";
-	public const string Retry = "Reintentar";
-	public const string Menu = "Menú";
+	public const string Retry = "Reiniciar";
+	public const string Menu = "Salir al menú";
+
+	/// <summary>Teclas de los botones de la pantalla de derrota (Enter reinicia y Esc sale al menú).</summary>
+	public const string RetryKey = "Enter";
+	public const string MenuKey = "Esc";
 
 	/// <summary>Frases de derrota (textos.md, sección 5).</summary>
 	public static readonly string[] DefeatMessages =

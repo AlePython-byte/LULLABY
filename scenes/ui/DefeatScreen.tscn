@@ -24,6 +24,13 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.08, 0, 0, 0.7)
 
+[node name="Sheet" type="TextureRect" parent="Root"]
+visible = false
+layout_mode = 0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 0
+
 [node name="Center" type="CenterContainer" parent="Root"]
 layout_mode = 1
 anchors_preset = 15

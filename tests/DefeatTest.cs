@@ -89,7 +89,7 @@ public partial class DefeatTest : Node
 		Require(defeat.Message == GameText.DefeatMessageFor(level.Run.Seed) && Array.IndexOf(GameText.DefeatMessages, defeat.Message) >= 0,
 			"Una frase de derrota del juego");
 		Require(defeat.RetryButton.IsVisibleInTree() && defeat.MenuButton.IsVisibleInTree()
-			&& defeat.RetryButton.Text == "Reintentar" && defeat.MenuButton.Text == "Menú", "Botones Reintentar y Menú");
+			&& defeat.RetryButton.Text == "Reiniciar" && defeat.MenuButton.Text == "Salir al menú", "Botones Reiniciar y Salir al menú");
 		GD.Print("Derrota en la sala inicial: fin único, sin recarga y con frase: OK");
 		await BossTestHarness.Close(tree, level);
 	}
