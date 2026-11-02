@@ -29,6 +29,7 @@ public partial class ItemMessageVarietyTest : Node
 			await CheckMenuToggle();
 			await CheckVarietyInGame();
 			GD.Print($"ItemMessageVarietyTest: {_checks} comprobaciones. RESULTADO: OK");
+			await BossTestHarness.CollectWrappers(GetTree());
 			GetTree().Quit();
 		}
 		catch (Exception exception)
