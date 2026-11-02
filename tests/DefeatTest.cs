@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Godot;
 
@@ -86,8 +87,8 @@ public partial class DefeatTest : Node
 		Require(GodotObject.IsInstanceValid(level.Root) && level.Root.IsInsideTree() && level.Rooms.CurrentRoom == room,
 			"La escena no se recarga ni cambia de sala");
 		Require(presented == 1 && failed == 1 && completed == 0 && !level.Victory.IsPresented, "Derrota una sola vez y sin victoria");
-		Require(defeat.Message == GameText.DefeatMessageFor(level.Run.Seed) && Array.IndexOf(GameText.DefeatMessages, defeat.Message) >= 0,
-			"Una frase de derrota del juego");
+		Require(defeat.Message == DeathTexts.PhraseFor(DeathCause.Unknown, level.Run.Seed) && DeathTexts.PhrasesOf(DeathCause.Unknown).Contains(defeat.Message),
+			"Una frase de derrota del juego (sin causa conocida)");
 		Require(defeat.RetryButton.IsVisibleInTree() && defeat.MenuButton.IsVisibleInTree()
 			&& defeat.RetryButton.Text == "Reiniciar" && defeat.MenuButton.Text == "Salir al menú", "Botones Reiniciar y Salir al menú");
 		GD.Print("Derrota en la sala inicial: fin único, sin recarga y con frase: OK");
