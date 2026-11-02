@@ -31,6 +31,7 @@ public partial class DecorWarmupTest : Node
 			GD.Print($"=== DecorWarmupTest ({(OS.IsDebugBuild() ? "Debug" : "Release")}) ===");
 			await CheckFromMenu();
 			await CheckIdempotent();
+			CheckBudget();
 			await CheckMissingFiles();
 			await CheckDisabled();
 			GD.Print($"DecorWarmupTest: {_checks} comprobaciones. RESULTADO: OK");
@@ -67,7 +68,7 @@ public partial class DecorWarmupTest : Node
 			await BossTestHarness.Frames(GetTree(), 1);
 		}
 
-		Require(runner.Finished, $"El precalentamiento no terminó en {MaxFrames} fotogramas (pendientes {DecorWarmup.PendingLoads}, medidos {DecorWarmup.Primed})");
+		Require(runner.Finished, $"El precalentamiento no terminó en {MaxFrames} fotogramas (quedan {DecorWarmup.Remaining}, medidos {DecorWarmup.Primed})");
 	}
 
 	private static string[] ExistingModels() => DecorWarmup.ModelPaths().Where(path => ResourceLoader.Exists(path)).ToArray();
@@ -93,7 +94,7 @@ public partial class DecorWarmupTest : Node
 		string[] textures = ExistingTextures();
 		GD.Print($"  modelos {models.Length}, texturas {textures.Length}, guardados {DecorWarmup.Held.Count}, medidos {DecorWarmup.Primed}, faltan {DecorWarmup.Missing}");
 		Require(models.Length > 20, $"Hay modelos de decoración que precalentar ({models.Length})");
-		Require(DecorWarmup.Done && DecorWarmup.PendingLoads == 0 && DecorWarmup.Failed == 0, "Todo cargado, sin cargas pendientes ni fallos");
+		Require(DecorWarmup.Done && DecorWarmup.Remaining == 0 && DecorWarmup.Failed == 0, "Todo cargado, sin elementos pendientes ni fallos");
 		Require(DecorWarmup.Held.Count == models.Length + textures.Length, $"Guarda todas las texturas y escenas existentes ({DecorWarmup.Held.Count} de {models.Length + textures.Length})");
 		Require(DecorWarmup.Primed == models.Length, "Mide todos los modelos existentes");
 		Require(models.All(ModelLibrary.IsLoaded), "Todos los modelos están cargados y medidos en ModelLibrary");
@@ -115,7 +116,7 @@ public partial class DecorWarmupTest : Node
 		(int requested, int held, int primed, int missing) = (DecorWarmup.Requested, DecorWarmup.Held.Count, DecorWarmup.Primed, DecorWarmup.Missing);
 		DecorWarmup.Request();
 		DecorWarmup.Request();
-		Require(DecorWarmup.PollLoads() && !DecorWarmup.PrimeNext(), "No queda nada por cargar ni por medir");
+		Require(!DecorWarmup.Step(1000.0), "No queda nada por cargar ni por medir");
 		Require((requested, held, primed, missing) == (DecorWarmup.Requested, DecorWarmup.Held.Count, DecorWarmup.Primed, DecorWarmup.Missing),
 			"Pedir de nuevo no repite nada (mismos recuentos)");
 		Require(DecorWarmupRunner.Attach(this) == null, "Con todo hecho no se cuelga otro runner");
@@ -128,6 +129,22 @@ public partial class DecorWarmupTest : Node
 		again.QueueFree();
 		await ToSignal(again, Node.SignalName.TreeExited);
 		GD.Print("Idempotencia: OK");
+	}
+
+	// El calentamiento no usa hilos (la carga en segundo plano chocaba entre sí): carga de uno en uno en el hilo principal, y con presupuesto
+	// de tiempo nulo hace exactamente un elemento por llamada.
+	private void CheckBudget()
+	{
+		GD.Print("\n--- Presupuesto por fotograma ---");
+		DecorWarmup.Reset();
+		DecorWarmup.Request();
+		int total = DecorWarmup.Remaining;
+		Require(total > 20 && DecorWarmup.Held.Count == 0, $"Tras pedir hay {total} elementos en cola y nada cargado todavía");
+		Require(DecorWarmup.Step(0.0) && DecorWarmup.Remaining == total - 1, "Con presupuesto nulo hace exactamente un elemento");
+		Require(DecorWarmup.Step(0.0) && DecorWarmup.Remaining == total - 2 && DecorWarmup.Held.Count == 2, "Y otro más en la siguiente llamada");
+		Require(!DecorWarmup.Step(1000.0) && DecorWarmup.Remaining == 0 && DecorWarmup.Failed == 0, "Con presupuesto de sobra termina la cola sin fallos");
+		Require(DecorWarmup.Held.Count == total, $"Todo queda guardado ({DecorWarmup.Held.Count} de {total})");
+		GD.Print("Presupuesto de tiempo por fotograma: OK");
 	}
 
 	// --- 3 ------------------------------------------------------------------------------------------------------------
