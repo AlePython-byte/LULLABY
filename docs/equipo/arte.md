@@ -98,6 +98,8 @@ Renderizados con canal alfa transparente (RGBA), vista 3/4 frontal e iluminació
 - **Props de Suelo y Sala (x16):**
   - Cuna de barrotes, cuna gigante, marco de puerta, puerta con barrotes, pedestal de tesoro, lámpara de velador, baúl de juguetes, bloques de letras, castillo de bloques, alfombra circular, tambor, xilófono, tren de madera, pelota de colores, libro de cuentos abierto, mecedora gigante, columna de esquina y móvil colgante de cuna.
 
+**Los props de suelo son solo visuales, por diseño.** No tienen colisión (`DecorPiece`, `FloorPropsPlanner`). El simulador y el bot que midieron la dificultad no conocen los obstáculos de decoración: si los props tuvieran colisión, las etiquetas y el modelo dejarían de describir el nivel real, y habría que reetiquetar y reentrenar.
+
 ---
 
 ## 4. Material Promocional y Cinematográfico (`assets/promo/`)
