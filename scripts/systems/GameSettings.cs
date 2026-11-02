@@ -32,7 +32,10 @@ public static class GameSettings
 	/// El registro solo se escribe con ventana: en modo headless (la suite de pruebas) el menú no lo enciende, aunque una prueba
 	/// pulse «Jugar».
 	/// </summary>
-	public static bool CanRecordPlaytest => DisplayServer.GetName() != "headless";
+	public static bool CanRecordPlaytest => !PlaytestNeedsWindow || DisplayServer.GetName() != "headless";
+
+	/// <summary>Verdadero siempre, salvo que una prueba lo apague para simular una partida con ventana.</summary>
+	public static bool PlaytestNeedsWindow { get; set; } = true;
 
 	public const float DefaultMasterVolume = 0.8f;
 	public const float DefaultSfxVolume = 1.0f;
