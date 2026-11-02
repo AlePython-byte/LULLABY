@@ -27,6 +27,12 @@ public partial class PlayerHealth : Node
 	public bool IsLocked => _locked;
 
 	/// <summary>
+	/// Causa del último golpe que hizo daño (Unknown si no hubo ninguno o no dijo quién lo daba). Se fija antes de aplicar el daño, así que
+	/// ya es la correcta cuando se emite la muerte. Solo sirve para mostrar qué mató a Noah; no cambia ningún daño.
+	/// </summary>
+	public DeathCause LastCause { get; private set; } = DeathCause.Unknown;
+
+	/// <summary>
 	/// Noah murió. Si hay alguien escuchando (RunManager con su pantalla de derrota), él decide qué pasa; si no, la escena
 	/// se reinicia como siempre.
 	/// </summary>
@@ -61,14 +67,15 @@ public partial class PlayerHealth : Node
 		_mesh.Visible = _invulnerableTimer <= 0.0f || (int)(_invulnerableTimer * 10.0f) % 2 == 0;
 	}
 
-	/// <summary>Devuelve true si el golpe hizo daño (false si estaba en invulnerabilidad o muerto).</summary>
-	public bool TakeHit(float damage)
+	/// <summary>Devuelve true si el golpe hizo daño (false si estaba en invulnerabilidad o muerto). cause dice quién lo da.</summary>
+	public bool TakeHit(float damage, DeathCause cause = DeathCause.Unknown)
 	{
 		if (_locked || _invulnerableTimer > 0.0f || _health.IsDead)
 		{
 			return false;
 		}
 
+		LastCause = cause;
 		_health.TakeDamage(EffectiveHitDamage(damage, DamageTakenMultiplier));
 		_invulnerableTimer = InvulnerabilityTime;
 		return true;
@@ -93,6 +100,7 @@ public partial class PlayerHealth : Node
 		DamageTakenMultiplier = 1.0f;
 		_invulnerableTimer = 0.0f;
 		_mesh.Visible = true;
+		LastCause = DeathCause.Unknown;
 	}
 
 	private void OnDied()
