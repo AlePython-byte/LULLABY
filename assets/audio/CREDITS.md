@@ -19,3 +19,4 @@ Todos los efectos de sonido y pistas musicales utilizados en el proyecto cuentan
 | objeto_recoger.ogg  | Recolección de objeto o recurso            | LSpec             | https://freesound.org/people/LSpec/sounds/                    | CC0      |
 | curar.ogg           | Recuperación de salud o vitalidad          | Raclure           | https://freesound.org/people/Raclure/sounds/483608/           | CC0      |
 | menu_click.ogg      | Clic de navegación o selección en menús    | NenadSimic        | https://freesound.org/people/NenadSimic/                      | CC0      |
+| menu_confirmar.ogg  | Confirmación o aceptación en menús         | EilasSFX          | https://freesound.org/people/EilasSFX/                        | CC0      |
