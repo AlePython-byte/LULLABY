@@ -19,6 +19,10 @@ using Godot;
 ///   6. Maquetación en 1152×648 con las imágenes reales: la hoja y su texto caben; las notas van por delante de la hoja, tienen la
 ///      proporción de su imagen, su papel visible pisa el borde de la hoja sin tapar el texto y el texto de cada nota (y su tecla) queda
 ///      dentro del papel visible; lo mismo en la pausa. Sin las notas o sin la hoja cae al diseño anterior sin error.
+///   7. Hoja de diario con Patrick Hand: para cada frase de cada causa (también las largas del explosivo y del excavador) ninguna línea
+///      se corta, «Morí a causa de:» cabe en una línea, el orden es título, frase, causa, flecha y dibujo, y el dibujo (a su proporción,
+///      limitado por alto y ancho a la vez) cabe en la hoja sin tocar las notas; mapeo causa→imagen y respaldo al desconocido; la pausa usa
+///      la misma letra.
 /// Antes de salir recolecta los envoltorios de C# (BossTestHarness.CollectWrappers). Sale con código 0 si todo pasa.
 /// </summary>
 public partial class DeathScreenTest : Node
@@ -41,7 +45,9 @@ public partial class DeathScreenTest : Node
 			await CheckEndToEnd();
 			await CheckKeys();
 			GetTree().Root.Size = new Vector2I(1152, 648);
+			CheckArt();
 			await CheckDefeatLayout();
+			await CheckDiaryLayout();
 			await CheckPauseLayout();
 			GD.Print($"DeathScreenTest: {_checks} comprobaciones. RESULTADO: OK");
 			await BossTestHarness.CollectWrappers(GetTree());
@@ -102,6 +108,7 @@ public partial class DeathScreenTest : Node
 			"Sin causa se usan las tres frases de siempre");
 		Require(DeathTexts.PhraseFor(DeathCause.Digger, int.MinValue).Length > 0, "Una semilla negativa también elige frase");
 		Require(DeathTexts.Title == "Fin de la nana" && DeathTexts.KilledBy == "Te venció:", "Título y etiqueta aprobados");
+		Require(DeathTexts.DiaryGreeting == "Querido diario," && DeathTexts.DiaryCause == "Morí a causa de:", "Saludo y línea de la causa del diario");
 		GD.Print("Textos de la derrota: OK");
 	}
 
@@ -180,7 +187,9 @@ public partial class DeathScreenTest : Node
 			await BossTestHarness.Frames(tree, 2);
 			Require(defeat.Cause == cause, $"{cause}: la pantalla sabe qué mató a Noah ({defeat.Cause})");
 			Require(DeathTexts.PhrasesOf(cause).Contains(defeat.Message) && defeat.Message == DeathTexts.PhraseFor(cause, level.Run.Seed), $"{cause}: su frase («{defeat.Message}»)");
-			Require(defeat.CauseText == $"Te venció: {DeathTexts.NameOf(cause)}", $"{cause}: «{defeat.CauseText}»");
+			Require(defeat.CauseText == DeathTexts.DiaryCause, $"{cause}: «{defeat.CauseText}»");
+			Require(defeat.DrawingPath == DeathArt.PathOf(cause) && defeat.Drawing.Visible && defeat.Drawing.Texture != null && defeat.Arrow.Visible,
+				$"{cause}: se ve la flecha y su dibujo ({defeat.DrawingPath})");
 			Require(tree.Paused, $"{cause}: el juego queda congelado");
 			Require(AudioManager.Instance.Requests.Any(r => r.Id == SoundCatalog.Defeat), $"{cause}: se pide el sonido «derrota»");
 			Require(AudioManager.Instance.ProcessMode == Node.ProcessModeEnum.Always && AudioManager.Instance.CanProcess()
@@ -327,11 +336,123 @@ public partial class DeathScreenTest : Node
 		Require(Mathf.IsEqualApprox(screen.GetNode<Control>("Root/Center").AnchorRight, 1.0f), "El contenido sigue centrado en toda la ventana");
 		Require(screen.RetryButton.IsVisibleInTree() && screen.MenuButton.IsVisibleInTree() && window.Encloses(screen.GetNode<Control>("Root/Center/Box").GetGlobalRect()), "Los botones se ven y caben");
 		Require(screen.CauseText == $"Te venció: {DeathTexts.NameOf(DeathCause.Flyer)}", "También muestra qué mató a Noah");
+		Require(screen.Drawing == null && screen.DrawingPath == null && screen.GetNode<Control>("Root/Center/Box/Title").GetThemeFont("font") != HandFont.Load(),
+			"Sin hoja no hay dibujo ni letra manuscrita");
 		screen.QueueFree();
 		await tree.ToSignal(screen, Node.SignalName.TreeExited);
 		DefeatScreen.SheetPath = PaperSheet.Path;
 		DefeatScreen.RetryNotePath = DefeatScreen.DefaultRetryNotePath;
 		GD.Print("Derrota con hoja y notas, sin notas y sin hoja: OK");
+	}
+
+	// Qué dibujo corresponde a cada causa, su respaldo y el ajuste a la caja (sin pantalla).
+	private void CheckArt()
+	{
+		GD.Print("\n--- Dibujos por causa ---");
+		Dictionary<DeathCause, string> expected = new()
+		{
+			[DeathCause.Chaser] = "basico", [DeathCause.Shooter] = "tirador", [DeathCause.Projectile] = "proyectil", [DeathCause.Exploder] = "explosivo",
+			[DeathCause.Flyer] = "volador", [DeathCause.Runner] = "huidor", [DeathCause.Digger] = "excavador", [DeathCause.TheMother] = "mother",
+			[DeathCause.Unknown] = "desconocido",
+		};
+		Require(expected.Keys.OrderBy(c => c).SequenceEqual(Enum.GetValues<DeathCause>().OrderBy(c => c)), "Cada causa tiene su dibujo previsto");
+		foreach ((DeathCause cause, string name) in expected)
+		{
+			string path = DeathArt.PathOf(cause);
+			Require(path == $"res://assets/ui/muerte/asesino_{name}.png" && ResourceLoader.Exists(path) && GD.Load<Texture2D>(path) != null, $"{cause}: {path}");
+		}
+
+		Require(ResourceLoader.Exists(DeathArt.ArrowPath) && DeathArt.ArrowPath.EndsWith("flecha_out.png"), "La flecha existe con su nombre real");
+		Require(DeathArt.PathOf(DeathCause.Digger, p => p != "res://assets/ui/muerte/asesino_excavador.png") == DeathArt.UnknownPath, "Sin el archivo de una causa se usa el del desconocido");
+		Require(DeathArt.PathOf((DeathCause)99) == DeathArt.UnknownPath, "Una causa que no existe usa el del desconocido");
+		Require(DeathArt.PathOf(DeathCause.Chaser, _ => false) == null, "Sin ningún dibujo no hay ruta (y la pantalla no lo muestra)");
+
+		// El proyectil es muy alto y estrecho, The Mother es ancha: los dos caben en la caja por alto y por ancho a la vez.
+		foreach ((DeathCause cause, Vector2 size) in expected.Keys.Select(c => (c, GD.Load<Texture2D>(DeathArt.PathOf(c)).GetSize())))
+		{
+			Vector2 fit = DeathArt.Fit(size, DeathArt.MaxSize);
+			Require(fit.X <= DeathArt.MaxSize.X + 0.01f && fit.Y <= DeathArt.MaxSize.Y + 0.01f, $"{cause}: cabe en la caja ({fit})");
+			Require(Mathf.Abs(fit.X / fit.Y - size.X / size.Y) < 0.001f, $"{cause}: conserva su proporción");
+			Require(Mathf.IsEqualApprox(fit.X, DeathArt.MaxSize.X) || Mathf.IsEqualApprox(fit.Y, DeathArt.MaxSize.Y), $"{cause}: aprovecha la caja ({fit})");
+		}
+
+		Require(Mathf.IsEqualApprox(DeathArt.Fit(new Vector2(512, 841), DeathArt.MaxSize).Y, DeathArt.MaxSize.Y), "El proyectil lo limita el alto");
+		Require(DeathArt.Fit(new Vector2(512, 412), DeathArt.MaxSize).X <= DeathArt.MaxSize.X, "The Mother no pasa del ancho");
+		Require(Mathf.IsEqualApprox(DeathArt.Fit(new Vector2(1000, 100), DeathArt.MaxSize).X, DeathArt.MaxSize.X), "Una imagen muy ancha la limita el ancho");
+		Require(DeathArt.Fit(new Vector2(100, 50), DeathArt.MaxSize) == new Vector2(100, 50), "Una imagen pequeña no se amplía");
+		GD.Print("Dibujos por causa, respaldo y ajuste: OK");
+	}
+
+	// La hoja de diario con cada frase de cada causa (en particular las largas del explosivo y del excavador): letra manuscrita, ninguna
+	// línea se corta ni se sale de la hoja, el orden es el del diario y el dibujo cabe en la hoja sin tocar las notas.
+	private async Task CheckDiaryLayout()
+	{
+		GD.Print("\n--- Hoja de diario con Patrick Hand (1152×648) ---");
+		SceneTree tree = GetTree();
+		Rect2 window = new(Vector2.Zero, DesignSize);
+		Rect2 inner = PaperSheet.Inner;
+		inner.Position += DesignSize / 2.0f;
+		Font hand = HandFont.Load();
+		Require(hand != null, "Patrick Hand carga");
+		foreach (char letter in "áéíóúñÁÉÍÓÚÑ¿¡…:,.")
+		{
+			Require(hand.HasChar(letter), $"Patrick Hand dibuja «{letter}»");
+		}
+
+		int screens = 0;
+		foreach (DeathCause cause in Enum.GetValues<DeathCause>())
+		{
+			foreach (string phrase in DeathTexts.PhrasesOf(cause))
+			{
+				DefeatScreen screen = await OpenDefeat();
+				screen.Present(phrase, cause);
+				await BossTestHarness.Frames(tree, 3);
+				string what = $"{cause} «{phrase}»";
+				Label title = screen.GetNode<Label>("Root/Center/Box/Title");
+				Label message = screen.GetNode<Label>("Root/Center/Box/Message");
+				Label causeLabel = screen.GetNode<Label>("Root/Center/Box/Cause");
+				Require(title.Text == "Querido diario," && message.Text == phrase && causeLabel.Text == "Morí a causa de:", $"{what}: textos del diario");
+				foreach (Label label in new[] { title, message, causeLabel })
+				{
+					Require(label.GetThemeFont("font") == hand, $"{what}: «{label.Name}» con Patrick Hand");
+					Require(label.GetLineCount() == label.GetVisibleLineCount() && inner.Grow(1.0f).Encloses(label.GetGlobalRect()), $"{what}: «{label.Name}» no se corta ni sale de la hoja");
+				}
+
+				int size = causeLabel.GetThemeFontSize("font_size");
+				Require(causeLabel.GetLineCount() == 1 && hand.GetStringSize(causeLabel.Text, HorizontalAlignment.Left, -1, size).X <= inner.Size.X, $"{what}: «Morí a causa de:» en una línea ({hand.GetStringSize(causeLabel.Text, HorizontalAlignment.Left, -1, size).X:0} de {inner.Size.X:0} px)");
+				Require(title.GetLineCount() == 1, $"{what}: «Querido diario,» en una línea");
+				int messageSize = message.GetThemeFontSize("font_size");
+				float longestWord = phrase.Split(' ').Max(word => hand.GetStringSize(word, HorizontalAlignment.Left, -1, messageSize).X);
+				Require(longestWord <= message.Size.X && message.GetLineCount() <= 4, $"{what}: la frase no parte palabras y ocupa {message.GetLineCount()} líneas");
+
+				// Orden del diario y dibujo dentro de la hoja, sin tocar las notas.
+				Control arrow = screen.Arrow, drawing = screen.Drawing;
+				Require(title.GetGlobalRect().End.Y <= message.GetGlobalRect().Position.Y + 0.5f && message.GetGlobalRect().End.Y <= causeLabel.GetGlobalRect().Position.Y + 0.5f
+					&& causeLabel.GetGlobalRect().End.Y <= arrow.GetGlobalRect().Position.Y + 0.5f && arrow.GetGlobalRect().End.Y <= drawing.GetGlobalRect().Position.Y + 0.5f,
+					$"{what}: orden título, frase, causa, flecha y dibujo");
+				Rect2 rect = drawing.GetGlobalRect();
+				Texture2D texture = GD.Load<Texture2D>(DeathArt.PathOf(cause));
+				Require(screen.DrawingPath == DeathArt.PathOf(cause) && drawing.Visible && arrow.Visible, $"{what}: flecha y dibujo de {cause}");
+				Require(rect.Size.X <= DeathArt.MaxSize.X + 1.5f && rect.Size.Y <= DeathArt.MaxSize.Y + 1.5f, $"{what}: el dibujo respeta la caja máxima ({rect.Size})");
+				Require(Mathf.Abs(drawing.CustomMinimumSize.X / drawing.CustomMinimumSize.Y - texture.GetWidth() / (float)texture.GetHeight()) < 0.005f, $"{what}: el dibujo conserva su proporción ({drawing.CustomMinimumSize})");
+				Require(inner.Grow(1.0f).Encloses(rect) && inner.Grow(1.0f).Encloses(arrow.GetGlobalRect()) && window.Encloses(rect), $"{what}: flecha y dibujo caben en la hoja ({rect} en {inner})");
+				Rect2 box = screen.GetNode<Control>("Root/Center/Box").GetGlobalRect();
+				Require(inner.Grow(1.0f).Encloses(box), $"{what}: todo el diario cabe en la hoja ({box} en {inner})");
+				foreach ((Button button, string texturePath) in new[] { (screen.RetryButton, DefeatScreen.DefaultRetryNotePath), (screen.MenuButton, DefeatScreen.DefaultMenuNotePath) })
+				{
+					Rect2 note = new(DesignSize / 2.0f + new Vector2(button.OffsetLeft, button.OffsetTop), button.Size);
+					Rect2 visible = DefeatScreen.VisiblePart(GD.Load<Texture2D>(texturePath));
+					Rect2 paper = new(note.Position + visible.Position, visible.Size);
+					Require(!paper.Intersects(rect) && !paper.Intersects(arrow.GetGlobalRect()), $"{what}: el dibujo no toca la nota «{button.Text}»");
+				}
+
+				screen.QueueFree();
+				await tree.ToSignal(screen, Node.SignalName.TreeExited);
+				screens++;
+			}
+		}
+
+		GD.Print($"Hoja de diario: {screens} pantallas (todas las frases de todas las causas): OK");
 	}
 
 	private async Task CheckPauseLayout()
@@ -356,6 +477,7 @@ public partial class DeathScreenTest : Node
 			Require(control.IsVisibleInTree() && inner.Grow(1.0f).Encloses(control.GetGlobalRect()), $"«{control.Name}» cabe en la hoja ({control.GetGlobalRect()})");
 		}
 
+		Require(pause.GetNode<Label>("Root/Center/Box/Title").GetThemeFont("font") == HandFont.Load() && pause.ResumeButton.GetThemeFont("font") == HandFont.Load(), "La pausa usa la letra manuscrita");
 		Require(pause.ResumeButton.Text == "Reanudar" && pause.RestartButton.Text == "Reiniciar partida" && pause.MenuButton.Text == "Salir al menú", "Reanudar, Reiniciar partida y Salir al menú");
 		pause.Resume();
 		pause.QueueFree();
