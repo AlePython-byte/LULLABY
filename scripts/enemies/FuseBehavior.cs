@@ -67,7 +67,7 @@ public partial class FuseBehavior : EnemyBehavior
 		bool hitPlayer = false;
 		if (distance <= ExplosionRadius)
 		{
-			hitPlayer = player.GetNodeOrNull<PlayerHealth>("PlayerHealth")?.TakeHit(ExplosionDamage) ?? false;
+			hitPlayer = player.GetNodeOrNull<PlayerHealth>("PlayerHealth")?.TakeHit(ExplosionDamage, DeathCause.Exploder) ?? false;
 		}
 
 		if (ExplosionEffect != null)

@@ -32,6 +32,9 @@ public partial class EnemyProjectile : Area3D
 		_direction = direction.Normalized();
 	}
 
+	/// <summary>Qué causa de muerte lleva este proyectil (la de quien lo disparó; por defecto, un proyectil).</summary>
+	public DeathCause Cause { get; set; } = DeathCause.Projectile;
+
 	/// <summary>
 	/// Dispara un proyectil de `scene` desde `enemy` en `direction` (plano), naciendo a `spawnDistance` metros. Se cuelga
 	/// del nodo de proyectiles de la sala. speedOverride > 0 sustituye la velocidad de la escena (proyectiles más lentos).
@@ -45,6 +48,7 @@ public partial class EnemyProjectile : Area3D
 			projectile.Speed = speedOverride;
 		}
 
+		projectile.Cause = DeathCauses.ForProjectile(enemy);
 		enemy.ProjectileParent().AddChild(projectile);
 		projectile.GlobalPosition = enemy.GlobalPosition + direction * spawnDistance;
 		projectile.Launch(direction);
@@ -73,7 +77,7 @@ public partial class EnemyProjectile : Area3D
 		bool hitPlayer = body.IsInGroup(GameNames.PlayerGroup);
 		if (hitPlayer)
 		{
-			body.GetNodeOrNull<PlayerHealth>("PlayerHealth")?.TakeHit(Damage);
+			body.GetNodeOrNull<PlayerHealth>("PlayerHealth")?.TakeHit(Damage, Cause);
 		}
 
 		EmitSignal(SignalName.Impact, hitPlayer);

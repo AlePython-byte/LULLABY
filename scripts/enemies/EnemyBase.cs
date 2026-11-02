@@ -174,7 +174,7 @@ public partial class EnemyBase : CharacterBody3D
 			return;
 		}
 
-		bool damaged = playerHealth.TakeHit(ContactDamage);
+		bool damaged = playerHealth.TakeHit(ContactDamage, DeathCauses.FromEnemy(this));
 		_hitTimer = HitCooldown;
 
 		if (damaged && RecoilDistance > 0.0f)
