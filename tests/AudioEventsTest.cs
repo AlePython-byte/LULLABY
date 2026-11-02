@@ -14,7 +14,7 @@ using Godot;
 ///   2. Cada evento real pide su sonido, plano o posicional, con su bus: disparo e impacto de lágrima, daño y muerte de Noah, golpe y
 ///      muerte de enemigos, mecha y explosión del explosivo (que no suena además como muerte), disparo del tirador y del excavador y
 ///      el bucle del aleteo mientras haya voladores vivos (uno solo para varios, y se detiene al morir todos).
-///   3. Los faltantes no rompen: objeto recogido, clic de interfaz, música e ids desconocidos solo quedan registrados como Missing o
+///   3. Los faltantes no rompen: el cambio de fase del jefe (sin archivo), la música e ids desconocidos solo quedan registrados como Missing o
 ///      Unknown. The Mother usa el golpe de los enemigos con el tono -20 % mientras no exista el suyo (jefe_muere ya existe y suena por su id).
 ///   4. Tono ±5 % en los repetidos con azar propio (el global no cambia); límites de voces, intervalo mínimo y prioridad.
 ///   5. StopAll corta todo, también al reiniciar o volver al menú desde RunManager.
@@ -77,10 +77,10 @@ public partial class AudioEventsTest : Node
 		int master = AudioServer.GetBusIndex("Master"), sfx = AudioServer.GetBusIndex("SFX"), music = AudioServer.GetBusIndex("Musica");
 		Check("existen los buses Master, SFX y Musica", master >= 0 && sfx >= 0 && music >= 0, $"{master} {sfx} {music}");
 		Check("SFX y Musica envían a Master", sfx >= 0 && music >= 0 && AudioServer.GetBusSend(sfx) == "Master" && AudioServer.GetBusSend(music) == "Master", "envío");
-		string[] present = { "lagrima_disparo", "lagrima_impacto", "noah_dano", "noah_muere", "enemigo_golpe", "enemigo_muere", "mecha_explosivo", "explosion", "tirador_disparo", "volador_aleteo", "jefe_muere" };
-		Check("los 11 archivos de efectos existen y están en el catálogo", present.All(id => SoundCatalog.Get(id) != null && ResourceLoader.Exists(SoundCatalog.Get(id).Path)), string.Join(",", present.Where(id => SoundCatalog.Get(id) == null || !ResourceLoader.Exists(SoundCatalog.Get(id).Path))));
-		string[] missing = { SoundCatalog.ItemPickedUp, SoundCatalog.UiClick, SoundCatalog.BossHit };
-		Check("los sonidos de objetos, interfaz y golpe del jefe están en el catálogo pero aún sin archivo", missing.All(id => SoundCatalog.Get(id) != null && !ResourceLoader.Exists(SoundCatalog.Get(id).Path)), "alguno existe ya (¡bien!) o falta del catálogo");
+		string[] present = { "lagrima_disparo", "lagrima_impacto", "noah_dano", "noah_muere", "enemigo_golpe", "enemigo_muere", "mecha_explosivo", "explosion", "tirador_disparo", "volador_aleteo", "jefe_muere", "puerta_abre", "puerta_cierra", "objeto_recoger", "curar", "menu_click", "menu_confirmar", "jefe_aparece", "jefe_ataque_1", "jefe_ataque_2", "victoria", "derrota" };
+		Check("los 22 archivos de efectos existen y están en el catálogo", present.All(id => SoundCatalog.Get(id) != null && ResourceLoader.Exists(SoundCatalog.Get(id).Path)), string.Join(",", present.Where(id => SoundCatalog.Get(id) == null || !ResourceLoader.Exists(SoundCatalog.Get(id).Path))));
+		string[] missing = { SoundCatalog.BossHit, SoundCatalog.BossPhase };
+		Check("el golpe y el cambio de fase del jefe están en el catálogo pero aún sin archivo", missing.All(id => SoundCatalog.Get(id) != null && !ResourceLoader.Exists(SoundCatalog.Get(id).Path)), "alguno existe ya (¡bien!) o falta del catálogo");
 		Check("el aleteo se importa sin bucle (se activa por código)", ResourceLoader.Load<AudioStreamOggVorbis>(SoundCatalog.Get("volador_aleteo").Path).Loop == false, "la importación activó el bucle");
 		Check("los enemigos son posicionales y Noah plano",
 			SoundCatalog.Get("enemigo_golpe").Positional && SoundCatalog.Get("explosion").Positional && SoundCatalog.Get("tirador_disparo").Positional
@@ -208,19 +208,22 @@ public partial class AudioEventsTest : Node
 		pickup.Definition = catalog.Items.First(i => i.Effect == ItemEffect.Damage);
 		AddChild(pickup);
 		bool collected = pickup.TryCollect(player);
-		Check("recoger un objeto pide objeto_recogido y, sin archivo, queda como faltante sin romper nada", collected && Single("objeto_recogido").Result == AudioManager.Outcome.Missing, "objeto");
+		Check("recoger un objeto pide objeto_recoger y suena por su propio archivo", collected && Single("objeto_recoger").Result != AudioManager.Outcome.Missing, "objeto");
 		Button button = new();
 		AddChild(button);
 		AudioManager.HookButtons(this);
 		button.EmitSignal(BaseButton.SignalName.Pressed);
-		Check("pulsar un botón pide ui_click y, sin archivo, queda como faltante", Single("ui_click").Result == AudioManager.Outcome.Missing, "clic");
+		Check("pulsar un botón pide menu_click y suena por su propio archivo", Single("menu_click").Result != AudioManager.Outcome.Missing, "clic");
+		int voicesBefore = _audio.ActiveVoiceCount; // el objeto y el clic ya suenan (tienen archivo): solo cuenta lo que añadan los faltantes
+		AudioManager.Play(SoundCatalog.BossPhase);
+		Check("un sonido sin archivo (jefe_fase) queda como faltante sin romper nada", Single("jefe_fase").Result == AudioManager.Outcome.Missing, "faltante");
 		AudioManager.PlayMusic("menu");
 		Check("la música sin archivo no suena ni rompe (gancho listo)", _audio.CurrentMusic == null && Single("musica:menu").Result == AudioManager.Outcome.Missing, "música");
 		AudioManager.StopMusic();
 		AudioManager.Play("no_existe");
 		AudioManager.PlayAt("tampoco", Vector3.One);
 		Check("un id desconocido queda registrado como desconocido", Single("no_existe").Result == AudioManager.Outcome.Unknown && Single("tampoco").Result == AudioManager.Outcome.Unknown, "desconocido");
-		Check("ningún faltante deja voces sonando", _audio.ActiveVoiceCount == 0, $"{_audio.ActiveVoiceCount} voces");
+		Check("ningún faltante ni id desconocido deja voces sonando", _audio.ActiveVoiceCount == voicesBefore, $"{_audio.ActiveVoiceCount} voces frente a {voicesBefore}");
 		button.Free();
 		pickup.Free();
 		player.Free();

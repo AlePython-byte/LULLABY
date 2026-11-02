@@ -5,7 +5,7 @@ using System.Collections.Generic;
 /// si es plano o posicional (3D), su volumen, la variación de tono, cuántas voces simultáneas admite, el intervalo mínimo entre
 /// repeticiones y si es prioritario (puede robar la voz más antigua cuando no queda ninguna libre).
 ///
-/// Los archivos viven en assets/audio/sfx/{File}.ogg. Si uno no existe (los de objetos, interfaz y jefe se añadirán después) no
+/// Los archivos viven en assets/audio/sfx/{File}.ogg. Si uno no existe (hoy faltan jefe_golpe y jefe_fase) no
 /// pasa nada: AudioManager no reproduce nada y no lanza errores. Un sonido con Fallback usa el del id indicado, con su tono
 /// multiplicado por FallbackPitch, mientras no exista su propio archivo.
 /// </summary>
@@ -31,11 +31,23 @@ public static class SoundCatalog
 	public const string FlyerWings = "volador_aleteo";
 
 	// Aún sin archivo: se usarán en cuanto existan.
-	public const string ItemPickedUp = "objeto_recogido";
-	public const string UiClick = "ui_click";
+	public const string ItemPickedUp = "objeto_recoger";
+	public const string Heal = "curar";
+	public const string UiClick = "menu_click";
+	public const string MenuConfirm = "menu_confirmar";
+
+	// Puertas de las salas (al cerrarse al empezar el combate y al abrirse al despejarla).
+	public const string DoorOpens = "puerta_abre";
+	public const string DoorCloses = "puerta_cierra";
 	public const string BossHit = "jefe_golpe";
 	public const string BossDies = "jefe_muere";
 	public const string BossPhase = "jefe_fase";
+	public const string BossAppears = "jefe_aparece";
+	public const string BossAttackRing = "jefe_ataque_1";
+	public const string BossAttackSpiral = "jefe_ataque_2";
+
+	// Fin de la partida: la victoria suena al mostrar su pantalla y la derrota al mostrar la suya.
+	public const string Victory = "victoria";
 
 	// Pantalla de derrota (al mostrarse, no al morir: eso es noah_muere).
 	public const string Defeat = "derrota";
@@ -64,7 +76,16 @@ public static class SoundCatalog
 		[ShooterShot] = new Sound(ShooterShot, Positional: true, MaxVoices: 3, MinInterval: 0.05f),
 		[FlyerWings] = new Sound(FlyerWings, Positional: true, VolumeDb: -6.0f, MaxVoices: 1),
 		[ItemPickedUp] = new Sound(ItemPickedUp, MaxVoices: 2),
+		[Heal] = new Sound(Heal, MaxVoices: 1),
 		[UiClick] = new Sound(UiClick, MaxVoices: 2, MinInterval: 0.05f),
+		[MenuConfirm] = new Sound(MenuConfirm, MaxVoices: 1, Priority: true),
+		// Las puertas de una sala se mueven a la vez: una sola voz por evento, no una por puerta.
+		[DoorOpens] = new Sound(DoorOpens, MaxVoices: 1),
+		[DoorCloses] = new Sound(DoorCloses, MaxVoices: 1),
+		[BossAppears] = new Sound(BossAppears, Positional: true, MaxVoices: 1, Priority: true),
+		[BossAttackRing] = new Sound(BossAttackRing, Positional: true, MaxVoices: 1),
+		[BossAttackSpiral] = new Sound(BossAttackSpiral, Positional: true, MaxVoices: 1),
+		[Victory] = new Sound(Victory, MaxVoices: 1, Priority: true),
 		// Hasta que existan jefe_golpe y jefe_muere, The Mother usa los de los enemigos con el tono un 20 % más grave.
 		[BossHit] = new Sound(BossHit, Positional: true, VolumeDb: -3.0f, PitchVariation: RepeatedPitchVariation, MaxVoices: 4, MinInterval: 0.05f, Fallback: EnemyHit, FallbackPitch: 0.8f),
 		[BossDies] = new Sound(BossDies, Positional: true, MaxVoices: 2, Priority: true, Fallback: EnemyDies, FallbackPitch: 0.8f),
