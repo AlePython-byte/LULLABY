@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cexj5yvp3scej"
-path="res://.godot/imported/asesino_explosivo.png-706f8b818aa31357fd4163b43cf448ec.ctex"
+path="res://.godot/imported/asesino_basico.png-211236001d825ff886a178c5d0640ffa.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/muerte/asesino_explosivo.png"
-dest_files=["res://.godot/imported/asesino_explosivo.png-706f8b818aa31357fd4163b43cf448ec.ctex"]
+source_file="res://assets/ui/muerte/asesino_basico.png"
+dest_files=["res://.godot/imported/asesino_basico.png-211236001d825ff886a178c5d0640ffa.ctex"]
 
 [params]
 
