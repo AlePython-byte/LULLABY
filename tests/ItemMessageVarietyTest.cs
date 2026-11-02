@@ -163,6 +163,7 @@ public partial class ItemMessageVarietyTest : Node
 		{
 			MainMenu menu = await OpenMenu();
 			menu.ExtendedVarietyToggle.ButtonPressed = extended;
+			await DrainFinalizers();
 			menu.StartGame();
 			Node level = await BossTestHarness.WaitForScene(tree, menu, GameSettings.LevelScene);
 			string hud = level.GetNode<Label>("SeedHud/Label").Text;
@@ -186,6 +187,7 @@ public partial class ItemMessageVarietyTest : Node
 				Rect2 window = hudLabel.GetViewportRect();
 				Require(labelRect.Position.X >= -0.5f && labelRect.End.X <= window.End.X + 0.5f && labelRect.Position.Y >= -0.5f && labelRect.End.Y <= window.End.Y + 0.5f,
 					$"La etiqueta del HUD queda dentro de la ventana ({labelRect} en {window})");
+				await DrainFinalizers();
 				level.GetNode<RunManager>("RunManager").StartNewRun();
 				Node next = await BossTestHarness.WaitForScene(tree, level, GameSettings.LevelScene);
 				Require(next.GetNode<Label>("SeedHud/Label").Text.Contains("generador v3"), "al reintentar sigue en v3");
@@ -204,6 +206,7 @@ public partial class ItemMessageVarietyTest : Node
 			RunManager.SetNextGeneratorVersion(1);
 			MainMenu menu = await OpenMenu();
 			menu.ExtendedVarietyToggle.SetPressedNoSignal(true);
+			await DrainFinalizers();
 			menu.StartGame();
 			// StartGame descarta lo pendiente: se fija justo después, como hace la tecla de depuración al recargar la escena.
 			RunManager.SetNextGeneratorVersion(1);
@@ -212,6 +215,14 @@ public partial class ItemMessageVarietyTest : Node
 			await BossTestHarness.Restore(tree, testScene, level);
 		}
 	}
+
+	/// <summary>
+	/// Vacía los finalizadores pendientes justo antes de cada cambio de escena. Los envoltorios de C# de recursos que la prueba ya soltó
+	/// (catálogos, escenas, modelos) se finalizan en el hilo del finalizador cuando pasa el recolector; si eso coincide con la carga de
+	/// la escena nueva, el hilo principal y el finalizador tocan a la vez el mismo recurso y salen «Handle is not initialized» o una
+	/// caída (Illegal instruction). Con la basura ya recogida, el cambio de escena casi no deja nada por finalizar durante la carga.
+	/// </summary>
+	private Task DrainFinalizers() => BossTestHarness.CollectWrappers(GetTree());
 
 	private async Task<MainMenu> OpenMenu()
 	{
