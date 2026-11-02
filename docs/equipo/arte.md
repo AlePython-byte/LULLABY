@@ -64,12 +64,12 @@ El paquete completo entregado al repositorio consta de **30 modelos 3D**, **10 �
 ### 3.1. Personajes y Criaturas (`assets/models/`)
 1. **`noah.glb`:** Protagonista del juego. Proporciones de infante, chupete celeste, pañal y ojos reflectantes.
 2. **`the_mother.glb`:** Jefa final. Silueta victoriana, manos afiladas en forma de tijera de costura y falda monumental.
-3. **`basic_enemy.glb`:** Sonajero viviente con manivela mecánica.
-4. **`exploder_enemy.glb`:** Dado de goma explosivo con patas cilíndricas.
-5. **`shooter_enemy.glb`:** Torre de aros apilables que dispara proyectiles desde la boquilla superior.
-6. **`flyer_enemy.glb`:** Estrella móvil de cuna con alas giratorias.
-7. **`runner_enemy.glb`:** Conejo de peluche estilizado con orejas caídas y cola de pompón.
-8. **`digger_enemy.glb`:** Topo excavador mecánico con pala y manivela.
+3. **`basic_enemy.glb`:** Cubo rosa con patas cilíndricas blancas y cara de placa clara.
+4. **`exploder_enemy.glb`:** Esfera naranja con antena de punta roja y pies rojos.
+5. **`shooter_enemy.glb`:** Torre de aros morada con boquilla de anillo amarillo, desde la que dispara proyectiles.
+6. **`flyer_enemy.glb`:** Estrella turquesa de cinco puntas con tres alas tubulares a cada lado.
+7. **`runner_enemy.glb`:** Peluche amarillo con orejas, una de ellas extendida hacia un lado.
+8. **`digger_enemy.glb`:** Topo amarillo de hocico rosado y garras blancas, que asoma de un montón de tierra marrón.
 9. **`enemy_projectile.glb` & `tear.glb`:** Proyectiles estilizados para ataques y lágrimas del protagonista.
 
 ### 3.2. Objetos de Poder / Items (`assets/models/items/`)
