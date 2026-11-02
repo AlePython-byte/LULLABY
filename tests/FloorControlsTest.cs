@@ -99,7 +99,7 @@ public partial class FloorControlsTest : Node
 		MeshInstance3D decal = Decal(room);
 		Check("el cartel existe (la textura de David está en assets/ui/)", decal != null, "sin cartel");
 		PlaneMesh mesh = decal.Mesh as PlaneMesh;
-		Check("es un quad plano (PlaneMesh) de 7,2 x 2,7 m", mesh != null && mesh.Size.IsEqualApprox(new Vector2(7.2f, 2.7f)), "malla");
+		Check("es un quad plano (PlaneMesh) de 10 x 3,75 m", mesh != null && mesh.Size.IsEqualApprox(new Vector2(10.0f, 3.75f)), "malla");
 
 		Texture2D texture = ResourceLoader.Load<Texture2D>(FloorControlsDecal.TexturePath);
 		Check("tiene la misma proporción que la imagen (8:3)", Mathf.Abs(mesh.Size.X / mesh.Size.Y - texture.GetWidth() / (float)texture.GetHeight()) < 0.01f, $"{texture.GetSize()}");
@@ -151,14 +151,16 @@ public partial class FloorControlsTest : Node
 			doors &= !decal.Intersects(zone);
 		}
 
+		// Con 10 m de ancho el cartel entra un poco en el cuadrado de ±1,5 m de las llegadas este y oeste: es una imagen plana a ras de
+		// suelo y no estorba, pero el punto donde aparece Noah (con su cuerpo de ±0,4 m) tiene que quedar libre.
 		foreach (Vector2 arrival in RoomRules.ArrivalPoints(size))
 		{
-			arrivals &= !decal.Intersects(new Rect2(arrival - new Vector2(1.5f, 1.5f), new Vector2(3.0f, 3.0f)));
+			arrivals &= !decal.Intersects(new Rect2(arrival - new Vector2(0.4f, 0.4f), new Vector2(0.8f, 0.8f)));
 		}
 
 		Check("no tapa el hueco de ninguna puerta", doors, "solapa una puerta");
-		Check("no tapa ninguna zona de llegada del jugador", arrivals, "solapa una llegada");
-		Check("la reserva del cartel (con margen) tampoco pisa puertas ni llegadas", !FloorControlsDecal.Reserved.Intersects(new Rect2(-2.3f, -hz, 4.6f, 2.0f)) && RoomRules.ArrivalPoints(size).All(a => !FloorControlsDecal.Reserved.Intersects(new Rect2(a - new Vector2(1.5f, 1.5f), new Vector2(3, 3)))), "reserva");
+		Check("no tapa ningún punto de llegada del jugador", arrivals, "solapa una llegada");
+		Check("la reserva del cartel (con margen) tampoco pisa puertas ni los puntos de llegada", !FloorControlsDecal.Reserved.Intersects(new Rect2(-2.3f, -hz, 4.6f, 2.0f)) && RoomRules.ArrivalPoints(size).All(a => !FloorControlsDecal.Reserved.HasPoint(a)), "reserva");
 	}
 
 	// --- 4 ------------------------------------------------------------------------------------------------------------
