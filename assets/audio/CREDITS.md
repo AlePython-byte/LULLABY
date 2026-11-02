@@ -17,3 +17,4 @@ Todos los efectos de sonido y pistas musicales utilizados en el proyecto cuentan
 | puerta_abre.ogg     | Apertura de puerta                         | theshuggie        | https://freesound.org/people/theshuggie/sounds/371008/        | CC0      |
 | puerta_cierra.ogg   | Cierre de puerta                           | theshuggie        | https://freesound.org/people/theshuggie/sounds/371008/        | CC0      |
 | objeto_recoger.ogg  | Recolección de objeto o recurso            | LSpec             | https://freesound.org/people/LSpec/sounds/                    | CC0      |
+| curar.ogg           | Recuperación de salud o vitalidad          | Raclure           | https://freesound.org/people/Raclure/sounds/483608/           | CC0      |
