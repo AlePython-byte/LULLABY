@@ -151,6 +151,13 @@ public partial class RunManager : Node
 		_pendingGeneratorVersion = null;
 		Rooms.DecorSeed = _seed;
 
+		if (GameSettings.PlaytestLogEnabled)
+		{
+			PlaytestLog log = new() { Name = "PlaytestLog" };
+			AddChild(log);
+			log.Begin(this, Rooms, _generatorVersion);
+		}
+
 		if (_pendingMap != null)
 		{
 			LevelMap fixedMap = _pendingMap;

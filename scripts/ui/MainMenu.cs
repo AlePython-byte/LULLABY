@@ -61,6 +61,7 @@ public partial class MainMenu : Control
 	public override void _Ready()
 	{
 		GetTree().Paused = false;
+		GameSettings.PlaytestLogEnabled = false;
 
 		GetNode<Label>("Center/Box/Title").Text = GameText.Title;
 		GetNode<Label>("Center/Box/Subtitle").Text = GameText.Subtitle;
@@ -125,6 +126,7 @@ public partial class MainMenu : Control
 	{
 		GameSettings.Difficulty = SelectedDifficulty;
 		GameSettings.ExtendedVariety = ExtendedVarietyToggle.ButtonPressed;
+		GameSettings.PlaytestLogEnabled = GameSettings.CanRecordPlaytest;
 		RunManager.DiscardPending();
 		GetTree().Paused = false;
 		GetTree().ChangeSceneToFile(GameSettings.LevelScene);
