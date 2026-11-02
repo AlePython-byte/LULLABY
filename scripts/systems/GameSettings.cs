@@ -22,6 +22,18 @@ public static class GameSettings
 	/// </summary>
 	public static bool ExtendedVariety { get; set; }
 
+	/// <summary>
+	/// Registro de la partida (PlaytestLog). Apagado por defecto: solo lo enciende el botón de jugar del menú principal
+	/// (MainMenu.StartGame) y el menú lo vuelve a apagar al abrirse. TestLevel lanzado con F6 y las pruebas no registran.
+	/// </summary>
+	public static bool PlaytestLogEnabled { get; set; }
+
+	/// <summary>
+	/// El registro solo se escribe con ventana: en modo headless (la suite de pruebas) el menú no lo enciende, aunque una prueba
+	/// pulse «Jugar».
+	/// </summary>
+	public static bool CanRecordPlaytest => DisplayServer.GetName() != "headless";
+
 	public const float DefaultMasterVolume = 0.8f;
 	public const float DefaultSfxVolume = 1.0f;
 
