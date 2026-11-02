@@ -25,3 +25,4 @@ Todos los efectos de sonido y pistas musicales utilizados en el proyecto cuentan
 | jefe_ataque_2.ogg   | Ataque viscoso o impacto de baba del jefe  | Qubodup           | https://freesound.org/people/Qubodup/                         | CC0      |
 | jefe_muere.ogg      | Muerte o colapso final del jefe            | CyanKingstonLBP   | https://freesound.org/people/CyanKingstonLBP/sounds/748550/   | CC0      |
 | victoria.ogg        | Fanfarria o sonido de victoria             | FunWithSound      | https://freesound.org/people/FunWithSound/                    | CC0      |
+| derrota.ogg         | Sonido de derrota o fin de partida         | Fupicat           | https://freesound.org/people/Fupicat/sounds/538151/           | CC0      |
