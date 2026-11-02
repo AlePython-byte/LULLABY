@@ -56,6 +56,7 @@ $tests = @(
     @{ Name = 'BossVictoryTest' },
     @{ Name = 'BossPhasesTest' },
     @{ Name = 'DefeatTest' },
+    @{ Name = 'DeathScreenTest' },
     @{ Name = 'PlayerVisualTest' },
     @{ Name = 'GeneratorStressTest' },
     @{ Name = 'VisualModelsTest' },
