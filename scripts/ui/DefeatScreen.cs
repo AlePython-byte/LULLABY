@@ -5,7 +5,8 @@ using Godot;
 /// Pantalla de derrota: el título, una frase, qué mató a Noah (DeathCause) y los botones Reiniciar y Salir al menú. Está oculta hasta
 /// Present, que solo actúa la primera vez.
 ///
-/// Con la hoja de cuaderno (PaperSheet) la pantalla se ve como una hoja centrada con el título, la frase y lo que mató a Noah, y, a los
+/// Con la hoja de cuaderno (PaperSheet) la pantalla es una página de diario infantil con letra manuscrita (HandFont): «Querido diario,»,
+/// la frase de la causa, «Morí a causa de:», una flecha y el dibujo del asesino (DeathArt); y, a los
 /// lados, dos notas pegadas (nota_salir a la izquierda, nota_reiniciar a la derecha) que son los propios botones, con su texto y su tecla
 /// dibujados por el juego: Enter reinicia y Esc sale al menú. Sin las notas, los botones van dentro de la hoja; sin la hoja queda el
 /// diseño de siempre. Cada imagen se busca por nombre con ResourceLoader.Exists, así que se puede reemplazar por otra con el mismo nombre. No decide nada de la partida: avisa con RetryRequested o MenuRequested (una sola vez) y quien la usa
@@ -48,15 +49,23 @@ public partial class DefeatScreen : CanvasLayer
 	public bool IsPresented { get; private set; }
 	public string Message => _message.Text;
 
-	/// <summary>Lo que mató a Noah (Unknown si no se sabe) y el texto de la línea «Te venció: …».</summary>
+	/// <summary>
+	/// Lo que mató a Noah (Unknown si no se sabe), el texto de la línea de la causa («Morí a causa de:» en la hoja; «Te venció: …» sin ella)
+	/// y, en la hoja, la flecha, el dibujo del asesino y la ruta de su imagen.
+	/// </summary>
 	public DeathCause Cause { get; private set; } = DeathCause.Unknown;
 	public string CauseText => _cause.Text;
+	public TextureRect Arrow => _arrow;
+	public TextureRect Drawing => _drawing;
+	public string DrawingPath { get; private set; }
 	public Button RetryButton => _retry;
 	public Button MenuButton => _menu;
 
 	private Control _root;
 	private Label _message;
 	private Label _cause;
+	private TextureRect _arrow;
+	private TextureRect _drawing;
 	private Button _retry;
 	private Button _menu;
 	private bool _requested;
@@ -119,12 +128,17 @@ public partial class DefeatScreen : CanvasLayer
 		PaperSheet.Place(GetNode<Control>("Root/Center"), PaperSheet.Inner);
 		GetNode<ColorRect>("Root/Background").Color = new Color(0.0f, 0.0f, 0.0f, 0.78f);
 
-		GetNode<Control>("Root/Center/Box").AddThemeConstantOverride("separation", 14);
+		// Hoja de diario: «Querido diario,», la frase, «Morí a causa de:», una flecha y el dibujo (se elige al presentar la pantalla).
+		HandFont.Apply(_root);
+		Control box = GetNode<Control>("Root/Center/Box");
+		box.AddThemeConstantOverride("separation", 8);
 		Label title = GetNode<Label>("Root/Center/Box/Title");
-		ApplyInk(title, 40, Ink);
+		title.Text = DeathTexts.DiaryGreeting;
+		ApplyInk(title, 38, Ink);
 		_message.CustomMinimumSize = new Vector2(PaperSheet.Inner.Size.X - 16.0f, 0.0f);
-		ApplyInk(_message, 22, Ink);
-		ApplyInk(_cause, 28, Ink);
+		ApplyInk(_message, 24, Ink);
+		ApplyInk(_cause, 30, Ink);
+		BuildDrawing(box);
 
 		Texture2D retryNote = PaperSheet.Load(RetryNotePath);
 		Texture2D menuNote = PaperSheet.Load(MenuNotePath);
@@ -147,6 +161,51 @@ public partial class DefeatScreen : CanvasLayer
 				button.CustomMinimumSize = new Vector2(PaperSheet.Inner.Size.X / 2.0f - 12.0f, 44.0f);
 				button.AddThemeFontSizeOverride("font_size", 18);
 			}
+		}
+	}
+
+	// La flecha y el dibujo van entre la línea de la causa y los botones. Sin la flecha o sin el dibujo no se ve esa parte, sin error.
+	private void BuildDrawing(Control box)
+	{
+		_arrow = NewPicture("Arrow");
+		_drawing = NewPicture("Drawing");
+		Texture2D arrow = PaperSheet.Load(DeathArt.ArrowPath);
+		if (arrow != null)
+		{
+			_arrow.Texture = arrow;
+			_arrow.CustomMinimumSize = DeathArt.Fit(arrow.GetSize(), DeathArt.ArrowMaxSize);
+		}
+
+		_arrow.Visible = arrow != null;
+		_drawing.Hide();
+		box.AddChild(_arrow);
+		box.AddChild(_drawing);
+		box.MoveChild(GetNode<Control>("Root/Center/Box/Buttons"), -1);
+	}
+
+	private static TextureRect NewPicture(string name)
+	{
+		return new TextureRect
+		{
+			Name = name,
+			ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+			StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
+			MouseFilter = Control.MouseFilterEnum.Ignore,
+			SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter,
+		};
+	}
+
+	// El dibujo del asesino, ajustado a la caja máxima por alto y por ancho a la vez; sin imagen se esconde también la flecha.
+	private void ShowDrawing(DeathCause cause)
+	{
+		DrawingPath = DeathArt.PathOf(cause);
+		Texture2D texture = DrawingPath == null ? null : PaperSheet.Load(DrawingPath);
+		_drawing.Texture = texture;
+		_drawing.Visible = texture != null;
+		_arrow.Visible = texture != null && _arrow.Texture != null;
+		if (texture != null)
+		{
+			_drawing.CustomMinimumSize = DeathArt.Fit(texture.GetSize(), DeathArt.MaxSize);
 		}
 	}
 
@@ -265,7 +324,16 @@ public partial class DefeatScreen : CanvasLayer
 		GetTree().Paused = true;
 		_pausedByUs = true;
 		_message.Text = message;
-		_cause.Text = $"{DeathTexts.KilledBy} {DeathTexts.NameOf(cause)}";
+		if (HasSheet)
+		{
+			_cause.Text = DeathTexts.DiaryCause;
+			ShowDrawing(cause);
+		}
+		else
+		{
+			_cause.Text = $"{DeathTexts.KilledBy} {DeathTexts.NameOf(cause)}";
+		}
+
 		_root.Show();
 		_retry.GrabFocus();
 		AudioManager.Play(SoundCatalog.Defeat);
