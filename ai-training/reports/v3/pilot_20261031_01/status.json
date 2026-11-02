@@ -1,0 +1,18 @@
+{
+  "status": "pilot_complete_not_a_quality_gate",
+  "completed_pairs": 1,
+  "wall_seconds": 6.3163666,
+  "memory": {
+    "working_set64": 189595648,
+    "peak_working_set64": 201961472,
+    "private_memory_size64": 144830464
+  },
+  "data_sha256": {
+    "coverage.json": "cae50e03b83fd40aa5c89327a21b5345390e0d458363434fffcc955bfe54710e",
+    "level_600001.json": "1ca0fc4631a2dc06034899f8d6c292b8f42e30ac2aa84849506bc84ba44f5a6c",
+    "manifest.json": "4e8554a6dda02f6da095240cf2a67f2bfef79e0276659a6c26a71fd27680eda7",
+    "real_600001_0.json": "1fd8ab5eec9bd0095c54ede3bef12a75c15f8d1836aae4676298c1dbc438f653",
+    "resources_600001_0.json": "7a70f640bb9cbe541319e655ea9fbe46479b4c8544c018341c4c9291fb33128f",
+    "sim_600001_0.json": "017f31db19b9d58672edf30372e9adbd314793653832fe2958ab1373f40ccb68"
+  }
+}

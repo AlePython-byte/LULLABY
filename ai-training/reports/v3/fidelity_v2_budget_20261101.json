@@ -1,0 +1,392 @@
+{
+  "date": "2026-11-01",
+  "timezone": "America/Bogota",
+  "godot_executed_for_this_document": false,
+  "protocol": "ai-training/protocols/v3_fidelity_v2.json",
+  "protocol_commit": "bbddd43",
+  "protocol_sha256": "e1ab71ac414cd0624c79ebb96c68e044e32a01e0c2896e51e7c4ccb18d332e27",
+  "source_archive": "ai-training/reports/v3/repetition_curve_20261031_02/raw_results.zip",
+  "source_archive_sha256": "fb6c143ed983b27d82db26176661b155cfc0f347b9c9d86a0ab35366d9fa050c",
+  "source_analysis_sha256": "c690c8c63daf7c291e7c6250a5de8e1fa29ce9a18b20332686c01492b12753d8",
+  "calibration": {
+    "selected_pairs": 300,
+    "all_completed_pair_records": 365,
+    "simulator_run": {
+      "count": 300,
+      "sum_seconds": 14.7427917,
+      "mean_seconds": 0.049142639,
+      "median_seconds": 0.045011499999999996,
+      "p95_seconds_nearest_lower": 0.081938,
+      "min_seconds": 0.022071,
+      "max_seconds": 0.1257145
+    },
+    "real_game_run": {
+      "count": 300,
+      "sum_seconds": 916.2238858,
+      "mean_seconds": 3.0540796193333333,
+      "median_seconds": 2.9444180500000003,
+      "p95_seconds_nearest_lower": 4.2950113,
+      "min_seconds": 1.7692341,
+      "max_seconds": 5.4737606
+    },
+    "pair": {
+      "count": 300,
+      "sum_seconds": 930.9666775000001,
+      "mean_seconds": 3.1032222583333335,
+      "median_seconds": 2.99231155,
+      "p95_seconds_nearest_lower": 4.3458105,
+      "min_seconds": 1.792812,
+      "max_seconds": 5.54636
+    },
+    "selected_batch_wall_seconds": 976.8292435000001,
+    "pair_wall_seconds_including_in_batch_overhead": 3.2560974783333334,
+    "wall_over_pair_phase_factor": 1.0492633808582263,
+    "selected_batch_records": [
+      {
+        "first_seed": 600001,
+        "wall_seconds": 159.3084669,
+        "memory": {
+          "working_set64": 190570496,
+          "peak_working_set64": 209666048,
+          "private_memory_size64": 148549632
+        }
+      },
+      {
+        "first_seed": 600006,
+        "wall_seconds": 143.3027903,
+        "memory": {
+          "working_set64": 193650688,
+          "peak_working_set64": 208019456,
+          "private_memory_size64": 148398080
+        }
+      },
+      {
+        "first_seed": 600011,
+        "wall_seconds": 145.0395121,
+        "memory": {
+          "working_set64": 181157888,
+          "peak_working_set64": 212717568,
+          "private_memory_size64": 149757952
+        }
+      },
+      {
+        "first_seed": 600016,
+        "wall_seconds": 161.7004737,
+        "memory": {
+          "working_set64": 158519296,
+          "peak_working_set64": 205316096,
+          "private_memory_size64": 146554880
+        }
+      },
+      {
+        "first_seed": 600021,
+        "wall_seconds": 184.3160358,
+        "memory": {
+          "working_set64": 163631104,
+          "peak_working_set64": 207343616,
+          "private_memory_size64": 151109632
+        }
+      },
+      {
+        "first_seed": 600026,
+        "wall_seconds": 183.1619647,
+        "memory": {
+          "working_set64": 162480128,
+          "peak_working_set64": 199262208,
+          "private_memory_size64": 156454912
+        }
+      }
+    ],
+    "sampled_peak_working_set_mib": 202.86328125,
+    "max_private_mib_observed_at_pair_boundaries": 157.5390625,
+    "offline_interruption_excluded_from_projection": true,
+    "attempts": [
+      {
+        "first_seed": 600001,
+        "attempt": 1,
+        "status_under_curve_rule": "complete",
+        "exit_code": 0,
+        "any_error_prefix": true,
+        "gchandle_lines": 0,
+        "complete_resource_pairs": 50
+      },
+      {
+        "first_seed": 600006,
+        "attempt": 1,
+        "status_under_curve_rule": "invalid",
+        "exit_code": "supervisor_interrupted",
+        "any_error_prefix": true,
+        "gchandle_lines": 0,
+        "complete_resource_pairs": 3
+      },
+      {
+        "first_seed": 600006,
+        "attempt": 2,
+        "status_under_curve_rule": "complete",
+        "exit_code": 0,
+        "any_error_prefix": true,
+        "gchandle_lines": 0,
+        "complete_resource_pairs": 50
+      },
+      {
+        "first_seed": 600011,
+        "attempt": 1,
+        "status_under_curve_rule": "complete",
+        "exit_code": 0,
+        "any_error_prefix": true,
+        "gchandle_lines": 0,
+        "complete_resource_pairs": 50
+      },
+      {
+        "first_seed": 600016,
+        "attempt": 1,
+        "status_under_curve_rule": "complete",
+        "exit_code": 0,
+        "any_error_prefix": true,
+        "gchandle_lines": 0,
+        "complete_resource_pairs": 50
+      },
+      {
+        "first_seed": 600021,
+        "attempt": 1,
+        "status_under_curve_rule": "complete",
+        "exit_code": 0,
+        "any_error_prefix": true,
+        "gchandle_lines": 0,
+        "complete_resource_pairs": 50
+      },
+      {
+        "first_seed": 600026,
+        "attempt": 1,
+        "status_under_curve_rule": "invalid",
+        "exit_code": 0,
+        "any_error_prefix": true,
+        "gchandle_lines": 18,
+        "complete_resource_pairs": 50
+      },
+      {
+        "first_seed": 600026,
+        "attempt": 2,
+        "status_under_curve_rule": "invalid",
+        "exit_code": 3221225501,
+        "any_error_prefix": true,
+        "gchandle_lines": 1,
+        "complete_resource_pairs": 12
+      },
+      {
+        "first_seed": 600026,
+        "attempt": 3,
+        "status_under_curve_rule": "complete",
+        "exit_code": 0,
+        "any_error_prefix": true,
+        "gchandle_lines": 0,
+        "complete_resource_pairs": 50
+      }
+    ],
+    "historical_attempts_valid_under_new_strict_log_rule": 0
+  },
+  "assumptions": {
+    "worker_count": 1,
+    "same_hardware_and_core": true,
+    "headless_batched_streaming_required": true,
+    "acceptance_preflight_must_first_remove_all_error_messages": true,
+    "estimates_are_extrapolations_not_guarantees": true,
+    "p95_scenario_is_not_a_job_ci": true,
+    "generation_io_startup_and_code_preparation_not_measured_separately": true,
+    "benchmark_reuses_same_30_candidate_pool_for_three_targets": true,
+    "fit_model_row_count_does_not_double_when_repetitions_double": true
+  },
+  "forecasts": [
+    {
+      "job": "acceptance_90",
+      "levels_or_pools": 90,
+      "candidates_per_pool": 1,
+      "runs_per_level": 10,
+      "passes": 1,
+      "environments": 2,
+      "pairs_or_simulations": 900,
+      "total_games": 1800,
+      "central_minutes": 48.841462175,
+      "slow_rate_scenario_minutes_not_confidence_interval": 68.39849726698769,
+      "equivalent_5_run_central_minutes": null,
+      "planning_window_minutes": [
+        75,
+        120
+      ]
+    },
+    {
+      "job": "training_labels_5000",
+      "levels_or_pools": 5000,
+      "candidates_per_pool": 1,
+      "runs_per_level": 10,
+      "passes": 1,
+      "environments": 1,
+      "pairs_or_simulations": 50000,
+      "total_games": 50000,
+      "central_minutes": 40.95219916666667,
+      "slow_rate_scenario_minutes_not_confidence_interval": 68.28166666666667,
+      "equivalent_5_run_central_minutes": 20.476099583333333,
+      "planning_window_minutes": [
+        60,
+        90
+      ]
+    },
+    {
+      "job": "test_labels_1000",
+      "levels_or_pools": 1000,
+      "candidates_per_pool": 1,
+      "runs_per_level": 10,
+      "passes": 1,
+      "environments": 1,
+      "pairs_or_simulations": 10000,
+      "total_games": 10000,
+      "central_minutes": 8.190439833333334,
+      "slow_rate_scenario_minutes_not_confidence_interval": 13.656333333333333,
+      "equivalent_5_run_central_minutes": 4.095219916666667,
+      "planning_window_minutes": [
+        12,
+        18
+      ]
+    },
+    {
+      "job": "confirmation_labels_1000",
+      "levels_or_pools": 1000,
+      "candidates_per_pool": 1,
+      "runs_per_level": 10,
+      "passes": 1,
+      "environments": 1,
+      "pairs_or_simulations": 10000,
+      "total_games": 10000,
+      "central_minutes": 8.190439833333334,
+      "slow_rate_scenario_minutes_not_confidence_interval": 13.656333333333333,
+      "equivalent_5_run_central_minutes": 4.095219916666667,
+      "planning_window_minutes": [
+        12,
+        18
+      ]
+    },
+    {
+      "job": "all_labels_7000",
+      "levels_or_pools": 7000,
+      "candidates_per_pool": 1,
+      "runs_per_level": 10,
+      "passes": 1,
+      "environments": 1,
+      "pairs_or_simulations": 70000,
+      "total_games": 70000,
+      "central_minutes": 57.33307883333334,
+      "slow_rate_scenario_minutes_not_confidence_interval": 95.59433333333332,
+      "equivalent_5_run_central_minutes": 28.66653941666667,
+      "planning_window_minutes": [
+        85,
+        120
+      ]
+    },
+    {
+      "job": "all_labels_determinism_two_passes",
+      "levels_or_pools": 7000,
+      "candidates_per_pool": 1,
+      "runs_per_level": 10,
+      "passes": 2,
+      "environments": 1,
+      "pairs_or_simulations": 140000,
+      "total_games": 140000,
+      "central_minutes": 114.66615766666668,
+      "slow_rate_scenario_minutes_not_confidence_interval": 191.18866666666665,
+      "equivalent_5_run_central_minutes": 57.33307883333334,
+      "planning_window_minutes": [
+        170,
+        240
+      ]
+    },
+    {
+      "job": "benchmark_300_pools",
+      "levels_or_pools": 300,
+      "candidates_per_pool": 30,
+      "runs_per_level": 10,
+      "passes": 1,
+      "environments": 1,
+      "pairs_or_simulations": 90000,
+      "total_games": 90000,
+      "central_minutes": 73.7139585,
+      "slow_rate_scenario_minutes_not_confidence_interval": 122.907,
+      "equivalent_5_run_central_minutes": 36.85697925,
+      "planning_window_minutes": [
+        110,
+        150
+      ]
+    },
+    {
+      "job": "benchmark_100_pools_contingency",
+      "levels_or_pools": 100,
+      "candidates_per_pool": 30,
+      "runs_per_level": 10,
+      "passes": 1,
+      "environments": 1,
+      "pairs_or_simulations": 30000,
+      "total_games": 30000,
+      "central_minutes": 24.5713195,
+      "slow_rate_scenario_minutes_not_confidence_interval": 40.969,
+      "equivalent_5_run_central_minutes": 12.28565975,
+      "planning_window_minutes": [
+        40,
+        60
+      ]
+    },
+    {
+      "job": "benchmark_300_two_passes",
+      "levels_or_pools": 300,
+      "candidates_per_pool": 30,
+      "runs_per_level": 10,
+      "passes": 2,
+      "environments": 1,
+      "pairs_or_simulations": 180000,
+      "total_games": 180000,
+      "central_minutes": 147.427917,
+      "slow_rate_scenario_minutes_not_confidence_interval": 245.814,
+      "equivalent_5_run_central_minutes": 73.7139585,
+      "planning_window_minutes": [
+        220,
+        300
+      ]
+    }
+  ],
+  "acceptance_three_full_attempt_equivalents_minutes": {
+    "central_rate": 146.52438652499998,
+    "slow_rate": 205.19549180096305,
+    "not_a_hard_wall_time_bound": true
+  },
+  "memory_planning_not_directly_measured_for_future_jobs": {
+    "acceptance_process_mib": [
+      300,
+      500
+    ],
+    "acceptance_free_system_ram_mib": 1024,
+    "streamed_simulator_labels_process_mib": [
+      300,
+      600
+    ],
+    "streamed_benchmark_process_mib": [
+      300,
+      600
+    ],
+    "simulator_jobs_free_system_ram_mib": 1024,
+    "python_model_fitting_free_ram_gib": [
+      2,
+      4
+    ],
+    "python_model_fitting_budget_hours_unmeasured": [
+      4,
+      8
+    ],
+    "caution": "RAM de Python y herramientas v3 futuras no medida. Los exportadores historicos precargan todos los mapas: no transferir el presupuesto acotado sin implementar procesamiento por lotes y medirlo."
+  },
+  "pipeline_readiness": {
+    "acceptance_v2_harness": false,
+    "label_export_v3": false,
+    "feature_set_v3": false,
+    "benchmark_v3_10_runs": false,
+    "python_pipeline_v3_serial": false
+  },
+  "known_fidelity_protocol_sha256": "91d0239fad57636476455b66eb06d49a1326b731d6777b2a166fa36aafb1e220"
+}

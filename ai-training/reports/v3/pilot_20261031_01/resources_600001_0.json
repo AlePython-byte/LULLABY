@@ -1,0 +1,10 @@
+{
+  "sim_seconds": 0.1432286,
+  "real_seconds": 3.2110771,
+  "wall_seconds": 6.2478848,
+  "memory": {
+    "working_set64": 187920384,
+    "peak_working_set64": 201961472,
+    "private_memory_size64": 143220736
+  }
+}

@@ -1,0 +1,225 @@
+{
+  "acceptance": "not_approved",
+  "v3_status": "experimental",
+  "classification": "enemy_unreachable_for_current_bot_alignment_policy",
+  "physical_unreachability_proven": false,
+  "observation": "Bot oscillates in a small area while a corner Shooter remains alive. No sampled player slide collisions. Closed doors are consistent with active combat.",
+  "inference": "ChooseSpot clamps the preferred firing position to the bot wall margin; AimAt still requires cardinal alignment. The bot fails to reach firing alignment against this corner target. This is a policy/geometry interaction, not evidence of an unfair level for all players.",
+  "one_real_game_only": true,
+  "simulator_games": 0,
+  "retries": 0,
+  "implementation_started_utc": "2026-11-01T19:40:11.3035388Z",
+  "implementation_seconds_upper_bound": 373.43891072273254,
+  "execution_wall_seconds": 20.535421133041382,
+  "gameplay_wall_seconds": 18.7659346,
+  "protocol_sha256": "6cdb35ad0531dc2c5fe48b835d41052bd8288fe228f4f793fbbcd51ce93dc5f1",
+  "harness_commit": "3d92740",
+  "same_effective_seed": true,
+  "same_bot_seed": true,
+  "result_identical_to_acceptance": true,
+  "result": {
+    "damage_total": 3,
+    "damage_critical": 0,
+    "time_total": 600.00006,
+    "time_to_boss": -1,
+    "timed_out": true,
+    "would_die": false,
+    "damage_by_source": [
+      1,
+      2,
+      0
+    ],
+    "hits_by_source": [
+      1,
+      2,
+      0
+    ],
+    "visits": [
+      {
+        "cell": [
+          0,
+          0
+        ],
+        "enter_time": 0.016666668,
+        "clear_time": 0.016666668,
+        "damage": 0,
+        "damage_by_source": [
+          0,
+          0,
+          0
+        ],
+        "contact_by_kind": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "cell": [
+          0,
+          -1
+        ],
+        "enter_time": 1.4666667,
+        "clear_time": 9.716667,
+        "damage": 1,
+        "damage_by_source": [
+          0,
+          1,
+          0
+        ],
+        "contact_by_kind": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "cell": [
+          -1,
+          0
+        ],
+        "enter_time": 12.966667,
+        "clear_time": 19.800001,
+        "damage": 1,
+        "damage_by_source": [
+          1,
+          0,
+          0
+        ],
+        "contact_by_kind": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "cell": [
+          -2,
+          0
+        ],
+        "enter_time": 22.716667,
+        "clear_time": -1,
+        "damage": 1,
+        "damage_by_source": [
+          0,
+          1,
+          0
+        ],
+        "contact_by_kind": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  "log_counts": {
+    "process.log": {
+      "gchandle_lines": 0,
+      "illegal_instruction_lines": 0,
+      "allowed_startup_certificate_lines": 1,
+      "other_error_lines": 0
+    },
+    "engine.log": {
+      "gchandle_lines": 0,
+      "illegal_instruction_lines": 0,
+      "allowed_startup_certificate_lines": 1,
+      "other_error_lines": 0
+    }
+  },
+  "trace_samples": 122,
+  "tail_samples": 114,
+  "tail_time_range": [
+    32.71666666666667,
+    597.7166666666667
+  ],
+  "tail_player_x_range": [
+    1.4594426,
+    2.1665492
+  ],
+  "tail_player_z_range": [
+    -11.454787,
+    -10.547675
+  ],
+  "tail_path_per_five_seconds_range": [
+    12.500039041042328,
+    18.80005845427513
+  ],
+  "tail_shooting_samples": 0,
+  "tail_slide_collision_samples": 0,
+  "tail_enemy_position": [
+    7.297955,
+    0.5,
+    -12.328504
+  ],
+  "tail_enemy_health": 1,
+  "geometry_and_policy": {
+    "room_size": [
+      16,
+      26
+    ],
+    "wall_margin": 2,
+    "choose_spot_limits_xz": [
+      5.5,
+      10.5
+    ],
+    "preferred_distance": 5,
+    "aim_tolerance": 0.5999999940395355,
+    "aim_noise": 0.15000000596046448,
+    "minimum_sampled_z_alignment_error": 0.873717000000001,
+    "minimum_sampled_z_error_after_max_aim_noise": 0.7237169940395365
+  },
+  "limitations": [
+    "Observations every five virtual seconds, not a full frame-by-frame trace.",
+    "No sampled collisions does not prove no collisions between samples.",
+    "No intervention, alternate bot, map edit or additional run was used to prove a counterfactual.",
+    "New process and added observer; prior 50 games and preceding simulator run were not recreated.",
+    "Exact result match in one reproduction does not prove determinism for all runs."
+  ],
+  "final_provenance": {
+    "reference_archive_sha256": "fb6c143ed983b27d82db26176661b155cfc0f347b9c9d86a0ab35366d9fa050c",
+    "historical_sha256": {
+      "ai-training/datasets/levels_v1.csv": "a30d3a36d34d8fe21705a078b9dc60c38137a7e9574ec1b69df6442a579de85a",
+      "ai-training/datasets/levels_v1_labels.csv": "54b79ccfe911a4e12655e017f1befb6701a3a52d86c9dabca7ba0e33b3ff370d",
+      "ai-training/datasets/levels_v1_test.csv": "ce1b8f3a9890e5930a84c4ad8e4a8bfcdd36e399b182b075f2c261bc853bcd6b",
+      "ai-training/datasets/levels_v1_test_labels.csv": "f32b097eefa3adc08909e3e4f1bf313fd014cf45d650ab4f4ab396848f658036",
+      "ai-training/datasets/levels_v1_confirm.csv": "4c213e3a73c5a3874dd2185c920482fb9aaa86540548ad403aca4d249c54647e",
+      "ai-training/datasets/levels_v1_confirm_labels.csv": "3d7e4c09e13e64059d1f5c858a9f55a9cf8055e7c5ecb32ea9ba7007062efefa",
+      "ai-training/datasets/levels_v2.csv": "7f6c88f3dbcf7aea6677554bc5bf05fa856c637817f27db8f2d84863d7986139",
+      "ai-training/datasets/levels_v2_labels.csv": "6f42695a1c8a050142864e26cd808c3b56f860e1d7f0c249f2bc5215d332e2df",
+      "ai-training/datasets/levels_v2_test.csv": "bffe22daa847f51f113e9e28a5472da5ef0dae16e3fc3d174e23873a38a22395",
+      "ai-training/datasets/levels_v2_test_labels.csv": "d09b743c3f18d6c43d6850d45a86da40f40bc4726dafd3f600cd45f0e2860605",
+      "ai-training/datasets/levels_v2_confirm.csv": "0aec8952915b92ab3ec7c581e5d7aee162a3775213c21f2df4050f5fab994c0f",
+      "ai-training/datasets/levels_v2_confirm_labels.csv": "c725b9569a3a123aecbe6c9a0bd9ff99257034ff92f8a767866fa5b101b7cef9",
+      "ai-training/models/difficulty_v1.json": "96c28588077ca53e6d4d2e6e486f53a9641312a17012a06a8593254c9b5451c1",
+      "ai-training/models/difficulty_v2.json": "c03cf200951a1588705e9f6aca839510c92c26a8261767e4177ad885122fe7bd",
+      "resources/ai/difficulty_v1.json": "96c28588077ca53e6d4d2e6e486f53a9641312a17012a06a8593254c9b5451c1",
+      "resources/ai/difficulty_v2.json": "c03cf200951a1588705e9f6aca839510c92c26a8261767e4177ad885122fe7bd",
+      "ai-training/reports/director_benchmark.json": "5921a2fa28caf02f7c5b5d050cc2a2ef74e40e52e5d1ced042dfaa70d20c909b",
+      "ai-training/reports/v2/director_benchmark_v2.json": "4ec35e9b9b0d5d01ec5fe16172da09cb336eb6c5e265d8cf7a06e910fb3f4792",
+      "resources/rooms/templates/jefe.tres": "107f84f33999866f0c27a559fce3071083b31058515780351ff156ad78d6c679",
+      "resources/rooms/templates/Catalog.tres": "c2e114b27df074221c0715c579cd9b4e76bda6fc197de448b5c76c51864d66d6"
+    },
+    "prior_behavior_evidence": "ai-training/reports/v3/stage1.md",
+    "prior_behavior_evidence_sha256": "ece832965e91f72830257c065a142423e7650ed330ae7ec2c92de5341d4d8c2e",
+    "measurement_core_unchanged": true,
+    "controlled_behavior_tests_rerun_now": false
+  },
+  "raw_archive": {
+    "file": "raw_trace.zip",
+    "sha256": "af3321d6e9abbf81b64b324711416b71ee41d6a28bf63ded2a0255978c10001b",
+    "members": 11
+  }
+}

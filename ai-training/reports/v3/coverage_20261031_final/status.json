@@ -1,0 +1,13 @@
+{
+  "status": "coverage_complete",
+  "completed_pairs": 0,
+  "wall_seconds": 1.1780833,
+  "memory": {
+    "working_set64": 178900992,
+    "peak_working_set64": 178900992,
+    "private_memory_size64": 129933312
+  },
+  "data_sha256": {
+    "coverage.json": "d2c064b6ee1d13e785b4c881f223799e49dc0322acc417fbd32d950e3930d411"
+  }
+}

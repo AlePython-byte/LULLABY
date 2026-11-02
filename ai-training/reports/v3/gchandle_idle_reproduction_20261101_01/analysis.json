@@ -1,0 +1,263 @@
+{
+  "diagnostic_only": true,
+  "status": "clean_or_sporadic",
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "complete",
+      "exit_code": 0,
+      "channels": {
+        "log": {
+          "valid": true,
+          "allowed_certificate_lines": 1,
+          "gchandle_lines": 0,
+          "illegal_instruction_lines": 0,
+          "error_lines": 1
+        },
+        "engine_log": {
+          "valid": true,
+          "allowed_certificate_lines": 1,
+          "gchandle_lines": 0,
+          "illegal_instruction_lines": 0,
+          "error_lines": 1
+        }
+      },
+      "gchandle_contexts": []
+    },
+    {
+      "attempt": 2,
+      "status": "invalid",
+      "exit_code": 0,
+      "channels": {
+        "log": {
+          "valid": false,
+          "allowed_certificate_lines": 1,
+          "gchandle_lines": 12,
+          "illegal_instruction_lines": 0,
+          "error_lines": 5
+        },
+        "engine_log": {
+          "valid": false,
+          "allowed_certificate_lines": 1,
+          "gchandle_lines": 12,
+          "illegal_instruction_lines": 0,
+          "error_lines": 5
+        }
+      },
+      "gchandle_contexts": [
+        {
+          "line": 159,
+          "text": "   at System.Runtime.InteropServices.GCHandle.FromIntPtr(IntPtr value)",
+          "active_pair": {
+            "seed": 610004,
+            "run": 0,
+            "phase": "real"
+          },
+          "kind": "blocking_runtime_error"
+        },
+        {
+          "line": 160,
+          "text": "   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak) in /root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:line 1284",
+          "active_pair": {
+            "seed": 610004,
+            "run": 0,
+            "phase": "real"
+          },
+          "kind": "blocking_runtime_error"
+        },
+        {
+          "line": 165,
+          "text": "       [2] Godot.NativeInterop.godot_bool Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(nint, System.IntPtr*, Godot.NativeInterop.godot_bool) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:1284)",
+          "active_pair": {
+            "seed": 610004,
+            "run": 0,
+            "phase": "real"
+          },
+          "kind": "blocking_runtime_error"
+        },
+        {
+          "line": 189,
+          "text": "   at System.Runtime.InteropServices.GCHandle.FromIntPtr(IntPtr value)",
+          "active_pair": {
+            "seed": 610004,
+            "run": 0,
+            "phase": "real"
+          },
+          "kind": "blocking_runtime_error"
+        },
+        {
+          "line": 190,
+          "text": "   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak) in /root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:line 1284",
+          "active_pair": {
+            "seed": 610004,
+            "run": 0,
+            "phase": "real"
+          },
+          "kind": "blocking_runtime_error"
+        },
+        {
+          "line": 195,
+          "text": "       [2] Godot.NativeInterop.godot_bool Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(nint, System.IntPtr*, Godot.NativeInterop.godot_bool) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:1284)",
+          "active_pair": {
+            "seed": 610004,
+            "run": 0,
+            "phase": "real"
+          },
+          "kind": "blocking_runtime_error"
+        },
+        {
+          "line": 219,
+          "text": "   at System.Runtime.InteropServices.GCHandle.FromIntPtr(IntPtr value)",
+          "active_pair": {
+            "seed": 610004,
+            "run": 0,
+            "phase": "real"
+          },
+          "kind": "blocking_runtime_error"
+        },
+        {
+          "line": 220,
+          "text": "   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak) in /root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:line 1284",
+          "active_pair": {
+            "seed": 610004,
+            "run": 0,
+            "phase": "real"
+          },
+          "kind": "blocking_runtime_error"
+        },
+        {
+          "line": 225,
+          "text": "       [2] Godot.NativeInterop.godot_bool Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(nint, System.IntPtr*, Godot.NativeInterop.godot_bool) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:1284)",
+          "active_pair": {
+            "seed": 610004,
+            "run": 0,
+            "phase": "real"
+          },
+          "kind": "blocking_runtime_error"
+        },
+        {
+          "line": 247,
+          "text": "   at System.Runtime.InteropServices.GCHandle.FromIntPtr(IntPtr value)",
+          "active_pair": {
+            "seed": 610004,
+            "run": 0,
+            "phase": "real"
+          },
+          "kind": "blocking_runtime_error"
+        },
+        {
+          "line": 248,
+          "text": "   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak) in /root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:line 1284",
+          "active_pair": {
+            "seed": 610004,
+            "run": 0,
+            "phase": "real"
+          },
+          "kind": "blocking_runtime_error"
+        },
+        {
+          "line": 253,
+          "text": "       [2] Godot.NativeInterop.godot_bool Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(nint, System.IntPtr*, Godot.NativeInterop.godot_bool) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:1284)",
+          "active_pair": {
+            "seed": 610004,
+            "run": 0,
+            "phase": "real"
+          },
+          "kind": "blocking_runtime_error"
+        }
+      ]
+    },
+    {
+      "attempt": 3,
+      "status": "invalid",
+      "exit_code": 0,
+      "channels": {
+        "log": {
+          "valid": false,
+          "allowed_certificate_lines": 1,
+          "gchandle_lines": 6,
+          "illegal_instruction_lines": 0,
+          "error_lines": 3
+        },
+        "engine_log": {
+          "valid": false,
+          "allowed_certificate_lines": 1,
+          "gchandle_lines": 6,
+          "illegal_instruction_lines": 0,
+          "error_lines": 3
+        }
+      },
+      "gchandle_contexts": [
+        {
+          "line": 109,
+          "text": "   at System.Runtime.InteropServices.GCHandle.FromIntPtr(IntPtr value)",
+          "active_pair": {
+            "seed": 610003,
+            "run": 0,
+            "phase": "real"
+          },
+          "kind": "blocking_runtime_error"
+        },
+        {
+          "line": 110,
+          "text": "   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak) in /root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:line 1284",
+          "active_pair": {
+            "seed": 610003,
+            "run": 0,
+            "phase": "real"
+          },
+          "kind": "blocking_runtime_error"
+        },
+        {
+          "line": 115,
+          "text": "       [2] Godot.NativeInterop.godot_bool Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(nint, System.IntPtr*, Godot.NativeInterop.godot_bool) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:1284)",
+          "active_pair": {
+            "seed": 610003,
+            "run": 0,
+            "phase": "real"
+          },
+          "kind": "blocking_runtime_error"
+        },
+        {
+          "line": 140,
+          "text": "   at System.Runtime.InteropServices.GCHandle.FromIntPtr(IntPtr value)",
+          "active_pair": {
+            "seed": 610003,
+            "run": 0,
+            "phase": "real"
+          },
+          "kind": "blocking_runtime_error"
+        },
+        {
+          "line": 141,
+          "text": "   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak) in /root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:line 1284",
+          "active_pair": {
+            "seed": 610003,
+            "run": 0,
+            "phase": "real"
+          },
+          "kind": "blocking_runtime_error"
+        },
+        {
+          "line": 146,
+          "text": "       [2] Godot.NativeInterop.godot_bool Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(nint, System.IntPtr*, Godot.NativeInterop.godot_bool) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:1284)",
+          "active_pair": {
+            "seed": 610003,
+            "run": 0,
+            "phase": "real"
+          },
+          "kind": "blocking_runtime_error"
+        }
+      ]
+    }
+  ],
+  "common_pairs": [],
+  "elapsed_seconds": 364.1601836681366,
+  "decision": "Authorized six-attempt amendment and new full acceptance; no gcConcurrent experiment because systematic same-pair condition did not occur.",
+  "causality": "No controlled build/no-build contrast was performed; quiet machine does not prove builds caused the earlier errors.",
+  "aggregation": "No fidelity statistics evaluated; no diagnostic games will be selected into acceptance.",
+  "raw_archive": {
+    "file": "raw_results.zip",
+    "sha256": "73c5d10119d8dce7f5adf06c29d4341ad15dd73032ae659993c9afa96ec14808"
+  }
+}

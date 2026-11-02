@@ -1,0 +1,3 @@
+# Los JSON originales se conservan completos en raw_results.zip y en el disco local.
+/*.json
+!/analysis.json

@@ -1,0 +1,2083 @@
+{
+  "first_seed": 600001,
+  "last_seed": 600005,
+  "runs_per_level_per_environment": 10,
+  "pairs_per_configuration": 50,
+  "compared_files": 105,
+  "all_identical": false,
+  "files": [
+    {
+      "file": "level_600001.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "1ca0fc4631a2dc06034899f8d6c292b8f42e30ac2aa84849506bc84ba44f5a6c",
+        "disabled": "1ca0fc4631a2dc06034899f8d6c292b8f42e30ac2aa84849506bc84ba44f5a6c"
+      }
+    },
+    {
+      "file": "level_600002.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "3e36137778c59f319fac69c595de8abfc8bccaaea1de30f325ddbd4a456016f3",
+        "disabled": "3e36137778c59f319fac69c595de8abfc8bccaaea1de30f325ddbd4a456016f3"
+      }
+    },
+    {
+      "file": "level_600003.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "2f86b5687c5975f60300761898bd8c0350155042d372f2394bce6f7c62c0292a",
+        "disabled": "2f86b5687c5975f60300761898bd8c0350155042d372f2394bce6f7c62c0292a"
+      }
+    },
+    {
+      "file": "level_600004.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "d4aa302ce928673ee8cb7f818b9ef356e5c46a9b6d41c90318cbd9c564835368",
+        "disabled": "d4aa302ce928673ee8cb7f818b9ef356e5c46a9b6d41c90318cbd9c564835368"
+      }
+    },
+    {
+      "file": "level_600005.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "95313d6746be6961678873020403fb4e147fc022413abb74ae0787f19e696cb7",
+        "disabled": "95313d6746be6961678873020403fb4e147fc022413abb74ae0787f19e696cb7"
+      }
+    },
+    {
+      "file": "real_600001_0.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "1fd8ab5eec9bd0095c54ede3bef12a75c15f8d1836aae4676298c1dbc438f653",
+        "disabled": "1fd8ab5eec9bd0095c54ede3bef12a75c15f8d1836aae4676298c1dbc438f653"
+      }
+    },
+    {
+      "file": "real_600001_1.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "3f1c163c71c43aaf449c35e333b3038bd6d35ed2558cabc8fc1cfff792e515ae",
+        "disabled": "3f1c163c71c43aaf449c35e333b3038bd6d35ed2558cabc8fc1cfff792e515ae"
+      }
+    },
+    {
+      "file": "real_600001_2.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "5c90322fdba9527606379d91997273dbef828b970803884bafb7a117bc98267a",
+        "disabled": "5c90322fdba9527606379d91997273dbef828b970803884bafb7a117bc98267a"
+      }
+    },
+    {
+      "file": "real_600001_3.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "a5f0c12957b0984af462ad6e414fe1006bb31af217778e1694232522712206a2",
+        "disabled": "a5f0c12957b0984af462ad6e414fe1006bb31af217778e1694232522712206a2"
+      }
+    },
+    {
+      "file": "real_600001_4.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "f5ac0bcf4bfcde35223bc9e11d59e31a2a2faab174c5a1bb6c450f94ffa95c18",
+        "disabled": "f5ac0bcf4bfcde35223bc9e11d59e31a2a2faab174c5a1bb6c450f94ffa95c18"
+      }
+    },
+    {
+      "file": "real_600001_5.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "d907a73d9d51905b9042872475a8ffff86123af39b507650f8234d218ff9d152",
+        "disabled": "d907a73d9d51905b9042872475a8ffff86123af39b507650f8234d218ff9d152"
+      }
+    },
+    {
+      "file": "real_600001_6.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "ebbcc236fe7d9cded4d165c40e47207666daa0d3a5f4a885903ed908f0c1a2e8",
+        "disabled": "ebbcc236fe7d9cded4d165c40e47207666daa0d3a5f4a885903ed908f0c1a2e8"
+      }
+    },
+    {
+      "file": "real_600001_7.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "7d3b48843ace7d3764bae12d6b8608cfb05d90b4462b300c5b106b6ada913fbd",
+        "disabled": "7d3b48843ace7d3764bae12d6b8608cfb05d90b4462b300c5b106b6ada913fbd"
+      }
+    },
+    {
+      "file": "real_600001_8.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "72cdd922e9db6f1b3c72a6636b12cb084180d388ae5a42c33644bcecde4dd305",
+        "disabled": "72cdd922e9db6f1b3c72a6636b12cb084180d388ae5a42c33644bcecde4dd305"
+      }
+    },
+    {
+      "file": "real_600001_9.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "dfbce54a8111cc7beb486a9c367512245d13786d1cd6014b0a46fb0c16ac5d65",
+        "disabled": "dfbce54a8111cc7beb486a9c367512245d13786d1cd6014b0a46fb0c16ac5d65"
+      }
+    },
+    {
+      "file": "real_600002_0.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "09d9a580563209cebd579ff10fcfc4eab8b3c89aa21148e8b1980ebdb09ce30c",
+        "disabled": "09d9a580563209cebd579ff10fcfc4eab8b3c89aa21148e8b1980ebdb09ce30c"
+      }
+    },
+    {
+      "file": "real_600002_1.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "4c59034676cc2a0c7960e24d206c90e3789c9495ecd708e258c2bc6298ba0619",
+        "disabled": "4c59034676cc2a0c7960e24d206c90e3789c9495ecd708e258c2bc6298ba0619"
+      }
+    },
+    {
+      "file": "real_600002_2.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "011e42c93fe424c9315d2080a0eaa43119a2651fe6072bb46d5711481c8e749f",
+        "disabled": "011e42c93fe424c9315d2080a0eaa43119a2651fe6072bb46d5711481c8e749f"
+      }
+    },
+    {
+      "file": "real_600002_3.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "7ecdbc202f01796520557ecb10f8a10804074ef35ff7a05ce63b87730ae350e3",
+        "disabled": "7ecdbc202f01796520557ecb10f8a10804074ef35ff7a05ce63b87730ae350e3"
+      }
+    },
+    {
+      "file": "real_600002_4.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "868f789e91b81ab37db8b18030d7029d3db5998f20cf24a8b6b79deff4a26ad6",
+        "disabled": "868f789e91b81ab37db8b18030d7029d3db5998f20cf24a8b6b79deff4a26ad6"
+      }
+    },
+    {
+      "file": "real_600002_5.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "c2d43c20a03b7d3844d8699458896709550c0d0ee762e78894b377a7b51482fb",
+        "disabled": "c2d43c20a03b7d3844d8699458896709550c0d0ee762e78894b377a7b51482fb"
+      }
+    },
+    {
+      "file": "real_600002_6.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "25eae55aa56557e2bf3ffb6e59352f9800a05d11583cb081d54a31f95a53e1dd",
+        "disabled": "25eae55aa56557e2bf3ffb6e59352f9800a05d11583cb081d54a31f95a53e1dd"
+      }
+    },
+    {
+      "file": "real_600002_7.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "1853ba24f697d6a93c25a84b943bda0f129b437aef78c2dab066a2fdebeca186",
+        "disabled": "1853ba24f697d6a93c25a84b943bda0f129b437aef78c2dab066a2fdebeca186"
+      }
+    },
+    {
+      "file": "real_600002_8.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "a8335c5eb402b2fc0786e2cad849cac15789015ae4a1ff3373c19913b28c7b77",
+        "disabled": "a8335c5eb402b2fc0786e2cad849cac15789015ae4a1ff3373c19913b28c7b77"
+      }
+    },
+    {
+      "file": "real_600002_9.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "04f72e8f85a8a4423f6800c63ad518448b575ff38dd2aab8a9d2003c3e1c0bdd",
+        "disabled": "04f72e8f85a8a4423f6800c63ad518448b575ff38dd2aab8a9d2003c3e1c0bdd"
+      }
+    },
+    {
+      "file": "real_600003_0.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "edfb05021cd0d45e760c988f204838588423a291716df132135e9893cf4b9501",
+        "disabled": "edfb05021cd0d45e760c988f204838588423a291716df132135e9893cf4b9501"
+      }
+    },
+    {
+      "file": "real_600003_1.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "d9da3f393ac5557b179656d93910a0507f983e2151e3253a992f08d305d58a88",
+        "disabled": "d9da3f393ac5557b179656d93910a0507f983e2151e3253a992f08d305d58a88"
+      }
+    },
+    {
+      "file": "real_600003_2.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "ec4d08de6602877675327c59f9287c048526b115f9dba2f64a92be164886ef58",
+        "disabled": "ec4d08de6602877675327c59f9287c048526b115f9dba2f64a92be164886ef58"
+      }
+    },
+    {
+      "file": "real_600003_3.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "227b526078b6e1ab1b183fe354c1057a8b8c0b702b245435a4c77e97f78c4998",
+        "disabled": "227b526078b6e1ab1b183fe354c1057a8b8c0b702b245435a4c77e97f78c4998"
+      }
+    },
+    {
+      "file": "real_600003_4.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "65e003cf548d7f062218f4fe0d49879648853b40db43dcfbfcc07318ac088db6",
+        "disabled": "65e003cf548d7f062218f4fe0d49879648853b40db43dcfbfcc07318ac088db6"
+      }
+    },
+    {
+      "file": "real_600003_5.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "37d1c743860e124b7242f9150dab4272e2d33ef640a93c9b2b48ca29f26b9bec",
+        "disabled": "37d1c743860e124b7242f9150dab4272e2d33ef640a93c9b2b48ca29f26b9bec"
+      }
+    },
+    {
+      "file": "real_600003_6.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "c231e314dc5f9b66461b0b2540ae0175908c5e8699eadaaae23b76bce7dc653c",
+        "disabled": "c231e314dc5f9b66461b0b2540ae0175908c5e8699eadaaae23b76bce7dc653c"
+      }
+    },
+    {
+      "file": "real_600003_7.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "fd1c8046127aef9c15d9cd61222f282a8ad763074878aae06bfd3f1e0c6ea0e5",
+        "disabled": "fd1c8046127aef9c15d9cd61222f282a8ad763074878aae06bfd3f1e0c6ea0e5"
+      }
+    },
+    {
+      "file": "real_600003_8.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "dd633404a86dfb79874f46b54170a745eeb4e18fc816a39ecde0d092dad99145",
+        "disabled": "dd633404a86dfb79874f46b54170a745eeb4e18fc816a39ecde0d092dad99145"
+      }
+    },
+    {
+      "file": "real_600003_9.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "ff6f2c5297c828996d382c73007b4fa35a815f196ace4ee5b8c272862cdb316e",
+        "disabled": "ff6f2c5297c828996d382c73007b4fa35a815f196ace4ee5b8c272862cdb316e"
+      }
+    },
+    {
+      "file": "real_600004_0.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "da9db4b8bb4b51edf5cd44fbeb25301ab476d7d057e59ed3c704a155c9ee68b0",
+        "disabled": "da9db4b8bb4b51edf5cd44fbeb25301ab476d7d057e59ed3c704a155c9ee68b0"
+      }
+    },
+    {
+      "file": "real_600004_1.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "ac1faee0eb5ed68ddc69fae33ed5ad9115e6a63ea102966024ab96de993a51d4",
+        "disabled": "ac1faee0eb5ed68ddc69fae33ed5ad9115e6a63ea102966024ab96de993a51d4"
+      }
+    },
+    {
+      "file": "real_600004_2.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "3d4a85a538d3b3b9ae874a8bd7755dbb9d39d69fd21fe4870045f9161797dbcb",
+        "disabled": "3d4a85a538d3b3b9ae874a8bd7755dbb9d39d69fd21fe4870045f9161797dbcb"
+      }
+    },
+    {
+      "file": "real_600004_3.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "b2a848d96166bcec51cb78cffbe8eaa4bf1ee8b9d75f95f2f806079301067a62",
+        "disabled": "b2a848d96166bcec51cb78cffbe8eaa4bf1ee8b9d75f95f2f806079301067a62"
+      }
+    },
+    {
+      "file": "real_600004_4.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "d1698f546cd82ae56854571a45e9c1966429989bc0153b6e57757675c5d07f3b",
+        "disabled": "d1698f546cd82ae56854571a45e9c1966429989bc0153b6e57757675c5d07f3b"
+      }
+    },
+    {
+      "file": "real_600004_5.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "a15c68bd38265bd6ae5f17da3ece50dbea15daddcd60e3cb86c7d8d8c2d6becf",
+        "disabled": "a15c68bd38265bd6ae5f17da3ece50dbea15daddcd60e3cb86c7d8d8c2d6becf"
+      }
+    },
+    {
+      "file": "real_600004_6.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "19144a64b3cac97cb7ca57d38f1f14982bd4db84bc983e9aba9584d8cf1fd7f5",
+        "disabled": "19144a64b3cac97cb7ca57d38f1f14982bd4db84bc983e9aba9584d8cf1fd7f5"
+      }
+    },
+    {
+      "file": "real_600004_7.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "81a5559cf7fa546928a1f413bb1d3d94d4d2a87b4ef8cb6b4163f58b48889a38",
+        "disabled": "81a5559cf7fa546928a1f413bb1d3d94d4d2a87b4ef8cb6b4163f58b48889a38"
+      }
+    },
+    {
+      "file": "real_600004_8.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "62b59ff88dabdecd80b00c0f33d82429326d5df734baad73c3e10e373d6203d5",
+        "disabled": "62b59ff88dabdecd80b00c0f33d82429326d5df734baad73c3e10e373d6203d5"
+      }
+    },
+    {
+      "file": "real_600004_9.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "ff335fcf0c23e2cddaa7d97e3806b682d8447299ba28c1a650aa7d38f43bf459",
+        "disabled": "ff335fcf0c23e2cddaa7d97e3806b682d8447299ba28c1a650aa7d38f43bf459"
+      }
+    },
+    {
+      "file": "real_600005_0.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "a092a91cb1f7deca560b8d3aedb5dd741f3a2c8b420aef7ad803582901728f61",
+        "disabled": "a092a91cb1f7deca560b8d3aedb5dd741f3a2c8b420aef7ad803582901728f61"
+      }
+    },
+    {
+      "file": "real_600005_1.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "b43ffd9c2b108face492d0a48bfcd300f2ce50071c7dd72decebfdee13c634b0",
+        "disabled": "b43ffd9c2b108face492d0a48bfcd300f2ce50071c7dd72decebfdee13c634b0"
+      }
+    },
+    {
+      "file": "real_600005_2.json",
+      "identical": false,
+      "byte_identical": false,
+      "sha256": {
+        "default": "0d47d17cb69952032f71266145e8ada3f244c6d634259fc1ebde2194cd2773ec",
+        "disabled": "c784cee3f0712c6eed9261f65f292db196044c8ce439f5fb4cc854b5632cdd37"
+      }
+    },
+    {
+      "file": "real_600005_3.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "a7a0b4029a56968b949c105d1f2ea55224f72673046ea545b84051cc88110b61",
+        "disabled": "a7a0b4029a56968b949c105d1f2ea55224f72673046ea545b84051cc88110b61"
+      }
+    },
+    {
+      "file": "real_600005_4.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "84c141db02d2f7ad9dee2432b874f756d6fc6c5988de863bddd49fc8e4fa8a47",
+        "disabled": "84c141db02d2f7ad9dee2432b874f756d6fc6c5988de863bddd49fc8e4fa8a47"
+      }
+    },
+    {
+      "file": "real_600005_5.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "8d61bbf2dcaf83e43519443e1af4356a334b7646667ac69c6e93bc941c87ecb9",
+        "disabled": "8d61bbf2dcaf83e43519443e1af4356a334b7646667ac69c6e93bc941c87ecb9"
+      }
+    },
+    {
+      "file": "real_600005_6.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "cd1d5a5f4aedd543836f84ca9c542733e35ae379be7000e3038f940d8f827b8c",
+        "disabled": "cd1d5a5f4aedd543836f84ca9c542733e35ae379be7000e3038f940d8f827b8c"
+      }
+    },
+    {
+      "file": "real_600005_7.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "05ee37c99f46bb1c02a3b62fd5551d72580d70de923be4641de6611407af5155",
+        "disabled": "05ee37c99f46bb1c02a3b62fd5551d72580d70de923be4641de6611407af5155"
+      }
+    },
+    {
+      "file": "real_600005_8.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "0dc514a97adebdc075774d3dc854f4795477ad27de6a2692a1dc131c7cbe4563",
+        "disabled": "0dc514a97adebdc075774d3dc854f4795477ad27de6a2692a1dc131c7cbe4563"
+      }
+    },
+    {
+      "file": "real_600005_9.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "f3cea1906664532d8ebf9b947fa715ff9ef3ffd59e7689ac2ca1b288b492294e",
+        "disabled": "f3cea1906664532d8ebf9b947fa715ff9ef3ffd59e7689ac2ca1b288b492294e"
+      }
+    },
+    {
+      "file": "sim_600001_0.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "017f31db19b9d58672edf30372e9adbd314793653832fe2958ab1373f40ccb68",
+        "disabled": "017f31db19b9d58672edf30372e9adbd314793653832fe2958ab1373f40ccb68"
+      }
+    },
+    {
+      "file": "sim_600001_1.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "cbaaffc3606c4270f6fcf401ddd16d53cef89723ec0424e2f917bc1e9a038d06",
+        "disabled": "cbaaffc3606c4270f6fcf401ddd16d53cef89723ec0424e2f917bc1e9a038d06"
+      }
+    },
+    {
+      "file": "sim_600001_2.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "2148006a9a761e34604fad94deff39990cc7a34409187299eacfa50845245c9a",
+        "disabled": "2148006a9a761e34604fad94deff39990cc7a34409187299eacfa50845245c9a"
+      }
+    },
+    {
+      "file": "sim_600001_3.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "b9c2258bf1b889baac5d3e3430c7335839c0461618705befbaa10f9ac225e2c9",
+        "disabled": "b9c2258bf1b889baac5d3e3430c7335839c0461618705befbaa10f9ac225e2c9"
+      }
+    },
+    {
+      "file": "sim_600001_4.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "7af5386e14a8efef57b7445e1bbe5d46fb96740a48142694e398877f6c5051a5",
+        "disabled": "7af5386e14a8efef57b7445e1bbe5d46fb96740a48142694e398877f6c5051a5"
+      }
+    },
+    {
+      "file": "sim_600001_5.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "87365fa5058c2a5c26a7e99219bfeaf26e23342daa3a33a79ee15f1ebdb0f503",
+        "disabled": "87365fa5058c2a5c26a7e99219bfeaf26e23342daa3a33a79ee15f1ebdb0f503"
+      }
+    },
+    {
+      "file": "sim_600001_6.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "b9e0751ef1ac5464ea80731c3b27f783daa511b73cbf63dff75e13751afc2019",
+        "disabled": "b9e0751ef1ac5464ea80731c3b27f783daa511b73cbf63dff75e13751afc2019"
+      }
+    },
+    {
+      "file": "sim_600001_7.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "6f0e3f518ef55fe78b20e5774f1ad5aebb449434c423fe5cc70c7114efeb32e2",
+        "disabled": "6f0e3f518ef55fe78b20e5774f1ad5aebb449434c423fe5cc70c7114efeb32e2"
+      }
+    },
+    {
+      "file": "sim_600001_8.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "ffa8b61bd59a72707bb202c2eba4e463237305ecb6b2772083193f2dd258cd53",
+        "disabled": "ffa8b61bd59a72707bb202c2eba4e463237305ecb6b2772083193f2dd258cd53"
+      }
+    },
+    {
+      "file": "sim_600001_9.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "7623b9ba18874da27f3f047d0a0f0b8dd24084b9a636d2677802d7690e1130bf",
+        "disabled": "7623b9ba18874da27f3f047d0a0f0b8dd24084b9a636d2677802d7690e1130bf"
+      }
+    },
+    {
+      "file": "sim_600002_0.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "4588cd97bbf07890e22095ee1415a62b1392186f9b0016239d306d9ab6e0c054",
+        "disabled": "4588cd97bbf07890e22095ee1415a62b1392186f9b0016239d306d9ab6e0c054"
+      }
+    },
+    {
+      "file": "sim_600002_1.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "5df9c6b5c17936e6e60992b4864e8cc65543f9bdbd6778264524acb146dbb13d",
+        "disabled": "5df9c6b5c17936e6e60992b4864e8cc65543f9bdbd6778264524acb146dbb13d"
+      }
+    },
+    {
+      "file": "sim_600002_2.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "76772b7e5e7091909a9300dda7521f5607393e4681a34258e42622355d1034dd",
+        "disabled": "76772b7e5e7091909a9300dda7521f5607393e4681a34258e42622355d1034dd"
+      }
+    },
+    {
+      "file": "sim_600002_3.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "86b99052c8cf68de0518a4eb329cb4e9283c7ed55787c50b80e406f179432168",
+        "disabled": "86b99052c8cf68de0518a4eb329cb4e9283c7ed55787c50b80e406f179432168"
+      }
+    },
+    {
+      "file": "sim_600002_4.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "e0e2ff1848bdda0bd5dcd2a2d0da4fd4077780f9deffaa00fcc9a50652c0f6cd",
+        "disabled": "e0e2ff1848bdda0bd5dcd2a2d0da4fd4077780f9deffaa00fcc9a50652c0f6cd"
+      }
+    },
+    {
+      "file": "sim_600002_5.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "2bf5cd7d12844c8d42e025a0fe946023cb9867827f527f1df6cce08ec56c4d91",
+        "disabled": "2bf5cd7d12844c8d42e025a0fe946023cb9867827f527f1df6cce08ec56c4d91"
+      }
+    },
+    {
+      "file": "sim_600002_6.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "07792ad47eb7d83ead379bc6eb2c1f404f6a7e6a5a3144be877eab607244c8ae",
+        "disabled": "07792ad47eb7d83ead379bc6eb2c1f404f6a7e6a5a3144be877eab607244c8ae"
+      }
+    },
+    {
+      "file": "sim_600002_7.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "675963e8191a907d7405ec01fa2401f9eafd00077505b3214e5cdd72ecfa6a81",
+        "disabled": "675963e8191a907d7405ec01fa2401f9eafd00077505b3214e5cdd72ecfa6a81"
+      }
+    },
+    {
+      "file": "sim_600002_8.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "9142cdf11af9319020d398c2028de9b1ccc68ffed1cb4a34f401b8bc9f147462",
+        "disabled": "9142cdf11af9319020d398c2028de9b1ccc68ffed1cb4a34f401b8bc9f147462"
+      }
+    },
+    {
+      "file": "sim_600002_9.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "03956ea9e2a1e65f239d0fa07fab9ad81bb0a5bb914f108074b94fa39ccf9855",
+        "disabled": "03956ea9e2a1e65f239d0fa07fab9ad81bb0a5bb914f108074b94fa39ccf9855"
+      }
+    },
+    {
+      "file": "sim_600003_0.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "e7ea7a8bb5a08aebd6f4681bf90db108489c5e558e906e3e7bcf0f305118d7f5",
+        "disabled": "e7ea7a8bb5a08aebd6f4681bf90db108489c5e558e906e3e7bcf0f305118d7f5"
+      }
+    },
+    {
+      "file": "sim_600003_1.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "1af3012bbb5ac3bdbe93366683a97e0ffae7b65bf5824c3e976392dfc2ecad60",
+        "disabled": "1af3012bbb5ac3bdbe93366683a97e0ffae7b65bf5824c3e976392dfc2ecad60"
+      }
+    },
+    {
+      "file": "sim_600003_2.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "6d1adbb24930a1364326287dc3e22fd90af4a4c4a0c48e20c2240c38ac2b2ced",
+        "disabled": "6d1adbb24930a1364326287dc3e22fd90af4a4c4a0c48e20c2240c38ac2b2ced"
+      }
+    },
+    {
+      "file": "sim_600003_3.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "4e0426ae071373c62cb1655fbaa83923abbadd7b6b27111af91756d9b4077d68",
+        "disabled": "4e0426ae071373c62cb1655fbaa83923abbadd7b6b27111af91756d9b4077d68"
+      }
+    },
+    {
+      "file": "sim_600003_4.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "960465731508c8f8ad795494245f3d708647c49dded1a65c5bfc4515b46d6bb6",
+        "disabled": "960465731508c8f8ad795494245f3d708647c49dded1a65c5bfc4515b46d6bb6"
+      }
+    },
+    {
+      "file": "sim_600003_5.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "e1dc81c455291057fb6a952b6f7e95ca18b9b3a840fea10127424de04bf5546f",
+        "disabled": "e1dc81c455291057fb6a952b6f7e95ca18b9b3a840fea10127424de04bf5546f"
+      }
+    },
+    {
+      "file": "sim_600003_6.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "f5c67ff676a4566ef4a07160c1703f2fe871f76270accf2861da7ba88a55e52f",
+        "disabled": "f5c67ff676a4566ef4a07160c1703f2fe871f76270accf2861da7ba88a55e52f"
+      }
+    },
+    {
+      "file": "sim_600003_7.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "dc727f37a831eb055d1f55a675c3cfbc409170ba1360729982f0228c59f083dc",
+        "disabled": "dc727f37a831eb055d1f55a675c3cfbc409170ba1360729982f0228c59f083dc"
+      }
+    },
+    {
+      "file": "sim_600003_8.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "7e81c5526ed6f8b92761d151cff4d699ae5bedc8697c82f4107d09e2681e296d",
+        "disabled": "7e81c5526ed6f8b92761d151cff4d699ae5bedc8697c82f4107d09e2681e296d"
+      }
+    },
+    {
+      "file": "sim_600003_9.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "ec8d2cd4776ae222d3967d8c2b748d3b94382fa84894af3168574d93e838f15e",
+        "disabled": "ec8d2cd4776ae222d3967d8c2b748d3b94382fa84894af3168574d93e838f15e"
+      }
+    },
+    {
+      "file": "sim_600004_0.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "2964802d767a2da2a56d646424075abdbdade71a094f262c4ebf9ec63fa02578",
+        "disabled": "2964802d767a2da2a56d646424075abdbdade71a094f262c4ebf9ec63fa02578"
+      }
+    },
+    {
+      "file": "sim_600004_1.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "fedf5bf9da31cdeb9b5b530996d1933f25e1bb0ea4652fcb56cdb9e22af0f32b",
+        "disabled": "fedf5bf9da31cdeb9b5b530996d1933f25e1bb0ea4652fcb56cdb9e22af0f32b"
+      }
+    },
+    {
+      "file": "sim_600004_2.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "e941cedd3675ada237d6beaa9c88ec4f18d8faea2444fbd0711e41b9b3b47562",
+        "disabled": "e941cedd3675ada237d6beaa9c88ec4f18d8faea2444fbd0711e41b9b3b47562"
+      }
+    },
+    {
+      "file": "sim_600004_3.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "05b76ca4b809d2c50d88cc8ead7bf174f8fe27f55a0c179374f801418977a4bf",
+        "disabled": "05b76ca4b809d2c50d88cc8ead7bf174f8fe27f55a0c179374f801418977a4bf"
+      }
+    },
+    {
+      "file": "sim_600004_4.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "df0918acb0bc287992aea5ef6ed3d953c80ad617d24e6cc1569bab075aed1b20",
+        "disabled": "df0918acb0bc287992aea5ef6ed3d953c80ad617d24e6cc1569bab075aed1b20"
+      }
+    },
+    {
+      "file": "sim_600004_5.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "7d90997d754128ee0cceca70354b024e989bddadbc6a3f8874c622fdc3094841",
+        "disabled": "7d90997d754128ee0cceca70354b024e989bddadbc6a3f8874c622fdc3094841"
+      }
+    },
+    {
+      "file": "sim_600004_6.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "db13f256738e6bfdfdb562f20eb886d6e68a0e0418508d7c4fe6107733647281",
+        "disabled": "db13f256738e6bfdfdb562f20eb886d6e68a0e0418508d7c4fe6107733647281"
+      }
+    },
+    {
+      "file": "sim_600004_7.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "c309bd72cbd183bf25a175a159cad716995e643939b9819b3ebedd06f27c5f5d",
+        "disabled": "c309bd72cbd183bf25a175a159cad716995e643939b9819b3ebedd06f27c5f5d"
+      }
+    },
+    {
+      "file": "sim_600004_8.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "3377986dc8439abe4599b525c4f1005e7f333a3025bcf9ad602f9fc3025717a1",
+        "disabled": "3377986dc8439abe4599b525c4f1005e7f333a3025bcf9ad602f9fc3025717a1"
+      }
+    },
+    {
+      "file": "sim_600004_9.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "17771d85ea2115ded14130b05bbcf9fc110e77f9344b0bf921dbfb02fd650252",
+        "disabled": "17771d85ea2115ded14130b05bbcf9fc110e77f9344b0bf921dbfb02fd650252"
+      }
+    },
+    {
+      "file": "sim_600005_0.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "3e05f3fac281c2fa3f2ecfcd819ef3a12e9531a88561f3e26190f1b317516aca",
+        "disabled": "3e05f3fac281c2fa3f2ecfcd819ef3a12e9531a88561f3e26190f1b317516aca"
+      }
+    },
+    {
+      "file": "sim_600005_1.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "4090578aca4b79dfd761632c847ae00ba229e51ee81896babadcd582c88c9086",
+        "disabled": "4090578aca4b79dfd761632c847ae00ba229e51ee81896babadcd582c88c9086"
+      }
+    },
+    {
+      "file": "sim_600005_2.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "599854dc22e583d3c125ccf3741f3af7402fb5bd871bae73b916d9cb9cb2be33",
+        "disabled": "599854dc22e583d3c125ccf3741f3af7402fb5bd871bae73b916d9cb9cb2be33"
+      }
+    },
+    {
+      "file": "sim_600005_3.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "2f6982c9689e3c5612c39441eee9873fb75b7a9fc496dd346d0fb7661ac54b72",
+        "disabled": "2f6982c9689e3c5612c39441eee9873fb75b7a9fc496dd346d0fb7661ac54b72"
+      }
+    },
+    {
+      "file": "sim_600005_4.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "f11de9cc938531dd85bc087eb3ae7b50619bc03e88260b9350f8d5d4d35cbea5",
+        "disabled": "f11de9cc938531dd85bc087eb3ae7b50619bc03e88260b9350f8d5d4d35cbea5"
+      }
+    },
+    {
+      "file": "sim_600005_5.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "c0f3bc80ccbd8ecc9ab0cb56ac7c1df4a05070cca699c48d41fb2da205da8c86",
+        "disabled": "c0f3bc80ccbd8ecc9ab0cb56ac7c1df4a05070cca699c48d41fb2da205da8c86"
+      }
+    },
+    {
+      "file": "sim_600005_6.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "6b3a019abe781e4adaf91d696148d8415b5865831a915ea5818d71f4bacdfff4",
+        "disabled": "6b3a019abe781e4adaf91d696148d8415b5865831a915ea5818d71f4bacdfff4"
+      }
+    },
+    {
+      "file": "sim_600005_7.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "ea44df4a3e93a92df35d3a9a69ca76bbfe5c1510ff3e14cbedd625480a846a15",
+        "disabled": "ea44df4a3e93a92df35d3a9a69ca76bbfe5c1510ff3e14cbedd625480a846a15"
+      }
+    },
+    {
+      "file": "sim_600005_8.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "cbaf47d6d4de3d941e58fd4cc13e0610aa06c03284852edb69c255e6cb5e50c1",
+        "disabled": "cbaf47d6d4de3d941e58fd4cc13e0610aa06c03284852edb69c255e6cb5e50c1"
+      }
+    },
+    {
+      "file": "sim_600005_9.json",
+      "identical": true,
+      "byte_identical": true,
+      "sha256": {
+        "default": "f0fb2113d0064f0f87dcfb60397ac2a477fda8834f8b6ccf845cdce17b2f1991",
+        "disabled": "f0fb2113d0064f0f87dcfb60397ac2a477fda8834f8b6ccf845cdce17b2f1991"
+      }
+    }
+  ],
+  "differences": [
+    {
+      "file": "real_600005_2.json",
+      "results": {
+        "default": {
+          "damage_total": 4,
+          "damage_critical": 3,
+          "time_total": 89.600006,
+          "would_die": false
+        },
+        "disabled": {
+          "damage_total": 5,
+          "damage_critical": 4,
+          "time_total": 90.333336,
+          "would_die": true
+        }
+      }
+    }
+  ],
+  "partial_attempt_files": [
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "level_600001.json",
+      "identical": true,
+      "sha256": "1ca0fc4631a2dc06034899f8d6c292b8f42e30ac2aa84849506bc84ba44f5a6c"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "level_600002.json",
+      "identical": true,
+      "sha256": "3e36137778c59f319fac69c595de8abfc8bccaaea1de30f325ddbd4a456016f3"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "level_600003.json",
+      "identical": true,
+      "sha256": "2f86b5687c5975f60300761898bd8c0350155042d372f2394bce6f7c62c0292a"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "level_600004.json",
+      "identical": true,
+      "sha256": "d4aa302ce928673ee8cb7f818b9ef356e5c46a9b6d41c90318cbd9c564835368"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600001_0.json",
+      "identical": true,
+      "sha256": "1fd8ab5eec9bd0095c54ede3bef12a75c15f8d1836aae4676298c1dbc438f653"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600001_1.json",
+      "identical": true,
+      "sha256": "3f1c163c71c43aaf449c35e333b3038bd6d35ed2558cabc8fc1cfff792e515ae"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600001_2.json",
+      "identical": true,
+      "sha256": "5c90322fdba9527606379d91997273dbef828b970803884bafb7a117bc98267a"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600001_3.json",
+      "identical": true,
+      "sha256": "a5f0c12957b0984af462ad6e414fe1006bb31af217778e1694232522712206a2"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600001_4.json",
+      "identical": true,
+      "sha256": "f5ac0bcf4bfcde35223bc9e11d59e31a2a2faab174c5a1bb6c450f94ffa95c18"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600001_5.json",
+      "identical": true,
+      "sha256": "d907a73d9d51905b9042872475a8ffff86123af39b507650f8234d218ff9d152"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600001_6.json",
+      "identical": true,
+      "sha256": "ebbcc236fe7d9cded4d165c40e47207666daa0d3a5f4a885903ed908f0c1a2e8"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600001_7.json",
+      "identical": true,
+      "sha256": "7d3b48843ace7d3764bae12d6b8608cfb05d90b4462b300c5b106b6ada913fbd"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600001_8.json",
+      "identical": true,
+      "sha256": "72cdd922e9db6f1b3c72a6636b12cb084180d388ae5a42c33644bcecde4dd305"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600001_9.json",
+      "identical": true,
+      "sha256": "dfbce54a8111cc7beb486a9c367512245d13786d1cd6014b0a46fb0c16ac5d65"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600002_0.json",
+      "identical": true,
+      "sha256": "09d9a580563209cebd579ff10fcfc4eab8b3c89aa21148e8b1980ebdb09ce30c"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600002_1.json",
+      "identical": true,
+      "sha256": "4c59034676cc2a0c7960e24d206c90e3789c9495ecd708e258c2bc6298ba0619"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600002_2.json",
+      "identical": true,
+      "sha256": "011e42c93fe424c9315d2080a0eaa43119a2651fe6072bb46d5711481c8e749f"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600002_3.json",
+      "identical": true,
+      "sha256": "7ecdbc202f01796520557ecb10f8a10804074ef35ff7a05ce63b87730ae350e3"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600002_4.json",
+      "identical": true,
+      "sha256": "868f789e91b81ab37db8b18030d7029d3db5998f20cf24a8b6b79deff4a26ad6"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600002_5.json",
+      "identical": true,
+      "sha256": "c2d43c20a03b7d3844d8699458896709550c0d0ee762e78894b377a7b51482fb"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600002_6.json",
+      "identical": true,
+      "sha256": "25eae55aa56557e2bf3ffb6e59352f9800a05d11583cb081d54a31f95a53e1dd"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600002_7.json",
+      "identical": true,
+      "sha256": "1853ba24f697d6a93c25a84b943bda0f129b437aef78c2dab066a2fdebeca186"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600002_8.json",
+      "identical": true,
+      "sha256": "a8335c5eb402b2fc0786e2cad849cac15789015ae4a1ff3373c19913b28c7b77"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600002_9.json",
+      "identical": true,
+      "sha256": "04f72e8f85a8a4423f6800c63ad518448b575ff38dd2aab8a9d2003c3e1c0bdd"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600003_0.json",
+      "identical": true,
+      "sha256": "edfb05021cd0d45e760c988f204838588423a291716df132135e9893cf4b9501"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600003_1.json",
+      "identical": true,
+      "sha256": "d9da3f393ac5557b179656d93910a0507f983e2151e3253a992f08d305d58a88"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600003_2.json",
+      "identical": true,
+      "sha256": "ec4d08de6602877675327c59f9287c048526b115f9dba2f64a92be164886ef58"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600003_3.json",
+      "identical": true,
+      "sha256": "227b526078b6e1ab1b183fe354c1057a8b8c0b702b245435a4c77e97f78c4998"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600003_4.json",
+      "identical": true,
+      "sha256": "65e003cf548d7f062218f4fe0d49879648853b40db43dcfbfcc07318ac088db6"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600003_5.json",
+      "identical": true,
+      "sha256": "37d1c743860e124b7242f9150dab4272e2d33ef640a93c9b2b48ca29f26b9bec"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600003_6.json",
+      "identical": true,
+      "sha256": "c231e314dc5f9b66461b0b2540ae0175908c5e8699eadaaae23b76bce7dc653c"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600003_7.json",
+      "identical": true,
+      "sha256": "fd1c8046127aef9c15d9cd61222f282a8ad763074878aae06bfd3f1e0c6ea0e5"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600003_8.json",
+      "identical": true,
+      "sha256": "dd633404a86dfb79874f46b54170a745eeb4e18fc816a39ecde0d092dad99145"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600003_9.json",
+      "identical": true,
+      "sha256": "ff6f2c5297c828996d382c73007b4fa35a815f196ace4ee5b8c272862cdb316e"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600004_0.json",
+      "identical": true,
+      "sha256": "da9db4b8bb4b51edf5cd44fbeb25301ab476d7d057e59ed3c704a155c9ee68b0"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600004_1.json",
+      "identical": true,
+      "sha256": "ac1faee0eb5ed68ddc69fae33ed5ad9115e6a63ea102966024ab96de993a51d4"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600004_2.json",
+      "identical": true,
+      "sha256": "3d4a85a538d3b3b9ae874a8bd7755dbb9d39d69fd21fe4870045f9161797dbcb"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600004_3.json",
+      "identical": true,
+      "sha256": "b2a848d96166bcec51cb78cffbe8eaa4bf1ee8b9d75f95f2f806079301067a62"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600004_4.json",
+      "identical": true,
+      "sha256": "d1698f546cd82ae56854571a45e9c1966429989bc0153b6e57757675c5d07f3b"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600004_5.json",
+      "identical": true,
+      "sha256": "a15c68bd38265bd6ae5f17da3ece50dbea15daddcd60e3cb86c7d8d8c2d6becf"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600004_6.json",
+      "identical": true,
+      "sha256": "19144a64b3cac97cb7ca57d38f1f14982bd4db84bc983e9aba9584d8cf1fd7f5"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600004_7.json",
+      "identical": true,
+      "sha256": "81a5559cf7fa546928a1f413bb1d3d94d4d2a87b4ef8cb6b4163f58b48889a38"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "real_600004_8.json",
+      "identical": true,
+      "sha256": "62b59ff88dabdecd80b00c0f33d82429326d5df734baad73c3e10e373d6203d5"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600001_0.json",
+      "identical": true,
+      "sha256": "017f31db19b9d58672edf30372e9adbd314793653832fe2958ab1373f40ccb68"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600001_1.json",
+      "identical": true,
+      "sha256": "cbaaffc3606c4270f6fcf401ddd16d53cef89723ec0424e2f917bc1e9a038d06"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600001_2.json",
+      "identical": true,
+      "sha256": "2148006a9a761e34604fad94deff39990cc7a34409187299eacfa50845245c9a"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600001_3.json",
+      "identical": true,
+      "sha256": "b9c2258bf1b889baac5d3e3430c7335839c0461618705befbaa10f9ac225e2c9"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600001_4.json",
+      "identical": true,
+      "sha256": "7af5386e14a8efef57b7445e1bbe5d46fb96740a48142694e398877f6c5051a5"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600001_5.json",
+      "identical": true,
+      "sha256": "87365fa5058c2a5c26a7e99219bfeaf26e23342daa3a33a79ee15f1ebdb0f503"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600001_6.json",
+      "identical": true,
+      "sha256": "b9e0751ef1ac5464ea80731c3b27f783daa511b73cbf63dff75e13751afc2019"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600001_7.json",
+      "identical": true,
+      "sha256": "6f0e3f518ef55fe78b20e5774f1ad5aebb449434c423fe5cc70c7114efeb32e2"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600001_8.json",
+      "identical": true,
+      "sha256": "ffa8b61bd59a72707bb202c2eba4e463237305ecb6b2772083193f2dd258cd53"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600001_9.json",
+      "identical": true,
+      "sha256": "7623b9ba18874da27f3f047d0a0f0b8dd24084b9a636d2677802d7690e1130bf"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600002_0.json",
+      "identical": true,
+      "sha256": "4588cd97bbf07890e22095ee1415a62b1392186f9b0016239d306d9ab6e0c054"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600002_1.json",
+      "identical": true,
+      "sha256": "5df9c6b5c17936e6e60992b4864e8cc65543f9bdbd6778264524acb146dbb13d"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600002_2.json",
+      "identical": true,
+      "sha256": "76772b7e5e7091909a9300dda7521f5607393e4681a34258e42622355d1034dd"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600002_3.json",
+      "identical": true,
+      "sha256": "86b99052c8cf68de0518a4eb329cb4e9283c7ed55787c50b80e406f179432168"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600002_4.json",
+      "identical": true,
+      "sha256": "e0e2ff1848bdda0bd5dcd2a2d0da4fd4077780f9deffaa00fcc9a50652c0f6cd"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600002_5.json",
+      "identical": true,
+      "sha256": "2bf5cd7d12844c8d42e025a0fe946023cb9867827f527f1df6cce08ec56c4d91"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600002_6.json",
+      "identical": true,
+      "sha256": "07792ad47eb7d83ead379bc6eb2c1f404f6a7e6a5a3144be877eab607244c8ae"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600002_7.json",
+      "identical": true,
+      "sha256": "675963e8191a907d7405ec01fa2401f9eafd00077505b3214e5cdd72ecfa6a81"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600002_8.json",
+      "identical": true,
+      "sha256": "9142cdf11af9319020d398c2028de9b1ccc68ffed1cb4a34f401b8bc9f147462"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600002_9.json",
+      "identical": true,
+      "sha256": "03956ea9e2a1e65f239d0fa07fab9ad81bb0a5bb914f108074b94fa39ccf9855"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600003_0.json",
+      "identical": true,
+      "sha256": "e7ea7a8bb5a08aebd6f4681bf90db108489c5e558e906e3e7bcf0f305118d7f5"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600003_1.json",
+      "identical": true,
+      "sha256": "1af3012bbb5ac3bdbe93366683a97e0ffae7b65bf5824c3e976392dfc2ecad60"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600003_2.json",
+      "identical": true,
+      "sha256": "6d1adbb24930a1364326287dc3e22fd90af4a4c4a0c48e20c2240c38ac2b2ced"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600003_3.json",
+      "identical": true,
+      "sha256": "4e0426ae071373c62cb1655fbaa83923abbadd7b6b27111af91756d9b4077d68"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600003_4.json",
+      "identical": true,
+      "sha256": "960465731508c8f8ad795494245f3d708647c49dded1a65c5bfc4515b46d6bb6"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600003_5.json",
+      "identical": true,
+      "sha256": "e1dc81c455291057fb6a952b6f7e95ca18b9b3a840fea10127424de04bf5546f"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600003_6.json",
+      "identical": true,
+      "sha256": "f5c67ff676a4566ef4a07160c1703f2fe871f76270accf2861da7ba88a55e52f"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600003_7.json",
+      "identical": true,
+      "sha256": "dc727f37a831eb055d1f55a675c3cfbc409170ba1360729982f0228c59f083dc"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600003_8.json",
+      "identical": true,
+      "sha256": "7e81c5526ed6f8b92761d151cff4d699ae5bedc8697c82f4107d09e2681e296d"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600003_9.json",
+      "identical": true,
+      "sha256": "ec8d2cd4776ae222d3967d8c2b748d3b94382fa84894af3168574d93e838f15e"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600004_0.json",
+      "identical": true,
+      "sha256": "2964802d767a2da2a56d646424075abdbdade71a094f262c4ebf9ec63fa02578"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600004_1.json",
+      "identical": true,
+      "sha256": "fedf5bf9da31cdeb9b5b530996d1933f25e1bb0ea4652fcb56cdb9e22af0f32b"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600004_2.json",
+      "identical": true,
+      "sha256": "e941cedd3675ada237d6beaa9c88ec4f18d8faea2444fbd0711e41b9b3b47562"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600004_3.json",
+      "identical": true,
+      "sha256": "05b76ca4b809d2c50d88cc8ead7bf174f8fe27f55a0c179374f801418977a4bf"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600004_4.json",
+      "identical": true,
+      "sha256": "df0918acb0bc287992aea5ef6ed3d953c80ad617d24e6cc1569bab075aed1b20"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600004_5.json",
+      "identical": true,
+      "sha256": "7d90997d754128ee0cceca70354b024e989bddadbc6a3f8874c622fdc3094841"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600004_6.json",
+      "identical": true,
+      "sha256": "db13f256738e6bfdfdb562f20eb886d6e68a0e0418508d7c4fe6107733647281"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600004_7.json",
+      "identical": true,
+      "sha256": "c309bd72cbd183bf25a175a159cad716995e643939b9819b3ebedd06f27c5f5d"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600004_8.json",
+      "identical": true,
+      "sha256": "3377986dc8439abe4599b525c4f1005e7f333a3025bcf9ad602f9fc3025717a1"
+    },
+    {
+      "configuration": "disabled",
+      "attempt": 1,
+      "file": "sim_600004_9.json",
+      "identical": true,
+      "sha256": "17771d85ea2115ded14130b05bbcf9fc110e77f9344b0bf921dbfb02fd650252"
+    }
+  ],
+  "fingerprints": {
+    "ai-training/protocols/v3_fidelity.json": "91d0239fad57636476455b66eb06d49a1326b731d6777b2a166fa36aafb1e220",
+    "ai-training/protocols/v3_repetition_curve_plan.json": "12858c4e96df8b09b6b6c8b5ba0388278e09aa9bc1c86572d43eb9c6536aea70",
+    "ai-training/validation/repetition_curve_v3.py": "27593089b7d7673942a9478056c2a4c6b0ca6727b78e52cd637c53abdc916725",
+    "ai-training/validation/v3_fidelity.py": "19d5068f22f1c1e510d2f1193978be23dd77ca55c09003b32c68a061c19bb7c9",
+    "executed_assembly": "835c845b624a7c4a80c0496c8e83318b4d25152cd71198f90bda2da09913d5e5",
+    "project.godot": "be16f0802ed1ee2ece713d7b4a44ab955d4740b58cd45a7ce609294a48d3515a",
+    "resources/ai/difficulty_v1.json": "96c28588077ca53e6d4d2e6e486f53a9641312a17012a06a8593254c9b5451c1",
+    "resources/ai/difficulty_v2.json": "c03cf200951a1588705e9f6aca839510c92c26a8261767e4177ad885122fe7bd",
+    "resources/atmosphere/cradle_atmosphere.tres": "71ca68f5484300fde4f7db1f7e1754dd28d9c59984631c0482a0d7fd1d01f007",
+    "resources/items/Catalog.tres": "5f1d46a057eb502cbaeafef7905898438f671f73e8af8828950253dd19a8cbb4",
+    "resources/items/biberon.tres": "6722e368931b5c4615ce0a4ae3c9836e06b8ba10689ffab86ac3019fe4b8b266",
+    "resources/items/chupete.tres": "fff66d9271e6ffba7c59cafb60f9dbc386c1be446406d7a40eb65ddbf0245f93",
+    "resources/items/fotografia_rota.tres": "af9b00582082b482e77ff095db7e53c4ec66b70fc422ee8d1c1eaa46730769c6",
+    "resources/items/manta_vieja.tres": "a6abb7bc4cd25004b319786460bb85ac6deb3edeeb3fc6c018a3734e965adba7",
+    "resources/items/oso_peluche.tres": "08a35280e1305341a1f23c9a7bdb23ddef5770d33ef316c5938b8fd295225fa1",
+    "resources/rooms/TestMap.tres": "989146e168e8e41d8d209615b158df57cc1211bc67de4f4c2f1d17931e216511",
+    "resources/rooms/templates/Catalog.tres": "c2e114b27df074221c0715c579cd9b4e76bda6fc197de448b5c76c51864d66d6",
+    "resources/rooms/templates/inicio.tres": "c546cb1052f737b4f9b24483b32e9327f63a57e5ddb88fd5ce94933b7af07c97",
+    "resources/rooms/templates/jefe.tres": "107f84f33999866f0c27a559fce3071083b31058515780351ff156ad78d6c679",
+    "resources/rooms/templates/mixta_caos.tres": "65d6259e40bb5c335e1f87aa28a69355a7c23c9986f1bcaaad2573e0d72db86c",
+    "resources/rooms/templates/mixta_emboscada.tres": "020eddf2cc313b8ec82e8b4f3308f9dedf7f56d944f61f954209185443617731",
+    "resources/rooms/templates/mixta_excavadores.tres": "ecbf3d45df835c4dee53a2de59da878f6d7f27efda8866a70d2e87d281f43112",
+    "resources/rooms/templates/mixta_explosivos.tres": "1bdb966389b766f54eee33b3e08d9127d6f308b578337eff8e9fb976b7c557d2",
+    "resources/rooms/templates/mixta_huidores.tres": "597024950942b39806e0531889cd2d6d46a043fcda6f1c728df1ceced415e0ff",
+    "resources/rooms/templates/mixta_relampago.tres": "cc30fa93a6c7897756fcdd34596cc8250663a02bba31cc6bbe084f39ca43bde7",
+    "resources/rooms/templates/mixta_tiradores.tres": "4613cfdd269452b38b1c071d99753b24913112fa1f425fce621a9c7b4efa7256",
+    "resources/rooms/templates/mixta_trinchera.tres": "2d15aa848eec04023e54b7ea8bb9b1c074824ee48d87f31f51e6a0a7f17ce35a",
+    "resources/rooms/templates/mixta_variada.tres": "98e7993fb3ec313babf019701202aa598dc7987e142d8bc03c93a80b9b314ce9",
+    "resources/rooms/templates/mixta_voladores.tres": "6d8977c355e9f85121e4a6be8cdc6dc843de30b66eac9bad4dbb40d2b11e4725",
+    "resources/rooms/templates/normal_alta.tres": "7df6e2f684d2c3e625fcbec03e30b2b2033769aa88c6f85363ba631176ede4a7",
+    "resources/rooms/templates/normal_ancha.tres": "2825107639ef0fb21c90a772922ad7a3149fcc7fccbf11ef86dd805220f288ae",
+    "resources/rooms/templates/normal_cuadrada.tres": "209f6c8cc2c032ea127c98119ccf6807fe7fecee4125154e608386b73d7c97e9",
+    "resources/rooms/templates/normal_esquinas.tres": "d705570ea1ee4ba613b4af5b9129c42165f8b8f7d1b18c6f37c4d4ef415d4228",
+    "resources/rooms/templates/normal_grande.tres": "46c54fc23d395c2097adcc5632e8183369698d7e4436a2dce3bca5bb87619e18",
+    "resources/rooms/templates/normal_pequena.tres": "2a8ab755cb3c2fc41342fa6e5f927aabf1c73ac61330e6768e1a05aff75a5ede",
+    "resources/rooms/templates/tesoro.tres": "9783001e030ebb40540b4bc50f9684e8280967acf7222516342664cf020d4655",
+    "scenes/bosses/TheMother.tscn": "a37bea1029070e4e8e5fbdc285413c0fcb324f6c54573b5cf05e8d66c344ffdd",
+    "scenes/combat/EnemyProjectile.tscn": "a7d5cd5fd20f79290025a0931b61264628114f2d2985c726c150370b1d609f53",
+    "scenes/combat/ExplosionEffect.tscn": "3066b8348af28e9ba6d459fccf8241c32e3bc1aa96401099401437ddfcf5ce88",
+    "scenes/combat/Tear.tscn": "c6e7deb14b63901d23687afadcd331dcab813ed173fff3412121b88050bb8319",
+    "scenes/enemies/BasicEnemy.tscn": "6c3cf1d99b8eb4402fa38b174974c2fb7d9a06d67745705bfe08d07704199432",
+    "scenes/enemies/DiggerEnemy.tscn": "64b1aaed5c2de0f991f776f9d8d0626b0f20fc705f1bd4578491e7bbb9eac9ab",
+    "scenes/enemies/ExploderEnemy.tscn": "e00f6804bce2bb18d1d2c8872d49b89a2d7ed9cd0b7e46726abc1655e181a13b",
+    "scenes/enemies/FlyerEnemy.tscn": "9628215dfdd43e51f3824831e8dfabc3d2108eb25d0c55ee3b4b645813aa9e46",
+    "scenes/enemies/RunnerEnemy.tscn": "50c788dc2ac1ab1c9078a728e5d45346bccd385ea2af6ebb6448c1025c8be367",
+    "scenes/enemies/ShooterEnemy.tscn": "dc6f5e02dfae1a701cf5c91d043ae851a41e3cf6f99ade7380db3e9b95587712",
+    "scenes/items/ItemPickup.tscn": "ad8748040a2422b9882a98b4e347993bc75c5676cf6bb924a003ce33f79f5c22",
+    "scenes/levels/EnemyShowcase.tscn": "ca718467132279741b6bd21b8e10d1ef9466d8d68715997e14b2a2a0b4439c1b",
+    "scenes/levels/TestLevel.tscn": "575a3e4e9b4286abde11b9624df1329ab6fef5a3fd9a089392d1f46c2ead1185",
+    "scenes/player/Player.tscn": "84a947b5c83cbcb7a89ee6d7b836ddddeed5435f3ee3a1276d59a3e1d5f2c956",
+    "scenes/rooms/Door.tscn": "14e3380e968610f81f0441e180148c307a49476f7f00e433efba012fbd3c4fb8",
+    "scenes/rooms/Room.tscn": "793bbadbef954d3f23bc6b0bd9eeb7ddcc7746a9b578a65b151b07d61ee481de",
+    "scenes/ui/BossHud.tscn": "5ac2b59342205bb51253a0f54478a6529a11b33d6776fdab2103e7fe26eacea1",
+    "scenes/ui/ControlsPanel.tscn": "a6897afe2ac83a04f37d17f5b6d2e20843806c49c21f2b2ef3449381500d64d8",
+    "scenes/ui/DefeatScreen.tscn": "bcd2e2d5d91286b6a2fc89bef9f6dfc721e15de6309596e49737a50ee07bfd67",
+    "scenes/ui/HealthHud.tscn": "c02d36f5e5c491e1eeb7ad4ec4619feb8853c5a2c436099ce39880a55a776871",
+    "scenes/ui/ItemMessageHud.tscn": "5f591492a6d3de8562685effdfe2f462520752c9ee90b8d5312f670abac27f8b",
+    "scenes/ui/ItemsHud.tscn": "fc156b60287fb4a25e248d4cd235d590fcd0f471e8ca4d3d2efb2132f12fd963",
+    "scenes/ui/MainMenu.tscn": "395b5307250f87b17b470858acb23f409591e30b4e0349b30b3ab35c327f2a7a",
+    "scenes/ui/PauseMenu.tscn": "b84c74292c307e826ef7fa0771b326db3a948e841ec8a86d40e3ca73cc399a0b",
+    "scenes/ui/ScreenFade.tscn": "ff99aef8297f98cb183f02529e29210936a1a806c7f73acf6111916801466441",
+    "scenes/ui/SeedHud.tscn": "d1d97ddf8040b2580f0fe29a1dd8081e4b24f7dbbb0a50b13c27f98d9f7d635e",
+    "scenes/ui/VictoryScreen.tscn": "905b40f999e77eaf7d2999a1a411169b115052a5a12aa8837b19b371777f8b3c",
+    "scripts/ai/AIDungeonDirector.cs": "a41de1e56cb9cb47a3e71bad99b49ea53370b2f4a8c6170edb57dddb4fe8e7cf",
+    "scripts/ai/DifficultyModel.cs": "66a4723461310832c786420bc3b14cad7b539efe5e0d64894a8db22b9e050622",
+    "scripts/ai/DifficultyTarget.cs": "50fabfe67d806937e5de445c7159321d5ac5687e41833f18b9bcfd39f97085f4",
+    "scripts/ai/LevelFeatureSet.cs": "993115233761c5b783e1c2924380657bf891b77ac27b1ded5021a21ef0d4fe08",
+    "scripts/ai/LevelMetrics.cs": "d35d89ecc20b4997c3ba91a8fe905ac4c91b48b9098039c84dc4d96df76e56e9",
+    "scripts/ai/LevelMetricsV2.cs": "d3d25d97c6fa086bccc73e242302922da03d8eb6cffef8792fb2540f6bbb4949",
+    "scripts/ai/simulation/BotBrain.cs": "c929af1b947db034969a15553cb962c7c37057927bb27037fd8f65b513e1e7a0",
+    "scripts/ai/simulation/BotDriver.cs": "579db62c8766500f2fba546e45bdb1ccfe088e59a7acfb6a16cacbc9267e5550",
+    "scripts/ai/simulation/BotInputApplier.cs": "3380c8e4323c38b95c93eeca29f95359ed1223d7ac8d60ce068c7d910e48fb0d",
+    "scripts/ai/simulation/GameplayParameters.cs": "69be3daf93b16401e540c6d86585e79e7deed648f4e406195b3fa5068a67d9fc",
+    "scripts/ai/simulation/LevelSimulator.cs": "91c6e5dafbae7e14094e25ff73bbcb61a66ecb4d838126d199e2ff40555ce668",
+    "scripts/ai/simulation/Pcg32.cs": "334ad6e1b56514b60a207c1c463c3755edd7b89453ebcc52f69bc697e4eaa5c9",
+    "scripts/ai/simulation/RoomComposition.cs": "a35ca4ee16ca72893d3819256bfb621509c05b2af63b3d18ef4d97c41bd43901",
+    "scripts/ai/simulation/RunRecorder.cs": "82f0035c39df2d012d3cfd6251237fa81fbb77eb925be475a14d3d66aeed66d2",
+    "scripts/ai/simulation/SimLevel.cs": "2ee8558fec869089cb04a721e4b79d3d89e292daeb64c587f2dcaab4312282cc",
+    "scripts/ai/simulation/v3/BotBrainV3.cs": "121cede890bd0b6873f1f7314b6035a11908af09fc7374846e1ad8d25c03d4d9",
+    "scripts/ai/simulation/v3/BotDriverV3.cs": "c27a8b1ddcd8e702d8415926a543a8200ecd78512070a3bd081b6b70d962458b",
+    "scripts/ai/simulation/v3/GameplayParametersV3.cs": "d3550002e590ecc595c664900516ece51f7ff4d85046708542c295733a1db10e",
+    "scripts/ai/simulation/v3/LevelSimulatorV3.Behaviors.cs": "5548ea758806a06755b1cf9a7a55d608993d70589ced7e5597d96b40350b5dc0",
+    "scripts/ai/simulation/v3/LevelSimulatorV3.cs": "81fa65d751159c05fcab602c7f867e0eea846f392c7ea2b0bbf892aedcb9b085",
+    "scripts/ai/simulation/v3/RunRecorderV3.cs": "06c70c2721c1ad1de3221030d19b25ad6e63f9776e50fe947fcdc400a3400432",
+    "scripts/ai/simulation/v3/SimLevelV3.cs": "8256f389e2aa676872d9ae637d91401b7befe7e1fdf1a2bd5bc68f9e32392f2d",
+    "scripts/ai/simulation/v3/SimulationFrameV3.cs": "ccc52c4790246b317c7b9bb3f662727bd37a1b2750d594be529f969cd6d388ee",
+    "scripts/bosses/DebugBossControls.cs": "83eaa49718839bcc5d1c3695865720aec97695b95dbd227e57d84156678d594b",
+    "scripts/bosses/MotherArena.cs": "9c7e04cb134626dee1e70188132b291e75094608b70e9acbc7f61e52130e0a48",
+    "scripts/bosses/MotherBehavior.cs": "ba5333bc9aed0de84eceb011f1425ba1feadbc920ce21333ac6e733d8470a78f",
+    "scripts/bosses/MotherTexts.cs": "9c80657d95ce805c803e99b81b1b1c58bd20554e59ccd2de8fb4494633ebd79f",
+    "scripts/bosses/MotherVisual.cs": "65edc14e5b16dde809eb99fcb72f8ae1ae7c7ba9991e77c4c50cc166eb6069cb",
+    "scripts/combat/EnemyProjectile.cs": "1aea9d73bab060975d0f80ae7dcf97f3d87a92644a6fce54b32cc46d3dc09e2c",
+    "scripts/combat/ExplosionEffect.cs": "8f735b9b5afb02cc775ee0e947ae380249e182a8d72c2be6f0883138ae8ac5be",
+    "scripts/combat/ProjectileModel.cs": "3b77275b4951c04140984a70a08065ecfd7d65f066d10244686839ad597ebfcd",
+    "scripts/combat/Tear.cs": "af7bd79cb05b6c224d6bdde8045d3524a73c140b749ff1a80ff6d573f4b62e7b",
+    "scripts/decor/AtmosphereApplier.cs": "c8669361cd8f167b3fef61ae04ba96904d6dea0427a9ff814a352bbc42745eda",
+    "scripts/decor/CradleAtmosphere.cs": "6fb3dec4e6a0614aeacdf82d3d2308cabf25406588cd03d783b8166bc1672a43",
+    "scripts/decor/DecorGeometry.cs": "bb98a13e2098cf615c086f4c1cdde5159cda0753f4eb31c476401f7006aca058",
+    "scripts/decor/DecorPiece.cs": "5644b28f799c67824802c84e389ddb28020e52be54f9810ecaad62770c3edfc6",
+    "scripts/decor/FloatingSpin.cs": "860e5540703c97ca893f4f018adb58348cf8d6bcfa4c51d0274bf74ffdcc3643",
+    "scripts/decor/FreeDecorPlanner.cs": "dd959fb7823daff3fb97179b503292bc0f0b2274879bf8d324879b080b906b68",
+    "scripts/decor/ModelLibrary.cs": "3ed9724dba43e7d30b04a66e325fe578d2a76f443b780d43eb9d3a7402a56acf",
+    "scripts/decor/RoomDecorator.cs": "f83272d7c16444563c99f4967e7cd4bfbb20a48354c6af752306ad2d1036862f",
+    "scripts/decor/RoomSurfaces.cs": "3f2b65465921842bb3e2070c1effa09bda76ce819366aa5fe089a1598326d9b4",
+    "scripts/decor/SeedMix.cs": "e24cfc0c5bab41a4d5f71f13365a7233fba19a5ca8c8e1b3620019c98bdd7799",
+    "scripts/decor/WallDecorPlanner.cs": "0a83e972c4a696a29d536b7bbc96487615691bb499bf72b9d050aaa14a9c7f8f",
+    "scripts/enemies/BasicEnemy.cs": "1af81467181027d18c40be175ec46e12580b1c2a73fc49a5ad51d515a79431d8",
+    "scripts/enemies/ChaseBehavior.cs": "3eb83a1cc852858283fa4ab2538ed66da044507ea962b3b54013eedbf51ffb8c",
+    "scripts/enemies/DashBehavior.cs": "8e4d0c0672533c38b5b0b1eac8a5aac8d0134124e8fba049c66b8e52b1829b41",
+    "scripts/enemies/DigBehavior.cs": "1d06acc3bea0ee57af8ab0b8ba6ba1f0f8ae3632751b6aa695494d4ee6eed2d7",
+    "scripts/enemies/DiggerVisual.cs": "74c14eb33128a1f59048c623a00085ae8c2dc92c681812acf479f9c41dc2ce1a",
+    "scripts/enemies/EnemyBase.cs": "e244baca53aaaa5a810bd4e0856b23688d94e1614ead552aacc489349a5faea2",
+    "scripts/enemies/EnemyBehavior.cs": "dfbcc108d3068b6d5b9123e3633e842a56fe5fe82574e2437a694af6116f9358",
+    "scripts/enemies/EnemyFacing.cs": "182bfd6c436da6bb4721f9e58746aaff47ebd51c50c45b6021150b2e613928ec",
+    "scripts/enemies/EnemyKind.cs": "08d53b1e8caaa5b3cc65fc778671889e4e134da98af87c0ea317c614d955c411",
+    "scripts/enemies/EnemyVisual.cs": "7c0c12447a28fc460494aa77d864808395953fc2da7bd8f68d35c786c719b306",
+    "scripts/enemies/FlyPatternBehavior.cs": "1b22de77c1786e290efede9a0c81d1d6adbed406086a681415f3b2818a6336f9",
+    "scripts/enemies/FuseBehavior.cs": "dc3afffc771743ada2fd3b43e7be13155fa759f5c9dd6c6934b936384de5231d",
+    "scripts/enemies/KeepDistanceBehavior.cs": "37dd484b276159f21f847f9de72c16c3347e9acb524d42037989a99f66d741da",
+    "scripts/enemies/ShootBehavior.cs": "d5d931e4b76faaf0b7985fe701e2873765c913a2ed996efc0d790a668f8cf7d2",
+    "scripts/generation/DungeonGenerator.cs": "7d145b7060c3a0d39bb4539a0f7bbf6d554360b9912924a280f27a32fc4c9a96",
+    "scripts/generation/LevelValidator.cs": "c4cc0a3cd58e344711b082fb774a2468a92c324c4cbb543f473bde1a7666dfe5",
+    "scripts/generation/RoomCatalog.cs": "1dace0a00bcd19c3583a158f15bdfc3d4098518e3d8a41e7205634d9b3057d06",
+    "scripts/generation/RoomRules.cs": "fa59abfaf106bdc74da91514a428f3340fc37e3f04900eb0b3ad47f6b394f929",
+    "scripts/generation/RoomTemplate.cs": "05fd47cc6da7cdc8deb13f9e7dd27386064dc112e9aade58d7d187b8777d9686",
+    "scripts/items/DebugItemSpawner.cs": "864aef6c4b10de3b663f5a155f412b9661a627923139e89a42daafee51df3b94",
+    "scripts/items/ItemCatalog.cs": "338c3f6fe247889ab04f82bda3e71f2310bf889c28786200f56118a54b070f99",
+    "scripts/items/ItemDefinition.cs": "f3e328e42fe4675366588468e9a838cd94544396c79c1e90474979d5cc27e1a9",
+    "scripts/items/ItemPickup.cs": "61367b98429c050e856d8fceba54187b790c9d09908abc42eb2f397b341c0586",
+    "scripts/items/PlayerItems.cs": "1768d11f1b082eee462c844e9b1c7bf94257e819d4c33a88eed8378f12cc9440",
+    "scripts/items/TreasureItemSpawner.cs": "cd6c7e313d1e608d174f00c83cea2e2329732c76ec9ff0a970a9ee8c7e82649f",
+    "scripts/player/PlayerController.cs": "c5e2084a86f392188be0b2238219ce1b6496323fd9ecd7b4777832f4575c1866",
+    "scripts/player/PlayerHealth.cs": "20c00b94c9153b87caecbeec15429dc82c3d957ae24bc65a52e1649df1e8d868",
+    "scripts/player/PlayerShooter.cs": "168e2df4ac42f6663afaa5f5d48bc0cb96479f32e4cfcaf4db9bf840d184abdf",
+    "scripts/player/PlayerVisualAnimator.cs": "b57fe86e32a35d3c3bfc47505118984798aa568f5f71ccc1542b8bbd8c39a162",
+    "scripts/systems/CollisionLayers.cs": "4f217319b8805a2cd37a96e515aa23c531620577f5c350989fce60cf4fe56d6c",
+    "scripts/systems/Door.cs": "b250b09e4be9e447267e2fe8fb45d93a6c22b82aae5c575f76d24fed0e4328c1",
+    "scripts/systems/DoorSides.cs": "2c5c0fc1a6347a497fed9d65e4ab698d9e67188662a16dc6b65249e3825d0bb1",
+    "scripts/systems/EnemyShowcase.cs": "68152d4733221a914615824ed43ebd8d743c9922f826cde40cf22c8c19366a4a",
+    "scripts/systems/GameSettings.cs": "f64e9509cac4daf34e1674ef9eaf589b05fdfb2369ead176277c03fbab5fdc0c",
+    "scripts/systems/HealthComponent.cs": "a30b5917e6730a619990362c26e68cff85c0bdeedda7c3b6588f9a8fc94c26f7",
+    "scripts/systems/InputActions.cs": "b3d9efe2da3091fc9507db194ff69322386001938303ffc6d9a3289ac5991542",
+    "scripts/systems/LevelMap.cs": "43cf91ac88f68157376d581e49ba4be45a39d4480c9d27e4078805ba30f4f72f",
+    "scripts/systems/RoomCamera.cs": "eb626d02fd8dd7342072c94e7d6de1aa7eacec89393e1507cc590e9c62c1aea8",
+    "scripts/systems/RoomController.cs": "418393ca57167fe43773c227d5b4e3f5f5ad342581a75cfdefae22aeaddb0262",
+    "scripts/systems/RoomData.cs": "7bde3018335be0fb58ba77083f2da43b759441da9e91dd3aac14063b43dec973",
+    "scripts/systems/RoomLayout.cs": "43ee56290f2aa9861a967647971dba884a61a2898fdb032a2e30401fd45f1530",
+    "scripts/systems/RoomManager.cs": "52e10af94b1380535b3b4781abbff58e2b86217304caa0990e0e4226ebdd8067",
+    "scripts/systems/RunManager.cs": "848d636b144604f58668d4fd1c60015938fe9a55c597102886910aed1a4eca09",
+    "scripts/ui/BossHud.cs": "37566b28b33dd12b979b00275c4f03b83b6a6c9629a5d290d566b73a32b0bff0",
+    "scripts/ui/ControlsPanel.cs": "a03e8677cbc0750a9bc98e9e6c00dc489edd94dc10928e16645fc2d055d873c5",
+    "scripts/ui/DefeatScreen.cs": "d7d3b3e47adfebed9992d18138eea3d851f54b9e556cadd3c795c57ffc755f06",
+    "scripts/ui/GameText.cs": "4edeb19600b81138390d3f795639670323ad07b8fafac1645251425fb92980df",
+    "scripts/ui/HealthHud.cs": "bff4e144c756ccca13e3c250df4cdc50b1d2618d1d7a61e9dda2b2b8af693b9d",
+    "scripts/ui/ItemMessageHud.cs": "53d7c867b50e9133699d8cf746d78d4bf321891e136084ab9aa8747871735b69",
+    "scripts/ui/ItemsHud.cs": "911424bb086c0ce9befa7636e8a4d7767a076e7935e8e5a79e9e95c2c624f6f4",
+    "scripts/ui/MainMenu.cs": "0fe68ad3032de8eab5917a17878d8763ffb12a09fc758d626fa6d43a46bc7251",
+    "scripts/ui/PauseMenu.cs": "a6395ddafe8525d707537d5adf952df5ed742808a5e517fb6a1510ee34943e80",
+    "scripts/ui/ScreenFade.cs": "dcad36c93b2041fb29c6685c7d2a87c8f227da30f0ff075150275082659a4b87",
+    "scripts/ui/SeedHud.cs": "a4bec74d6322918af552efa68142f08ae6c98df681da119c5a1de566ca5c0fb2",
+    "scripts/ui/VictoryScreen.cs": "5757178fa4aecf584a2c40d84f5abb5ac03975f6d90d404fdc31a0ba1a0f8c31",
+    "tests/FidelityV3Check.cs": "c82b4dc57ff4668baea6df2f2d37353d9f42092cbdecaab4b14a7ba1e92d9a9f",
+    "tests/FidelityV3Protocol.cs": "da0771414ed2255886323bcb4547a7362d9e39f7e32e15ecbc3de27b816f5b0c",
+    "tests/FidelityV3RepeatPair.cs": "ac93d3e19f8068a1eada8b6323e43197aefdf0f0d784d4dbaa6b647d3bd24a50",
+    "tests/FidelityV3RepetitionCurve.cs": "0b19d0df240ac603dc0bdfda96b2526bf7b1f3c58bd2774da63c965ebbc38665",
+    "tests/FidelityV3StallMonitor.cs": "61ed922e9e6afb9f3766cff8d73af9653439c8df8599dfc2dfd44ab42a64e126",
+    "tests/FidelityV3ToolsTest.cs": "b58e4f2ae887db02ac0d0ca49c337e82f672bf8b5a4ca3422520be65ef6e39b8",
+    "tests/HistoricalIntegrityTest.cs": "e9c2a5a4471aba4473c5d64305c06c0d4fb6a4fe4cc27436f2f9542cd7681464",
+    "tests/SampleStatistics.cs": "2915a1124c4d5c2a12833d873883a0baca857b4669f2d42f1581b5df7791c268"
+  },
+  "attempts": {
+    "default": [
+      {
+        "first_seed": 600001,
+        "last_seed": 600005,
+        "attempt": 1,
+        "folder": "execution\\batch_600001_attempt_1",
+        "log": "execution\\batch_600001_attempt_1.log",
+        "status": "complete",
+        "command": [
+          "C:\\Users\\ALEJANDRO\\Downloads\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+          "--headless",
+          "--fixed-fps",
+          "60",
+          "--path",
+          "C:\\Users\\ALEJANDRO\\Documents\\lullaby-ia",
+          "res://tests/FidelityV3RepetitionCurve.tscn",
+          "--",
+          "--out-dir=C:\\Users\\ALEJANDRO\\Documents\\lullaby-ia\\ai-training\\reports\\v3\\tiered_comparison_20261031_01\\default\\execution\\batch_600001_attempt_1",
+          "--first-seed=600001",
+          "--level-count=5"
+        ],
+        "exit_code": 0,
+        "active_pair": {
+          "seed": 600005,
+          "run": 9,
+          "phase": "real"
+        },
+        "incidents": [
+          {
+            "line": 1,
+            "text": "ERROR: Failed to open 'user://logs/godot2026-10-31T18.29.46.log'.",
+            "active_pair": null
+          },
+          {
+            "line": 3,
+            "text": "ERROR: Failed to open log file for writing: user://logs/godot.log",
+            "active_pair": null
+          },
+          {
+            "line": 7,
+            "text": "ERROR: Failed to read the root certificate store.",
+            "active_pair": null
+          },
+          {
+            "line": 68,
+            "text": "WARNING: Jolt Physics job system exceeded the maximum number of jobs. This should not happen. Please report this. Waiting for jobs to become available...",
+            "active_pair": {
+              "seed": 600002,
+              "run": 1,
+              "phase": "real"
+            }
+          }
+        ]
+      }
+    ],
+    "disabled": [
+      {
+        "first_seed": 600001,
+        "last_seed": 600005,
+        "attempt": 1,
+        "folder": "execution\\batch_600001_attempt_1",
+        "log": "execution\\batch_600001_attempt_1.log",
+        "status": "fatal",
+        "command": [
+          "C:\\Users\\ALEJANDRO\\Downloads\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+          "--headless",
+          "--fixed-fps",
+          "60",
+          "--path",
+          "C:\\Users\\ALEJANDRO\\Documents\\lullaby-ia",
+          "res://tests/FidelityV3RepetitionCurve.tscn",
+          "--",
+          "--out-dir=C:\\Users\\ALEJANDRO\\Documents\\lullaby-ia\\ai-training\\reports\\v3\\tiered_comparison_20261031_01\\disabled\\execution\\batch_600001_attempt_1",
+          "--first-seed=600001",
+          "--level-count=5"
+        ],
+        "exit_code": 3221225501,
+        "active_pair": {
+          "seed": 600004,
+          "run": 9,
+          "phase": "real"
+        },
+        "incidents": [
+          {
+            "line": 1,
+            "text": "ERROR: Failed to open 'user://logs/godot2026-10-31T18.32.21.log'.",
+            "active_pair": null
+          },
+          {
+            "line": 3,
+            "text": "ERROR: Failed to open log file for writing: user://logs/godot.log",
+            "active_pair": null
+          },
+          {
+            "line": 7,
+            "text": "ERROR: Failed to read the root certificate store.",
+            "active_pair": null
+          },
+          {
+            "line": 168,
+            "text": "WARNING: Jolt Physics job system exceeded the maximum number of jobs. This should not happen. Please report this. Waiting for jobs to become available...",
+            "active_pair": {
+              "seed": 600004,
+              "run": 1,
+              "phase": "real"
+            }
+          },
+          {
+            "line": 208,
+            "text": "ERROR: FATAL: Condition \"gchandle.is_released()\" is true.",
+            "active_pair": {
+              "seed": 600004,
+              "run": 9,
+              "phase": "real"
+            }
+          },
+          {
+            "line": 213,
+            "text": "Fatal error. System.Runtime.InteropServices.SEHException (0x80004005): External component has thrown an exception.",
+            "active_pair": {
+              "seed": 600004,
+              "run": 9,
+              "phase": "real"
+            }
+          }
+        ]
+      },
+      {
+        "first_seed": 600001,
+        "last_seed": 600005,
+        "attempt": 2,
+        "folder": "execution\\batch_600001_attempt_2",
+        "log": "execution\\batch_600001_attempt_2.log",
+        "status": "complete",
+        "command": [
+          "C:\\Users\\ALEJANDRO\\Downloads\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+          "--headless",
+          "--fixed-fps",
+          "60",
+          "--path",
+          "C:\\Users\\ALEJANDRO\\Documents\\lullaby-ia",
+          "res://tests/FidelityV3RepetitionCurve.tscn",
+          "--",
+          "--out-dir=C:\\Users\\ALEJANDRO\\Documents\\lullaby-ia\\ai-training\\reports\\v3\\tiered_comparison_20261031_01\\disabled\\execution\\batch_600001_attempt_2",
+          "--first-seed=600001",
+          "--level-count=5"
+        ],
+        "exit_code": 0,
+        "active_pair": {
+          "seed": 600005,
+          "run": 9,
+          "phase": "real"
+        },
+        "incidents": [
+          {
+            "line": 1,
+            "text": "ERROR: Failed to open 'user://logs/godot2026-10-31T18.34.23.log'.",
+            "active_pair": null
+          },
+          {
+            "line": 3,
+            "text": "ERROR: Failed to open log file for writing: user://logs/godot.log",
+            "active_pair": null
+          },
+          {
+            "line": 7,
+            "text": "ERROR: Failed to read the root certificate store.",
+            "active_pair": null
+          },
+          {
+            "line": 223,
+            "text": "ERROR: System.InvalidOperationException: Handle is not initialized.",
+            "active_pair": {
+              "seed": 600005,
+              "run": 2,
+              "phase": "real"
+            }
+          },
+          {
+            "line": 224,
+            "text": "   at System.Runtime.InteropServices.GCHandle.FromIntPtr(IntPtr value)",
+            "active_pair": {
+              "seed": 600005,
+              "run": 2,
+              "phase": "real"
+            }
+          },
+          {
+            "line": 225,
+            "text": "   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak) in /root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:line 1284",
+            "active_pair": {
+              "seed": 600005,
+              "run": 2,
+              "phase": "real"
+            }
+          },
+          {
+            "line": 230,
+            "text": "       [2] Godot.NativeInterop.godot_bool Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(nint, System.IntPtr*, Godot.NativeInterop.godot_bool) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:1284)",
+            "active_pair": {
+              "seed": 600005,
+              "run": 2,
+              "phase": "real"
+            }
+          },
+          {
+            "line": 239,
+            "text": "ERROR: System.InvalidOperationException: Handle is not initialized.",
+            "active_pair": {
+              "seed": 600005,
+              "run": 2,
+              "phase": "real"
+            }
+          },
+          {
+            "line": 240,
+            "text": "   at System.Runtime.InteropServices.GCHandle.FromIntPtr(IntPtr value)",
+            "active_pair": {
+              "seed": 600005,
+              "run": 2,
+              "phase": "real"
+            }
+          },
+          {
+            "line": 241,
+            "text": "   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak) in /root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:line 1284",
+            "active_pair": {
+              "seed": 600005,
+              "run": 2,
+              "phase": "real"
+            }
+          },
+          {
+            "line": 246,
+            "text": "       [2] Godot.NativeInterop.godot_bool Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(nint, System.IntPtr*, Godot.NativeInterop.godot_bool) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:1284)",
+            "active_pair": {
+              "seed": 600005,
+              "run": 2,
+              "phase": "real"
+            }
+          },
+          {
+            "line": 255,
+            "text": "ERROR: System.InvalidOperationException: Handle is not initialized.",
+            "active_pair": {
+              "seed": 600005,
+              "run": 2,
+              "phase": "real"
+            }
+          },
+          {
+            "line": 256,
+            "text": "   at System.Runtime.InteropServices.GCHandle.FromIntPtr(IntPtr value)",
+            "active_pair": {
+              "seed": 600005,
+              "run": 2,
+              "phase": "real"
+            }
+          },
+          {
+            "line": 257,
+            "text": "   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak) in /root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:line 1284",
+            "active_pair": {
+              "seed": 600005,
+              "run": 2,
+              "phase": "real"
+            }
+          },
+          {
+            "line": 262,
+            "text": "       [2] Godot.NativeInterop.godot_bool Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(nint, System.IntPtr*, Godot.NativeInterop.godot_bool) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:1284)",
+            "active_pair": {
+              "seed": 600005,
+              "run": 2,
+              "phase": "real"
+            }
+          },
+          {
+            "line": 271,
+            "text": "ERROR: System.InvalidOperationException: Handle is not initialized.",
+            "active_pair": {
+              "seed": 600005,
+              "run": 2,
+              "phase": "real"
+            }
+          },
+          {
+            "line": 272,
+            "text": "   at System.Runtime.InteropServices.GCHandle.FromIntPtr(IntPtr value)",
+            "active_pair": {
+              "seed": 600005,
+              "run": 2,
+              "phase": "real"
+            }
+          },
+          {
+            "line": 273,
+            "text": "   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak) in /root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:line 1284",
+            "active_pair": {
+              "seed": 600005,
+              "run": 2,
+              "phase": "real"
+            }
+          },
+          {
+            "line": 278,
+            "text": "       [2] Godot.NativeInterop.godot_bool Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(nint, System.IntPtr*, Godot.NativeInterop.godot_bool) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:1284)",
+            "active_pair": {
+              "seed": 600005,
+              "run": 2,
+              "phase": "real"
+            }
+          },
+          {
+            "line": 287,
+            "text": "ERROR: System.InvalidOperationException: Handle is not initialized.",
+            "active_pair": {
+              "seed": 600005,
+              "run": 2,
+              "phase": "real"
+            }
+          },
+          {
+            "line": 288,
+            "text": "   at System.Runtime.InteropServices.GCHandle.FromIntPtr(IntPtr value)",
+            "active_pair": {
+              "seed": 600005,
+              "run": 2,
+              "phase": "real"
+            }
+          },
+          {
+            "line": 289,
+            "text": "   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak) in /root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:line 1284",
+            "active_pair": {
+              "seed": 600005,
+              "run": 2,
+              "phase": "real"
+            }
+          },
+          {
+            "line": 294,
+            "text": "       [2] Godot.NativeInterop.godot_bool Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(nint, System.IntPtr*, Godot.NativeInterop.godot_bool) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:1284)",
+            "active_pair": {
+              "seed": 600005,
+              "run": 2,
+              "phase": "real"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "archive_sha256": "8860d15dde4e7c263f3d074fe62b63fc660a7130b26187bf13aea99e0bb34139"
+}

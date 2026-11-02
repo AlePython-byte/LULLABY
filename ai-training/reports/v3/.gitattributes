@@ -1,0 +1,2 @@
+# Los informes contienen hashes de sus bytes; no convertir sus finales de linea.
+*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
