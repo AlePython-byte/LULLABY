@@ -468,7 +468,8 @@ public partial class RunManager : Node
 		RunEnded = true;
 		Rooms.EndRun();
 		RunFailed?.Invoke();
-		PresentEnd(() => Defeat?.Present(GameText.DefeatMessageFor(_seed)));
+		DeathCause cause = _playerHealth != null ? _playerHealth.LastCause : DeathCause.Unknown;
+		PresentEnd(() => Defeat?.Present(DeathTexts.PhraseFor(cause, _seed), cause));
 	}
 
 	private async void PresentEnd(Action present)
