@@ -67,6 +67,7 @@ $tests = @(
     @{ Name = 'DecorWarmupTest' },
     @{ Name = 'ItemMessageVarietyTest' },
     @{ Name = 'AudioEventsTest' },
+    @{ Name = 'AudioHooksTest' },
     @{ Name = 'MinimapTest' },
     @{ Name = 'HeartsHudTest' },
     @{ Name = 'FloorControlsTest' },
