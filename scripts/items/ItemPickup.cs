@@ -73,7 +73,8 @@ public partial class ItemPickup : Area3D
 		SetDeferred(PropertyName.Monitoring, false);
 		EmitSignal(SignalName.Collected, Definition);
 		QueueFree();
-		AudioManager.Play(SoundCatalog.ItemPickedUp);
+		// El biberón (curación) suena con su propio sonido; el resto de objetos, con el de recoger.
+		AudioManager.Play(Definition.Effect == ItemEffect.Heal ? SoundCatalog.Heal : SoundCatalog.ItemPickedUp);
 		return true;
 	}
 
