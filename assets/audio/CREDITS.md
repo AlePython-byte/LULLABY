@@ -24,3 +24,4 @@ Todos los efectos de sonido y pistas musicales utilizados en el proyecto cuentan
 | jefe_ataque_1.ogg   | Ataque de carga o embestida del jefe       | grizzlymittz      | https://freesound.org/people/grizzlymittz/sounds/535239/      | CC0      |
 | jefe_ataque_2.ogg   | Ataque viscoso o impacto de baba del jefe  | Qubodup           | https://freesound.org/people/Qubodup/                         | CC0      |
 | jefe_muere.ogg      | Muerte o colapso final del jefe            | CyanKingstonLBP   | https://freesound.org/people/CyanKingstonLBP/sounds/748550/   | CC0      |
+| victoria.ogg        | Fanfarria o sonido de victoria             | FunWithSound      | https://freesound.org/people/FunWithSound/                    | CC0      |
