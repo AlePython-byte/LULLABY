@@ -88,6 +88,7 @@ public partial class VictoryScreen : CanvasLayer
 		_message.Text = message;
 		_root.Show();
 		_button.GrabFocus();
+		AudioManager.Play(SoundCatalog.Victory);
 		Presented?.Invoke(message);
 	}
 
