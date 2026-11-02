@@ -15,7 +15,7 @@ using Godot;
 ///      muerte de enemigos, mecha y explosión del explosivo (que no suena además como muerte), disparo del tirador y del excavador y
 ///      el bucle del aleteo mientras haya voladores vivos (uno solo para varios, y se detiene al morir todos).
 ///   3. Los faltantes no rompen: objeto recogido, clic de interfaz, música e ids desconocidos solo quedan registrados como Missing o
-///      Unknown. The Mother usa los sonidos de los enemigos con el tono -20 % mientras no existan los suyos.
+///      Unknown. The Mother usa el golpe de los enemigos con el tono -20 % mientras no exista el suyo (jefe_muere ya existe y suena por su id).
 ///   4. Tono ±5 % en los repetidos con azar propio (el global no cambia); límites de voces, intervalo mínimo y prioridad.
 ///   5. StopAll corta todo, también al reiniciar o volver al menú desde RunManager.
 ///   5b. Un fallo de audio (inyectado) no altera el juego: el daño de lágrimas y proyectiles, la muerte y liberación de enemigos, la
@@ -77,10 +77,10 @@ public partial class AudioEventsTest : Node
 		int master = AudioServer.GetBusIndex("Master"), sfx = AudioServer.GetBusIndex("SFX"), music = AudioServer.GetBusIndex("Musica");
 		Check("existen los buses Master, SFX y Musica", master >= 0 && sfx >= 0 && music >= 0, $"{master} {sfx} {music}");
 		Check("SFX y Musica envían a Master", sfx >= 0 && music >= 0 && AudioServer.GetBusSend(sfx) == "Master" && AudioServer.GetBusSend(music) == "Master", "envío");
-		string[] present = { "lagrima_disparo", "lagrima_impacto", "noah_dano", "noah_muere", "enemigo_golpe", "enemigo_muere", "mecha_explosivo", "explosion", "tirador_disparo", "volador_aleteo" };
-		Check("los 10 archivos de efectos existen y están en el catálogo", present.All(id => SoundCatalog.Get(id) != null && ResourceLoader.Exists(SoundCatalog.Get(id).Path)), string.Join(",", present.Where(id => SoundCatalog.Get(id) == null || !ResourceLoader.Exists(SoundCatalog.Get(id).Path))));
-		string[] missing = { SoundCatalog.ItemPickedUp, SoundCatalog.UiClick, SoundCatalog.BossHit, SoundCatalog.BossDies };
-		Check("los sonidos de objetos, interfaz y jefe están en el catálogo pero aún sin archivo", missing.All(id => SoundCatalog.Get(id) != null && !ResourceLoader.Exists(SoundCatalog.Get(id).Path)), "alguno existe ya (¡bien!) o falta del catálogo");
+		string[] present = { "lagrima_disparo", "lagrima_impacto", "noah_dano", "noah_muere", "enemigo_golpe", "enemigo_muere", "mecha_explosivo", "explosion", "tirador_disparo", "volador_aleteo", "jefe_muere" };
+		Check("los 11 archivos de efectos existen y están en el catálogo", present.All(id => SoundCatalog.Get(id) != null && ResourceLoader.Exists(SoundCatalog.Get(id).Path)), string.Join(",", present.Where(id => SoundCatalog.Get(id) == null || !ResourceLoader.Exists(SoundCatalog.Get(id).Path))));
+		string[] missing = { SoundCatalog.ItemPickedUp, SoundCatalog.UiClick, SoundCatalog.BossHit };
+		Check("los sonidos de objetos, interfaz y golpe del jefe están en el catálogo pero aún sin archivo", missing.All(id => SoundCatalog.Get(id) != null && !ResourceLoader.Exists(SoundCatalog.Get(id).Path)), "alguno existe ya (¡bien!) o falta del catálogo");
 		Check("el aleteo se importa sin bucle (se activa por código)", ResourceLoader.Load<AudioStreamOggVorbis>(SoundCatalog.Get("volador_aleteo").Path).Loop == false, "la importación activó el bucle");
 		Check("los enemigos son posicionales y Noah plano",
 			SoundCatalog.Get("enemigo_golpe").Positional && SoundCatalog.Get("explosion").Positional && SoundCatalog.Get("tirador_disparo").Positional
@@ -135,7 +135,7 @@ public partial class AudioEventsTest : Node
 		Check("matar a un enemigo pide solo enemigo_muere, 3D y en su posición", Count("enemigo_muere") == 1 && Count("enemigo_golpe") == 0 && Single("enemigo_muere").Position.IsEqualApprox(new Vector3(3, 0.5f, 2)), "muerte");
 		await Frames(2);
 
-		// The Mother (y cualquier jefe): sin jefe_golpe ni jefe_muere usa los de los enemigos con -20 % de tono.
+		// The Mother (y cualquier jefe): sin jefe_golpe usa el de los enemigos con -20 % de tono; jefe_muere ya existe y suena por su id.
 		EnemyBase boss = NewEnemy(world, "res://scenes/enemies/BasicEnemy.tscn", new Vector3(0, 0.5f, 0));
 		boss.SoundSet = "jefe";
 		OS.DelayMsec(80); // pasa el intervalo mínimo del golpe anterior (comparten límites de voces con el enemigo)
@@ -147,7 +147,8 @@ public partial class AudioEventsTest : Node
 		OS.DelayMsec(80);
 		HealthComponent.FindIn(boss).TakeDamage(100.0f);
 		AudioManager.Request bossDies = Single("jefe_muere");
-		Check("y su muerte usa la de los enemigos con el tono un 20 % más grave", bossDies.Result == AudioManager.Outcome.Fallback && Mathf.Abs(bossDies.PitchScale - 0.8f) < 0.001f, $"{bossDies.Result} {bossDies.PitchScale}");
+		Check("y su muerte sale por su propio sonido (jefe_muere existe), sin respaldo ni cambio de tono",
+			bossDies.Id == "jefe_muere" && bossDies.Result != AudioManager.Outcome.Fallback && bossDies.Result != AudioManager.Outcome.Missing && Mathf.Abs(bossDies.PitchScale - 1.0f) < 0.001f, $"{bossDies.Result} {bossDies.PitchScale}");
 		Check("la escena de The Mother usa la familia \"jefe\"", GD.Load<PackedScene>("res://scenes/bosses/TheMother.tscn").Instantiate<EnemyBase>() is { SoundSet: "jefe" } mother && FreeAndTrue(mother), "SoundSet");
 		await Frames(2);
 
