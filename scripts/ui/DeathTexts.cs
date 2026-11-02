@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 
 /// <summary>
-/// Textos de la pantalla de derrota: el título, la etiqueta «Te venció», el nombre de lo que mató a Noah y dos frases por causa, con
-/// tono de nana siniestra y algo de humor negro. La frase se elige con la semilla de partida (como las de victoria y derrota), sin
-/// consumir ningún azar. Sin causa conocida (Unknown) se usan las tres frases de siempre (GameText.DefeatMessages).
+/// Textos de la pantalla de derrota: el título, la etiqueta «Te venció», el nombre de lo que mató a Noah y dos frases por causa, en
+/// primera persona (Noah las escribe en su diario después de «Querido diario,»), con tono de nana siniestra y algo de humor negro. La
+/// frase se elige con la semilla de partida (como las de victoria y derrota), sin consumir ningún azar. Sin causa conocida (Unknown)
+/// hay otras dos propias.
 /// </summary>
 public static class DeathTexts
 {
@@ -18,44 +19,51 @@ public static class DeathTexts
 	{
 		[DeathCause.Chaser] = ("Básico", new[]
 		{
-			"El más sencillo de todos… y te ganó. Arrúllate con eso.",
-			"Te dio un abrazo demasiado apretado. Duérmete ya.",
+			"Hoy me abrazaron tan fuerte que me quedé sin aire. Qué cariñoso.",
+			"El más sencillo de todos me ganó. Me arrullé yo solo con eso.",
 		}),
 		[DeathCause.Shooter] = ("Tirador", new[]
 		{
-			"Apuntó a la cabecita y no falló. Cierra los ojitos.",
-			"Tenía puntería de nana: certera y sin piedad.",
+			"Hoy aprendí que sí hay quien apunta bien a una cabecita.",
+			"Me dispararon desde lejos. Ni me dio tiempo de llorar.",
 		}),
 		[DeathCause.Projectile] = ("Un proyectil", new[]
 		{
-			"Una lágrima ajena te encontró. Qué mal sabe el llanto del vecino.",
-			"Nadie te enseñó a esquivar lo que viene de frente.",
+			"Me llegó una lágrima ajena. Qué mal sabe el llanto del vecino.",
+			"Algo salió volando y yo no lo vi venir.",
 		}),
 		[DeathCause.Exploder] = ("Explosivo", new[]
 		{
-			"Hizo ¡pum! y la nana se quedó sin letra.",
-			"Te quería tanto que explotó a tu lado.",
+			"Alguien me quiso tanto que explotó a mi lado.",
+			"Me dieron un abrazo con mecha. Qué detalle.",
 		}),
 		[DeathCause.Flyer] = ("Volador", new[]
 		{
-			"Zumbaba una nana y la creíste. Los bebés confían en todo.",
-			"Te picó el sueño, con alas.",
+			"Me arrulló un zumbido con alas. Los bebés confiamos en todo.",
+			"Me picó el sueño, con alas.",
 		}),
 		[DeathCause.Runner] = ("Huidor", new[]
 		{
-			"Ni lo viste venir: se hacía el tímido.",
-			"Corría hacia ti mientras mirabas a otro lado.",
+			"Me corrieron encima mientras miraba para otro lado.",
+			"Ni lo vi venir: se hacía el tímido.",
 		}),
 		[DeathCause.Digger] = ("Excavador", new[]
 		{
-			"Salió de debajo de la cuna. Siempre hay algo debajo de la cuna.",
-			"Cavó hasta tus pesadillas y las hizo realidad.",
+			"Salió algo de debajo de la cuna. Siempre hay algo debajo de la cuna.",
+			"Algo me jaló desde el suelo. Debí mirar debajo de la cuna.",
 		}),
 		[DeathCause.TheMother] = ("The Mother", new[]
 		{
-			"Mamá te arropó para siempre. Las nanas siempre acaban así.",
-			"Duérmete ya, duérmete ya… y esta vez obedeciste.",
+			"Mamá me arropó para siempre. Las nanas siempre acaban así.",
+			"Mamá cantó hasta que me dormí. Esta vez fue para siempre.",
 		}),
+	};
+
+	/// <summary>Frases sin causa conocida (Unknown): también en primera persona.</summary>
+	private static readonly string[] UnknownPhrases =
+	{
+		"No sé qué pasó, pero fue un día largo.",
+		"Algo me pasó y no sé qué. Fue un día muy largo.",
 	};
 
 	/// <summary>Causas que tienen textos propios (todas menos Unknown).</summary>
@@ -64,8 +72,8 @@ public static class DeathTexts
 	/// <summary>Nombre de lo que mató a Noah.</summary>
 	public static string NameOf(DeathCause cause) => Causes.TryGetValue(cause, out var entry) ? entry.Name : "Desconocido";
 
-	/// <summary>Frases de esa causa (las de siempre si no se conoce).</summary>
-	public static IReadOnlyList<string> PhrasesOf(DeathCause cause) => Causes.TryGetValue(cause, out var entry) ? entry.Phrases : GameText.DefeatMessages;
+	/// <summary>Frases de esa causa (las del desconocido si no se conoce).</summary>
+	public static IReadOnlyList<string> PhrasesOf(DeathCause cause) => Causes.TryGetValue(cause, out var entry) ? entry.Phrases : UnknownPhrases;
 
 	/// <summary>Frase elegida por la semilla (determinista, también con semilla negativa).</summary>
 	public static string PhraseFor(DeathCause cause, int seed)
