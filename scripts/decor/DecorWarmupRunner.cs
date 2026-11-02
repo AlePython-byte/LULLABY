@@ -6,8 +6,8 @@ using Godot;
 /// <summary>
 /// Ejecuta el precalentamiento de la ambientación (DecorWarmup) mientras el jugador está en el menú, repartido entre fotogramas para que
 /// el menú no se resienta:
-///   1. Tras un instante (StartDelay), pide en segundo plano las texturas y los modelos y espera a que terminen.
-///   2. Mide un modelo y cuenta sus triángulos por fotograma (DecorWarmup.PrimeNext).
+///   1. Tras un instante (StartDelay), pone en cola las texturas y los modelos.
+///   2. Carga y prepara unos pocos por fotograma, en el hilo principal y con un presupuesto de tiempo (DecorWarmup.Step).
 ///   3. Dibuja una vez, en un SubViewport propio que nadie ve, una variante de cada material y cada modelo con una luz direccional con
 ///      sombra y una omni, como en las salas: así las texturas y las variantes de dibujo ya están preparadas cuando se entra a la primera
 ///      sala. Después libera ese SubViewport.
@@ -21,8 +21,8 @@ public partial class DecorWarmupRunner : Node
 	/// <summary>Segundos de espera antes de empezar, para que el menú aparezca sin competir con las cargas.</summary>
 	[Export] public float StartDelay { get; set; } = 0.25f;
 
-	/// <summary>Fotogramas máximos que se espera a las cargas en segundo plano antes de seguir sin ellas.</summary>
-	[Export] public int MaxLoadFrames { get; set; } = 1200;
+	/// <summary>Milisegundos por fotograma que se dedican a cargar (siempre se hace al menos un elemento).</summary>
+	[Export] public double FrameBudgetMs { get; set; } = DecorWarmup.FrameBudgetMs;
 
 	/// <summary>Fotogramas que se dibuja la escena de calentamiento antes de liberarla.</summary>
 	[Export] public int GpuFrames { get; set; } = 3;
@@ -30,11 +30,10 @@ public partial class DecorWarmupRunner : Node
 	public bool Finished { get; private set; }
 	public event Action Completed;
 
-	private enum Stage { Delay, Loading, Priming, Drawing }
+	private enum Stage { Delay, Loading, Drawing }
 
 	private Stage _stage = Stage.Delay;
 	private float _elapsed;
-	private int _loadFrames;
 	private int _drawn;
 	private SubViewport _viewport;
 
@@ -69,15 +68,7 @@ public partial class DecorWarmupRunner : Node
 
 				break;
 			case Stage.Loading:
-				_loadFrames++;
-				if (DecorWarmup.PollLoads() || _loadFrames >= MaxLoadFrames)
-				{
-					_stage = Stage.Priming;
-				}
-
-				break;
-			case Stage.Priming:
-				if (!DecorWarmup.PrimeNext())
+				if (!DecorWarmup.Step(FrameBudgetMs))
 				{
 					BuildDrawing();
 					_stage = Stage.Drawing;

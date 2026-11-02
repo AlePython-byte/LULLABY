@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Godot;
 
@@ -7,15 +8,20 @@ using Godot;
 /// se entraba en ella (cargar las texturas de suelo y pared, cargar y medir los modelos de la decoración y contar los triángulos de cada
 /// uno para el presupuesto) se hace mientras el jugador está en el menú.
 ///
-///   - Request pide en segundo plano (ResourceLoader.LoadThreadedRequest) las texturas y los modelos; PollLoads recoge los terminados y los
-///     guarda (Held), con lo que no se vuelven a descargar de la caché al salir de una sala.
-///   - PrimeNext hace en el hilo principal, de uno en uno, lo que no se puede hacer en otro hilo: medir cada modelo (ModelLibrary) y contar
-///     sus triángulos (FloorPropsPlanner.CostOf).
-///   - DecorWarmupRunner dibuja una vez las variantes de material y los modelos fuera de la partida para que el dibujo y las texturas ya
-///     estén preparados en la tarjeta gráfica.
+///   - Request pone en cola las texturas y los modelos que existen (y cuenta los que faltan).
+///   - Step carga y prepara lo que cabe en un presupuesto de tiempo por fotograma, en el HILO PRINCIPAL y de uno en uno: carga la textura o
+///     la escena y la guarda (Held, para que no se vuelva a leer al salir de una sala), mide el modelo (ModelLibrary) y cuenta sus
+///     triángulos (FloorPropsPlanner.CostOf).
+///   - DecorWarmupRunner llama a Step cada fotograma y luego dibuja una vez las variantes de material y los modelos fuera de la partida,
+///     para que el dibujo y las texturas ya estén preparados en la tarjeta gráfica.
 ///
-/// Es idempotente (cada ruta se pide una sola vez; lo que ya está hecho no se repite), reanudable (si se sale del menú a medias, la
-/// siguiente vez sigue donde quedó) y tolerante a archivos que falten o no carguen (se cuentan y se ignoran). No cambia la lógica del
+/// Sin hilos a propósito: ResourceLoader.LoadThreadedRequest con varias cargas a la vez creaba materiales y mallas en paralelo y, con el
+/// renderizador de pruebas (headless), chocaban entre sí y tiraban el proceso de vez en cuando (errores de RID en material_storage y
+/// cierres con -1073741819, 3 de cada 30 corridas); con una sola carga a la vez el cargador tardaba más de un segundo por recurso. Lo
+/// caro (medir y contar triángulos) ya iba en el hilo principal, y cargar de uno en uno con presupuesto de tiempo no se nota en el menú.
+///
+/// Es idempotente (cada ruta se pone en cola una sola vez; lo que ya está hecho no se repite), reanudable (si se sale del menú a medias,
+/// la siguiente vez sigue donde quedó) y tolerante a archivos que falten o no carguen (se cuentan y se ignoran). No cambia la lógica del
 /// juego: solo rellena cachés que el juego rellenaría igualmente.
 /// </summary>
 public static class DecorWarmup
@@ -26,32 +32,33 @@ public static class DecorWarmup
 	/// <summary>Rutas extra a precalentar (las pruebas añaden una inexistente para comprobar la tolerancia).</summary>
 	public static List<string> ExtraPaths { get; } = new();
 
+	/// <summary>Milisegundos por fotograma que Step puede gastar (siempre hace al menos un elemento).</summary>
+	public const double FrameBudgetMs = 6.0;
+
 	private static readonly HashSet<string> RequestedPaths = new();
-	private static readonly List<string> Pending = new();
+	private static readonly Queue<(string Path, bool Model)> Work = new();
 	private static readonly List<Resource> HeldResources = new();
-	private static readonly Queue<string> PrimeQueue = new();
-	private static bool _primeBuilt;
 
 	/// <summary>Se terminó todo, incluido el dibujo previo. Lo marca el runner.</summary>
 	public static bool Done { get; private set; }
 
-	/// <summary>Rutas ya pedidas o descartadas (incluye las que faltan).</summary>
+	/// <summary>Rutas ya puestas en cola o descartadas (incluye las que faltan).</summary>
 	public static int Requested => RequestedPaths.Count;
 
 	/// <summary>Rutas pedidas cuyo archivo no existe.</summary>
 	public static int Missing { get; private set; }
 
-	/// <summary>Rutas pedidas que no llegaron a cargar.</summary>
+	/// <summary>Rutas que existen pero no llegaron a cargar.</summary>
 	public static int Failed { get; private set; }
 
-	/// <summary>Modelos ya medidos y con sus triángulos contados.</summary>
+	/// <summary>Modelos ya cargados, medidos y con sus triángulos contados.</summary>
 	public static int Primed { get; private set; }
 
 	/// <summary>Recursos cargados que se conservan (texturas y escenas).</summary>
 	public static IReadOnlyList<Resource> Held => HeldResources;
 
-	/// <summary>Cargas en segundo plano que aún no han terminado.</summary>
-	public static int PendingLoads => Pending.Count;
+	/// <summary>Elementos que aún faltan por cargar.</summary>
+	public static int Remaining => Work.Count;
 
 	/// <summary>Rutas de las texturas opcionales de suelo y pared (las variantes y las de siempre) en la carpeta actual.</summary>
 	public static IEnumerable<string> TexturePaths()
@@ -76,86 +83,83 @@ public static class DecorWarmup
 		return paths.Distinct();
 	}
 
-	/// <summary>Pide en segundo plano todo lo que falte por pedir. Se puede llamar cuantas veces se quiera.</summary>
+	/// <summary>Pone en cola todo lo que falte por pedir. Se puede llamar cuantas veces se quiera.</summary>
 	public static void Request()
 	{
-		foreach (string path in TexturePaths().Concat(ModelPaths()))
+		foreach (string path in TexturePaths())
 		{
-			if (!RequestedPaths.Add(path))
-			{
-				continue;
-			}
+			Enqueue(path, false);
+		}
 
-			if (!ResourceLoader.Exists(path))
-			{
-				Missing++;
-				continue;
-			}
-
-			if (ResourceLoader.LoadThreadedRequest(path) == Error.Ok)
-			{
-				Pending.Add(path);
-			}
-			else
-			{
-				Failed++;
-			}
+		foreach (string path in ModelPaths())
+		{
+			Enqueue(path, true);
 		}
 	}
 
-	/// <summary>Recoge las cargas terminadas y las guarda. Devuelve true cuando ya no queda ninguna pendiente.</summary>
-	public static bool PollLoads()
+	private static void Enqueue(string path, bool model)
 	{
-		for (int i = Pending.Count - 1; i >= 0; i--)
+		if (!RequestedPaths.Add(path))
 		{
-			string path = Pending[i];
-			ResourceLoader.ThreadLoadStatus status = ResourceLoader.LoadThreadedGetStatus(path);
-			if (status == ResourceLoader.ThreadLoadStatus.InProgress)
-			{
-				continue;
-			}
-
-			if (status == ResourceLoader.ThreadLoadStatus.Loaded && ResourceLoader.LoadThreadedGet(path) is Resource resource)
-			{
-				HeldResources.Add(resource);
-			}
-			else
-			{
-				Failed++;
-			}
-
-			Pending.RemoveAt(i);
+			return;
 		}
 
-		return Pending.Count == 0;
+		if (!ResourceLoader.Exists(path))
+		{
+			Missing++;
+			return;
+		}
+
+		Work.Enqueue((path, model));
 	}
 
 	/// <summary>
-	/// Mide un modelo y cuenta sus triángulos en el hilo principal (uno por llamada, para repartirlo entre fotogramas). Devuelve true si
-	/// quedan más por hacer.
+	/// Carga y prepara elementos de la cola, de uno en uno, hasta gastar budgetMs (al menos uno por llamada). Devuelve true si aún quedan.
+	/// Hay que llamarla siempre desde el hilo principal.
 	/// </summary>
-	public static bool PrimeNext()
+	public static bool Step(double budgetMs = FrameBudgetMs)
 	{
-		if (!_primeBuilt)
+		Stopwatch clock = Stopwatch.StartNew();
+		do
 		{
-			foreach (string path in ModelPaths().Where(path => ResourceLoader.Exists(path)))
+			if (Work.Count == 0)
 			{
-				PrimeQueue.Enqueue(path);
+				break;
 			}
 
-			_primeBuilt = true;
+			(string path, bool model) = Work.Dequeue();
+			Load(path, model);
 		}
+		while (clock.Elapsed.TotalMilliseconds < budgetMs);
 
-		if (PrimeQueue.Count == 0)
+		return Work.Count > 0;
+	}
+
+	private static void Load(string path, bool model)
+	{
+		if (model)
 		{
-			return false;
+			// Medir carga la escena en ModelLibrary; contar triángulos instancia el modelo una vez (se guarda en caché).
+			if (ModelLibrary.BoundsOf(path) == null || ResourceLoader.Load<PackedScene>(path) is not PackedScene scene)
+			{
+				Failed++;
+				return;
+			}
+
+			HeldResources.Add(scene);
+			FloorPropsPlanner.CostOf(path);
+			Primed++;
+			return;
 		}
 
-		string next = PrimeQueue.Dequeue();
-		ModelLibrary.BoundsOf(next);
-		FloorPropsPlanner.CostOf(next);
-		Primed++;
-		return PrimeQueue.Count > 0;
+		if (ResourceLoader.Load<Texture2D>(path) is Texture2D texture)
+		{
+			HeldResources.Add(texture);
+		}
+		else
+		{
+			Failed++;
+		}
 	}
 
 	public static void MarkDone() => Done = true;
@@ -167,10 +171,8 @@ public static class DecorWarmup
 	public static void Reset()
 	{
 		RequestedPaths.Clear();
-		Pending.Clear();
+		Work.Clear();
 		HeldResources.Clear();
-		PrimeQueue.Clear();
-		_primeBuilt = false;
 		Done = false;
 		Missing = 0;
 		Failed = 0;
