@@ -26,6 +26,9 @@ public static class ModelLibrary
 	private static readonly Dictionary<string, Entry> Cache = new();
 	private static readonly HashSet<string> Reported = new();
 
+	/// <summary>El modelo ya se cargó y se midió (lo sepa o no la sala que lo pide).</summary>
+	public static bool IsLoaded(string path) => Cache.ContainsKey(path);
+
 	/// <summary>Caja envolvente del modelo en su propio origen, o null si no existe.</summary>
 	public static Aabb? BoundsOf(string path) => Get(path)?.Bounds;
 

@@ -37,6 +37,9 @@ public static class FloorPropsPlanner
 	/// <summary>Piezas pequeñas elegibles: el catálogo de las salas exentas sin el oso gigante.</summary>
 	public static IEnumerable<string> Catalog => FreeDecorPlanner.SmallCatalog.Where(model => model != PropModels.GiantBear);
 
+	/// <summary>Los triángulos de este modelo ya están contados y en caché.</summary>
+	public static bool IsCosted(string path) => CostCache.ContainsKey(path);
+
 	/// <summary>Mallas y triángulos de un modelo (0, 0 si no existe). Se guarda en caché.</summary>
 	public static (int Meshes, int Triangles) CostOf(string path)
 	{

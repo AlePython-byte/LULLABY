@@ -159,4 +159,21 @@ public static class DecorWarmup
 	}
 
 	public static void MarkDone() => Done = true;
+
+	/// <summary>
+	/// Olvida lo pedido y lo hecho para volver a empezar (solo para pruebas: así se comprueba el precalentamiento desde cero). No vacía las
+	/// cachés de ModelLibrary ni de FloorPropsPlanner ni el caché de recursos del motor.
+	/// </summary>
+	public static void Reset()
+	{
+		RequestedPaths.Clear();
+		Pending.Clear();
+		HeldResources.Clear();
+		PrimeQueue.Clear();
+		_primeBuilt = false;
+		Done = false;
+		Missing = 0;
+		Failed = 0;
+		Primed = 0;
+	}
 }
