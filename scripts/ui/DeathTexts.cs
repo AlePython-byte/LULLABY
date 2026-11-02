@@ -10,6 +10,10 @@ public static class DeathTexts
 	public const string Title = "Fin de la nana";
 	public const string KilledBy = "Te venció:";
 
+	/// <summary>Las dos líneas de la hoja de diario que enmarcan la frase: el saludo de arriba y la que presenta el dibujo del asesino.</summary>
+	public const string DiaryGreeting = "Querido diario,";
+	public const string DiaryCause = "Morí a causa de:";
+
 	private static readonly Dictionary<DeathCause, (string Name, string[] Phrases)> Causes = new()
 	{
 		[DeathCause.Chaser] = ("Básico", new[]
