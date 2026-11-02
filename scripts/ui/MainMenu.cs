@@ -101,6 +101,7 @@ public partial class MainMenu : Control
 		ExtendedVarietyToggle.Toggled += pressed => GameSettings.ExtendedVariety = pressed;
 
 		ApplyArt();
+		PlayButton.SetMeta(AudioManager.UiSoundMeta, SoundCatalog.MenuConfirm);
 		AudioManager.HookButtons(this);
 		PlayButton.GrabFocus();
 

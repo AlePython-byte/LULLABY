@@ -632,14 +632,18 @@ public partial class AudioManager : Node
 		_flyerLoop?.Stop();
 	}
 
-	/// <summary>Conecta el clic de interfaz a todos los botones bajo un nodo (los que ya existen).</summary>
+	/// <summary>Metadato de un botón con el id del sonido que ha de dar al pulsarlo (por defecto, el clic de interfaz).</summary>
+	public const string UiSoundMeta = "ui_sound";
+
+	/// <summary>Conecta el sonido de interfaz a todos los botones bajo un nodo (los que ya existen): el clic o el que diga su metadato UiSoundMeta.</summary>
 	public static void HookButtons(Node root)
 	{
 		foreach (Node child in root.GetChildren())
 		{
 			if (child is BaseButton button)
 			{
-				button.Pressed += () => Play(SoundCatalog.UiClick); // Play nunca lanza
+				string id = button.HasMeta(UiSoundMeta) ? button.GetMeta(UiSoundMeta).AsString() : SoundCatalog.UiClick;
+				button.Pressed += () => Play(id); // Play nunca lanza
 			}
 
 			HookButtons(child);
