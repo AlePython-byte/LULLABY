@@ -17,5 +17,6 @@ Todos los efectos de sonido y pistas musicales utilizados en el proyecto cuentan
 
 ## Música
 
-| Archivo | Descripción | Autor | Enlace | Licencia |
-| ------- | ----------- | ----- | ------ | -------- |
+| Archivo        | Descripción                                    | Autor    | Enlace                                               | Licencia |
+| -------------- | ---------------------------------------------- | -------- | ---------------------------------------------------- | -------- |
+| the_cradle.ogg | Música de ambiente en la cuna (caja de música) | 13NHarri | https://freesound.org/people/13NHarri/sounds/386411/ | CC0      |
