@@ -15,3 +15,4 @@ Todos los efectos de sonido y pistas musicales utilizados en el proyecto cuentan
 | volador_aleteo.ogg  | Aleteo continuo o vuelo de enemigo volador | Scottrex05        | https://freesound.org/people/Scottrex05/sounds/593487/        | CC0      |
 | enemigo_muere.ogg   | Derrota o muerte de un enemigo             | K27K_Mike         | https://freesound.org/people/K27K_Mike/sounds/853659/         | CC0      |
 | puerta_abre.ogg     | Apertura de puerta                         | theshuggie        | https://freesound.org/people/theshuggie/sounds/371008/        | CC0      |
+| puerta_cierra.ogg   | Cierre de puerta                           | theshuggie        | https://freesound.org/people/theshuggie/sounds/371008/        | CC0      |
