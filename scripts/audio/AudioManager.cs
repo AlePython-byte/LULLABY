@@ -113,6 +113,9 @@ public partial class AudioManager : Node
 
 	public override void _Ready()
 	{
+		// El juego se pausa (menú de pausa, pantalla de derrota) con SceneTree.Paused: el audio tiene que seguir (sonidos de la interfaz, música
+		// y los que ya sonaban), y sus reproductores heredan este modo.
+		ProcessMode = ProcessModeEnum.Always;
 		Silent = DisplayServer.GetName() == "headless";
 		_random.Randomize();
 		EnsureBuses();
