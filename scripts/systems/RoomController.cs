@@ -93,7 +93,7 @@ public partial class RoomController : Node3D
 	[Export] public Color DecorTreasureFloorColor { get; set; } = new Color(0.66f, 0.58f, 0.36f, 1.0f);
 
 	/// <summary>Metros que cubre una repetición de las texturas opcionales de suelo y paredes.</summary>
-	[Export] public float TextureTileMeters { get; set; } = 2.0f;
+	[Export] public float TextureTileMeters { get; set; } = 4.0f;
 
 	public RoomState State { get; private set; } = RoomState.Unvisited;
 	public RoomData Data => _data;

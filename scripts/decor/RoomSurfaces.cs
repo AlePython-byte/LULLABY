@@ -59,6 +59,9 @@ public static class RoomSurfaces
 
 		float scale = 1.0f / Mathf.Max(0.1f, tileMeters);
 		material.AlbedoTexture = texture;
+		// Con la cámara a ~25 m una repetición ocupa pocos píxeles: sin mipmaps y filtro anisotrópico el patrón se ve con moiré (ondas y
+		// líneas que bailan). Las texturas se importan con mipmaps (assets/textures/*.import).
+		material.TextureFilter = BaseMaterial3D.TextureFilterEnum.LinearWithMipmapsAnisotropic;
 		material.AlbedoColor = Colors.White;
 		material.Uv1Triplanar = true;
 		material.Uv1WorldTriplanar = true;
