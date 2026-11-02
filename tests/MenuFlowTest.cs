@@ -106,9 +106,12 @@ public partial class MenuFlowTest : Node
 		SceneTree tree = GetTree();
 		Node testScene = tree.CurrentScene;
 		string folder = MenuCover.Folder;
+		Vector2I originalSize = tree.Root.Size;
 		try
 		{
-			// Con lo que haya en assets/: las capas cargadas son exactamente las que existen, en su orden.
+			// Con lo que haya en assets/: las capas cargadas son exactamente las que existen, en su orden. La ventana de la prueba pasa a medir
+			// exactamente 1152×648 (la de diseño; la ventana headless no tiene esa medida) y se restaura al terminar.
+			tree.Root.Size = new Vector2I(1152, 648);
 			MainMenu menu = await OpenMenu();
 			await BossTestHarness.Frames(tree, 3);
 			List<string> expected = MenuCover.LayerSpecs.Where(spec => ResourceLoader.Exists($"{MenuCover.Folder}{spec.Name}.png")).Select(spec => spec.Name).ToList();
@@ -176,6 +179,7 @@ public partial class MenuFlowTest : Node
 			}
 
 			await BossTestHarness.Restore(tree, testScene, menu);
+			tree.Root.Size = originalSize;
 
 			// Sin ninguna capa: el menú se construye y se puede jugar, sin procesar nada.
 			MenuCover.Folder = "res://tests/fixtures/none/";
@@ -188,7 +192,15 @@ public partial class MenuFlowTest : Node
 		finally
 		{
 			MenuCover.Folder = folder;
+			tree.Root.Size = originalSize;
 		}
+
+		// Los menús y sus texturas ya están liberados, pero sus envoltorios de C# siguen vivos hasta que pase el recolector: si lo hace justo
+		// al cambiar de escena en las pruebas siguientes, el motor registra "Handle is not initialized" aunque todo haya pasado.
+		await BossTestHarness.Frames(tree, 2);
+		System.GC.Collect();
+		System.GC.WaitForPendingFinalizers();
+		await BossTestHarness.Frames(tree, 2);
 
 		GD.Print("Arte del menú: capas por nombre, panel a la derecha, parallax mínimo y menú sin capas: OK");
 	}
