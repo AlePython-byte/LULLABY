@@ -37,7 +37,7 @@ public partial class BossEncounterTest : Node
 			await CheckAttackSequence();
 			await CheckDashRespectsWalls();
 			GD.Print($"BossEncounterTest: {_checks} comprobaciones. RESULTADO: OK");
-			await Collect();
+			await BossTestHarness.CollectWrappers(GetTree());
 			GetTree().Quit();
 		}
 		catch (Exception exception)
@@ -46,16 +46,6 @@ public partial class BossEncounterTest : Node
 			GD.Print("RESULTADO: FALLO");
 			GetTree().Quit(1);
 		}
-	}
-
-	// Los niveles y sus recursos ya están liberados, pero sus envoltorios de C# siguen vivos hasta que pase el recolector: si el
-	// finalizador los encuentra con el motor ya cerrado, el proceso cae al salir (-1073741819 o -1073741795) aunque todo haya pasado.
-	private async Task Collect()
-	{
-		await BossTestHarness.Frames(GetTree(), 2);
-		GC.Collect();
-		GC.WaitForPendingFinalizers();
-		await BossTestHarness.Frames(GetTree(), 2);
 	}
 
 	private void Require(bool condition, string message)
