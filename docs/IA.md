@@ -2,6 +2,8 @@
 
 **Resumen.** Cada partida de LULLABY genera varios niveles candidatos, **predice con un modelo de aprendizaje automático qué tan difícil es cada uno** y elige uno cercano a la dificultad pedida (fácil, normal o difícil). El modelo no se programó con reglas: se **entrenó con 5000 niveles cuya dificultad midió un bot** que los jugó en un simulador, y se evaluó con niveles que nunca vio. Todo funciona sin internet y sin servicios de pago; en el juego el modelo se evalúa con código C# puro.
 
+**Estado de las versiones.** El juego usa por defecto la **versión 2** (generador v2: básico, tirador, explosivo y volador), cuyo modelo está validado con una prueba y una confirmación (sección 11). La **versión 1** se conserva intacta y reproducible (secciones 1 a 10). La **versión 3** (seis tipos de enemigo) es **experimental**: no superó el protocolo de aceptación y no tiene modelo propio (sección 12).
+
 Este documento explica qué hace la IA, cómo se construyó, qué resultados dio (con las cifras de los informes de `ai-training/reports/`) y cuáles son sus límites.
 
 ## Contenido
@@ -19,7 +21,7 @@ Este documento explica qué hace la IA, cómo se construyó, qué resultados dio
 11. [Versión 2: tipos de enemigo](#11-versión-2-tipos-de-enemigo)
 12. [Versión 3: aceptación no aprobada y diagnóstico](#12-versión-3-aceptación-no-aprobada-y-diagnóstico)
 
-Las secciones 1 a 10 describen la **versión 1** (generador v1, un solo tipo de enemigo). La sección 11 describe la **versión 2**, que añade el tirador, el explosivo y el volador. La versión 1 sigue intacta y reproducible.
+Las secciones 1 a 10 describen la **versión 1** (generador v1, un solo tipo de enemigo). La sección 11 describe la **versión 2**, que añade el tirador, el explosivo y el volador. La versión 1 sigue intacta y reproducible. La sección 12 documenta la versión 3, que sigue siendo experimental.
 
 ---
 
@@ -726,3 +728,25 @@ La ejecución se detuvo por un fallo de calidad en `610006:0`, entorno real: tim
 Una única reproducción diagnóstica con el mismo mapa, bot, semillas y llamada original al juego real produjo un resultado completo idéntico, sin GCHandle. En la sala `(−2,0)`, plantilla `mixta_trinchera`, quedó un tirador con 1 de vida junto a una esquina. El bot osciló sin conseguir alinearse para disparar; las puertas permanecieron cerradas de forma coherente con el enemigo vivo. La traza y la lectura del código sustentan la clasificación **enemigo inalcanzable para la política de alineación del bot**, por la interacción entre su margen de pared y el disparo cardinal. No demuestran inaccesibilidad física, dificultad injusta para un jugador humano ni determinismo universal. Véase el [diagnóstico y su evidencia](../ai-training/reports/v3/timeout_trace_610006_20261101_01/README.md).
 
 El diagnóstico no corrige ni sustituye el resultado de aceptación. No se modificaron el bot, el simulador ni los protocolos, no se ejecutaron combates de reserva y no se abrió el etiquetado masivo. Los datos, modelos, benchmarks y hashes históricos de v1 y v2 se conservan intactos. V3 continúa disponible únicamente como variedad extendida experimental, con las limitaciones de predicción indicadas en la sección 11.6.4.
+
+### 12.1 Qué se logró y qué no
+
+**Logrado:**
+- Generador v3 con seis tipos de enemigo: básico, tirador, explosivo, volador, huidor y excavador (`DungeonGenerator.LatestVersion` = 3).
+- Simulador v4 (`LevelSimulatorV3`, versión de simulación 4) y bot v3 (`BotBrainV3`, `BotDriverV3`).
+- Fidelidad de desarrollo: en la muestra de 30 niveles con tres repeticiones, el Spearman de daño total fue **0,528**, por debajo del umbral preregistrado de 0,7; el de tiempo total fue 0,986 y cumplió su umbral (`ai-training/reports/v3/development_20261031_01/README.md`). Esa cifra motivó diagnosticar antes de aceptar. Con diez repeticiones, la curva de desarrollo dio 0,825 (IC 95 % [0,673; 0,914]); es una referencia de desarrollo que no sustituye a la aceptación (`ai-training/reports/v3/acceptance_v2_20261101_01/analysis.json`, `development_curve_at_10`).
+
+**No logrado:**
+- **Aceptación formal.** El lote de aceptación se detuvo con 50 pares válidos, uno con timeout y 849 sin iniciar.
+- **Modelo propio.** No existe `difficulty_v3.json`; el juego usa el modelo v2.
+- **Etiquetado masivo.** No se abrió.
+
+**Causa.** El caso `610006:0` quedó bloqueado en una partida con un tirador de 1 de vida pegado a una esquina. La política de alineación del bot no consiguió dispararle, así que la partida no terminó y se produjo el timeout. Una reproducción diagnóstica con el mismo mapa, bot, semillas y llamada al juego real dio un resultado completo idéntico. La traza y la lectura del código sustentan la clasificación «enemigo inalcanzable para la política de alineación del bot». No demuestran inaccesibilidad física ni dificultad injusta para una persona.
+
+**Decisión.** No se relajó el protocolo ni se reetiquetó. V3 queda experimental, con aviso en el juego.
+
+### 12.2 Trabajo futuro de la versión 3
+
+- Corregir la política de alineación del bot cerca de esquinas y repetir la aceptación con un protocolo nuevo y versionado, sin tocar el protocolo congelado.
+- Etiquetar y entrenar `difficulty_v3`, ampliando las características con el huidor y el excavador.
+- Incorporar The Mother al simulador y al bot.
