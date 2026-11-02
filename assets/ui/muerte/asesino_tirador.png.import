@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bh2qwl81mdtw3"
-path="res://.godot/imported/asesino_tirador.png-ddc053e1a166e827af53181d8cc82c1a.ctex"
+uid="uid://cx0nu75wqd2we"
+path="res://.godot/imported/asesino_huidor.png-939f35c2fbe7bed106341d24e1b74556.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/muerte/asesino_tirador.png"
-dest_files=["res://.godot/imported/asesino_tirador.png-ddc053e1a166e827af53181d8cc82c1a.ctex"]
+source_file="res://assets/ui/muerte/asesino_huidor.png"
+dest_files=["res://.godot/imported/asesino_huidor.png-939f35c2fbe7bed106341d24e1b74556.ctex"]
 
 [params]
 
