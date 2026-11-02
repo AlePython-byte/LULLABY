@@ -195,12 +195,7 @@ public partial class MenuFlowTest : Node
 			tree.Root.Size = originalSize;
 		}
 
-		// Los menús y sus texturas ya están liberados, pero sus envoltorios de C# siguen vivos hasta que pase el recolector: si lo hace justo
-		// al cambiar de escena en las pruebas siguientes, el motor registra "Handle is not initialized" aunque todo haya pasado.
-		await BossTestHarness.Frames(tree, 2);
-		System.GC.Collect();
-		System.GC.WaitForPendingFinalizers();
-		await BossTestHarness.Frames(tree, 2);
+		await BossTestHarness.CollectWrappers(tree);
 
 		GD.Print("Arte del menú: capas por nombre, panel a la derecha, parallax mínimo y menú sin capas: OK");
 	}
