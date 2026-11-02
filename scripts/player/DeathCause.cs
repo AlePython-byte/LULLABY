@@ -48,10 +48,10 @@ public static class DeathCauses
 		};
 	}
 
-	/// <summary>Causa de un proyectil disparado por este enemigo: The Mother, el excavador o, para el resto (el tirador), un proyectil.</summary>
+	/// <summary>Causa de un proyectil disparado por este enemigo: The Mother, el excavador o el tirador; un proyectil sin dueño conocido es solo un proyectil.</summary>
 	public static DeathCause ForProjectile(EnemyBase owner)
 	{
 		DeathCause cause = FromEnemy(owner);
-		return cause == DeathCause.TheMother || cause == DeathCause.Digger ? cause : DeathCause.Projectile;
+		return cause is DeathCause.TheMother or DeathCause.Digger or DeathCause.Shooter ? cause : DeathCause.Projectile;
 	}
 }
