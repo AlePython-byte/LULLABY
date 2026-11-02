@@ -32,9 +32,12 @@ public partial class DefeatScreen : CanvasLayer
 	public static string RetryNotePath { get; set; } = DefaultRetryNotePath;
 	public static string MenuNotePath { get; set; } = DefaultMenuNotePath;
 
-	/// <summary>Ancho de las notas y cuánto pisan la hoja (px, en la ventana de 1152×648); el alto sale de la proporción de la imagen.</summary>
+	/// <summary>
+	/// Ancho de las notas y cuánto pisa la hoja su papel visible (px, en la ventana de 1152×648); el alto sale de la proporción de la imagen.
+	/// Las notas van por delante de la hoja y el texto se centra y se ajusta a su parte visible (la imagen tiene bordes transparentes).
+	/// </summary>
 	public const float NoteWidth = 190.0f;
-	public const float NoteOverlap = 20.0f;
+	public const float NoteOverlap = 16.0f;
 	public const float NoteCenterY = 70.0f;
 
 	private static readonly Color Ink = new(0.16f, 0.1f, 0.07f);
@@ -154,30 +157,67 @@ public partial class DefeatScreen : CanvasLayer
 		label.AddThemeConstantOverride("outline_size", 0);
 	}
 
-	// Convierte el botón en una nota pegada a un lado de la hoja: con la imagen como fondo (a su proporción real), ligeramente girada, con
-	// su texto y la tecla dibujados encima. side = 1 a la derecha (reiniciar), -1 a la izquierda (salir).
+	/// <summary>Parte visible (papel) de una nota de este ancho, en píxeles de la nota: la usan el diseño y las pruebas.</summary>
+	public static Rect2 VisiblePart(Texture2D texture)
+	{
+		float scale = NoteWidth / texture.GetWidth();
+		Rect2 visible = PaperSheet.VisibleRect(texture);
+		return new Rect2(visible.Position * scale, visible.Size * scale);
+	}
+
+	/// <summary>Zona del papel visible donde va el texto (en píxeles de la nota): sin los bordes irregulares y bajo la cinta o la chincheta.</summary>
+	public static Rect2 TextArea(Rect2 visible)
+	{
+		float margin = visible.Size.X * 0.08f;
+		float top = visible.Size.Y * 0.22f;
+		float bottom = visible.Size.Y * 0.32f;
+		return new Rect2(visible.Position.X + margin, visible.Position.Y + top, visible.Size.X - 2.0f * margin, visible.Size.Y - top - bottom);
+	}
+
+	/// <summary>Tamaño de letra más grande (hasta 26) con el que el texto cabe en `width` píxeles.</summary>
+	public static int FitFontSize(Font font, string text, float width)
+	{
+		int size = 26;
+		while (size > 14 && font.GetStringSize(text, HorizontalAlignment.Left, -1, size).X > width)
+		{
+			size--;
+		}
+
+		return size;
+	}
+
+	// Convierte el botón en una nota pegada a un lado de la hoja: con la imagen como fondo (a su proporción real), por delante de la hoja
+	// (su papel visible pisa NoteOverlap px el borde de la hoja), ligeramente girada, con su texto centrado en el papel visible y la tecla
+	// debajo. side = 1 a la derecha (reiniciar), -1 a la izquierda (salir).
 	private static void BuildNote(Control notes, Button button, Texture2D texture, int side, string key)
 	{
 		button.Reparent(notes, false);
 		float width = NoteWidth;
 		float height = width * texture.GetHeight() / texture.GetWidth();
-		float x = side > 0 ? PaperSheet.Rect.End.X - NoteOverlap : PaperSheet.Rect.Position.X - width + NoteOverlap;
+		Rect2 visible = VisiblePart(texture);
+		float x = side > 0
+			? PaperSheet.Rect.End.X - NoteOverlap - visible.Position.X
+			: PaperSheet.Rect.Position.X + NoteOverlap - visible.End.X;
 		PaperSheet.Place(button, new Rect2(x, NoteCenterY - height / 2.0f, width, height));
 		button.CustomMinimumSize = new Vector2(width, height);
 		button.PivotOffset = new Vector2(width, height) / 2.0f;
 		button.RotationDegrees = side > 0 ? 4.0f : -4.0f;
 		button.Flat = false;
-		button.AddThemeFontSizeOverride("font_size", 26);
 		foreach (string color in new[] { "font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_disabled_color" })
 		{
 			button.AddThemeColorOverride(color, Ink);
 		}
 
-		button.AddThemeStyleboxOverride("normal", NoteStyle(texture, Colors.White));
-		button.AddThemeStyleboxOverride("hover", NoteStyle(texture, new Color(1.08f, 1.06f, 0.95f)));
-		button.AddThemeStyleboxOverride("focus", NoteStyle(texture, new Color(1.08f, 1.06f, 0.95f)));
-		button.AddThemeStyleboxOverride("pressed", NoteStyle(texture, new Color(0.85f, 0.82f, 0.78f)));
-		button.AddThemeStyleboxOverride("disabled", NoteStyle(texture, new Color(0.7f, 0.7f, 0.7f)));
+		// El texto se centra en el papel visible: los márgenes del fondo son lo que sobra de la imagen (arriba un poco más, por la cinta o la
+		// chincheta) y la letra se reduce hasta que cabe en su ancho.
+		Rect2 area = TextArea(visible);
+		Vector2 size = new(width, height);
+		button.AddThemeFontSizeOverride("font_size", FitFontSize(button.GetThemeFont("font"), button.Text, area.Size.X));
+		button.AddThemeStyleboxOverride("normal", NoteStyle(texture, Colors.White, area, size));
+		button.AddThemeStyleboxOverride("hover", NoteStyle(texture, new Color(1.08f, 1.06f, 0.95f), area, size));
+		button.AddThemeStyleboxOverride("focus", NoteStyle(texture, new Color(1.08f, 1.06f, 0.95f), area, size));
+		button.AddThemeStyleboxOverride("pressed", NoteStyle(texture, new Color(0.85f, 0.82f, 0.78f), area, size));
+		button.AddThemeStyleboxOverride("disabled", NoteStyle(texture, new Color(0.7f, 0.7f, 0.7f), area, size));
 
 		Label hint = new()
 		{
@@ -188,13 +228,29 @@ public partial class DefeatScreen : CanvasLayer
 		};
 		hint.AddThemeFontSizeOverride("font_size", 17);
 		hint.AddThemeColorOverride("font_color", InkSoft);
-		hint.SetAnchorsPreset(Control.LayoutPreset.BottomWide);
-		hint.OffsetTop = -height * 0.26f;
-		hint.OffsetBottom = -height * 0.10f;
+		hint.AnchorLeft = 0.0f;
+		hint.AnchorTop = 0.0f;
+		hint.AnchorRight = 0.0f;
+		hint.AnchorBottom = 0.0f;
+		hint.OffsetLeft = visible.Position.X;
+		hint.OffsetRight = visible.End.X;
+		hint.OffsetTop = visible.End.Y - visible.Size.Y * 0.30f;
+		hint.OffsetBottom = visible.End.Y - visible.Size.Y * 0.08f;
 		button.AddChild(hint);
 	}
 
-	private static StyleBoxTexture NoteStyle(Texture2D texture, Color modulate) => new() { Texture = texture, ModulateColor = modulate };
+	private static StyleBoxTexture NoteStyle(Texture2D texture, Color modulate, Rect2 area, Vector2 size)
+	{
+		return new StyleBoxTexture
+		{
+			Texture = texture,
+			ModulateColor = modulate,
+			ContentMarginLeft = area.Position.X,
+			ContentMarginTop = area.Position.Y,
+			ContentMarginRight = size.X - area.End.X,
+			ContentMarginBottom = size.Y - area.End.Y,
+		};
+	}
 
 	public void Present(string message, DeathCause cause = DeathCause.Unknown)
 	{

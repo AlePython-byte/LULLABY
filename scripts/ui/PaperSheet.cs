@@ -29,6 +29,41 @@ public static class PaperSheet
 	/// <summary>Textura de la hoja si el archivo existe (null si falta o no carga).</summary>
 	public static Texture2D Load(string path = Path) => ResourceLoader.Exists(path) ? ResourceLoader.Load<Texture2D>(path) : null;
 
+	/// <summary>
+	/// Parte visible de una imagen con transparencia (en píxeles de la propia imagen): el rectángulo que encierra los píxeles con al menos
+	/// `alpha` de opacidad. Descarta las sombras suaves y los bordes casi transparentes. Si no se puede leer, toda la imagen.
+	/// </summary>
+	public static Rect2 VisibleRect(Texture2D texture, float alpha = 0.6f)
+	{
+		Rect2 whole = new(Vector2.Zero, texture.GetSize());
+		Image image = texture.GetImage();
+		if (image == null || image.IsEmpty())
+		{
+			return whole;
+		}
+
+		image.Convert(Image.Format.Rgba8);
+		byte[] data = image.GetData();
+		int width = image.GetWidth(), height = image.GetHeight();
+		byte threshold = (byte)Mathf.Clamp(Mathf.RoundToInt(alpha * 255.0f), 0, 255);
+		int minX = width, minY = height, maxX = -1, maxY = -1;
+		for (int y = 0; y < height; y++)
+		{
+			for (int x = 0; x < width; x++)
+			{
+				if (data[(y * width + x) * 4 + 3] >= threshold)
+				{
+					minX = Mathf.Min(minX, x);
+					maxX = Mathf.Max(maxX, x);
+					minY = Mathf.Min(minY, y);
+					maxY = Mathf.Max(maxY, y);
+				}
+			}
+		}
+
+		return maxX < minX ? whole : new Rect2(minX, minY, maxX - minX + 1, maxY - minY + 1);
+	}
+
 	/// <summary>Coloca un control con anclas al centro de la ventana y estos márgenes (relativos al centro).</summary>
 	public static void Place(Control control, Rect2 rect)
 	{
