@@ -22,3 +22,4 @@ Todos los efectos de sonido y pistas musicales utilizados en el proyecto cuentan
 | menu_confirmar.ogg  | Confirmación o aceptación en menús         | EilasSFX          | https://freesound.org/people/EilasSFX/                        | CC0      |
 | jefe_aparece.ogg    | Aparición o revelación de jefe             | zombieallen       | https://freesound.org/people/zombieallen/                     | CC0      |
 | jefe_ataque_1.ogg   | Ataque de carga o embestida del jefe       | grizzlymittz      | https://freesound.org/people/grizzlymittz/sounds/535239/      | CC0      |
+| jefe_ataque_2.ogg   | Ataque viscoso o impacto de baba del jefe  | Qubodup           | https://freesound.org/people/Qubodup/                         | CC0      |
