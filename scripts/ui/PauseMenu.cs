@@ -76,6 +76,7 @@ public partial class PauseMenu : CanvasLayer
 		sheet.Show();
 		PaperSheet.Place(sheet, PaperSheet.Rect);
 		PaperSheet.Place(GetNode<Control>("Root/Center"), PaperSheet.Inner);
+		HandFont.Apply(_root);
 
 		Control box = GetNode<Control>("Root/Center/Box");
 		box.AddThemeConstantOverride("separation", 12);
