@@ -34,6 +34,7 @@ public partial class BossVictoryTest : Node
 		{
 			GD.Print($"=== BossVictoryTest ({(OS.IsDebugBuild() ? "Debug" : "Release")}) ===");
 			CheckVictoryMessages();
+			await CheckVictoryArt();
 			await CheckDeathInEveryState();
 			await CheckNewRunInProcess();
 			await CheckNewRunReload();
@@ -75,6 +76,72 @@ public partial class BossVictoryTest : Node
 			Array.IndexOf(RunManager.VictoryMessages, RunManager.VictoryMessageFor(int.MinValue)) >= 0,
 			"Una semilla negativa (--seed=-5) también elige una cadena");
 		GD.Print("Cadenas de victoria: OK");
+	}
+
+	// La pantalla de victoria usa pantalla_victoria.png de fondo (cubriendo sin deformar) con el texto en tinta oscura en la zona vacía de
+	// arriba; sin la imagen cae al diseño de siempre. Se abre en una ventana de 1152×648 (la de diseño; la headless no la tiene).
+	private async Task CheckVictoryArt()
+	{
+		SceneTree tree = GetTree();
+		string original = VictoryScreen.ArtPath;
+		Vector2I originalSize = tree.Root.Size;
+		try
+		{
+			tree.Root.Size = new Vector2I(1152, 648);
+			Rect2 window = new(Vector2.Zero, new Vector2(1152.0f, 648.0f));
+
+			VictoryScreen screen = await OpenVictory();
+			Require(screen.HasArt == ResourceLoader.Exists(VictoryScreen.DefaultArtPath) && screen.HasArt, "Está la imagen de la pantalla de victoria y se usa");
+			screen.Present("Frase de prueba de la victoria, lo bastante larga para ocupar más de una línea de la pantalla.");
+			await BossTestHarness.Frames(tree, 2);
+			TextureRect art = screen.GetNode<TextureRect>("Root/Art");
+			Require(art.Visible && art.Texture != null && art.StretchMode == TextureRect.StretchModeEnum.KeepAspectCovered
+				&& art.ExpandMode == TextureRect.ExpandModeEnum.IgnoreSize, "El fondo cubre la ventana sin deformarse");
+			Require(art.GetGlobalRect().IsEqualApprox(window), $"El fondo ocupa toda la ventana ({art.GetGlobalRect()})");
+			Require(!screen.GetNode<Control>("Root/Background").Visible, "Con la imagen no hay velo oscuro encima");
+			foreach (string name in new[] { "Title", "Message" })
+			{
+				Label label = screen.GetNode<Label>($"Root/Center/Box/{name}");
+				Require(Luminance(label.GetThemeColor("font_color")) < 0.25f, $"«{name}» va en tinta oscura sobre el papel");
+			}
+
+			Rect2 box = screen.GetNode<Control>("Root/Center/Box").GetGlobalRect();
+			Require(window.Encloses(box) && box.End.Y <= window.Size.Y * VictoryScreen.ArtTextArea + 1.0f,
+				$"Título, frase y botón caben en la zona vacía de arriba ({box}), sin tapar la cuna");
+			Require(screen.NewRunButton.IsVisibleInTree() && window.Encloses(screen.NewRunButton.GetGlobalRect()) && screen.NewRunButton.HasFocus(),
+				"El botón «Nueva partida» se ve, cabe y tiene el foco");
+			screen.QueueFree();
+			await tree.ToSignal(screen, Node.SignalName.TreeExited);
+
+			// Sin la imagen: el diseño de siempre (velo oscuro y todo centrado).
+			VictoryScreen.ArtPath = "res://tests/fixtures/none/pantalla_victoria.png";
+			VictoryScreen plain = await OpenVictory();
+			plain.Present("Frase de prueba");
+			await BossTestHarness.Frames(tree, 2);
+			Require(!plain.HasArt && !plain.GetNode<Control>("Root/Art").Visible && plain.GetNode<Control>("Root/Background").Visible
+				&& Mathf.IsEqualApprox(plain.GetNode<Control>("Root/Center").AnchorBottom, 1.0f), "Sin la imagen queda el diseño de siempre");
+			Require(plain.IsPresented && plain.Message == "Frase de prueba" && plain.NewRunButton.IsVisibleInTree() && plain.NewRunButton.Text == "Nueva partida",
+				"Sin la imagen la pantalla funciona igual");
+			plain.QueueFree();
+			await tree.ToSignal(plain, Node.SignalName.TreeExited);
+		}
+		finally
+		{
+			VictoryScreen.ArtPath = original;
+			tree.Root.Size = originalSize;
+		}
+
+		GD.Print("Pantalla de victoria: imagen de fondo, tinta oscura, zona de texto y caída al diseño de siempre: OK");
+	}
+
+	private static float Luminance(Color c) => 0.2126f * c.R + 0.7152f * c.G + 0.0722f * c.B;
+
+	private async Task<VictoryScreen> OpenVictory()
+	{
+		VictoryScreen screen = GD.Load<PackedScene>("res://scenes/ui/VictoryScreen.tscn").Instantiate<VictoryScreen>();
+		AddChild(screen);
+		await BossTestHarness.Frames(GetTree(), 2);
+		return screen;
 	}
 
 	private async Task CheckDeathInEveryState()
