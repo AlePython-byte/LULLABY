@@ -305,6 +305,12 @@ public partial class RoomController : Node3D
 			door.SetOpen(false);
 		}
 
+		// Una sola voz por evento (no una por puerta); las salas sin puertas (aisladas en pruebas) no suenan.
+		if (_doors.Count > 0)
+		{
+			AudioManager.Play(SoundCatalog.DoorCloses);
+		}
+
 		// Se cuenta antes de instanciar: si un enemigo muriera durante el bucle, no se daría la sala por despejada.
 		_enemiesAlive = UsesBossOverride ? 1 : _spawnPoints.Count;
 
@@ -344,6 +350,7 @@ public partial class RoomController : Node3D
 		HealthComponent.FindIn(BossEnemy).Died += OnEnemyDied;
 		_enemiesRoot.AddChild(BossEnemy);
 		BossSpawned?.Invoke(BossEnemy);
+		AudioManager.PlayFrom(SoundCatalog.BossAppears, BossEnemy);
 	}
 
 	// Con SpawnKinds (generador v2) cada punto tiene su tipo; si está vacío (v1), todos salen de EnemyScene.
@@ -367,6 +374,11 @@ public partial class RoomController : Node3D
 		foreach (Door door in _doors.Values)
 		{
 			door.SetOpen(true);
+		}
+
+		if (_doors.Count > 0)
+		{
+			AudioManager.Play(SoundCatalog.DoorOpens);
 		}
 
 		// Los proyectiles enemigos que sigan en vuelo desaparecen al despejar la sala.
