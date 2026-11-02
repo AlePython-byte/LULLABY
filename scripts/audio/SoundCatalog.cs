@@ -37,6 +37,9 @@ public static class SoundCatalog
 	public const string BossDies = "jefe_muere";
 	public const string BossPhase = "jefe_fase";
 
+	// Pantalla de derrota (al mostrarse, no al morir: eso es noah_muere).
+	public const string Defeat = "derrota";
+
 	public sealed record Sound(string Id, bool Positional = false, float VolumeDb = 0.0f, float PitchVariation = 0.0f, int MaxVoices = 4,
 		float MinInterval = 0.0f, bool Priority = false, string Fallback = null, float FallbackPitch = 1.0f)
 	{
@@ -67,6 +70,8 @@ public static class SoundCatalog
 		[BossDies] = new Sound(BossDies, Positional: true, MaxVoices: 2, Priority: true, Fallback: EnemyDies, FallbackPitch: 0.8f),
 		// Cambio de fase del jefe. Sin su archivo no suena (no tiene sonido de respaldo) y no da error.
 		[BossPhase] = new Sound(BossPhase, Positional: true, MaxVoices: 1, Priority: true),
+		// Sin su archivo no suena nada y no da error: no tiene sonido de respaldo (noah_muere ya suena al morir y se oiría dos veces).
+		[Defeat] = new Sound(Defeat, MaxVoices: 1, Priority: true),
 	};
 
 	public static Sound Get(string id) => id != null && Sounds.TryGetValue(id, out Sound sound) ? sound : null;
