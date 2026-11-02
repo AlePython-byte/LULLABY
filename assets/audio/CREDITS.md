@@ -14,3 +14,8 @@ Todos los efectos de sonido y pistas musicales utilizados en el proyecto cuentan
 | mecha_explosivo.ogg | Chisporroteo de mecha previo a explosión   | Alex_hears_things | https://freesound.org/people/Alex_hears_things/sounds/316682/ | CC0      |
 | volador_aleteo.ogg  | Aleteo continuo o vuelo de enemigo volador | Scottrex05        | https://freesound.org/people/Scottrex05/sounds/593487/        | CC0      |
 | enemigo_muere.ogg   | Derrota o muerte de un enemigo             | K27K_Mike         | https://freesound.org/people/K27K_Mike/sounds/853659/         | CC0      |
+
+## Música
+
+| Archivo | Descripción | Autor | Enlace | Licencia |
+| ------- | ----------- | ----- | ------ | -------- |
