@@ -16,3 +16,4 @@ Todos los efectos de sonido y pistas musicales utilizados en el proyecto cuentan
 | enemigo_muere.ogg   | Derrota o muerte de un enemigo             | K27K_Mike         | https://freesound.org/people/K27K_Mike/sounds/853659/         | CC0      |
 | puerta_abre.ogg     | Apertura de puerta                         | theshuggie        | https://freesound.org/people/theshuggie/sounds/371008/        | CC0      |
 | puerta_cierra.ogg   | Cierre de puerta                           | theshuggie        | https://freesound.org/people/theshuggie/sounds/371008/        | CC0      |
+| objeto_recoger.ogg  | Recolección de objeto o recurso            | LSpec             | https://freesound.org/people/LSpec/sounds/                    | CC0      |
