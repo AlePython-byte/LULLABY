@@ -299,6 +299,8 @@ public partial class MotherBehavior : EnemyBehavior
 
 	private void BeginSpiral()
 	{
+		// Un solo sonido para todo el barrido (antes sonaba un disparo cada dos tandas).
+		AudioManager.PlayFrom(SoundCatalog.BossAttackSpiral, this);
 		_spiralTime = 0.0f;
 		_spiralEmitted = 0;
 		State = AttackState.Spiral;
@@ -320,7 +322,6 @@ public partial class MotherBehavior : EnemyBehavior
 				}
 			}
 
-			if (_spiralEmitted % 2 == 0) AudioManager.PlayFrom(SoundCatalog.ShooterShot, this);
 			_spiralEmitted++;
 		}
 	}
@@ -346,7 +347,7 @@ public partial class MotherBehavior : EnemyBehavior
 				EnemyProjectile.FireFrom(enemy, ProjectileScene, direction, RingSpawnDistance);
 			}
 		}
-		AudioManager.PlayFrom(SoundCatalog.ShooterShot, this);
+		AudioManager.PlayFrom(SoundCatalog.BossAttackRing, this);
 		_ringGapSet = false;
 		State = AttackState.Recovery;
 		_timer = settings.RecoveryTime;
