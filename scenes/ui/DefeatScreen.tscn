@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://scripts/ui/DefeatScreen.cs" id="1_defeat"]
 
 [node name="DefeatScreen" type="CanvasLayer"]
+process_mode = 3
 layer = 20
 script = ExtResource("1_defeat")
 

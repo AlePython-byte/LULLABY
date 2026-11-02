@@ -57,6 +57,7 @@ public partial class DefeatScreen : CanvasLayer
 	private Button _retry;
 	private Button _menu;
 	private bool _requested;
+	private bool _pausedByUs;
 
 	public override void _Ready()
 	{
@@ -204,11 +205,24 @@ public partial class DefeatScreen : CanvasLayer
 
 		IsPresented = true;
 		Cause = cause;
+		// El juego queda congelado detrás (esta pantalla procesa siempre, igual que el audio); RunManager despausa antes de reiniciar o salir.
+		GetTree().Paused = true;
+		_pausedByUs = true;
 		_message.Text = message;
 		_cause.Text = $"{DeathTexts.KilledBy} {DeathTexts.NameOf(cause)}";
 		_root.Show();
 		_retry.GrabFocus();
+		AudioManager.Play(SoundCatalog.Defeat);
 		Presented?.Invoke(message);
+	}
+
+	public override void _ExitTree()
+	{
+		// Si el nivel se libera con la derrota a la vista, el juego no puede quedar congelado.
+		if (_pausedByUs)
+		{
+			GetTree().Paused = false;
+		}
 	}
 
 	private void Request(Action action)
