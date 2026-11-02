@@ -120,6 +120,6 @@ Para la difusión y presentación del proyecto:
 3. **¿Cómo se verificó la coherencia de escala?**  
    Se utilizó una referencia métrica constante ($1.0 \text{ unidad} = 1.0 \text{ metro}$): Noah mide 0.9 m, los enemigos entre 0.8 y 1.2 m, y The Mother alcanza 2.8 m, transmitiendo inmediatamente la sensación de indefensión del jugador.
 
-## Carátula, logo y panel del menú
+## Arte generado con IA
 
-La carátula 2D (fondo, cuna con Noah, móvil, partículas), el logo y el panel de papel del menú se generaron con una herramienta de IA generativa de imágenes (Gemini), a partir de las capas originales del equipo y del arte de los personajes como referencia. Después se procesaron con un script propio (recorte, transparencia y medidas) y se integraron en el menú. Los modelos 3D, las texturas y el resto del arte del juego son trabajo del equipo.
+La carátula del menú (capas), el logo, el panel de papel, la pantalla de victoria y las notas de la pantalla de muerte se generaron con IA generativa (Gemini) a partir de referencias propias del equipo. Después el equipo los procesó (recorte, eliminación de fondo y escalado). El resto del arte (modelos 3D y texturas) es de David.
