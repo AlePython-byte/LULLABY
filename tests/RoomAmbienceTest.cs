@@ -259,13 +259,22 @@ public partial class RoomAmbienceTest : Node
 		if (floorVariants.Count > 0)
 		{
 			HashSet<string> used = new();
-			bool allTriplanar = true;
+			bool allTriplanar = true, allFiltered = true, allMipmapped = true;
 			for (int seed = 1; seed <= count; seed++)
 			{
 				StandardMaterial3D floor = RoomLook.Floor(RoomType.Normal, Colors.Gray, 2.0f, seed, CellOf(seed));
 				allTriplanar &= floor.AlbedoTexture != null && floor.Uv1Triplanar && floor.Uv1WorldTriplanar && floor.AlbedoColor.IsEqualApprox(Colors.White);
+				allFiltered &= floor.TextureFilter == BaseMaterial3D.TextureFilterEnum.LinearWithMipmapsAnisotropic;
+				allMipmapped &= floor.AlbedoTexture?.GetImage()?.HasMipmaps() == true;
 				used.Add(RoomLook.PickVariant(RoomLook.FloorVariants, seed, CellOf(seed), true));
 			}
+
+			Check("con variantes de suelo: filtro anisotrópico con mipmaps (contra el moiré)", allFiltered, "otro filtro");
+			Check("con variantes de suelo: las texturas están importadas con mipmaps", allMipmapped, "alguna textura sin mipmaps");
+			RoomController tiled = GD.Load<PackedScene>("res://scenes/rooms/Room.tscn").Instantiate<RoomController>();
+			float tile = tiled.TextureTileMeters;
+			tiled.Free();
+			Check("la repetición de las texturas no es demasiado fina (≥ 3 m)", tile >= 3.0f, $"{tile} m");
 
 			Check("con variantes de suelo: triplanar mundial y sin estirar", allTriplanar, "alguna sala sin triplanar");
 			Check("con variantes de suelo: se reparten entre las salas", floorVariants.Count == 1 || used.Count > 1, $"{used.Count} usadas");
@@ -279,6 +288,8 @@ public partial class RoomAmbienceTest : Node
 		{
 			StandardMaterial3D wall = RoomLook.Wall(RoomType.Normal, Colors.Gray, 2.0f, 2, CellOf(2));
 			Check("con variantes de pared: triplanar mundial", wall.AlbedoTexture != null && wall.Uv1Triplanar && wall.Uv1WorldTriplanar, "sin triplanar");
+			Check("con variantes de pared: filtro anisotrópico con mipmaps", wall.TextureFilter == BaseMaterial3D.TextureFilterEnum.LinearWithMipmapsAnisotropic
+				&& wall.AlbedoTexture?.GetImage()?.HasMipmaps() == true, "sin mipmaps o con otro filtro");
 		}
 		else
 		{

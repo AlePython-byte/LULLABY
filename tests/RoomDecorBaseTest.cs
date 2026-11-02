@@ -133,7 +133,7 @@ public partial class RoomDecorBaseTest : Node
 			RoomController textured = await NewRoom(RoomType.Normal, new Vector2(16, 16), new[] { DoorSide.North }, true);
 			StandardMaterial3D parquet = Material(textured, "Floor");
 			Check("con textura: el suelo normal usa parquet en triplanar mundial", parquet.AlbedoTexture != null && parquet.Uv1Triplanar && parquet.Uv1WorldTriplanar
-				&& Mathf.IsEqualApprox(parquet.Uv1Scale.X, 0.5f) && parquet.AlbedoColor.IsEqualApprox(Colors.White), "sin textura");
+				&& Mathf.IsEqualApprox(parquet.Uv1Scale.X, 1.0f / textured.TextureTileMeters) && parquet.AlbedoColor.IsEqualApprox(Colors.White), "sin textura");
 			Check("con textura de otro tipo ausente, el resto sigue en color", Material(textured, "WallNorthA").AlbedoTexture == null, "pared con textura");
 			textured.Free();
 		}
