@@ -100,8 +100,8 @@ public partial class EnemyWarmupTest : Node
 		Require(AudioManager.Instance.Requests.All(request => !request.Id.StartsWith(SoundCatalog.FlyerWings)), "El aleteo no suena durante el precalentamiento");
 		Require(AudioManager.Instance.Requests.All(request => request.Id != SoundCatalog.EnemySpawns), "Y el sonido de aparición se carga pero no suena");
 		SoundCatalog.Sound spawnSound = SoundCatalog.Get(SoundCatalog.EnemySpawns);
-		string loadedPath = ResourceLoader.Exists(spawnSound.Path) ? spawnSound.Path : SoundCatalog.Get(spawnSound.Fallback).Path;
-		Require(ResourceLoader.HasCached(loadedPath), $"El archivo del sonido de aparición (o el de su respaldo) queda cargado: {loadedPath}");
+		Require(spawnSound.Fallback == null, "enemigo_aparece no tiene sonido de respaldo: sin archivo es silencio");
+		Require(!ResourceLoader.Exists(spawnSound.Path) || ResourceLoader.HasCached(spawnSound.Path), "Si el archivo existe, queda cargado; si no, se ignora sin error");
 		GD.Print("Seis tipos calentados, visor liberado, sin sonido: OK");
 
 		Require(EnemyWarmupRunner.Attach(this) == null, "Ya hecho: no cuelga otro runner");

@@ -81,8 +81,8 @@ public static class SoundCatalog
 		[ShooterShot] = new Sound(ShooterShot, Positional: true, MaxVoices: 3, MinInterval: 0.05f),
 		[FlyerWings] = new Sound(FlyerWings, Positional: true, VolumeDb: -6.0f, MaxVoices: 1),
 		// Aparición de los enemigos de una sala: una sola petición por oleada (no una por enemigo), con un ligero cambio de tono y como
-		// mucho 2 voces a la vez. Hasta que exista su archivo suena como el golpe de enemigo, más grave y bajo, para no quedar muda.
-		[EnemySpawns] = new Sound(EnemySpawns, VolumeDb: -4.0f, PitchVariation: RepeatedPitchVariation, MaxVoices: 2, MinInterval: 0.1f, Fallback: EnemyHit, FallbackPitch: 0.6f),
+		// mucho 2 voces a la vez. Sin su archivo no suena y no da error: no tiene sonido de respaldo (un golpe de enemigo sin golpe confundiría).
+		[EnemySpawns] = new Sound(EnemySpawns, VolumeDb: -4.0f, PitchVariation: RepeatedPitchVariation, MaxVoices: 2, MinInterval: 0.1f),
 		[ItemPickedUp] = new Sound(ItemPickedUp, MaxVoices: 2),
 		[Heal] = new Sound(Heal, MaxVoices: 1),
 		[UiClick] = new Sound(UiClick, MaxVoices: 2, MinInterval: 0.05f),
