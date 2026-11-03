@@ -48,6 +48,7 @@ $tests = @(
     @{ Name = 'HistoricalIntegrityTest' },
     @{ Name = 'EnemyModelTest' },
     @{ Name = 'EnemyBehaviorTest' },
+    @{ Name = 'EnemyScenePreloaderTest' },
     @{ Name = 'ItemSystemTest' },
     @{ Name = 'TreasureItemsTest' },
     @{ Name = 'MenuFlowTest' },
