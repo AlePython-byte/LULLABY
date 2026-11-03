@@ -40,6 +40,7 @@ public static class SoundCatalog
 	public const string Heal = "curar";
 	public const string UiClick = "menu_click";
 	public const string MenuConfirm = "menu_confirmar";
+	public const string UiHover = "menu_hover";
 
 	// Puertas de las salas (al cerrarse al empezar el combate y al abrirse al despejarla).
 	public const string DoorOpens = "puerta_abre";
@@ -87,6 +88,8 @@ public static class SoundCatalog
 		[Heal] = new Sound(Heal, MaxVoices: 1),
 		[UiClick] = new Sound(UiClick, MaxVoices: 2, MinInterval: 0.05f),
 		[MenuConfirm] = new Sound(MenuConfirm, MaxVoices: 1, Priority: true),
+		// Al pasar el ratón por un botón. Sin su archivo no suena y no da error: no tiene sonido de respaldo.
+		[UiHover] = new Sound(UiHover, VolumeDb: -8.0f, PitchVariation: RepeatedPitchVariation, MaxVoices: 1, MinInterval: 0.05f),
 		// Las puertas de una sala se mueven a la vez: una sola voz por evento, no una por puerta.
 		[DoorOpens] = new Sound(DoorOpens, MaxVoices: 1),
 		[DoorCloses] = new Sound(DoorCloses, MaxVoices: 1),
