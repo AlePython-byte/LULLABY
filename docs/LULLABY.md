@@ -360,6 +360,8 @@ Los enemigos de una sala aparecen **0,7 s** después de empezar el combate en el
 
 **Consecuencia:** el juego real da a Noah 0,3 s menos de margen que el simulador antes de que aparezcan los enemigos, así que la dificultad real puede ser algo mayor que la predicha. Es una diferencia pequeña y aceptada por ahora. Para eliminarla habría que bajar los dos valores a 0,7 s, regenerar las etiquetas y volver a entrenar los modelos. `PauseTest` fija ambos valores (los enemigos nacen a ~0,7 s y el simulador lee 1 s) para que no se cambien sin querer.
 
+**Herramienta de diagnóstico (fuera de la suite):** `godot --headless --fixed-fps 60 --path . res://tests/SpawnTimingProbe.tscn` (con `-- skip1` para ver la primera sala con la caché fría) mide el coste de cargar e instanciar cada tipo de enemigo y el fotograma real en que nacen en salas de varias semillas. Solo imprime números; no es una prueba de regresión.
+
 ## 7.4. Enfoque técnico de la IA
 
 Para evitar depender de servicios costosos, se plantea comenzar con un sistema local.
