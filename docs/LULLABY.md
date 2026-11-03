@@ -188,7 +188,7 @@ Pruebas: `tests/ItemSystemTest.tscn` comprueba efectos, recogidas y parámetros 
 
 ## 4.4. Menú, pausa y fin de partida
 
-El juego arranca en el **menú principal** (`scenes/ui/MainMenu.tscn`, escena principal del proyecto). `TestLevel.tscn` sigue pudiendo lanzarse directo con F6 y por las pruebas, sin pasar por el menú.
+El juego arranca en la **intro** (`scenes/ui/IntroScene.tscn`, escena principal del proyecto; ver 8.6) y de ahí pasa al **menú principal** (`scenes/ui/MainMenu.tscn`). `TestLevel.tscn` sigue pudiendo lanzarse directo con F6 y por las pruebas, sin pasar por el menú ni por la intro; «Salir al menú» va directo a `MainMenu`, sin intro.
 
 - **Menú principal:** título y subtítulo, **Jugar**, **Dificultad** (Fácil / Normal / Difícil), **Controles** y **Salir**.
 - **Arte del menú** (todo opcional y por nombre, con `ResourceLoader.Exists`: se puede reemplazar un PNG por otro con el mismo nombre y medidas, y si falta no pasa nada):
@@ -617,6 +617,18 @@ LULLABY/
 La carpeta `ai-training` será utilizada para los experimentos de aprendizaje automático. El juego final deberá poder ejecutar la lógica de selección inteligente sin requerir Python instalado en el equipo del jugador.
 
 # 11. Plan de desarrollo
+
+
+## 8.6. Intro
+
+Escena principal del proyecto (`IntroScene`, `scripts/ui/`): ocho cuadros estilo libro de cuentos con subtítulo en Patrick Hand, la voz de la narración y el canto de la madre de fondo. Se reproduce **una vez** al abrir el juego y pasa a `MainMenu`.
+
+- **Cuadros** (`IntroFrames`): `assets/intro/escena_NN.png` (1920×1080), `voz_NN.mp3` y `canto_mama.mp3` (25 s). Fundido de entrada de 0,8 s, zoom de 1,00 a 1,06 con un paneo distinto por cuadro (zoom a Noah, paneo a la madre, zoom al móvil, zoom leve, zoom hacia atrás, paneo lateral, zoom a la puerta, zoom lento y fundido a negro), fundido de salida. Cada cuadro dura lo que su voz más 0,6 s (mínimo 3,5 s): en total unos 39 s.
+- **Sonido:** la voz va por el bus `SFX` y el canto por `Musica` a −10 dB (~30 % frente a la voz); respetan los deslizadores, que se aplican al entrar. El canto va en bucle con dos reproductores (`LoopingBackdrop`) que se cruzan un segundo antes del final, y se apaga con fundido en el último cuadro; el menú arranca después con su música.
+- **Rendimiento:** las ilustraciones se importan con compresión con pérdida (calidad 0,9) y mipmaps (28,4 MB de PNG → 5,5 MB importados; sin pérdida eran 20 MB) y se cargan de una en una, con la pantalla en negro, soltándose al acabar su cuadro. Antes de pasar al menú, dentro del fundido a negro, se vacían los finalizadores de C#.
+- **Saltar:** Enter, Esc, Espacio o clic (fundido corto, voz y canto cortados). Pista discreta «Pulsa Enter para saltar».
+- **Cuándo no se ve:** en headless y en las pruebas, si ya se mostró en la sesión, con el argumento `--sin-intro` (en el editor: Depurar → Personalizar instancias de ejecución → argumentos de lanzamiento) o si no hay ninguna ilustración. Sin una imagen se omite ese cuadro, sin voz dura 3,5 s y sin canto no suena fondo, sin errores.
+- Prueba: `res://tests/IntroTest.tscn`.
 
 ## Fase 1 — Preparación del proyecto
 

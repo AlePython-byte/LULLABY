@@ -124,4 +124,4 @@ Para la difusión y presentación del proyecto:
 
 ## Arte generado con IA
 
-La carátula del menú (capas), el logo, el panel de papel, la pantalla de victoria y las notas de la pantalla de muerte se generaron con IA generativa (Gemini) a partir de referencias propias del equipo. Después el equipo los procesó (recorte, eliminación de fondo y escalado). El resto del arte (modelos 3D y texturas) es de David.
+La carátula del menú (capas), el logo, el panel de papel, la pantalla de victoria y las notas de la pantalla de muerte se generaron con IA generativa (Gemini) a partir de referencias propias del equipo. Después el equipo los procesó (recorte, eliminación de fondo y escalado). Las ocho ilustraciones de la intro (`assets/intro/escena_01.png` a `escena_08.png`, 1920×1080) también se generaron con IA generativa (Gemini); la voz de la narración (`voz_01.mp3` a `voz_08.mp3`) y el canto de la madre (`canto_mama.mp3`) se generaron con ElevenLabs. Las ilustraciones se importan con compresión con pérdida (calidad 0,9; sin diferencia visible, incluso en los degradados oscuros) y mipmaps. El resto del arte (modelos 3D y texturas) es de David.

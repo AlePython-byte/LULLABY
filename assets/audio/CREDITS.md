@@ -22,3 +22,13 @@ Todos los efectos de sonido y pistas musicales utilizados en el proyecto cuentan
 | the_cradle.ogg | Música de ambiente en la cuna (caja de música)      | 13NHarri    | https://freesound.org/people/13NHarri/sounds/386411/    | CC0      |
 | menu.ogg       | Música de ambiente para el menú principal           | LightMister | https://freesound.org/people/LightMister/sounds/690294/ | CC0      |
 | jefe.ogg       | Música de combate contra el jefe final (The Mother) | JeSSeper09+ | [Pega aquí la URL de tu barra de direcciones]           | CC0      |
+
+## Intro
+
+Los recursos de la intro (`assets/intro/`) son generados:
+
+| Archivo                       | Descripción                                        | Origen                               |
+| ----------------------------- | -------------------------------------------------- | ------------------------------------ |
+| escena_01.png a escena_08.png | Ilustraciones de los ocho cuadros (1920×1080)      | Generadas con IA (Gemini)            |
+| voz_01.mp3 a voz_08.mp3       | Narración de cada cuadro                           | Generadas con IA (ElevenLabs)        |
+| canto_mama.mp3                | Canto de la madre, de fondo en bucle (25 s)        | Generado con IA (ElevenLabs)         |
