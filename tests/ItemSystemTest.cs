@@ -22,11 +22,13 @@ public partial class ItemSystemTest : Node
 			CheckBaseParameters();
 			await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
 			GD.Print($"ItemSystemTest: {_checks} comprobaciones. RESULTADO: OK");
+			await BossTestHarness.CollectWrappers(GetTree());
 			GetTree().Quit();
 		}
 		catch (Exception exception)
 		{
 			GD.PushError(exception.ToString());
+			await BossTestHarness.CollectWrappers(GetTree());
 			GetTree().Quit(1);
 		}
 	}

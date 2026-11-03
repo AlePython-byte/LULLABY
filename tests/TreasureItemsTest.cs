@@ -21,9 +21,10 @@ public partial class TreasureItemsTest : Node
 			await CheckHud();
 			CheckRandomIsolation();
 			GD.Print($"TreasureItemsTest: {_checks} comprobaciones. RESULTADO: OK");
+			await BossTestHarness.CollectWrappers(GetTree());
 			GetTree().Quit();
 		}
-		catch (Exception exception) { GD.PushError(exception.ToString()); GetTree().Quit(1); }
+		catch (Exception exception) { GD.PushError(exception.ToString()); await BossTestHarness.CollectWrappers(GetTree()); GetTree().Quit(1); }
 	}
 
 	private void Require(bool condition, string message)
