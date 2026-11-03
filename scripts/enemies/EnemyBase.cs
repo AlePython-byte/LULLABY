@@ -30,11 +30,23 @@ public partial class EnemyBase : CharacterBody3D
 	[Export] public float RecoilDistance { get; set; } = 1.0f;
 	[Export] public float RecoilDuration { get; set; } = 0.15f;
 
+	/// <summary>
+	/// Segundos que dura la aparición inerte (ver BeginSpawn). Sumados a la espera de la sala (RoomController.SpawnDelay, 0,7 s), el
+	/// enemigo empieza a actuar hacia los 0,95 s: casi el 1,0 s que espera el simulador.
+	/// </summary>
+	[Export] public float SpawnDuration { get; set; } = 0.25f;
+
+	private const float SpawnStartScale = 0.2f;
+
 	private readonly List<EnemyBehavior> _behaviors = new();
+	private readonly List<CollisionShape3D> _shapes = new();
 	private Node3D _player;
 	private float _hitTimer;
 	private Vector3 _recoilVelocity;
 	private int _recoilFrames;
+	private float _spawnLeft;
+	private Vector3 _visualScale = Vector3.One;
+	private bool _madeInvulnerable;
 
 	/// <summary>Multiplicador de la velocidad que aplican los comportamientos de movimiento (1 = normal).</summary>
 	public float SpeedScale { get; set; } = 1.0f;
@@ -51,8 +63,21 @@ public partial class EnemyBase : CharacterBody3D
 	public HealthComponent Health { get; private set; }
 	public EnemyVisual Visual { get; private set; }
 
+	/// <summary>
+	/// Preparado de antemano (Stage) y aún sin revelar: invisible, sin procesar y sin colisión. La sala lo instancia así durante su espera
+	/// para que el momento de aparecer no cueste una instanciación.
+	/// </summary>
+	public bool Staged { get; private set; }
+
+	/// <summary>
+	/// En aparición inerte (BeginSpawn): ya se ve y crece, pero no se mueve, no ataca, no hace daño por contacto, no recibe daño y las
+	/// lágrimas de Noah lo atraviesan. Termina solo a los SpawnDuration segundos.
+	/// </summary>
+	public bool Spawning { get; private set; }
+
 	public override void _Ready()
 	{
+		SetProcess(false);
 		Health = HealthComponent.FindIn(this);
 		Health.Died += OnDied;
 		Health.Damaged += OnDamagedSound;
@@ -67,6 +92,99 @@ public partial class EnemyBase : CharacterBody3D
 				_behaviors.Add(behavior);
 			}
 		}
+	}
+
+	/// <summary>
+	/// Lo deja preparado sin que se vea ni actúe: invisible, sin procesar (ProcessMode desactivado) y con las formas de colisión
+	/// desactivadas. No toca capas, máscaras ni tamaños de colisión. Se llama antes de añadirlo al árbol o poco después, y BeginSpawn lo revela.
+	/// </summary>
+	public void Stage()
+	{
+		Staged = true;
+		ProcessMode = ProcessModeEnum.Disabled;
+		Visible = false;
+		SetShapesDisabled(true);
+	}
+
+	/// <summary>
+	/// Lo revela y empieza la aparición inerte: crece desde SpawnStartScale hasta su tamaño en SpawnDuration segundos y, mientras tanto,
+	/// no actúa, no hace daño y no recibe daño. Las lágrimas lo atraviesan porque su colisión sigue desactivada (el área de la lágrima no lo
+	/// detecta); las capas y los tamaños no cambian. Llamar después de añadirlo a su sala (HealthComponent se reinicia al entrar al árbol).
+	/// </summary>
+	public void BeginSpawn()
+	{
+		Staged = false;
+		ProcessMode = ProcessModeEnum.Inherit;
+		Visible = true;
+		SetShapesDisabled(true);
+
+		if (SpawnDuration <= 0.0f)
+		{
+			EndSpawn();
+			return;
+		}
+
+		Spawning = true;
+		_spawnLeft = SpawnDuration;
+		_madeInvulnerable = !Health.Invulnerable;
+		Health.Invulnerable = true;
+		if (Visual != null)
+		{
+			_visualScale = Visual.Scale;
+			Visual.Scale = _visualScale * SpawnStartScale;
+			SetProcess(true);
+		}
+	}
+
+	private void EndSpawn()
+	{
+		Spawning = false;
+		_spawnLeft = 0.0f;
+		SetShapesDisabled(false);
+		if (_madeInvulnerable)
+		{
+			Health.Invulnerable = false;
+			_madeInvulnerable = false;
+		}
+
+		if (Visual != null)
+		{
+			Visual.Scale = _visualScale;
+		}
+
+		SetProcess(false);
+	}
+
+	private void SetShapesDisabled(bool disabled)
+	{
+		if (_shapes.Count == 0)
+		{
+			foreach (Node child in GetChildren())
+			{
+				if (child is CollisionShape3D shape)
+				{
+					_shapes.Add(shape);
+				}
+			}
+		}
+
+		foreach (CollisionShape3D shape in _shapes)
+		{
+			shape.Disabled = disabled;
+		}
+	}
+
+	// Solo corre durante la aparición (se enciende en BeginSpawn): el crecimiento sigue el mismo reloj de pasos de física que su final.
+	public override void _Process(double delta)
+	{
+		if (!Spawning || Visual == null)
+		{
+			return;
+		}
+
+		float progress = Mathf.Clamp(1.0f - _spawnLeft / SpawnDuration, 0.0f, 1.0f);
+		float eased = 1.0f - Mathf.Pow(1.0f - progress, 3.0f);
+		Visual.Scale = _visualScale * Mathf.Lerp(SpawnStartScale, 1.0f, eased);
 	}
 
 	public T Behavior<T>() where T : EnemyBehavior
@@ -109,6 +227,18 @@ public partial class EnemyBase : CharacterBody3D
 	public override void _PhysicsProcess(double delta)
 	{
 		float step = (float)delta;
+
+		if (Spawning)
+		{
+			_spawnLeft -= step;
+			if (_spawnLeft <= 0.0f)
+			{
+				EndSpawn();
+			}
+
+			return;
+		}
+
 		_hitTimer = Mathf.Max(0.0f, _hitTimer - step);
 
 		if (_recoilFrames > 0)
