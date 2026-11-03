@@ -32,12 +32,14 @@ public partial class DefeatTest : Node
 			await CheckMenu();
 			await CheckFallbackReload();
 			GD.Print($"DefeatTest: {_checks} comprobaciones. RESULTADO: OK");
+			await BossTestHarness.CollectWrappers(GetTree());
 			GetTree().Quit();
 		}
 		catch (Exception exception)
 		{
 			GD.PushError(exception.ToString());
 			GD.Print("RESULTADO: FALLO");
+			await BossTestHarness.CollectWrappers(GetTree());
 			GetTree().Quit(1);
 		}
 	}

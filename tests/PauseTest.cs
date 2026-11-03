@@ -34,12 +34,14 @@ public partial class PauseTest : Node
 			await CheckIgnoredWhenNotPlayable();
 			await CheckRestartAndMenu();
 			GD.Print($"PauseTest: {_checks} comprobaciones. RESULTADO: OK");
+			await BossTestHarness.CollectWrappers(GetTree());
 			GetTree().Quit();
 		}
 		catch (Exception exception)
 		{
 			GD.PushError(exception.ToString());
 			GD.Print("RESULTADO: FALLO");
+			await BossTestHarness.CollectWrappers(GetTree());
 			GetTree().Quit(1);
 		}
 	}
