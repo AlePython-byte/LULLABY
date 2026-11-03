@@ -29,6 +29,10 @@ public partial class SpawnMarker : Node3D
 
 	private const float StartScale = 0.25f;
 
+	// Generar un toro y un cilindro cuesta del orden de un milisegundo: se hace una vez por radio y se reutiliza. Resolución baja a propósito
+	// (el anillo se ve desde arriba, pequeño y semitransparente).
+	private static readonly System.Collections.Generic.Dictionary<float, (Mesh Ring, Mesh Disc)> SharedMeshes = new();
+
 	private Node3D _body;
 	private StandardMaterial3D _ringMaterial;
 	private StandardMaterial3D _discMaterial;
@@ -43,12 +47,12 @@ public partial class SpawnMarker : Node3D
 		_ringMaterial = CreateMaterial();
 		_discMaterial = CreateMaterial();
 
-		// Anillo: un toro aplanado; el tubo mide una quinta parte del radio.
-		float tube = Radius * 0.12f;
+		// Anillo: un toro aplanado; el tubo mide una quinta parte del radio. Las mallas se comparten entre todos los marcadores.
+		(Mesh ring, Mesh disc) = MeshesFor(Radius);
 		_body.AddChild(new MeshInstance3D
 		{
 			Name = "Ring",
-			Mesh = new TorusMesh { InnerRadius = Radius - 2.0f * tube, OuterRadius = Radius },
+			Mesh = ring,
 			MaterialOverride = _ringMaterial,
 			Scale = new Vector3(1.0f, 0.15f, 1.0f),
 			CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
@@ -56,7 +60,7 @@ public partial class SpawnMarker : Node3D
 		_body.AddChild(new MeshInstance3D
 		{
 			Name = "Disc",
-			Mesh = new CylinderMesh { TopRadius = Radius - 2.0f * tube, BottomRadius = Radius - 2.0f * tube, Height = 0.005f },
+			Mesh = disc,
 			MaterialOverride = _discMaterial,
 			CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
 		});
@@ -107,6 +111,21 @@ public partial class SpawnMarker : Node3D
 		float fadeOut = Finishing && FadeTime > 0.0f ? 1.0f - Mathf.Clamp(_fade / FadeTime, 0.0f, 1.0f) : 1.0f;
 		_ringMaterial.AlbedoColor = CrayonColor with { A = (0.35f + 0.5f * Progress) * fadeOut };
 		_discMaterial.AlbedoColor = CrayonColor with { A = (0.06f + 0.16f * Progress) * fadeOut };
+	}
+
+	private static (Mesh Ring, Mesh Disc) MeshesFor(float radius)
+	{
+		if (!SharedMeshes.TryGetValue(radius, out (Mesh Ring, Mesh Disc) meshes))
+		{
+			float tube = radius * 0.12f;
+			float inner = radius - 2.0f * tube;
+			meshes = (
+				new TorusMesh { InnerRadius = inner, OuterRadius = radius, Rings = 24, RingSegments = 8 },
+				new CylinderMesh { TopRadius = inner, BottomRadius = inner, Height = 0.005f, RadialSegments = 24, Rings = 1 });
+			SharedMeshes[radius] = meshes;
+		}
+
+		return meshes;
 	}
 
 	private static StandardMaterial3D CreateMaterial()
