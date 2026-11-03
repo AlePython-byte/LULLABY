@@ -13,6 +13,7 @@ using Godot;
 ///          coste real (reloj de pared) del fotograma en el que nacen, frente a la mediana de los fotogramas de esa sala.
 /// Los tiempos son de CPU: en headless no hay GPU, así que la subida de mallas y texturas a la tarjeta gráfica no se mide.
 /// Con el argumento propio `-- skip1` se salta la parte 1, para que la parte 2 vea la caché de escenas fría (primera sala de la partida).
+/// Con `-- warm` ejecuta antes el precalentamiento de enemigos del menú (EnemyWarmupRunner), como en una partida real.
 /// No forma parte de la suite: solo imprime números y sale con 0 salvo que falle.
 /// </summary>
 public partial class SpawnTimingProbe : Node
@@ -30,6 +31,18 @@ public partial class SpawnTimingProbe : Node
 			}
 
 			await BossTestHarness.Frames(tree, 3);
+			if (OS.GetCmdlineUserArgs().Contains("warm"))
+			{
+				// Como el menú: el precalentamiento de enemigos antes de la primera partida.
+				EnemyWarmupRunner runner = EnemyWarmupRunner.Attach(this);
+				for (int i = 0; i < 1500 && runner != null && !runner.Finished; i++)
+				{
+					await BossTestHarness.Frames(tree, 1);
+				}
+
+				GD.Print($"--- Precalentamiento de enemigos: {EnemyWarmup.Warmed.Count} tipos ---");
+			}
+
 			foreach (int seed in Seeds)
 			{
 				await RoomsOfSeed(tree, seed);
@@ -164,10 +177,11 @@ public partial class SpawnTimingProbe : Node
 
 			double[] sorted = gaps.OrderBy(g => g).ToArray();
 			double median = sorted.Length > 0 ? sorted[sorted.Length / 2] : 0.0;
+			double waitMax = sorted.Length > 0 ? sorted[^1] : 0.0;
 			int frames = spawnTick - combatTick;
 			GD.Print($"  sala {expected} ({target.Data.Type}): {count} enemigos [{string.Join(",", kinds.Distinct())}] "
 				+ $"nacen a los {frames} fotogramas del combate (~{frames / 60.0 * 1000.0:F0} ms de juego); "
-				+ $"fotograma de aparición {spike:F2} ms vs mediana {median:F2} ms (extra {spike - median:F2} ms)");
+				+ $"fotograma de aparición {spike:F2} ms vs mediana {median:F2} ms (extra {spike - median:F2} ms); más lento de la espera {waitMax:F2} ms");
 			await BossTestHarness.Frames(tree, 2);
 		}
 
