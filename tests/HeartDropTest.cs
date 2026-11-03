@@ -80,11 +80,11 @@ public partial class HeartDropTest : Node
 			"El corazón cura 1 punto de vida");
 		ItemCatalog catalog = GD.Load<ItemCatalog>("res://resources/items/Catalog.tres");
 		Require(catalog.Items.All(item => item.Id != "corazon"), "Los tesoros nunca ofrecen el corazón");
-		RunManager run = new();
-		Require(Mathf.IsEqualApprox(run.HeartDropChance, 0.25f) && Mathf.IsEqualApprox(HeartDropper.DefaultChance, 0.25f),
-			"La probabilidad por defecto es 0,25");
-		run.Free();
-		GD.Print("Objeto: curación de 1, fuera del catálogo y probabilidad 0,25: OK");
+		Require(Mathf.IsEqualApprox(RunManager.HeartChanceFor(DifficultyTarget.Easy), 0.40f)
+			&& Mathf.IsEqualApprox(RunManager.HeartChanceFor(DifficultyTarget.Normal), 0.20f)
+			&& Mathf.IsEqualApprox(RunManager.HeartChanceFor(DifficultyTarget.Hard), 0.0f),
+			"La tabla por dificultad es 0,40 / 0,20 / 0");
+		GD.Print("Objeto: curación de 1, fuera del catálogo y tabla 0,40 / 0,20 / 0: OK");
 	}
 
 	private BossTestHarness.Level Open(float chance, bool rewards = true)

@@ -83,8 +83,20 @@ public partial class RunManager : Node
 	[Export] public int MinBossDistance { get; set; } = 4;
 	[Export] public int MaxAttempts { get; set; } = 20;
 
-	/// <summary>Probabilidad de que una sala de combate despejada suelte un corazón (+1 de vida). 0 lo apaga. Ver HeartDropper.</summary>
-	[Export(PropertyHint.Range, "0,1,0.05")] public float HeartDropChance { get; set; } = HeartDropper.DefaultChance;
+	/// <summary>
+	/// Corazones (+1 de vida): probabilidad POR SALA de combate normal de que uno de sus enemigos lleve un corazón y lo suelte al morir,
+	/// según la dificultad. Para ajustar el equilibrio basta con cambiar estos números (0 lo apaga; ver HeartDropper y docs/LULLABY.md).
+	/// </summary>
+	public static readonly System.Collections.Generic.IReadOnlyDictionary<DifficultyTarget, float> HeartChanceByDifficulty =
+		new System.Collections.Generic.Dictionary<DifficultyTarget, float>
+		{
+			[DifficultyTarget.Easy] = 0.40f,
+			[DifficultyTarget.Normal] = 0.20f,
+			[DifficultyTarget.Hard] = 0.0f,
+		};
+
+	/// <summary>Probabilidad por sala de un corazón en la dificultad dada (0 si la tabla no la trae).</summary>
+	public static float HeartChanceFor(DifficultyTarget difficulty) => HeartChanceByDifficulty.TryGetValue(difficulty, out float chance) ? chance : 0.0f;
 
 	[Export] public bool UseFixedSeed { get; set; }
 	[Export] public int FixedSeed { get; set; }
@@ -163,7 +175,7 @@ public partial class RunManager : Node
 
 		HeartDropper hearts = new() { Name = "HeartDropper" };
 		AddChild(hearts);
-		hearts.Begin(Rooms, TreasureItems, _seed, HeartDropChance);
+		hearts.Begin(Rooms, TreasureItems, _seed, HeartChanceFor(_difficulty));
 
 		if (_pendingMap != null)
 		{
