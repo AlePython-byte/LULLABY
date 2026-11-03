@@ -702,7 +702,13 @@ public partial class AudioManager : Node
 	/// <summary>Metadato de un botón con el id del sonido que ha de dar al pulsarlo (por defecto, el clic de interfaz).</summary>
 	public const string UiSoundMeta = "ui_sound";
 
-	/// <summary>Conecta el sonido de interfaz a todos los botones bajo un nodo (los que ya existen): el clic o el que diga su metadato UiSoundMeta.</summary>
+	/// <summary>Metadato que marca un botón con el sonido de hover ya conectado (así no se conecta dos veces).</summary>
+	public const string UiHoverMeta = "ui_hover_hooked";
+
+	/// <summary>
+	/// Conecta el sonido de interfaz a todos los botones bajo un nodo (los que ya existen): el clic o el que diga su metadato UiSoundMeta, y
+	/// menu_hover al pasar el ratón (un botón desactivado no suena). El hover no se conecta dos veces al mismo botón.
+	/// </summary>
 	public static void HookButtons(Node root)
 	{
 		foreach (Node child in root.GetChildren())
@@ -711,9 +717,41 @@ public partial class AudioManager : Node
 			{
 				string id = button.HasMeta(UiSoundMeta) ? button.GetMeta(UiSoundMeta).AsString() : SoundCatalog.UiClick;
 				button.Pressed += () => Play(id); // Play nunca lanza
+				HookHoverOf(button);
 			}
 
 			HookButtons(child);
 		}
+	}
+
+	/// <summary>Conecta solo el sonido de hover (menu_hover) a todos los botones bajo un nodo; para las pantallas cuyo clic no suena.</summary>
+	public static void HookHover(Node root)
+	{
+		foreach (Node child in root.GetChildren())
+		{
+			if (child is BaseButton button)
+			{
+				HookHoverOf(button);
+			}
+
+			HookHover(child);
+		}
+	}
+
+	private static void HookHoverOf(BaseButton button)
+	{
+		if (button.HasMeta(UiHoverMeta))
+		{
+			return;
+		}
+
+		button.SetMeta(UiHoverMeta, true);
+		button.MouseEntered += () =>
+		{
+			if (!button.Disabled)
+			{
+				Play(SoundCatalog.UiHover);
+			}
+		};
 	}
 }
