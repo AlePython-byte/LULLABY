@@ -5,6 +5,8 @@ using System.Collections.Generic;
 /// si es plano o posicional (3D), su volumen, la variación de tono, cuántas voces simultáneas admite, el intervalo mínimo entre
 /// repeticiones y si es prioritario (puede robar la voz más antigua cuando no queda ninguna libre).
 ///
+/// La música (menu, the_cradle, jefe) se registra aparte como MusicTrack, siempre en bucle, y vive en assets/audio/music/.
+///
 /// Los archivos viven en assets/audio/sfx/{File}.ogg. Si uno no existe (hoy faltan jefe_golpe y jefe_fase) no
 /// pasa nada: AudioManager no reproduce nada y no lanza errores. Un sonido con Fallback usa el del id indicado, con su tono
 /// multiplicado por FallbackPitch, mientras no exista su propio archivo.
@@ -98,6 +100,30 @@ public static class SoundCatalog
 	public static Sound Get(string id) => id != null && Sounds.TryGetValue(id, out Sound sound) ? sound : null;
 
 	public static IEnumerable<Sound> All => Sounds.Values;
+
+	// --- música (assets/audio/music/{id}.ogg, bus Musica) ---
+
+	public const string MusicMenu = "menu";
+	public const string MusicCradle = "the_cradle";
+	public const string MusicBoss = "jefe";
+
+	/// <summary>Una pista de música: siempre en bucle, con un ajuste de volumen propio (dB) por si una suena más fuerte que otra.</summary>
+	public sealed record MusicTrack(string Id, bool Loop = true, float VolumeDb = 0.0f)
+	{
+		public string Path => $"{MusicFolder}{Id}.ogg";
+		public string Bus => BusMusic;
+	}
+
+	private static readonly Dictionary<string, MusicTrack> Tracks = new()
+	{
+		[MusicMenu] = new MusicTrack(MusicMenu),
+		[MusicCradle] = new MusicTrack(MusicCradle),
+		[MusicBoss] = new MusicTrack(MusicBoss),
+	};
+
+	public static MusicTrack GetMusic(string id) => id != null && Tracks.TryGetValue(id, out MusicTrack track) ? track : null;
+
+	public static IEnumerable<MusicTrack> AllMusic => Tracks.Values;
 
 	/// <summary>Ruta de una pista de música (assets/audio/music/{name}.ogg).</summary>
 	public static string MusicPath(string name) => $"{MusicFolder}{name}.ogg";
