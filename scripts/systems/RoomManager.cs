@@ -199,6 +199,13 @@ public partial class RoomManager : Node3D
 		_room = room;
 		_currentCell = cell;
 		Camera.Frame(data.Size, room.WallHeight, room.WallThickness);
+
+		// La música de la partida suena en todas las salas y la del jefe, al entrar en la suya. Pedir la que ya suena no la reinicia (de una
+		// sala normal a otra no se corta) y, con la partida terminada, una transición en curso no la vuelve a encender.
+		if (!RunEnded)
+		{
+			AudioManager.PlayMusic(data.Type == RoomType.Boss ? SoundCatalog.MusicBoss : SoundCatalog.MusicCradle);
+		}
 	}
 
 	private void OnRoomCleared()
