@@ -60,7 +60,9 @@ public partial class RoomController : Node3D
 
 	/// <summary>
 	/// Segundos que tardan en aparecer los enemigos en el juego real tras empezar el combate (la pausa los detiene). Es más corto que
-	/// StartDelay a propósito: el simulador espera 0,3 s más que el juego, una diferencia conocida (ver docs/LULLABY.md).
+	/// StartDelay a propósito: el simulador espera 0,3 s más que el juego, una diferencia conocida (ver docs/LULLABY.md). Tras la espera, cada
+	/// enemigo tiene aún EnemyBase.SpawnDuration (0,25 s) de aparición inerte: empieza a actuar hacia los 0,95 s, casi el 1,0 s del simulador.
+	/// Durante la espera se ven anillos en los puntos y los enemigos se instancian ocultos (EnemyBase.Stage) en un nodo aparte.
 	/// </summary>
 	[Export] public float SpawnDelay { get; set; } = 0.7f;
 
