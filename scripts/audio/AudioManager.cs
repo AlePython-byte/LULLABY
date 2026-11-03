@@ -7,8 +7,11 @@ using Godot;
 /// PlayAt (posicionales, en 3D: los enemigos); él decide si suenan.
 ///
 /// Buses: Master, SFX y Musica (default_bus_layout.tres; si faltaran se crean). Los volúmenes (GameSettings.MasterVolume y
-/// SfxVolume) se aplican a Master y SFX, se guardan en user://settings.cfg y se cargan al iniciar. La música aún no existe: PlayMusic
-/// y StopMusic son el gancho (assets/audio/music/{nombre}.ogg).
+/// SfxVolume) y MusicVolume se aplican a Master, SFX y Musica, se guardan en user://settings.cfg y se cargan al iniciar.
+///
+/// Música: PlayMusic(id) con los ids de SoundCatalog (menu, the_cradle, jefe) la pone en bucle con un fundido cruzado de un segundo desde
+/// la que sonara (MusicPlayer); pedir la que ya suena no la reinicia, FadeOutMusic la apaga con fundido y StopMusic la corta. Sigue sonando
+/// con el juego en pausa y, si falta el archivo, queda en silencio sin errores.
 ///
 /// Tolerante a faltantes: si un archivo no existe (ResourceLoader.Exists) no suena y no lanza ningún error; los sonidos con Fallback
 /// (The Mother) usan el de los enemigos con otro tono mientras no exista el suyo.
@@ -84,7 +87,10 @@ public partial class AudioManager : Node
 
 	public Vector3 FlyerLoopPosition { get; private set; }
 
-	public string CurrentMusic { get; private set; }
+	/// <summary>Pista de música que debería sonar ahora (nula si ninguna).</summary>
+	public string CurrentMusic => Music?.Current;
+
+	public MusicPlayer Music { get; private set; }
 
 	private readonly List<Request> _requests = new();
 	private readonly List<Voice> _voices = new();
@@ -95,7 +101,6 @@ public partial class AudioManager : Node
 	private readonly List<AudioStreamPlayer3D> _spatial = new();
 	private readonly RandomNumberGenerator _random = new();
 	private AudioStreamPlayer3D _flyerLoop;
-	private AudioStreamPlayer _music;
 	private double _loopCheck;
 
 	public override void _EnterTree()
@@ -138,8 +143,8 @@ public partial class AudioManager : Node
 
 		_flyerLoop = new AudioStreamPlayer3D { Bus = SoundCatalog.BusSfx, MaxDistance = MaxDistance, UnitSize = UnitSize };
 		AddChild(_flyerLoop);
-		_music = new AudioStreamPlayer { Bus = SoundCatalog.BusMusic };
-		AddChild(_music);
+		Music = new MusicPlayer { Silent = Silent };
+		AddChild(Music);
 	}
 
 	// --- volúmenes y buses --------------------------------------------------------------------------------------------
@@ -161,11 +166,12 @@ public partial class AudioManager : Node
 		}
 	}
 
-	/// <summary>Aplica GameSettings.MasterVolume y SfxVolume a los buses Master y SFX.</summary>
+	/// <summary>Aplica GameSettings.MasterVolume, SfxVolume y MusicVolume a los buses Master, SFX y Musica.</summary>
 	public static void ApplyVolumes()
 	{
 		SetBusLinear(SoundCatalog.BusMaster, GameSettings.MasterVolume);
 		SetBusLinear(SoundCatalog.BusSfx, GameSettings.SfxVolume);
+		SetBusLinear(SoundCatalog.BusMusic, GameSettings.MusicVolume);
 	}
 
 	public static void SetMasterVolume(float volume)
@@ -178,6 +184,13 @@ public partial class AudioManager : Node
 	public static void SetSfxVolume(float volume)
 	{
 		GameSettings.SfxVolume = Mathf.Clamp(volume, 0.0f, 1.0f);
+		ApplyVolumes();
+		GameSettings.SaveSettings();
+	}
+
+	public static void SetMusicVolume(float volume)
+	{
+		GameSettings.MusicVolume = Mathf.Clamp(volume, 0.0f, 1.0f);
 		ApplyVolumes();
 		GameSettings.SaveSettings();
 	}
@@ -264,7 +277,7 @@ public partial class AudioManager : Node
 		}
 	}
 
-	/// <summary>Música (gancho): assets/audio/music/{name}.ogg en el bus Musica. Si no existe no hace nada. Nunca lanza.</summary>
+	/// <summary>Música en bucle (assets/audio/music/{name}.ogg, bus Musica) con fundido cruzado desde la que suene. Si ya suena no se reinicia; si no existe, silencio. Nunca lanza.</summary>
 	public static void PlayMusic(string name)
 	{
 		AudioManager audio = Instance;
@@ -283,6 +296,21 @@ public partial class AudioManager : Node
 		}
 	}
 
+	/// <summary>Apaga la música con un fundido de un segundo (al morir Noah o ganar). Nunca lanza.</summary>
+	public static void FadeOutMusic()
+	{
+		AudioManager audio = Instance;
+		try
+		{
+			audio?.Music?.FadeOut();
+		}
+		catch (System.Exception exception)
+		{
+			audio?.Fail(exception);
+		}
+	}
+
+	/// <summary>Corta la música al momento. Nunca lanza.</summary>
 	public static void StopMusic()
 	{
 		AudioManager audio = Instance;
@@ -595,28 +623,37 @@ public partial class AudioManager : Node
 	private void StartMusic(string name)
 	{
 		FaultInjection?.Invoke("musica:" + name);
-		string path = SoundCatalog.MusicPath(name);
-		AudioStream stream = Load(path);
+		SoundCatalog.MusicTrack track = SoundCatalog.GetMusic(name);
+		if (track == null)
+		{
+			Record("musica:" + name, false, Vector3.Zero, 1.0f, SoundCatalog.BusMusic, Outcome.Unknown);
+			return;
+		}
+
+		AudioStream stream = Load(track.Path);
 		if (stream == null)
 		{
-			CurrentMusic = null;
+			// Sin su archivo no suena nada (la que sonara se apaga con fundido) y no da error.
+			Music?.FadeOut();
 			Record("musica:" + name, false, Vector3.Zero, 1.0f, SoundCatalog.BusMusic, Outcome.Missing);
 			return;
 		}
 
-		CurrentMusic = name;
-		Record("musica:" + name, false, Vector3.Zero, 1.0f, SoundCatalog.BusMusic, Silent ? Outcome.Silent : Outcome.Played);
-		if (!Silent && _music != null)
+		if (Music == null)
 		{
-			_music.Stream = stream;
-			_music.Play();
+			return;
+		}
+
+		Music.Silent = Silent; // las pruebas lo cambian después de _Ready
+		if (Music.Play(track, stream))
+		{
+			Record("musica:" + name, false, Vector3.Zero, 1.0f, SoundCatalog.BusMusic, Silent ? Outcome.Silent : Outcome.Played);
 		}
 	}
 
 	private void EndMusic()
 	{
-		CurrentMusic = null;
-		_music?.Stop();
+		Music?.FadeOut(immediate: true);
 	}
 
 	private void StopEverything()

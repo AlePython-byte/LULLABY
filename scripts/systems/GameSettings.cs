@@ -39,6 +39,7 @@ public static class GameSettings
 
 	public const float DefaultMasterVolume = 0.8f;
 	public const float DefaultSfxVolume = 1.0f;
+	public const float DefaultMusicVolume = 0.7f;
 
 	/// <summary>Dónde se guardan los volúmenes. Las pruebas lo apuntan a otro archivo para no tocar el del jugador.</summary>
 	public static string SettingsPath { get; set; } = "user://settings.cfg";
@@ -49,23 +50,28 @@ public static class GameSettings
 	/// <summary>Volumen de los efectos (bus SFX), de 0 a 1.</summary>
 	public static float SfxVolume { get; set; } = DefaultSfxVolume;
 
+	/// <summary>Volumen de la música (bus Musica), de 0 a 1.</summary>
+	public static float MusicVolume { get; set; } = DefaultMusicVolume;
+
 	/// <summary>
-	/// Lee los volúmenes de SettingsPath. Si el archivo no existe, está dañado o trae valores no válidos, usa los valores por defecto
+	/// Lee los volúmenes (general, efectos y música) de SettingsPath. Si el archivo no existe, está dañado o trae valores no válidos, usa los valores por defecto
 	/// (sin lanzar nada). Devuelve true si el archivo se leyó entero.
 	/// </summary>
 	public static bool LoadSettings()
 	{
 		MasterVolume = DefaultMasterVolume;
 		SfxVolume = DefaultSfxVolume;
+		MusicVolume = DefaultMusicVolume;
 		ConfigFile file = new();
 		if (file.Load(SettingsPath) != Error.Ok)
 		{
 			return false;
 		}
 
-		bool valid = TryReadVolume(file, "master", out float master) & TryReadVolume(file, "sfx", out float sfx);
+		bool valid = TryReadVolume(file, "master", out float master) & TryReadVolume(file, "sfx", out float sfx) & TryReadVolume(file, "music", out float music);
 		MasterVolume = valid || float.IsFinite(master) ? master : DefaultMasterVolume;
 		SfxVolume = valid || float.IsFinite(sfx) ? sfx : DefaultSfxVolume;
+		MusicVolume = valid || float.IsFinite(music) ? music : DefaultMusicVolume;
 		return valid;
 	}
 
@@ -75,6 +81,7 @@ public static class GameSettings
 		ConfigFile file = new();
 		file.SetValue("audio", "master", MasterVolume);
 		file.SetValue("audio", "sfx", SfxVolume);
+		file.SetValue("audio", "music", MusicVolume);
 		return file.Save(SettingsPath) == Error.Ok;
 	}
 
