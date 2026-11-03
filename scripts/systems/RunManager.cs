@@ -460,6 +460,7 @@ public partial class RunManager : Node
 		RunEnded = true;
 		Rooms.EndRun();
 		RunCompleted?.Invoke();
+		AudioManager.FadeOutMusic();
 		PresentEnd(() => Victory?.Present(VictoryMessageFor(_seed)));
 	}
 
@@ -475,6 +476,7 @@ public partial class RunManager : Node
 		RunEnded = true;
 		Rooms.EndRun();
 		RunFailed?.Invoke();
+		AudioManager.FadeOutMusic();
 		DeathCause cause = _playerHealth != null ? _playerHealth.LastCause : DeathCause.Unknown;
 		PresentEnd(() => Defeat?.Present(DeathTexts.PhraseFor(cause, _seed), cause));
 	}
