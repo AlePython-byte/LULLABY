@@ -58,6 +58,7 @@ public partial class PauseMenu : CanvasLayer
 		MenuButton.Pressed += () => Run?.ReturnToMenu();
 		AudioManager.HookButtons(_root);
 		ApplyArt();
+		MenuButtonStyle.ApplyAll(_root);
 		_root.Hide();
 	}
 
