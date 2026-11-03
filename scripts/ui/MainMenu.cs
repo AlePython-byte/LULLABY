@@ -218,7 +218,7 @@ public partial class MainMenu : Control
 		volume.AnchorBottom = 1.0f;
 		volume.OffsetLeft = 16.0f;
 		volume.OffsetRight = 420.0f;
-		volume.OffsetTop = -112.0f;
+		volume.OffsetTop = -140.0f;
 		volume.OffsetBottom = -16.0f;
 		volume.GrowHorizontal = Control.GrowDirection.End;
 		volume.GrowVertical = Control.GrowDirection.Begin;
