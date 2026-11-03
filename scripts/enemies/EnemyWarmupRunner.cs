@@ -66,6 +66,8 @@ public partial class EnemyWarmupRunner : Node
 				if (_elapsed >= StartDelay && !DecorWarmupRunning())
 				{
 					BuildViewport();
+					// El sonido de aparición también se carga ahora (sin reproducirlo): la primera oleada no paga su carga.
+					AudioManager.Preload(SoundCatalog.EnemySpawns);
 					_stage = Stage.Loading;
 				}
 
