@@ -12,6 +12,8 @@ using Godot;
 ///      en la importación de los .ogg.
 ///   2. Transiciones: una pista entra con fundido, otra la cruza en ~1 s (las dos suenan a la vez a mitad del cruce), pedir la que ya suena no
 ///      la reinicia (de una sala normal a otra normal) y apagarla con fundido o cortarla funciona.
+///   2b. Inicio y bucle: cada pista arranca en su StartSeconds y el bucle vuelve a su LoopOffsetSeconds (comprobado con un reproductor real, no
+///      solo con las propiedades); 0/0 deja el stream importado tal cual y el de la caché no se toca.
 ///   3. Pausa: con el árbol en pausa la música sigue y el fundido avanza.
 ///   4. Tolerancia: sin archivo (o con un id desconocido) queda en silencio, sin errores ni fallos de audio contados.
 ///   5. Deslizador «Música»: 70 % por defecto, mueve el bus Musica, se guarda en settings.cfg y se recupera; el menú principal y el de
@@ -40,6 +42,7 @@ public partial class AudioMusicTest : Node
 			GameSettings.SettingsPath = TestSettings;
 			CatalogAndImport();
 			Transitions();
+			await StartAndLoop();
 			await Pause();
 			MissingFiles();
 			await Slider();
@@ -184,6 +187,64 @@ public partial class AudioMusicTest : Node
 		Music.Advance(1.0f);
 		Check("y acaba sonando entera, sola", Music.Layers.Count == 1 && Music.GainOf("the_cradle") == 1.0f, $"{Music.Layers.Count}");
 		Reset();
+	}
+
+	// --- 2b -----------------------------------------------------------------------------------------------------------
+
+	private async Task StartAndLoop()
+	{
+		GD.Print("\n--- Inicio y bucle de cada pista ---");
+		SceneTree tree = GetTree();
+		(string Id, float Start, float Offset)[] expected = { ("menu", 0.0f, 0.0f), ("the_cradle", SoundCatalog.CradleStartSeconds, SoundCatalog.CradleLoopOffsetSeconds), ("jefe", SoundCatalog.BossStartSeconds, SoundCatalog.BossLoopOffsetSeconds) };
+		foreach ((string id, float start, float offset) in expected)
+		{
+			Reset();
+			SoundCatalog.MusicTrack track = SoundCatalog.GetMusic(id);
+			Check($"{id}: el catálogo dice empezar en {start:0.00} s y volver a {offset:0.00} s", track.StartSeconds == start && track.LoopOffsetSeconds == offset, $"{track.StartSeconds} {track.LoopOffsetSeconds}");
+			AudioStreamOggVorbis cached = ResourceLoader.Load<AudioStream>(track.Path) as AudioStreamOggVorbis;
+			Check($"{id}: el inicio cabe dentro de la pista y deja música por delante", start >= 0.0f && start < cached.GetLength() - 30.0 && offset >= 0.0f && offset < cached.GetLength() - 30.0, $"{cached.GetLength()}");
+
+			AudioManager.PlayMusic(id);
+			MusicPlayer.Layer layer = Music.Layers[^1];
+			AudioStreamOggVorbis playing = Music.CurrentStream as AudioStreamOggVorbis;
+			Check($"{id}: la capa arranca en su StartSeconds ({layer.StartSeconds:0.00} s)", Mathf.IsEqualApprox(layer.StartSeconds, start), $"{layer.StartSeconds}");
+			Check($"{id}: el bucle está activo y vuelve a su LoopOffsetSeconds ({playing?.LoopOffset:0.00} s)", playing != null && playing.Loop && Mathf.IsEqualApprox((float)playing.LoopOffset, offset), $"{playing?.Loop} {playing?.LoopOffset}");
+			Check($"{id}: el stream de la caché no se modifica (sigue con el desplazamiento importado)", Mathf.IsZeroApprox((float)cached.LoopOffset) && cached.Loop, $"{cached.LoopOffset}");
+			if (offset == 0.0f)
+			{
+				Check($"{id}: con 0/0 no cambia nada, es el stream importado tal cual", ReferenceEquals(playing, cached), "se duplicó sin necesidad");
+			}
+			else
+			{
+				Check($"{id}: el stream que suena es una copia de la misma pista", !ReferenceEquals(playing, cached) && Mathf.IsEqualApprox((float)playing.GetLength(), (float)cached.GetLength()), $"{playing?.GetLength()} {cached.GetLength()}");
+			}
+
+			// Pedirla otra vez no cambia el inicio ni la reinicia.
+			int starts = Music.StartCount;
+			AudioManager.PlayMusic(id);
+			Check($"{id}: pedirla de nuevo no la reinicia", Music.StartCount == starts && Music.Layers.Count == 1, $"{Music.StartCount}");
+
+			// Con un reproductor real: arranca en StartSeconds y, al llegar al final, el bucle vuelve a LoopOffsetSeconds.
+			AudioStreamPlayer probe = new() { Stream = playing, VolumeDb = -80.0f };
+			AddChild(probe);
+			probe.Play(start);
+			await Frames(tree, 6);
+			float position = probe.GetPlaybackPosition();
+			Check($"{id}: un reproductor real arranca en {start:0.00} s (está en {position:0.00} s)", probe.Playing && position >= start - 0.01f && position < start + 1.0f, $"{position}");
+			float tail = 0.3f;
+			probe.Play((float)playing.GetLength() - tail);
+			ulong began = Time.GetTicksMsec();
+			while (Time.GetTicksMsec() - began < 900)
+			{
+				await Frames(tree, 1);
+			}
+
+			position = probe.GetPlaybackPosition();
+			Check($"{id}: al terminar el bucle vuelve a {offset:0.00} s y no al principio ni al final (está en {position:0.00} s)", probe.Playing && position >= offset - 0.01f && position < offset + 1.5f, $"{position}");
+			probe.Stop();
+			probe.Free();
+			Reset();
+		}
 	}
 
 	// --- 3 ------------------------------------------------------------------------------------------------------------
