@@ -109,8 +109,18 @@ public static class SoundCatalog
 	public const string MusicCradle = "the_cradle";
 	public const string MusicBoss = "jefe";
 
-	/// <summary>Una pista de música: siempre en bucle, con un ajuste de volumen propio (dB) por si una suena más fuerte que otra.</summary>
-	public sealed record MusicTrack(string Id, bool Loop = true, float VolumeDb = 0.0f)
+	// Segundos desde donde arranca cada pista al pedirla y adonde vuelve el bucle al terminar (ajustar a oído). the_cradle y jefe traen
+	// una entrada casi muda; medido con las muestras, la música real empieza en 7,75 s y 16,0 s, y aquí se deja medio segundo antes.
+	public const float CradleStartSeconds = 7.25f;
+	public const float CradleLoopOffsetSeconds = 7.25f;
+	public const float BossStartSeconds = 15.5f;
+	public const float BossLoopOffsetSeconds = 15.5f;
+
+	/// <summary>
+	/// Una pista de música: siempre en bucle, con un ajuste de volumen propio (dB) por si una suena más fuerte que otra. StartSeconds es
+	/// desde donde empieza a sonar al pedirla y LoopOffsetSeconds adonde vuelve el bucle al llegar al final (0 y 0: la pista entera, sin tocar nada).
+	/// </summary>
+	public sealed record MusicTrack(string Id, bool Loop = true, float VolumeDb = 0.0f, float StartSeconds = 0.0f, float LoopOffsetSeconds = 0.0f)
 	{
 		public string Path => $"{MusicFolder}{Id}.ogg";
 		public string Bus => BusMusic;
@@ -119,8 +129,8 @@ public static class SoundCatalog
 	private static readonly Dictionary<string, MusicTrack> Tracks = new()
 	{
 		[MusicMenu] = new MusicTrack(MusicMenu),
-		[MusicCradle] = new MusicTrack(MusicCradle),
-		[MusicBoss] = new MusicTrack(MusicBoss),
+		[MusicCradle] = new MusicTrack(MusicCradle, StartSeconds: CradleStartSeconds, LoopOffsetSeconds: CradleLoopOffsetSeconds),
+		[MusicBoss] = new MusicTrack(MusicBoss, StartSeconds: BossStartSeconds, LoopOffsetSeconds: BossLoopOffsetSeconds),
 	};
 
 	public static MusicTrack GetMusic(string id) => id != null && Tracks.TryGetValue(id, out MusicTrack track) ? track : null;
