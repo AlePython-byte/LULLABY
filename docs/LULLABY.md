@@ -184,6 +184,26 @@ Las recompensas se asignan después de elegir el nivel, con un RNG propio por se
 
 Los objetos del suelo se ven como su modelo 3D (sin etiqueta flotante con el nombre). Al recogerlos aparece unos 2,5 s un mensaje arriba, en el centro (`ItemMessageHud`), con el nombre y el efecto y, debajo, la descripción (por ejemplo «Biberón: recupera 2 puntos de vida»); los textos están copiados de `docs/equipo/textos.md` a `GameText.ItemMessages`. Una curación rechazada (vida llena) no muestra nada. El HUD de objetos muestra los nombres obtenidos; el Biberón queda marcado como usado y agrupa las curaciones repetidas. Morir o reiniciar limpia el inventario, las mejoras y el estado de los tesoros. En compilaciones de depuración, **J sin modificadores** crea junto al jugador el siguiente objeto del catálogo para probarlo; **R** repite la partida desde cero con su semilla y **N** comienza otra. Este atajo no funciona en Release.
 
+**Corazón de vida (+1 PV) que suelta un enemigo.** Una opción de equilibrio (`HeartDropper`, `resources/items/corazon.tres`, fuera del catálogo de los tesoros). La probabilidad se aplica **por sala**, no por enemigo: al cargar una sala de combate normal se sortea, con la semilla de partida y la celda (azar propio, como los tesoros: no consume el azar global ni depende del orden de visita), si habrá corazón y, si lo hay, cuál de sus enemigos lo lleva (el índice de su punto de aparición, `RoomController.EnemyKilled`); ese enemigo lo suelta donde muere. Con la vida completa no se consume y se queda en el suelo; uno sin recoger reaparece donde cayó al volver a la sala; uno recogido no. No hay corazón en la sala del jefe, ni en inicio ni en tesoro, y el portador no tiene ninguna pista visual. Solo actúa con las recompensas activas, así que el bot y el simulador no lo ven. Se ve con `assets/models/items/corazon.glb` y, si faltara, con la esfera roja de respaldo.
+
+La probabilidad por sala depende de la dificultad y se ajusta en la tabla `RunManager.HeartChanceByDifficulty`:
+
+| Dificultad | Probabilidad por sala |
+|---|---|
+| Fácil | 0,40 |
+| Normal | 0,20 |
+| Difícil | 0 |
+
+**Por qué por sala.** Con niveles reales (60 por dificultad, generador v2 y director) hay de media 7,1 a 7,8 salas de combate normales por partida, con 3,5 a 3,9 enemigos cada una (entre 2 y 5). Noah tiene 5 PV. Corazones esperados por partida:
+
+| Dificultad | Salas de combate | Enemigos | Por sala (lo implementado) | Por enemigo (descartado) |
+|---|---|---|---|---|
+| Fácil (0,40) | 7,1 | 24,9 | **2,8** (≈57 % de la vida máxima) | 10,0 (el doble de la vida máxima) |
+| Normal (0,20) | 7,6 | 28,4 | **1,5** (≈30 %) | 5,7 (más que la vida máxima) |
+| Difícil (0) | 7,8 | 30,4 | 0 | 0 |
+
+Por enemigo, además, en Fácil el 83 % de las salas darían al menos un corazón (1,4 de media por sala) y en Normal el 56 %, lo que volvería trivial el nivel fácil. Pruebas: `res://tests/HeartDropTest.tscn` (sorteo, portador, tabla, caída en el punto de la muerte, vida llena, reaparición, jefe, bot).
+
 Pruebas: `tests/ItemSystemTest.tscn` comprueba efectos, recogidas y parámetros base; `tests/TreasureItemsTest.tscn` comprueba visitas reales, HUD, varias ofertas, reinicio y aislamiento del RNG sobre 200 semillas. Cada recogible emite su señal `Collected`; el registro separado por celda y oferta permite añadir posteriormente grupos de elección sin cambiar los efectos del jugador.
 
 ## 4.4. Menú, pausa y fin de partida
