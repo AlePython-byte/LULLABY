@@ -64,6 +64,9 @@ public partial class RoomController : Node3D
 	/// </summary>
 	[Export] public float SpawnDelay { get; set; } = 0.7f;
 
+	// Altura sobre el suelo (cuya cara superior está en y = 0) a la que se dibuja el anillo de aparición.
+	private const float MarkerHeight = 0.03f;
+
 	[Export] public PackedScene DoorScene { get; set; }
 
 	[Export] public Color FloorColor { get; set; } = new Color(0.18f, 0.15f, 0.15f, 1.0f);
@@ -100,6 +103,8 @@ public partial class RoomController : Node3D
 
 	private readonly Dictionary<DoorSide, Door> _doors = new();
 	private readonly List<Marker3D> _spawnPoints = new();
+	private readonly List<Node3D> _staged = new();
+	private readonly List<SpawnMarker> _markers = new();
 
 	private RoomData _data;
 	private HashSet<DoorSide> _connectedDoors = new();
@@ -109,6 +114,9 @@ public partial class RoomController : Node3D
 	private Node3D _doorsRoot;
 	private Node3D _enemiesRoot;
 	private Node3D _projectilesRoot;
+	private Node3D _staging;
+	private Node3D _markersRoot;
+	private bool _revealed;
 	private int _enemiesAlive;
 
 	/// <summary>Donde cuelgan los proyectiles enemigos de esta sala (desaparecen con ella o al despejarla).</summary>
@@ -322,23 +330,102 @@ public partial class RoomController : Node3D
 			return;
 		}
 
+		// Durante la espera: un anillo en cada punto y los enemigos se instancian ocultos, repartidos en varios fotogramas.
+		ShowSpawnMarkers();
+		StageOverFrames();
+
 		if (SpawnDelay > 0.0f)
 		{
 			// processAlways = false: la pausa también detiene este retraso.
 			await ToSignal(GetTree().CreateTimer(SpawnDelay, false), SceneTreeTimer.SignalName.Timeout);
+		}
+		else
+		{
+			// Sin espera también se deja pasar un fotograma: la entrada puede venir de BodyEntered y la física no se toca en ese callback.
+			await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+		}
 
-			if (!IsInstanceValid(this) || !IsInsideTree())
+		if (!IsInstanceValid(this) || !IsInsideTree())
+		{
+			return;
+		}
+
+		RevealEnemies();
+	}
+
+	// Un anillo de crayón por punto de aparición, que crece durante SpawnDelay. Cuelgan de un nodo propio, no de Enemies.
+	private void ShowSpawnMarkers()
+	{
+		_markersRoot = new Node3D { Name = "SpawnMarkers" };
+		AddChild(_markersRoot);
+
+		foreach (Marker3D point in _spawnPoints)
+		{
+			SpawnMarker marker = new() { GrowTime = SpawnDelay, Position = new Vector3(point.Position.X, MarkerHeight, point.Position.Z) };
+			_markersRoot.AddChild(marker);
+			_markers.Add(marker);
+		}
+	}
+
+	// Instancia un enemigo por fotograma mientras dura la espera. Lo que no dé tiempo a instanciar se completa en RevealEnemies.
+	private async void StageOverFrames()
+	{
+		_staging = new Node3D { Name = "EnemyStaging" };
+		AddChild(_staging);
+
+		while (_staged.Count < _spawnPoints.Count)
+		{
+			await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+
+			if (!IsInstanceValid(this) || !IsInsideTree() || _revealed)
 			{
 				return;
 			}
+
+			StageNext();
+		}
+	}
+
+	// El enemigo nace oculto, sin procesar y sin colisión, en un nodo aparte: Enemies sigue vacío hasta que sale de verdad.
+	private void StageNext()
+	{
+		Node3D node = EnemySceneFor(_staged.Count).Instantiate<Node3D>();
+		if (node is EnemyBase enemy)
+		{
+			enemy.Stage();
+			_staging.AddChild(enemy);
+		}
+
+		_staged.Add(node);
+	}
+
+	// A los SpawnDelay segundos los enemigos salen: pasan a Enemies en su punto y empiezan la aparición inerte (EnemyBase.BeginSpawn).
+	private void RevealEnemies()
+	{
+		_revealed = true;
+		while (_staged.Count < _spawnPoints.Count)
+		{
+			StageNext();
 		}
 
 		for (int i = 0; i < _spawnPoints.Count; i++)
 		{
-			Node3D enemy = EnemySceneFor(i).Instantiate<Node3D>();
+			Node3D enemy = _staged[i];
+			enemy.GetParent()?.RemoveChild(enemy);
 			_enemiesRoot.AddChild(enemy);
 			enemy.GlobalPosition = _spawnPoints[i].GlobalPosition;
 			HealthComponent.FindIn(enemy).Died += OnEnemyDied;
+			(enemy as EnemyBase)?.BeginSpawn();
+			_markers[i].Finish();
+		}
+
+		_staged.Clear();
+		_staging.QueueFree();
+
+		// Una sola petición por oleada, no una por enemigo.
+		if (_spawnPoints.Count > 0)
+		{
+			AudioManager.Play(SoundCatalog.EnemySpawns);
 		}
 	}
 
