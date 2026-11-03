@@ -98,6 +98,10 @@ public partial class EnemyWarmupTest : Node
 		Require(tree.Root.FindChild("EnemyWarmupViewport", true, false) == null, "El visor se libera");
 		Require(tree.GetNodesInGroup(AudioManager.FlyerGroup).Count == 0, "No queda ningún volador en el grupo");
 		Require(AudioManager.Instance.Requests.All(request => !request.Id.StartsWith(SoundCatalog.FlyerWings)), "El aleteo no suena durante el precalentamiento");
+		Require(AudioManager.Instance.Requests.All(request => request.Id != SoundCatalog.EnemySpawns), "Y el sonido de aparición se carga pero no suena");
+		SoundCatalog.Sound spawnSound = SoundCatalog.Get(SoundCatalog.EnemySpawns);
+		string loadedPath = ResourceLoader.Exists(spawnSound.Path) ? spawnSound.Path : SoundCatalog.Get(spawnSound.Fallback).Path;
+		Require(ResourceLoader.HasCached(loadedPath), $"El archivo del sonido de aparición (o el de su respaldo) queda cargado: {loadedPath}");
 		GD.Print("Seis tipos calentados, visor liberado, sin sonido: OK");
 
 		Require(EnemyWarmupRunner.Attach(this) == null, "Ya hecho: no cuelga otro runner");
