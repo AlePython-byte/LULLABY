@@ -60,6 +60,7 @@ public partial class RoomEnduranceTest : Node
 		}
 
 		GD.Print($"Sondeos: {_probes}. " + (_failures.Count == 0 ? "RESULTADO: OK" : $"RESULTADO: FALLO ({_failures.Count} comprobaciones)"));
+		await BossTestHarness.CollectWrappers(GetTree());
 		GetTree().Quit(_failures.Count == 0 ? 0 : 1);
 	}
 
