@@ -224,6 +224,9 @@ public partial class HeartDropTest : Node
 		Require(Mathf.Abs(global.X - deathPoint.X) < 0.05f && Mathf.Abs(global.Z - deathPoint.Z) < 0.05f && Mathf.Abs(heart.Position.Y) < 0.05f,
 			$"Cae donde murió el portador ({global} frente a {deathPoint})");
 		Require(room.State == RoomState.Cleared, "La sala queda despejada");
+		bool hasModel = ResourceLoader.Exists(ItemPickup.ModelPathFor("corazon"));
+		Require(hasModel ? heart.Model != null && !heart.GetNode<MeshInstance3D>("Visual").Visible : heart.Model == null && heart.GetNode<MeshInstance3D>("Visual").Visible,
+			hasModel ? "Con corazon.glb disponible se ve el modelo" : "Sin corazon.glb se ve la esfera roja");
 
 		HealthComponent health = level.Health;
 		float full = health.EffectiveMaxHealth;
