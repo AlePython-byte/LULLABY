@@ -47,7 +47,7 @@ public static class EnemyKinds
 
 	public static PackedScene Scene(EnemyKind kind)
 	{
-		return GD.Load<PackedScene>(Get(kind).ScenePath);
+		return EnemyScenePreloader.TryGet(kind) ?? GD.Load<PackedScene>(Get(kind).ScenePath);
 	}
 
 	/// <summary>Tipo de una escena de enemigo por su ruta; una escena que no está en la lista cuenta como básica.</summary>

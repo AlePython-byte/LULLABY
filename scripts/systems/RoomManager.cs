@@ -83,6 +83,8 @@ public partial class RoomManager : Node3D
 			return;
 		}
 
+		// Las escenas de los tipos de enemigo del nivel se cargan ahora, no al nacer los enemigos de cada sala.
+		EnemyScenePreloader.PreloadFor(Map);
 		LoadRoom(Map.StartCell);
 		_room.Activate();
 		RoomLoaded?.Invoke(_room);
