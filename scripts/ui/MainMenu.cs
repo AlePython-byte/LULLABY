@@ -105,6 +105,7 @@ public partial class MainMenu : Control
 		PlayButton.SetMeta(AudioManager.UiSoundMeta, SoundCatalog.MenuConfirm);
 		AudioManager.HookButtons(this);
 		PlayButton.GrabFocus();
+		AudioManager.PlayMusic(SoundCatalog.MusicMenu);
 
 		// Mientras el jugador mira el menú se precargan las texturas y los modelos de las salas (y se dibujan una vez), para que la primera
 		// sala de combate no dé un tirón. Idempotente: si ya se hizo, no añade nada.
