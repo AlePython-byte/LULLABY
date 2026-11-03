@@ -9,7 +9,7 @@ using Godot;
 /// MainMenu. "Salir al menú" desde la partida va directo a MainMenu, sin intro.
 ///
 /// Cada cuadro: fundido de entrada de 0,8 s, zoom y paneo muy lentos, fundido de salida; dura lo que su voz más 0,6 s (mínimo 3,5 s). El último se
-/// funde a negro más despacio y el canto se apaga con él. La voz sale por el bus SFX y el canto por el bus Musica a -10 dB (~30 % frente a la
+/// funde a negro más despacio y el canto se apaga con él. La voz sale por el bus SFX y el canto por el bus Musica a -7 dB (~45 % frente a la
 /// voz): los dos respetan los deslizadores de settings.cfg, que se aplican al entrar. Las imágenes se cargan de una en una, con la pantalla en
 /// negro, y se sueltan al terminar su cuadro: nunca hay dos a la vez.
 ///
@@ -22,8 +22,8 @@ using Godot;
 public partial class IntroScene : Control
 {
 	public const string SkipArgument = "--sin-intro";
-	/// <summary>Volumen del canto (dB) sobre el bus Musica: ~30 % frente a la voz.</summary>
-	public const float SongDb = -10.0f;
+	/// <summary>Volumen del canto (dB) sobre el bus Musica: ~45 % frente a la voz.</summary>
+	public const float SongDb = -7.0f;
 
 	public const float SkipFadeSeconds = 0.3f;
 

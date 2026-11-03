@@ -14,7 +14,7 @@ using Godot;
 ///   2. Los ocho cuadros: archivos y subtítulos exactos, importados con pérdida y mipmaps, duración = voz + 0,6 s con mínimo de 3,5 s, y el
 ///      movimiento cubre siempre la ventana (sin bordes) con un zoom de 1,00 a 1,06 y un recorrido distinto en cada cuadro.
 ///   3. Reproducción completa: los ocho en orden, con su subtítulo, una sola imagen cargada a la vez, el canto apagado al final y el paso al menú.
-///   4. Volúmenes: los de settings.cfg están aplicados cuando suena el primer cuadro; la voz va por SFX y el canto por Musica a -10 dB.
+///   4. Volúmenes: los de settings.cfg están aplicados cuando suena el primer cuadro; la voz va por SFX y el canto por Musica a -7 dB.
 ///   5. Canto en bucle: el empalme se cruza un segundo antes del final (con reproductores reales y en silencio) y se apaga con fundido.
 ///   6. Saltar con Enter, Esc, Espacio o clic: fundido corto, nada sonando y paso al menú.
 ///   7. Argumento --sin-intro: va directo al menú, sin cuadros ni sonido.
@@ -297,7 +297,7 @@ public partial class IntroTest : Node
 		Check("los efectos (la voz) y la música (el canto) también", Mathf.Abs(seen.sfx - Mathf.LinearToDb(0.6f)) < 0.01f && Mathf.Abs(seen.music - Mathf.LinearToDb(0.2f)) < 0.01f, $"{seen.sfx} {seen.music}");
 		Check("la voz y el canto suenan desde el primer cuadro", seen.voicePlaying && seen.songPlaying, $"{seen.voicePlaying} {seen.songPlaying}");
 		Check("la voz va por el bus SFX y el canto por el bus Musica", seen.voiceBus == "SFX" && seen.songBus == "Musica", $"{seen.voiceBus} {seen.songBus}");
-		Check("el canto suena a -10 dB (~30 % frente a la voz a 0 dB)", Mathf.Abs(IntroScene.SongDb - -10.0f) < 0.001f && Mathf.Abs(Mathf.DbToLinear(IntroScene.SongDb) - 0.316f) < 0.01f, $"{IntroScene.SongDb}");
+		Check("el canto suena a -7 dB (~45 % frente a la voz a 0 dB)", Mathf.Abs(IntroScene.SongDb - -7.0f) < 0.001f && Mathf.Abs(Mathf.DbToLinear(IntroScene.SongDb) - 0.447f) < 0.01f, $"{IntroScene.SongDb}");
 		Check("el canto no pisa los deslizadores: el volumen del bus Musica no se toca", Mathf.Abs(AudioServer.GetBusVolumeDb(AudioServer.GetBusIndex("Musica")) - Mathf.LinearToDb(0.2f)) < 0.01f, "bus Musica");
 		await Dispose(intro);
 		AudioManager.StopMusic();
