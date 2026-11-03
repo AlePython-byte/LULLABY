@@ -33,6 +33,11 @@ public partial class HeartDropper : Node
 	public int Carrier { get; private set; } = -1;
 
 	private readonly Dictionary<Vector2I, Drop> _drops = new();
+	// El recurso se carga una vez y se retiene toda la sesión (como DecorWarmup.Held). Si cada partida lo cargara en un campo de un nodo que
+	// se libera, el recolector de .NET podía finalizar su envoltorio mientras la partida siguiente lo pedía al caché del motor: esta recibía
+	// un recurso roto («no es un objeto válido») y a veces el proceso moría con un error fatal (MinimapTest y EnemySpawnTest, según el GC).
+	private static ItemDefinition HeldHeart;
+
 	private RoomManager _rooms;
 	private TreasureItemSpawner _treasure;
 	private ItemDefinition _heart;
@@ -48,11 +53,13 @@ public partial class HeartDropper : Node
 		_treasure = treasure;
 		_gameSeed = gameSeed;
 		DropChance = Mathf.Clamp(chance, 0.0f, 1.0f);
-		_heart = GD.Load<ItemDefinition>(HeartPath);
+		HeldHeart ??= GD.Load<ItemDefinition>(HeartPath);
+		_heart = HeldHeart;
 		if (_heart == null || !_heart.IsValid)
 		{
 			GD.PushError($"HeartDropper: {HeartPath} no es un objeto válido; no caerán corazones.");
 			_heart = null;
+			HeldHeart = null;
 			return;
 		}
 
