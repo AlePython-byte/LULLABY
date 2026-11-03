@@ -66,6 +66,7 @@ public partial class AudioEventsTest : Node
 		}
 
 		GD.Print(_failures.Count == 0 ? "RESULTADO: OK" : $"RESULTADO: FALLO ({_failures.Count} comprobaciones)");
+		await BossTestHarness.CollectWrappers(GetTree());
 		GetTree().Quit(_failures.Count == 0 ? 0 : 1);
 	}
 
