@@ -38,6 +38,7 @@ public partial class PlayerVisualTest : Node
 	{
 		await Run();
 		GD.Print(_ok ? "RESULTADO: OK" : "RESULTADO: FALLO");
+		await BossTestHarness.CollectWrappers(GetTree());
 		GetTree().Quit(_ok ? 0 : 1);
 	}
 
