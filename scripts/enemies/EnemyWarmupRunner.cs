@@ -9,7 +9,7 @@ using Godot;
 ///      por el mismo fotograma), crea un SubViewport propio que nadie ve, con cámara, una luz con sombra y un suelo, como las salas.
 ///   2. Carga la escena de cada tipo (EnemyScenePreloader), la instancia, la deja preparada (EnemyBase.Stage) y la cuelga del visor, de uno
 ///      en uno y con un presupuesto de tiempo por fotograma.
-///   3. Los revela a la vez (EnemyBase.BeginSpawn) y los deja dibujarse hasta que terminan su aparición inerte: así se calientan también
+///   3. Los revela a la vez (EnemyBase.BeginSpawn, y con ellos un anillo SpawnMarker) y los deja dibujarse hasta que terminan su aparición inerte: así se calientan también
 ///      el JIT del propio camino de aparición y la subida de mallas y texturas de cada tipo. Después libera el visor.
 /// Los enemigos del visor no hacen nada más (no hay jugador) y se quitan del grupo de voladores para que su aleteo no suene en el menú.
 /// Si el menú se cierra antes de terminar, el nodo desaparece con él y la siguiente vez continúa donde quedó. No hace nada si ya se
@@ -41,6 +41,7 @@ public partial class EnemyWarmupRunner : Node
 	private int _next;
 	private int _drawn;
 	private SubViewport _viewport;
+	private SpawnMarker _marker;
 	private readonly List<EnemyBase> _enemies = new();
 
 	/// <summary>Cuelga un runner de parent si hace falta (devuelve null si ya está todo hecho, está apagado o ya hay uno).</summary>
@@ -126,6 +127,7 @@ public partial class EnemyWarmupRunner : Node
 
 	private void RevealAll()
 	{
+		_marker?.Finish();
 		foreach (EnemyBase enemy in _enemies)
 		{
 			enemy.BeginSpawn();
@@ -154,6 +156,7 @@ public partial class EnemyWarmupRunner : Node
 
 		_viewport?.QueueFree();
 		_viewport = null;
+		_marker = null;
 		_enemies.Clear();
 		EnemyWarmup.MarkDone();
 		Finished = true;
@@ -183,6 +186,9 @@ public partial class EnemyWarmupRunner : Node
 		});
 		_viewport.AddChild(new DirectionalLight3D { ShadowEnabled = true, Transform = new Transform3D(Basis.LookingAt(new Vector3(-0.3f, -1.0f, -0.4f), Vector3.Up), Vector3.Zero) });
 		_viewport.AddChild(new OmniLight3D { Position = new Vector3(0.0f, 3.0f, 0.0f), OmniRange = 12.0f });
+		// Un anillo de aparición, para dejar listas también sus mallas compartidas y su camino de código.
+		_marker = new SpawnMarker { Position = new Vector3(0.0f, 0.03f, 3.5f) };
+		_viewport.AddChild(_marker);
 		_viewport.AddChild(new MeshInstance3D
 		{
 			Mesh = new BoxMesh { Size = new Vector3(14.0f, 1.0f, 10.0f) },
