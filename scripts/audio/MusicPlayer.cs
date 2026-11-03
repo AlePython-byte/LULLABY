@@ -46,7 +46,7 @@ public partial class MusicPlayer : Node
 	public IReadOnlyList<Layer> Layers => _layers;
 
 	/// <summary>Hay un fundido en curso (alguna capa sube o baja).</summary>
-	public bool Fading => _layers.Any(l => !Mathf.IsEqualApprox(l.Gain, l.Target));
+	public bool Fading => _layers.Any(l => l.Gain != l.Target); // MoveToward acaba exactamente en el objetivo
 
 	public float GainOf(string name) => _layers.Where(l => l.Name == name).Select(l => l.Gain).DefaultIfEmpty(0.0f).Max();
 
