@@ -225,6 +225,36 @@ public partial class AudioManager : Node
 		}
 	}
 
+	/// <summary>
+	/// Carga en el caché el archivo de un sonido (y el de su respaldo, si el suyo no existe) SIN reproducirlo, para que la primera vez que
+	/// suene no cueste una carga. Un id desconocido o un archivo ausente no hacen nada. Nunca lanza.
+	/// </summary>
+	public static void Preload(string id)
+	{
+		AudioManager audio = Instance;
+		if (audio == null || !audio.Enabled)
+		{
+			return;
+		}
+
+		try
+		{
+			if (SoundCatalog.Get(id) is not SoundCatalog.Sound sound)
+			{
+				return;
+			}
+
+			if (audio.Load(sound.Path) == null && sound.Fallback != null && SoundCatalog.Get(sound.Fallback) is SoundCatalog.Sound other)
+			{
+				audio.Load(other.Path);
+			}
+		}
+		catch (System.Exception exception)
+		{
+			audio.Fail(exception);
+		}
+	}
+
 	/// <summary>Sonido posicional en el mundo (enemigos). pitch multiplica el tono (por ejemplo 0,8 = un 20 % más grave). Nunca lanza.</summary>
 	public static void PlayAt(string id, Vector3 position, float pitch = 1.0f)
 	{
