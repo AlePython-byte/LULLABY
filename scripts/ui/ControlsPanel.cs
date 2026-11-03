@@ -21,6 +21,8 @@ public partial class ControlsPanel : Control
 		_back = GetNode<Button>("Center/Box/Back");
 		_back.Text = GameText.Back;
 		_back.Pressed += Close;
+		MenuButtonStyle.ApplyAll(this);
+		AudioManager.HookHover(this);
 		Hide();
 	}
 
