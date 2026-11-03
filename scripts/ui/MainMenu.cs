@@ -110,6 +110,10 @@ public partial class MainMenu : Control
 		// Mientras el jugador mira el menú se precargan las texturas y los modelos de las salas (y se dibujan una vez), para que la primera
 		// sala de combate no dé un tirón. Idempotente: si ya se hizo, no añade nada.
 		DecorWarmupRunner.Attach(this);
+
+		// Después de eso (el runner espera al anterior), un enemigo de cada tipo se carga, se instancia y se dibuja una vez en un visor oculto:
+		// el JIT y la subida de mallas y texturas se hacen aquí y no al nacer los enemigos de la primera sala.
+		EnemyWarmupRunner.Attach(this);
 	}
 
 	public void Select(DifficultyTarget target)
