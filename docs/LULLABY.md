@@ -541,6 +541,20 @@ Prueba: `godot --headless --fixed-fps 60 --path . res://tests/MinimapTest.tscn`.
 
 Pruebas: `godot --headless --fixed-fps 60 --path . res://tests/HeartsHudTest.tscn` y `res://tests/FloorControlsTest.tscn`.
 
+## 8.4b. Botones de los menús
+
+Los botones de todos los menús (principal, pausa, controles, victoria y derrota sin notas de papel) comparten un único estilo, `MenuButtonStyle` (`scripts/ui/MenuButtonStyle.cs`), con las imágenes `assets/ui/boton_normal.png`, `boton_hover.png` y `boton_pressed.png` (512×128, estilo papel y crayón). Cada pantalla solo llama a `MenuButtonStyle.ApplyAll` o `Apply`; ninguna define el suyo.
+
+- **Estados:** `StyleBoxTexture` con 9 trozos. El dibujo útil de las imágenes ocupa (8, 8)–(505, 122) de los 512×128 (el resto es margen transparente y el brillo exterior del hover), así que se recorta con `region_rect` y los bordes (12 px, `SliceMargin`) no se deforman; solo se estira el centro, que es liso. Con ese recorte los botones de 36 a 46 px de alto no quedan finos.
+- **Foco = hover:** el estilo de foco usa la imagen del hover, así que con teclado o mando el botón se ve igual que con el ratón encima. `hover_pressed` usa la de pulsado: en un botón de alternancia (el selector de dificultad) el elegido se ve «hundido» y con el texto dorado.
+- **Texto:** lo pone el juego, con Patrick Hand (`HandFont`). **El arte es oscuro** (relleno ≈ RGB 42, 36, 52 con el 88 % de opacidad), no papel claro, así que el texto va en **crema claro** (`TextColor`); en oscuro no se leería sobre el fondo. Los colores están en las constantes de la clase.
+- **Sin cambios de comportamiento:** no se tocan textos, tamaños mínimos, el selector de dificultad ni los deslizadores de volumen. Los `CheckButton` (variedad extendida) y las notas de papel de la pantalla de derrota conservan su aspecto.
+- **Respaldo:** si falta cualquiera de las tres imágenes (todo o nada) o no carga, no se toca ningún botón: siguen con el estilo de siempre, sin errores en la consola (`ResourceLoader.Exists` antes de cargar).
+- **Retención:** las texturas y los estilos se guardan en campos estáticos (como `DecorWarmup.Held`): los menús se liberan al cambiar de escena y, si cada uno cargara las suyas, el recolector de .NET podía finalizar un envoltorio mientras el menú siguiente lo pedía al caché del motor (la misma carrera que dio problemas con el corazón).
+- **Sonido:** `menu_hover` al pasar el ratón (`AudioManager.HookButtons` y `HookHover`, una sola conexión por botón; un botón desactivado no suena). Aún no tiene archivo: hasta que exista, silencio sin error (sin sonido de respaldo). El clic conserva `menu_click` (y `menu_confirmar` en Jugar). El foco por teclado no suena: al abrir un menú el primer botón toma el foco y sonaría siempre.
+
+Prueba: `godot --headless --fixed-fps 60 --path . res://tests/MenuButtonStyleTest.tscn` (tres texturas y 9 trozos, todas las pantallas, foco como hover, sonido, comportamiento, respaldo y retención).
+
 ## 8.5. Audio
 
 Todo el sonido pasa por `AudioManager` (`scripts/audio/`, autoload). Los ids, archivos y límites están en constantes de C# (`SoundCatalog`); el juego no lee `docs/` en ejecución. Los efectos de Luis están en `assets/audio/sfx/` (créditos en `assets/audio/CREDITS.md`).
@@ -566,7 +580,7 @@ Todo el sonido pasa por `AudioManager` (`scripts/audio/`, autoload). Los ids, ar
   - `jefe_aparece` cuando The Mother aparece al empezar el combate de su sala (3D).
   - `jefe_ataque_1` en el **anillo** y `jefe_ataque_2` en la **espiral** (3D, una sola vez por ataque; antes sonaban disparos de tirador). Ojo: en `CREDITS.md` el primero está descrito como «carga o embestida» y el segundo como «ataque viscoso»; la asignación actual es la pedida (anillo y espiral).
   - `jefe_muere` al morir The Mother (por su propio id) y `victoria` / `derrota` al mostrar la pantalla de victoria / derrota (una vez cada una).
-- **Sonidos que aún no tienen archivo:** `jefe_golpe`, `jefe_fase` y `enemigo_aparece`. Mientras no existan, el golpe de The Mother usa `enemigo_golpe` con el tono un 20 % más grave, el cambio de fase no suena y la aparición de los enemigos (una vez por oleada) es silenciosa (ver 7.3b). Si un archivo no existe, no suena y no da error (`ResourceLoader.Exists`).
+- **Sonidos que aún no tienen archivo:** `jefe_golpe`, `jefe_fase`, `enemigo_aparece` y `menu_hover`. Mientras no existan, el golpe de The Mother usa `enemigo_golpe` con el tono un 20 % más grave, el cambio de fase no suena y la aparición de los enemigos (una vez por oleada) es silenciosa (ver 7.3b) y el hover de los botones (`menu_hover`) también (ver 8.4b). Si un archivo no existe, no suena y no da error (`ResourceLoader.Exists`).
 - **Voces:** como mucho 8 planas y 16 en 3D a la vez, de 1 a 4 por sonido y un intervalo mínimo entre repeticiones; sin hueco, el sonido nuevo se descarta, salvo `noah_muere` y `explosion`, que roban la voz más antigua. La variación de tono usa un generador de azar propio: no toca el azar global.
 - **3D:** el oyente (`AudioListener3D`) está en el soporte de la cámara, en el centro de la sala a nivel de suelo; los sonidos llegan hasta 30 m. `noah_muere` (casi 7 s) se corta al reiniciar la partida o volver al menú.
 - **A prueba de fallos:** el audio nunca puede alterar el juego. Toda la API que usa la lógica (`Play`, `PlayAt`, `PlayFrom`, `PlayMusic`, `StopMusic`, `StopAll`) captura cualquier excepción, la avisa una sola vez y sigue; tras 5 fallos el audio se desactiva solo (`AudioManager.Enabled`). La lógica pide el sonido siempre DESPUÉS de aplicar el daño, liberar lo que muere y resolver la derrota o la recogida. Los comportamientos de los enemigos piden su sonido con `PlayFrom`, que usa el primer nodo 3D que los contiene (The Mother cuelga sus `ShootBehavior` de `MotherBehavior`, no del enemigo).
