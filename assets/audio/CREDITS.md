@@ -14,15 +14,11 @@ Todos los efectos de sonido y pistas musicales utilizados en el proyecto cuentan
 | mecha_explosivo.ogg | Chisporroteo de mecha previo a explosión   | Alex_hears_things | https://freesound.org/people/Alex_hears_things/sounds/316682/ | CC0      |
 | volador_aleteo.ogg  | Aleteo continuo o vuelo de enemigo volador | Scottrex05        | https://freesound.org/people/Scottrex05/sounds/593487/        | CC0      |
 | enemigo_muere.ogg   | Derrota o muerte de un enemigo             | K27K_Mike         | https://freesound.org/people/K27K_Mike/sounds/853659/         | CC0      |
-| puerta_abre.ogg     | Apertura de puerta                         | theshuggie        | https://freesound.org/people/theshuggie/sounds/371008/        | CC0      |
-| puerta_cierra.ogg   | Cierre de puerta                           | theshuggie        | https://freesound.org/people/theshuggie/sounds/371008/        | CC0      |
-| objeto_recoger.ogg  | Recolección de objeto o recurso            | LSpec             | https://freesound.org/people/LSpec/sounds/                    | CC0      |
-| curar.ogg           | Recuperación de salud o vitalidad          | Raclure           | https://freesound.org/people/Raclure/sounds/483608/           | CC0      |
-| menu_click.ogg      | Clic de navegación o selección en menús    | NenadSimic        | https://freesound.org/people/NenadSimic/                      | CC0      |
-| menu_confirmar.ogg  | Confirmación o aceptación en menús         | EilasSFX          | https://freesound.org/people/EilasSFX/                        | CC0      |
-| jefe_aparece.ogg    | Aparición o revelación de jefe             | zombieallen       | https://freesound.org/people/zombieallen/                     | CC0      |
-| jefe_ataque_1.ogg   | Ataque de carga o embestida del jefe       | grizzlymittz      | https://freesound.org/people/grizzlymittz/sounds/535239/      | CC0      |
-| jefe_ataque_2.ogg   | Ataque viscoso o impacto de baba del jefe  | Qubodup           | https://freesound.org/people/Qubodup/                         | CC0      |
-| jefe_muere.ogg      | Muerte o colapso final del jefe            | CyanKingstonLBP   | https://freesound.org/people/CyanKingstonLBP/sounds/748550/   | CC0      |
-| victoria.ogg        | Fanfarria o sonido de victoria             | FunWithSound      | https://freesound.org/people/FunWithSound/                    | CC0      |
-| derrota.ogg         | Sonido de derrota o fin de partida         | Fupicat           | https://freesound.org/people/Fupicat/sounds/538151/           | CC0      |
+
+## Música
+
+| Archivo        | Descripción                                         | Autor       | Enlace                                                  | Licencia |
+| -------------- | --------------------------------------------------- | ----------- | ------------------------------------------------------- | -------- |
+| the_cradle.ogg | Música de ambiente en la cuna (caja de música)      | 13NHarri    | https://freesound.org/people/13NHarri/sounds/386411/    | CC0      |
+| menu.ogg       | Música de ambiente para el menú principal           | LightMister | https://freesound.org/people/LightMister/sounds/690294/ | CC0      |
+| jefe.ogg       | Música de combate contra el jefe final (The Mother) | JeSSeper09+ | [Pega aquí la URL de tu barra de direcciones]           | CC0      |
