@@ -563,7 +563,7 @@ public partial class AudioManager : Node
 
 		try
 		{
-			List<Node3D> flyers = GetTree().GetNodesInGroup(FlyerGroup).OfType<Node3D>().Where(f => IsInstanceValid(f) && f.IsInsideTree() && !f.IsQueuedForDeletion()).ToList();
+			List<Node3D> flyers = GetTree().GetNodesInGroup(FlyerGroup).OfType<Node3D>().Where(f => IsInstanceValid(f) && f.IsInsideTree() && f.IsVisibleInTree() && !f.IsQueuedForDeletion()).ToList();
 			UpdateFlyerLoop(flyers);
 		}
 		catch (System.Exception exception)
