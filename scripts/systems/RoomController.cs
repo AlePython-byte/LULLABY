@@ -42,6 +42,12 @@ public partial class RoomController : Node3D
 	[Signal] public delegate void RoomClearedEventHandler();
 	[Signal] public delegate void DoorCrossedEventHandler(int side);
 	public event System.Action<EnemyBase> BossSpawned;
+
+	/// <summary>
+	/// Murió un enemigo de la oleada: índice de su punto de aparición (el mismo orden que RoomData.SpawnPoints) y la posición donde murió.
+	/// Se emite justo antes de contar la muerte para despejar la sala. El jefe no pasa por aquí.
+	/// </summary>
+	public event System.Action<int, Vector3> EnemyKilled;
 	// Override exclusivo de la instancia jugable. Nunca se escribe en RoomData ni en las plantillas.
 	public PackedScene BossScene { get; set; }
 	public EnemyBase BossEnemy { get; private set; }
@@ -416,7 +422,11 @@ public partial class RoomController : Node3D
 			enemy.GetParent()?.RemoveChild(enemy);
 			_enemiesRoot.AddChild(enemy);
 			enemy.GlobalPosition = _spawnPoints[i].GlobalPosition;
-			HealthComponent.FindIn(enemy).Died += OnEnemyDied;
+			int index = i;
+			Node3D body = enemy;
+			HealthComponent health = HealthComponent.FindIn(enemy);
+			health.Died += () => EnemyKilled?.Invoke(index, body.GlobalPosition);
+			health.Died += OnEnemyDied;
 			(enemy as EnemyBase)?.BeginSpawn();
 			_markers[i].Finish();
 		}
