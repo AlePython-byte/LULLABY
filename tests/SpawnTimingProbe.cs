@@ -13,6 +13,7 @@ using Godot;
 ///          coste real (reloj de pared) del fotograma en el que nacen, frente a la mediana de los fotogramas de esa sala.
 /// Los tiempos son de CPU: en headless no hay GPU, así que la subida de mallas y texturas a la tarjeta gráfica no se mide.
 /// Con el argumento propio `-- skip1` se salta la parte 1, para que la parte 2 vea la caché de escenas fría (primera sala de la partida).
+/// Con `-- trace` imprime también el tiempo de cada fotograma de la espera de cada sala.
 /// Con `-- warm` ejecuta antes el precalentamiento de enemigos del menú (EnemyWarmupRunner), como en una partida real.
 /// No forma parte de la suite: solo imprime números y sale con 0 salvo que falle.
 /// </summary>
@@ -173,6 +174,11 @@ public partial class SpawnTimingProbe : Node
 				GD.Print($"  sala {expected} ({target.Data.Type}): sin enemigos / sin combate");
 				await BossTestHarness.Frames(tree, 2);
 				continue;
+			}
+
+			if (OS.GetCmdlineUserArgs().Contains("trace"))
+			{
+				GD.Print($"    fotogramas de la espera (ms): {string.Join(" ", gaps.Select(g => g.ToString("F1")))}");
 			}
 
 			double[] sorted = gaps.OrderBy(g => g).ToArray();
