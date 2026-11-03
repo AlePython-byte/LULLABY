@@ -89,6 +89,14 @@ public partial class DefeatScreen : CanvasLayer
 		InputActions.Register(RetryAction, Key.Enter, Key.KpEnter);
 		InputActions.Register(MenuAction, Key.Escape);
 		ApplyArt();
+		AudioManager.HookHover(_root);
+
+		// Con las notas de papel los botones tienen su propio dibujo; sin ellas llevan el estilo de los demás menús.
+		if (!HasNotes)
+		{
+			MenuButtonStyle.Apply(_retry);
+			MenuButtonStyle.Apply(_menu);
+		}
 	}
 
 	// Enter reinicia y Esc sale al menú, con la pantalla a la vista y solo la primera vez.
