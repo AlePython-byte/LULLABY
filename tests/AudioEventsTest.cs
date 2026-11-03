@@ -218,8 +218,10 @@ public partial class AudioEventsTest : Node
 		AudioManager.Play(SoundCatalog.BossPhase);
 		Check("un sonido sin archivo (jefe_fase) queda como faltante sin romper nada", Single("jefe_fase").Result == AudioManager.Outcome.Missing, "faltante");
 		AudioManager.PlayMusic("menu");
-		Check("la música sin archivo no suena ni rompe (gancho listo)", _audio.CurrentMusic == null && Single("musica:menu").Result == AudioManager.Outcome.Missing, "música");
+		Check("la música con su archivo queda pedida en el bus Musica (el detalle, en AudioMusicTest)", _audio.CurrentMusic == "menu" && Single("musica:menu").Result == AudioManager.Outcome.Silent, "música");
 		AudioManager.StopMusic();
+		AudioManager.PlayMusic("no_existe");
+		Check("un id de música desconocido no suena ni rompe", _audio.CurrentMusic == null && Single("musica:no_existe").Result == AudioManager.Outcome.Unknown, "música desconocida");
 		AudioManager.Play("no_existe");
 		AudioManager.PlayAt("tampoco", Vector3.One);
 		Check("un id desconocido queda registrado como desconocido", Single("no_existe").Result == AudioManager.Outcome.Unknown && Single("tampoco").Result == AudioManager.Outcome.Unknown, "desconocido");
