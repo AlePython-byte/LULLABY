@@ -12,7 +12,7 @@ dest_files=["res://.godot/imported/the_cradle.ogg-9fd8a42d03ff22e0d52cad3fb96c6b
 
 [params]
 
-loop=false
+loop=true
 loop_offset=0
 bpm=0
 beat_count=0
