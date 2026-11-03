@@ -2,13 +2,18 @@ using System.Collections.Generic;
 using Godot;
 
 /// <summary>
-/// Opción de equilibrio: al despejar una sala de combate (tipo Normal) puede caer un corazón (+1 de vida, resources/items/corazon.tres)
-/// en el centro de la sala, con probabilidad DropChance (RunManager.HeartDropChance, 0.25 por defecto; 0 lo apaga). El sorteo es por
-/// semilla de partida y celda, con su propio azar como los tesoros: no consume el azar global ni depende del orden de visita, y una sala
-/// se sortea una sola vez. El corazón no está en el catálogo de objetos, así que los tesoros nunca lo ofrecen.
+/// Opción de equilibrio: un corazón (+1 de vida, resources/items/corazon.tres) que suelta un enemigo al morir. La probabilidad se aplica POR
+/// SALA, no por enemigo: al cargar una sala de combate normal se sortea (semilla de partida y celda, con azar propio como los tesoros) si
+/// habrá corazón y, si lo hay, cuál de sus enemigos lo lleva; ese enemigo lo suelta donde muere. Con 3-4 enemigos por sala, un sorteo por
+/// muerte daría de media más de un corazón por sala y volvería trivial el nivel fácil (ver docs/LULLABY.md). La probabilidad por
+/// dificultad está en RunManager.HeartChanceByDifficulty. No hay corazón en la sala del jefe, ni pista visual en el portador.
+///
+/// El sorteo no consume el azar global ni depende del orden de visita; una sala siempre da el mismo resultado. El corazón no está en el
+/// catálogo de objetos, así que los tesoros nunca lo ofrecen. Con la vida completa no se consume. Uno sin recoger sigue en el suelo y
+/// reaparece donde cayó al volver a la sala; uno recogido no.
 ///
 /// Solo actúa cuando las recompensas están activas (TreasureItemSpawner.Active): el bot y el simulador, que juegan sin objetos, no ven
-/// corazones. Un corazón sin recoger (por ejemplo con la vida completa) sigue en el suelo y reaparece al volver a la sala; uno recogido no.
+/// corazones.
 /// </summary>
 public partial class HeartDropper : Node
 {
@@ -17,14 +22,17 @@ public partial class HeartDropper : Node
 
 	private sealed class Drop
 	{
+		public Vector3 Position; // en coordenadas de la sala (suelo y = 0)
 		public bool Collected;
 	}
 
-	/// <summary>Probabilidad de que una sala despejada suelte un corazón (de 0 a 1).</summary>
+	/// <summary>Probabilidad de que una sala de combate tenga un enemigo con corazón (de 0 a 1).</summary>
 	public float DropChance { get; set; } = DefaultChance;
 
+	/// <summary>Índice del punto de aparición cuyo enemigo lleva el corazón en la sala actual (-1 si ninguno).</summary>
+	public int Carrier { get; private set; } = -1;
+
 	private readonly Dictionary<Vector2I, Drop> _drops = new();
-	private readonly HashSet<Vector2I> _rolled = new();
 	private RoomManager _rooms;
 	private TreasureItemSpawner _treasure;
 	private ItemDefinition _heart;
@@ -61,7 +69,7 @@ public partial class HeartDropper : Node
 		Detach();
 	}
 
-	/// <summary>Sorteo de una sala: determinista por semilla de partida y celda, con azar propio.</summary>
+	/// <summary>Sorteo de una sala: ¿tendrá corazón? Determinista por semilla de partida y celda, con azar propio.</summary>
 	public static bool Rolls(int gameSeed, Vector2I cell, float chance)
 	{
 		if (chance <= 0.0f) return false;
@@ -70,26 +78,46 @@ public partial class HeartDropper : Node
 		return random.Randf() < chance;
 	}
 
+	/// <summary>
+	/// Qué enemigo lleva el corazón: el índice de su punto de aparición (de 0 a enemyCount - 1), o -1 si la sala no tiene corazón. El
+	/// sorteo de Rolls y la elección del portador salen del mismo generador, de modo que ambos son estables para una semilla y una celda.
+	/// </summary>
+	public static int CarrierFor(int gameSeed, Vector2I cell, float chance, int enemyCount)
+	{
+		if (enemyCount <= 0 || !Rolls(gameSeed, cell, chance)) return -1;
+		using RandomNumberGenerator random = new() { Seed = SeedFor(gameSeed, cell) };
+		random.Randf(); // la primera extracción es la de Rolls
+		return random.RandiRange(0, enemyCount - 1);
+	}
+
 	private void OnRoomLoaded(RoomController room)
 	{
 		Detach();
 		_room = room;
-		room.RoomCleared += OnRoomCleared;
-		if (Active && _drops.TryGetValue(room.Data.Cell, out Drop drop) && !drop.Collected)
+		Carrier = -1;
+		if (!Active) return;
+
+		room.EnemyKilled += OnEnemyKilled;
+		if (room.Data.Type == RoomType.Normal && room.State != RoomState.Cleared)
+		{
+			Carrier = CarrierFor(_gameSeed, room.Data.Cell, DropChance, room.Data.SpawnPoints.Length);
+		}
+
+		if (_drops.TryGetValue(room.Data.Cell, out Drop drop) && !drop.Collected)
 		{
 			Spawn(room, drop);
 		}
 	}
 
-	private void OnRoomCleared()
+	private void OnEnemyKilled(int index, Vector3 position)
 	{
 		RoomController room = _room;
-		if (!Active || room == null || room.Data.Type != RoomType.Normal || !_rolled.Add(room.Data.Cell)) return;
-		if (!Rolls(_gameSeed, room.Data.Cell, DropChance)) return;
+		if (!Active || room == null || index != Carrier || _drops.ContainsKey(room.Data.Cell)) return;
 
-		Drop drop = new();
+		Vector3 local = room.ToLocal(position);
+		Drop drop = new() { Position = new Vector3(local.X, 0.0f, local.Z) };
 		_drops[room.Data.Cell] = drop;
-		// La última muerte llega desde un callback de física: el área del corazón se añade ya fuera de él.
+		// La muerte llega desde un callback de física: el área del corazón se añade ya fuera de él.
 		Callable.From(() =>
 		{
 			if (IsInstanceValid(room) && room.IsInsideTree() && _room == room) Spawn(room, drop);
@@ -106,6 +134,7 @@ public partial class HeartDropper : Node
 		pickup.Definition = _heart;
 		pickup.Collected += _ => drop.Collected = true;
 		_root.AddChild(pickup);
+		pickup.Position = drop.Position;
 		EnableAfterPhysics(pickup);
 	}
 
@@ -124,7 +153,7 @@ public partial class HeartDropper : Node
 	{
 		if (IsInstanceValid(_room))
 		{
-			_room.RoomCleared -= OnRoomCleared;
+			_room.EnemyKilled -= OnEnemyKilled;
 		}
 
 		_room = null;
