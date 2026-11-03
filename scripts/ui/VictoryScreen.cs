@@ -44,6 +44,8 @@ public partial class VictoryScreen : CanvasLayer
 		_root.Hide();
 		_button.Pressed += OnNewRunPressed;
 		ApplyArt();
+		MenuButtonStyle.Apply(_button);
+		AudioManager.HookHover(_root);
 	}
 
 	// Sin la imagen no pasa nada: se queda el diseño de siempre. ResourceLoader.Exists evita cualquier error de carga.
