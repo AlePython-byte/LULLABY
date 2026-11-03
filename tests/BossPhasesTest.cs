@@ -50,12 +50,14 @@ public partial class BossPhasesTest : Node
 			await CheckRetryLeavesNothing();
 			await CheckRetryDuringSpiral();
 			GD.Print($"BossPhasesTest: {_checks} comprobaciones. RESULTADO: OK");
+			await BossTestHarness.CollectWrappers(GetTree());
 			GetTree().Quit();
 		}
 		catch (Exception exception)
 		{
 			GD.PushError(exception.ToString());
 			GD.Print("RESULTADO: FALLO");
+			await BossTestHarness.CollectWrappers(GetTree());
 			GetTree().Quit(1);
 		}
 	}
