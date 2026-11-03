@@ -14,7 +14,9 @@ using System.Collections.Generic;
 public static class SoundCatalog
 {
 	public const string SfxFolder = "res://assets/audio/sfx/";
-	public const string MusicFolder = "res://assets/audio/music/";
+
+	/// <summary>Carpeta de la música. Solo las pruebas la apuntan a otra para simular archivos ausentes.</summary>
+	public static string MusicFolder { get; set; } = "res://assets/audio/music/";
 
 	public const string BusMaster = "Master";
 	public const string BusSfx = "SFX";
