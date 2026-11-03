@@ -6,7 +6,9 @@ using Godot;
 /// Reproductor de música con fundido cruzado (hijo de AudioManager, que es quien decide qué pista suena). Cada pista sonando es una capa
 /// con su volumen (Gain, de 0 a 1) que sube o baja hacia su Target en FadeTime segundos; pedir otra pista baja todas las demás y sube la
 /// nueva, así que las dos se oyen a la vez durante ese tiempo. Pedir la que ya suena no la reinicia (cambiar de una sala normal a otra
-/// normal no corta la música). Las pistas van en bucle: si la importación no lo activó, se duplica el stream y se activa aquí.
+/// normal no corta la música). Las pistas van en bucle y cada una trae su StartSeconds (desde dónde arranca) y su LoopOffsetSeconds (adonde vuelve el bucle), para saltarse
+/// una entrada casi muda; entran a -80 dB y suben con el fundido, así que arrancar a mitad de la pista no suena a salto. Si la importación no
+/// trae el bucle o el desplazamiento pedido, se duplica el stream y se aplican aquí.
 ///
 /// El fundido avanza con el tiempo real aunque el árbol esté en pausa (ProcessMode Always heredado de AudioManager): pausar el juego no
 /// corta la música ni deja un fundido a medias. En silencio (sin dispositivo) no hay reproductores, pero la contabilidad es la misma.
@@ -24,6 +26,7 @@ public partial class MusicPlayer : Node
 		public AudioStream Stream;
 		public AudioStreamPlayer Player; // null en silencio
 		public float VolumeDb;
+		public float StartSeconds;
 		public float Gain;
 		public float Target;
 	}
@@ -80,7 +83,9 @@ public partial class MusicPlayer : Node
 			layer.Target = 0.0f;
 		}
 
-		Layer added = new() { Name = track.Id, Stream = Looped(stream, track.Loop), VolumeDb = track.VolumeDb, Gain = 0.0f, Target = 1.0f };
+		AudioStream prepared = Prepared(stream, track);
+		float start = StartFor(prepared, track);
+		Layer added = new() { Name = track.Id, Stream = prepared, VolumeDb = track.VolumeDb, StartSeconds = start, Gain = 0.0f, Target = 1.0f };
 		if (!Silent)
 		{
 			added.Player = TakePlayer();
@@ -88,7 +93,7 @@ public partial class MusicPlayer : Node
 			{
 				added.Player.Stream = added.Stream;
 				added.Player.VolumeDb = -80.0f;
-				added.Player.Play();
+				added.Player.Play(start); // entra en -80 dB y sube con el fundido: sin salto al empezar a mitad de la pista
 			}
 		}
 
@@ -165,16 +170,30 @@ public partial class MusicPlayer : Node
 		return player;
 	}
 
-	// La importación de los .ogg trae el bucle activado; si algún día no, se duplica el stream y se activa aquí.
-	private static AudioStream Looped(AudioStream stream, bool loop)
+	// Desde dónde arranca: StartSeconds, o el principio si no cabe en la pista.
+	private static float StartFor(AudioStream stream, SoundCatalog.MusicTrack track)
 	{
-		if (loop && stream is AudioStreamOggVorbis { Loop: false } ogg)
+		return track.StartSeconds > 0.0f && track.StartSeconds < stream.GetLength() - 1.0 ? track.StartSeconds : 0.0f;
+	}
+
+	// El bucle y su punto de retorno (LoopOffset) se aplican a una copia: el stream de la caché es compartido y no se toca. Sin nada que
+	// cambiar (la importación ya trae el bucle y el desplazamiento es 0) se usa tal cual.
+	private static AudioStream Prepared(AudioStream stream, SoundCatalog.MusicTrack track)
+	{
+		if (stream is not AudioStreamOggVorbis ogg)
 		{
-			AudioStreamOggVorbis copy = (AudioStreamOggVorbis)ogg.Duplicate();
-			copy.Loop = true;
-			return copy;
+			return stream;
 		}
 
-		return stream;
+		double offset = track.Loop ? track.LoopOffsetSeconds : 0.0;
+		if (ogg.Loop == track.Loop && Mathf.IsEqualApprox((float)ogg.LoopOffset, (float)offset))
+		{
+			return stream;
+		}
+
+		AudioStreamOggVorbis copy = (AudioStreamOggVorbis)ogg.Duplicate();
+		copy.Loop = track.Loop;
+		copy.LoopOffset = offset;
+		return copy;
 	}
 }
