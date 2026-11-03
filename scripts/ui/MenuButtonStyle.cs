@@ -22,9 +22,11 @@ using Godot;
 public static class MenuButtonStyle
 {
 	public const string DefaultFolder = "res://assets/ui/";
-	public const string NormalFile = "boton_normal.png";
-	public const string HoverFile = "boton_hover.png";
-	public const string PressedFile = "boton_pressed.png";
+
+	// Nombres de las imágenes. Solo las pruebas los cambian (y llaman a Reset), para simular que falta una sola.
+	public static string NormalFile { get; set; } = "boton_normal.png";
+	public static string HoverFile { get; set; } = "boton_hover.png";
+	public static string PressedFile { get; set; } = "boton_pressed.png";
 
 	/// <summary>Zona opaca de las imágenes de 512×128 (unión de las tres, con el brillo del hover): lo demás es transparente.</summary>
 	public static readonly Rect2 ArtRegion = new(8.0f, 8.0f, 498.0f, 115.0f);
@@ -118,16 +120,19 @@ public static class MenuButtonStyle
 		_loadedFolder = null;
 	}
 
+	// Cambiar Folder o un nombre de archivo obliga a volver a cargar.
+	private static string CurrentKey => Folder + "|" + NormalFile + "|" + HoverFile + "|" + PressedFile;
+
 	// Carga las tres imágenes una sola vez por carpeta. Todo o nada: con una sola que falte no se usa ninguna.
 	private static bool EnsureLoaded()
 	{
-		if (_loadedFolder == Folder)
+		if (_loadedFolder == CurrentKey)
 		{
 			return _normal != null;
 		}
 
 		Reset();
-		_loadedFolder = Folder;
+		_loadedFolder = CurrentKey;
 		Texture2D normal = Load(NormalFile);
 		Texture2D hover = Load(HoverFile);
 		Texture2D pressed = Load(PressedFile);
