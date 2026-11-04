@@ -344,6 +344,7 @@ public partial class DefeatScreen : CanvasLayer
 
 		_root.Show();
 		_retry.GrabFocus();
+		AudioManager.Play(SoundCatalog.PageTurn);
 		AudioManager.Play(SoundCatalog.Defeat);
 		Presented?.Invoke(message);
 	}
