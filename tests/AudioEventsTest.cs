@@ -78,8 +78,8 @@ public partial class AudioEventsTest : Node
 		int master = AudioServer.GetBusIndex("Master"), sfx = AudioServer.GetBusIndex("SFX"), music = AudioServer.GetBusIndex("Musica");
 		Check("existen los buses Master, SFX y Musica", master >= 0 && sfx >= 0 && music >= 0, $"{master} {sfx} {music}");
 		Check("SFX y Musica envían a Master", sfx >= 0 && music >= 0 && AudioServer.GetBusSend(sfx) == "Master" && AudioServer.GetBusSend(music) == "Master", "envío");
-		string[] present = { "lagrima_disparo", "lagrima_impacto", "noah_dano", "noah_muere", "enemigo_golpe", "enemigo_muere", "mecha_explosivo", "explosion", "tirador_disparo", "volador_aleteo", "jefe_muere", "puerta_abre", "puerta_cierra", "objeto_recoger", "curar", "menu_click", "menu_confirmar", "jefe_aparece", "jefe_ataque_1", "jefe_ataque_2", "victoria", "derrota" };
-		Check("los 22 archivos de efectos existen y están en el catálogo", present.All(id => SoundCatalog.Get(id) != null && ResourceLoader.Exists(SoundCatalog.Get(id).Path)), string.Join(",", present.Where(id => SoundCatalog.Get(id) == null || !ResourceLoader.Exists(SoundCatalog.Get(id).Path))));
+		string[] present = { "lagrima_disparo", "lagrima_impacto", "noah_dano", "noah_muere", "enemigo_golpe", "enemigo_muere", "mecha_explosivo", "explosion", "tirador_disparo", "volador_aleteo", "jefe_muere", "puerta_abre", "puerta_cierra", "objeto_recoger", "curar", "menu_click", "menu_confirmar", "jefe_aparece", "jefe_ataque_1", "jefe_ataque_2", "victoria", "derrota", "enemigo_aparece", "menu_hover", "pagina_pasa" };
+		Check("los 25 archivos de efectos existen y están en el catálogo", present.All(id => SoundCatalog.Get(id) != null && ResourceLoader.Exists(SoundCatalog.Get(id).Path)), string.Join(",", present.Where(id => SoundCatalog.Get(id) == null || !ResourceLoader.Exists(SoundCatalog.Get(id).Path))));
 		string[] missing = { SoundCatalog.BossHit, SoundCatalog.BossPhase };
 		// Con o sin archivo: lo que importa aquí es que estén en el catálogo (la ausencia se simula con HiddenFiles donde la prueba la necesita).
 		Check("el golpe y el cambio de fase del jefe están en el catálogo", missing.All(id => SoundCatalog.Get(id) != null), "falta alguno del catálogo");
@@ -87,9 +87,13 @@ public partial class AudioEventsTest : Node
 		Check("los enemigos son posicionales y Noah plano",
 			SoundCatalog.Get("enemigo_golpe").Positional && SoundCatalog.Get("explosion").Positional && SoundCatalog.Get("tirador_disparo").Positional
 			&& !SoundCatalog.Get("noah_dano").Positional && !SoundCatalog.Get("lagrima_disparo").Positional && !SoundCatalog.Get("lagrima_impacto").Positional, "tipo incorrecto");
-		Check("los repetidos llevan ±5 % de variación y 3 o 4 voces como mucho", SoundCatalog.Get("lagrima_disparo").PitchVariation == 0.05f
+		Check("los repetidos llevan ±5 % de variación y hasta 4 voces (5 la aparición, una por enemigo de una sala)", SoundCatalog.Get("lagrima_disparo").PitchVariation == 0.05f
 			&& SoundCatalog.Get("lagrima_impacto").PitchVariation == 0.05f && SoundCatalog.Get("enemigo_golpe").PitchVariation == 0.05f
-			&& SoundCatalog.All.All(s => s.MaxVoices <= 4), "variación o voces");
+			&& SoundCatalog.All.All(s => s.MaxVoices <= (s.Id == "enemigo_aparece" ? 5 : 4)), "variación o voces");
+		SoundCatalog.Sound spawn = SoundCatalog.Get("enemigo_aparece"), hover = SoundCatalog.Get("menu_hover"), page = SoundCatalog.Get("pagina_pasa");
+		Check("enemigo_aparece es 3D, suave, con variación y sin respaldo", spawn.Positional && spawn.VolumeDb <= -6.0f && spawn.PitchVariation == 0.05f && spawn.Fallback == null && spawn.MaxVoices == 5, "aparición");
+		Check("menu_hover es plano, suave y sin respaldo", !hover.Positional && hover.VolumeDb < 0.0f && hover.Fallback == null && hover.MaxVoices == 1, "hover");
+		Check("pagina_pasa es plana, discreta (bus SFX), de una sola voz y sin respaldo", !page.Positional && page.VolumeDb <= -6.0f && page.Bus == SoundCatalog.BusSfx && page.MaxVoices == 1 && page.Fallback == null, "página");
 	}
 
 	// --- 2 ------------------------------------------------------------------------------------------------------------
