@@ -312,7 +312,7 @@ public partial class RunManager : Node
 		AudioManager.StopAll();
 		GetTree().Paused = false;
 		PrepareNewRun();
-		GetTree().CallDeferred(SceneTree.MethodName.ReloadCurrentScene);
+		ReloadScene();
 	}
 
 	/// <summary>Vuelve al menú principal (también desde la pausa y la derrota). La dificultad elegida se conserva.</summary>
@@ -320,7 +320,27 @@ public partial class RunManager : Node
 	{
 		AudioManager.StopAll();
 		GetTree().Paused = false;
-		GetTree().CallDeferred(SceneTree.MethodName.ChangeSceneToFile, GameSettings.MenuScene);
+		Callable.From(() =>
+		{
+			if (IsInsideTree())
+			{
+				SceneChangeGuard.Collect();
+				GetTree().ChangeSceneToFile(GameSettings.MenuScene);
+			}
+		}).CallDeferred();
+	}
+
+	// Recarga la escena actual al final del fotograma, tras recolectar la basura (ver SceneChangeGuard).
+	private void ReloadScene()
+	{
+		Callable.From(() =>
+		{
+			if (IsInsideTree())
+			{
+				SceneChangeGuard.Collect();
+				GetTree().ReloadCurrentScene();
+			}
+		}).CallDeferred();
 	}
 
 	/// <summary>
@@ -529,6 +549,6 @@ public partial class RunManager : Node
 		_pendingSeed = seed;
 		_pendingDifficulty = difficulty;
 		_pendingGeneratorVersion = generatorVersion;
-		GetTree().CallDeferred(SceneTree.MethodName.ReloadCurrentScene);
+		ReloadScene();
 	}
 }
