@@ -196,6 +196,9 @@ public partial class EnemySpawnTest : Node
 		Require(enemies.All(enemy => enemy.Visual == null || enemy.Visual.Scale.X < visualScale[enemy.Kind].X), $"{tag} Salen más pequeños que su tamaño y crecen");
 		Require(markers.All(marker => !GodotObject.IsInstanceValid(marker) || marker.Finishing), $"{tag} Los anillos empiezan a desvanecerse");
 
+		// Una recolección de basura justo tras salir (como la que puede caer en una partida real) no debe hacer perder ningún sonido escalonado.
+		SceneChangeGuard.Collect();
+
 		// El sonido se muestrea en el mismo bucle que mide la aparición inerte (más abajo): cuántos suenan en cada paso y cuántas voces hay.
 		int[] arrivals = new int[64];
 		int heard = audio.Requests.Count(request => request.Id == SoundCatalog.EnemySpawns);
