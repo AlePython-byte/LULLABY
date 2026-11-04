@@ -107,6 +107,9 @@ public partial class EnemySpawnTest : Node
 		RoomController room = await EnterWaveRoom(tree, level);
 		string tag = $"[semilla {seed}, sala {room.Data.Cell}]";
 		AudioManager audio = AudioManager.Instance;
+		// Las voces de la sala anterior siguen contando en el reloj real (0,41 s) aunque la prueba vaya más rápido que el tiempo del juego:
+		// se vacían para que el límite de voces no descarte los sonidos de esta.
+		AudioManager.StopAll();
 		audio.ClearRequests();
 
 		Node enemiesRoot = room.GetNode("Enemies");
