@@ -31,6 +31,7 @@ public partial class LoadingScreen : CanvasLayer
 	public static string NoahTwoPath { get; set; } = DefaultNoahTwo;
 	public static string FramePath { get; set; } = DefaultFrame;
 	public static string FillPath { get; set; } = DefaultFill;
+	public static string SheetPath { get; set; } = PaperSheet.Path;
 
 	/// <summary>Solo pruebas: mostrarla aunque sea headless.</summary>
 	public static bool ForceInHeadless { get; set; }
@@ -238,7 +239,7 @@ public partial class LoadingScreen : CanvasLayer
 		background.SetAnchorsPreset(Control.LayoutPreset.FullRect);
 		_root.AddChild(background);
 
-		Texture2D sheetTexture = LoadHeld(PaperSheet.Path);
+		Texture2D sheetTexture = LoadHeld(SheetPath);
 		Control content = new() { Name = "Content", MouseFilter = Control.MouseFilterEnum.Ignore };
 		_root.AddChild(content);
 		float width;
