@@ -13,7 +13,8 @@ using Godot;
 ///   2. Los enemigos se instancian ocultos, repartidos en varios fotogramas, en un nodo aparte: Enemies sigue vacío. Están invisibles, sin
 ///      procesar y con las formas de colisión desactivadas; sus capas, máscaras y tamaños de colisión son los de la escena.
 /// A los 0,7 s:
-///   3. Pasan a Enemies (el mismo número que puntos), el nodo de preparación desaparece y suena enemigo_aparece UNA vez.
+///   3. Pasan a Enemies (el mismo número que puntos), el nodo de preparación desaparece y suena enemigo_aparece una vez por enemigo, en su
+///      punto y escalonado (nunca antes de salir).
 ///   4. Durante los 0,25 s de aparición inerte (Spawning) no se mueven, no hacen daño por contacto, no reciben daño y las lágrimas de Noah
 ///      los atraviesan sin desaparecer; los anillos se desvanecen y desaparecen.
 /// Después:
@@ -129,6 +130,7 @@ public partial class EnemySpawnTest : Node
 		Require(enemiesRoot.GetChildCount() == 0, $"{tag} Enemies empieza vacío");
 
 		int combatTick = 0;
+		int voicesBefore = 0;
 		int stagedPrevious = 0;
 		int stagedFirst = -1;
 		int stagedMaxJump = 0;
@@ -146,6 +148,9 @@ public partial class EnemySpawnTest : Node
 				revealed = true;
 				break;
 			}
+
+			Require(!audio.Requests.Any(request => request.Id == SoundCatalog.EnemySpawns), $"{tag} Ningún enemigo suena antes de salir de su marcador (paso {tick})");
+			voicesBefore = audio.ActiveVoiceCount; // las voces que ya había (puertas) no cuentan para la aparición
 
 			if (stagedFirst < 0)
 			{
@@ -183,13 +188,19 @@ public partial class EnemySpawnTest : Node
 		List<EnemyBase> enemies = enemiesRoot.GetChildren().OfType<EnemyBase>().ToList();
 		Require(enemies.Count == total && enemiesRoot.GetChildCount() == total, $"{tag} Salen {enemies.Count} enemigos, uno por punto ({total})");
 		Require(room.GetNodeOrNull("EnemyStaging") == null || room.GetNode("EnemyStaging").IsQueuedForDeletion(), $"{tag} El nodo de preparación desaparece");
-		Require(audio.Requests.Count(request => request.Id == SoundCatalog.EnemySpawns) == 1, $"{tag} enemigo_aparece suena una sola vez por oleada ({audio.Requests.Count(request => request.Id == SoundCatalog.EnemySpawns)})");
+		Vector3[] spots = enemies.Select(enemy => enemy.GlobalPosition).ToArray();
 		Require(enemies.All(enemy => enemy.Spawning && enemy.Visible && !enemy.Staged), $"{tag} Todos están en aparición inerte y visibles");
 		Require(enemies.All(enemy => HealthComponent.FindIn(enemy).Invulnerable), $"{tag} Y son invulnerables mientras aparecen");
 		Require(enemies.All(enemy => enemy.GetChildren().OfType<CollisionShape3D>().All(shape => shape.Disabled)), $"{tag} Con la colisión aún desactivada");
 		Require(enemies.All(enemy => Same(ProfileOf(enemy), reference[enemy.Kind])), $"{tag} Sin cambiar capas, máscaras ni tamaños de colisión");
 		Require(enemies.All(enemy => enemy.Visual == null || enemy.Visual.Scale.X < visualScale[enemy.Kind].X), $"{tag} Salen más pequeños que su tamaño y crecen");
 		Require(markers.All(marker => !GodotObject.IsInstanceValid(marker) || marker.Finishing), $"{tag} Los anillos empiezan a desvanecerse");
+
+		// El sonido se muestrea en el mismo bucle que mide la aparición inerte (más abajo): cuántos suenan en cada paso y cuántas voces hay.
+		int[] arrivals = new int[64];
+		int heard = audio.Requests.Count(request => request.Id == SoundCatalog.EnemySpawns);
+		arrivals[0] = heard;
+		int maxVoices = audio.ActiveVoiceCount;
 
 		// --- La aparición inerte: nada se mueve ni daña, y las lágrimas atraviesan ---
 		EnemyBase target = enemies.OrderByDescending(enemy => enemy.GlobalPosition.DistanceTo(Vector3.Zero)).First();
@@ -210,12 +221,28 @@ public partial class EnemySpawnTest : Node
 		{
 			await tree.ToSignal(tree, SceneTree.SignalName.PhysicsFrame);
 			spawningTicks++;
+			int now = audio.Requests.Count(request => request.Id == SoundCatalog.EnemySpawns);
+			if (spawningTicks < arrivals.Length) arrivals[spawningTicks] = now - heard;
+			heard = now;
+			maxVoices = Math.Max(maxVoices, audio.ActiveVoiceCount);
 			if (enemies.All(enemy => enemy.Spawning))
 			{
 				Require(level.Health.CurrentHealth >= noahHealth, $"{tag} Sin daño por contacto durante la aparición (paso {spawningTicks})");
 				Require(enemies.All(enemy => enemy.GlobalPosition.IsEqualApprox(positions[enemy])), $"{tag} Nadie se mueve durante la aparición (paso {spawningTicks})");
 			}
 		}
+
+		AudioManager.Request[] sounds = audio.Requests.Where(request => request.Id == SoundCatalog.EnemySpawns).ToArray();
+		Require(sounds.Length == total, $"{tag} enemigo_aparece suena una vez por enemigo ({sounds.Length} de {total})");
+		Require(sounds.All(request => request.Positional && request.Bus == SoundCatalog.BusSfx), $"{tag} Cada uno en 3D y por el bus SFX");
+		Require(sounds.All(request => request.Result is AudioManager.Outcome.Played or AudioManager.Outcome.Silent), $"{tag} Todos suenan: con su archivo, ninguno descartado ni faltante ({string.Join(",", sounds.Select(request => request.Result))})");
+		Require(spots.All(spot => sounds.Any(request => request.Position.IsEqualApprox(spot))), $"{tag} Cada sonido sale del punto de su enemigo");
+		Require(sounds.All(request => request.PitchScale is > 0.94f and < 1.06f), $"{tag} Con el tono casi intacto (±5 %)");
+		Require(arrivals.Max() <= 2, $"{tag} Escalonados: como mucho 2 por paso de física (máximo {arrivals.Max()})");
+		int lastStep = Array.FindLastIndex(arrivals, count => count > 0);
+		Require(arrivals[0] + arrivals[1] >= 1 && lastStep <= (total - 1) * 3 + 3, $"{tag} El primero suena al salir y el último a los {lastStep} pasos (≤ {(total - 1) * 3 + 3})");
+		Require(maxVoices - voicesBefore <= SoundCatalog.Get(SoundCatalog.EnemySpawns).MaxVoices, $"{tag} Sin saturar: {maxVoices - voicesBefore} voces de aparición a la vez como mucho");
+		GD.Print($"{tag} Sonido: {total} enemigos, uno cada ~0,04 s (máx. {arrivals.Max()} por paso), último a los {lastStep} pasos, sin pasar del límite de voces: OK");
 
 		Require(spawningTicks >= 12 && spawningTicks <= 18, $"{tag} La aparición dura {spawningTicks} pasos (~0,25 s = 15)");
 		Require(GodotObject.IsInstanceValid(tear) && !tear.IsQueuedForDeletion(), $"{tag} La lágrima atravesó al enemigo sin desaparecer");
