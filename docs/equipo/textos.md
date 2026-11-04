@@ -62,12 +62,13 @@ Se ven bajo el título fijo «Consejo del diario», en voz de diario y SIN ese p
 3. Si el miedo me gana, pulso Esc o P y la pesadilla espera un momento.
 4. Mantengo Tab para ver el minimapa y saber por dónde voy.
 5. Las puertas se cierran solas al entrar. Solo se abren si venzo a todos.
-6. Si un monstruo parpadea sin parar, va a explotar. Corro lejos de él.
-7. El tirador brilla antes de disparar. Me aparto de lado y su bola falla.
-8. Los voladores se mecen en zigzag y pasan a través de los otros monstruos.
-9. El excavador es intocable bajo tierra. Espero a que salga de su montículo.
-10. El biberón me cura 2 puntos. Con la vida llena se queda en el suelo.
-11. El chupete me deja llorar un 20 % más rápido.
-12. La fotografía rota hace que mis lágrimas peguen un 25 % más fuerte.
-13. La manta vieja me arropa: recibo la mitad del daño.
-14. El oso de peluche me da un corazón más y lo llena.
+6. Si escucho un leve poof, un monstruo acaba de aparecer en la sala.
+7. Si un monstruo parpadea sin parar, va a explotar. Corro lejos de él.
+8. El tirador brilla antes de disparar. Me aparto de lado y su bola falla.
+9. Los voladores se mecen en zigzag y pasan a través de los otros monstruos.
+10. El excavador es intocable bajo tierra. Espero a que salga de su montículo.
+11. El biberón me cura 2 puntos. Con la vida llena se queda en el suelo.
+12. El chupete me deja llorar un 20 % más rápido.
+13. La fotografía rota hace que mis lágrimas peguen un 25 % más fuerte.
+14. La manta vieja me arropa: recibo la mitad del daño.
+15. El oso de peluche me da un corazón más y lo llena.
