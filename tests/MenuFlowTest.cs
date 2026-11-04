@@ -241,7 +241,9 @@ public partial class MenuFlowTest : Node
 			// Cambiar de escena con envoltorios de C# ya liberados pendientes de recolectar dejaba que el recolector actuara en mitad del
 			// cambio («Handle is not initialized», a veces con cierre del proceso): se recolectan antes (ver BossTestHarness.CollectWrappers).
 			await BossTestHarness.CollectWrappers(tree);
+			int guardCalls = SceneChangeGuard.Calls;
 			menu.StartGame();
+			Require(SceneChangeGuard.Calls == guardCalls + 1, "Jugar recolecta la basura justo antes de cambiar de escena");
 			Require(!tree.Paused, "Jugar despausa antes de cambiar de escena");
 
 			Node level = await BossTestHarness.WaitForScene(tree, menu, GameSettings.LevelScene);
