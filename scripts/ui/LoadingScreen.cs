@@ -4,7 +4,14 @@ using System.Threading.Tasks;
 using Godot;
 
 /// <summary>
-/// Pantalla de carga: una página de diario (la misma hoja de papel que la pausa y la derrota) con Noah gateando abajo, que alterna sus dos
+/// Pantalla de carga a pantalla completa: un biberón de tiza que se llena como barra de progreso. Un fondo liso del color exacto de las
+/// imágenes (ChalkBackground, medido en su esquina) cubre la ventana y encima va la imagen del biberón vacío (carga_vacio.jpg), centrada y a
+/// 16:9 sin deformarse (barras del color del fondo si la ventana es de otra proporción). Encima, carga_lleno.jpg recortada de izquierda a
+/// derecha (BottleFill, en coordenadas de la imagen de 1920×1080) según el progreso mostrado. Debajo del biberón va el consejo al azar, en
+/// una sola línea y centrado respecto al biberón; todo se coloca y escala respecto a la imagen, no a la ventana.
+/// Si falta una de las dos imágenes se usa el diseño anterior, descrito a continuación.
+///
+/// Diseño anterior (respaldo): una página de diario (la misma hoja de papel que la pausa y la derrota) con Noah gateando abajo, que alterna sus dos
 /// poses a ritmo pausado y avanza a lo largo de la barra de progreso (assets/ui/barra_marco.png encima de barra_relleno.png, que el motor
 /// recorta según el progreso), el título fijo «Consejo del diario» (LoadingTips.Title) y debajo un consejo al azar. Letra Patrick Hand.
 ///
@@ -21,12 +28,16 @@ using Godot;
 /// </summary>
 public partial class LoadingScreen : CanvasLayer
 {
+	public const string DefaultChalkEmpty = "res://assets/ui/carga/carga_vacio.jpg";
+	public const string DefaultChalkFull = "res://assets/ui/carga/carga_lleno.jpg";
 	public const string DefaultNoahOne = "res://assets/ui/noah_gateo_1.png";
 	public const string DefaultNoahTwo = "res://assets/ui/noah_gateo_2.png";
 	public const string DefaultFrame = "res://assets/ui/barra_marco.png";
 	public const string DefaultFill = "res://assets/ui/barra_relleno.png";
 
 	/// <summary>Rutas de las imágenes. Solo las pruebas las cambian, para simular que faltan.</summary>
+	public static string ChalkEmptyPath { get; set; } = DefaultChalkEmpty;
+	public static string ChalkFullPath { get; set; } = DefaultChalkFull;
 	public static string NoahOnePath { get; set; } = DefaultNoahOne;
 	public static string NoahTwoPath { get; set; } = DefaultNoahTwo;
 	public static string FramePath { get; set; } = DefaultFrame;
@@ -55,6 +66,16 @@ public partial class LoadingScreen : CanvasLayer
 	/// <summary>Lo máximo que sube la barra mostrada por segundo (el progreso real manda; esto solo suaviza los saltos).</summary>
 	[Export] public float BarSpeed { get; set; } = 3.0f;
 
+	/// <summary>Color del fondo de las dos imágenes (píxel de su esquina: 16, 16, 16).</summary>
+	public static readonly Color ChalkBackground = new(16.0f / 255.0f, 16.0f / 255.0f, 16.0f / 255.0f);
+
+	// Medidas sobre la imagen de referencia de 1920×1080 (ver docs/LULLABY.md): tamaño, interior del biberón que se rellena y caja del consejo.
+	public const float ChalkWidth = 1920.0f;
+	public const float ChalkHeight = 1080.0f;
+	public static readonly Rect2 BottleFill = new(525.0f, 634.0f, 623.0f, 334.0f);
+	public static readonly Rect2 TipBox = new(88.0f, 985.0f, 1700.0f, 65.0f);
+	public const float TipFontSize = 38.0f;
+
 	// Tinta sobre el papel y crema sobre fondo liso.
 	private static readonly Color Ink = new(0.16f, 0.1f, 0.07f);
 	private static readonly Color Cream = new(1.0f, 0.95f, 0.82f);
@@ -75,9 +96,21 @@ public partial class LoadingScreen : CanvasLayer
 	public bool Finished { get; private set; }
 
 	public string Tip => _tip.Text;
-	public string TitleText => _title.Text;
+	public string TitleText => _title?.Text ?? "";
 	public bool HasSheet { get; private set; }
 	public bool HasNoah { get; private set; }
+
+	/// <summary>Se usa el diseño de tiza (las dos imágenes del biberón existen).</summary>
+	public bool HasChalkArt { get; private set; }
+
+	/// <summary>Zona recortada que enseña el biberón lleno (solo con el diseño de tiza).</summary>
+	public Control FillClip => _clip;
+
+	/// <summary>Lámina de 16:9 sobre la que se coloca todo (solo con el diseño de tiza).</summary>
+	public Control Stage => _stage;
+
+	/// <summary>La etiqueta del consejo.</summary>
+	public Label TipLabel => _tip;
 	public bool HasBarArt { get; private set; }
 
 	/// <summary>Pose de Noah que se ve (0 o 1) y cuántas veces ha cambiado.</summary>
@@ -85,11 +118,15 @@ public partial class LoadingScreen : CanvasLayer
 	public int PoseSwitches { get; private set; }
 
 	/// <summary>La pose que se dibuja ahora (null si no hay imágenes de Noah).</summary>
-	public Texture2D CurrentPose => _noah.Texture;
+	public Texture2D CurrentPose => _noah?.Texture;
 
 	public event Action Completed;
 
 	private Control _root;
+	private Control _stage;
+	private Control _clip;
+	private TextureRect _fullPicture;
+	private float _tipSize = TipFontSize;
 	private Label _title;
 	private Label _tip;
 	private TextureRect _noah;
@@ -213,6 +250,12 @@ public partial class LoadingScreen : CanvasLayer
 
 	private void ApplyBar()
 	{
+		if (_clip != null)
+		{
+			float scale = _stage.Size.X / ChalkWidth;
+			_clip.Size = new Vector2(BottleFill.Size.X * scale * ShownProgress, BottleFill.Size.Y * scale);
+		}
+
 		if (_bar != null)
 		{
 			_bar.Value = ShownProgress * 100.0;
@@ -235,6 +278,14 @@ public partial class LoadingScreen : CanvasLayer
 		_root = new Control { Name = "Root", MouseFilter = Control.MouseFilterEnum.Stop };
 		_root.SetAnchorsPreset(Control.LayoutPreset.FullRect);
 		AddChild(_root);
+
+		Texture2D chalkEmpty = LoadHeld(ChalkEmptyPath);
+		Texture2D chalkFull = LoadHeld(ChalkFullPath);
+		if (chalkEmpty != null && chalkFull != null)
+		{
+			BuildChalk(chalkEmpty, chalkFull);
+			return;
+		}
 
 		ColorRect background = new() { Name = "Background", Color = new Color(0.07f, 0.06f, 0.08f), MouseFilter = Control.MouseFilterEnum.Ignore };
 		background.SetAnchorsPreset(Control.LayoutPreset.FullRect);
@@ -293,6 +344,74 @@ public partial class LoadingScreen : CanvasLayer
 		box.AddChild(spacer);
 
 		BuildCrawl(box, width);
+	}
+
+	private void BuildChalk(Texture2D empty, Texture2D full)
+	{
+		HasChalkArt = true;
+		ColorRect background = new() { Name = "Background", Color = ChalkBackground, MouseFilter = Control.MouseFilterEnum.Ignore };
+		background.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+		_root.AddChild(background);
+
+		AspectRatioContainer frame = new()
+		{
+			Name = "Frame",
+			Ratio = ChalkWidth / ChalkHeight,
+			StretchMode = AspectRatioContainer.StretchModeEnum.Fit,
+			AlignmentHorizontal = AspectRatioContainer.AlignmentMode.Center,
+			AlignmentVertical = AspectRatioContainer.AlignmentMode.Center,
+			MouseFilter = Control.MouseFilterEnum.Ignore,
+		};
+		frame.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+		_root.AddChild(frame);
+
+		_stage = new Control { Name = "Stage", MouseFilter = Control.MouseFilterEnum.Ignore };
+		frame.AddChild(_stage);
+
+		TextureRect emptyPicture = new() { Name = "Empty", Texture = empty, ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.Scale, MouseFilter = Control.MouseFilterEnum.Ignore };
+		emptyPicture.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+		_stage.AddChild(emptyPicture);
+
+		_clip = new Control { Name = "FillClip", ClipContents = true, MouseFilter = Control.MouseFilterEnum.Ignore };
+		_stage.AddChild(_clip);
+		_fullPicture = new TextureRect { Name = "Full", Texture = full, ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.Scale, MouseFilter = Control.MouseFilterEnum.Ignore };
+		_clip.AddChild(_fullPicture);
+
+		_tip = NewLabel("Tip", LoadingTips.Pick(_random), (int)TipFontSize, Cream);
+		_tip.VerticalAlignment = VerticalAlignment.Center;
+		_tip.AutowrapMode = TextServer.AutowrapMode.Off;
+		_stage.AddChild(_tip);
+
+		HandFont.Apply(_root);
+
+		// El consejo cabe en una línea de la caja: si el texto es más largo que ella al tamaño de referencia, se reduce.
+		Font font = _tip.GetThemeFont("font");
+		if (font != null)
+		{
+			float width = font.GetStringSize(_tip.Text, HorizontalAlignment.Left, -1, (int)TipFontSize).X;
+			if (width > TipBox.Size.X) _tipSize = TipFontSize * TipBox.Size.X / width;
+		}
+
+		_stage.Resized += LayoutChalk;
+		LayoutChalk();
+	}
+
+	// Todo en coordenadas de la imagen de referencia, multiplicadas por lo que se escala la lámina.
+	private void LayoutChalk()
+	{
+		float scale = _stage.Size.X / ChalkWidth;
+		if (scale <= 0.0f)
+		{
+			return;
+		}
+
+		_clip.Position = BottleFill.Position * scale;
+		_fullPicture.Position = -_clip.Position;
+		_fullPicture.Size = _stage.Size;
+		_tip.Position = TipBox.Position * scale;
+		_tip.Size = TipBox.Size * scale;
+		_tip.AddThemeFontSizeOverride("font_size", Mathf.Max(8, Mathf.RoundToInt(_tipSize * scale)));
+		ApplyBar();
 	}
 
 	private void BuildCrawl(VBoxContainer box, float width)
