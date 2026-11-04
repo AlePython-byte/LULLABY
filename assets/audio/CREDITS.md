@@ -16,6 +16,7 @@ Todos los efectos de sonido y pistas musicales utilizados en el proyecto cuentan
 | enemigo_muere.ogg   | Derrota o muerte de un enemigo                        | K27K_Mike         | https://freesound.org/people/K27K_Mike/sounds/853659/         | CC0      |
 | enemigo_aparece.ogg | Aparición o spawn de un enemigo                       | AuDRoger          | https://freesound.org/people/AuDRoger/sounds/471204/          | CC0      |
 | menu_hover.ogg      | Retroalimentación sutil de selección o hover en menús | Foxfire-          | https://freesound.org/people/Foxfire-/sounds/702168/          | CC0      |
+| pagina_pasa.ogg     | Efecto de pasar hoja del diario o notas               | sokworks          | https://freesound.org/people/sokworks/sounds/860360/          | CC0      |
 
 ## Música
 
