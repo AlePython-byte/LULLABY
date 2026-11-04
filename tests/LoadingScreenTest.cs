@@ -86,7 +86,8 @@ public partial class LoadingScreenTest : Node
 		Require(tips.Distinct().Count() == tips.Count, "No hay repetidos");
 		Require(tips.All(tip => tip == tip.Trim()), "Sin espacios sobrantes");
 		Require(!tips.Any(tip => tip.Contains("clic", StringComparison.OrdinalIgnoreCase) || tip.Contains("chasquido", StringComparison.OrdinalIgnoreCase)),
-			"Ningún consejo habla del clic (se dispara con las flechas) ni del chasquido (enemigo_aparece no suena)");
+			"Ningún consejo habla del clic (se dispara con las flechas) ni de un chasquido (la aparición suena como un «poof»)");
+		Require(tips.Any(tip => tip.Contains("poof")), "Hay un consejo sobre el «poof» de la aparición de un enemigo");
 		Require(tips.Any(tip => tip.Contains("flechas")), "Los consejos dicen que se dispara con las flechas");
 
 		LoadingTips.Reload();
