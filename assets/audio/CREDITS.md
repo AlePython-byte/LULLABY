@@ -24,7 +24,7 @@ Todos los efectos de sonido y pistas musicales utilizados en el proyecto cuentan
 | -------------- | --------------------------------------------------- | ----------- | ------------------------------------------------------- | -------- |
 | the_cradle.ogg | Música de ambiente en la cuna (caja de música)      | 13NHarri    | https://freesound.org/people/13NHarri/sounds/386411/    | CC0      |
 | menu.ogg       | Música de ambiente para el menú principal           | LightMister | https://freesound.org/people/LightMister/sounds/690294/ | CC0      |
-| jefe.ogg       | Música de combate contra el jefe final (The Mother) | JeSSeper09+ | [Pega aquí la URL de tu barra de direcciones]           | CC0      |
+| jefe.ogg       | Música de combate contra el jefe final (The Mother) | JeSSeper09+ | https://freesound.org/people/JeSSeper09+/sounds/746646/ | CC0      |
 
 ## Intro
 
