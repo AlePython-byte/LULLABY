@@ -112,6 +112,7 @@ public partial class RoomController : Node3D
 	private readonly Dictionary<DoorSide, Door> _doors = new();
 	private readonly List<Marker3D> _spawnPoints = new();
 	private readonly List<Node3D> _staged = new();
+	private readonly List<Node3D> _revealedEnemies = new(); // los enemigos ya salidos, por índice de su punto de aparición
 	private readonly List<SpawnMarker> _markers = new();
 
 	private RoomData _data;
@@ -422,10 +423,12 @@ public partial class RoomController : Node3D
 			enemy.GetParent()?.RemoveChild(enemy);
 			_enemiesRoot.AddChild(enemy);
 			enemy.GlobalPosition = _spawnPoints[i].GlobalPosition;
+			// La conexión solo captura el índice y la sala, no el nodo del enemigo: un cierre que sujeta el envoltorio de un nodo dentro de la
+			// conexión de su señal provocaba errores «Handle is not initialized» (carrera con el recolector) al cambiar de escena.
 			int index = i;
-			Node3D body = enemy;
+			_revealedEnemies.Add(enemy);
 			HealthComponent health = HealthComponent.FindIn(enemy);
-			health.Died += () => EnemyKilled?.Invoke(index, body.GlobalPosition);
+			health.Died += () => NotifyEnemyKilled(index);
 			health.Died += OnEnemyDied;
 			(enemy as EnemyBase)?.BeginSpawn();
 			_markers[i].Finish();
@@ -458,6 +461,14 @@ public partial class RoomController : Node3D
 		return _data.SpawnKinds.Length == _data.SpawnPoints.Length
 			? EnemyKinds.Scene((EnemyKind)_data.SpawnKinds[index])
 			: _data.EnemyScene;
+	}
+
+	private void NotifyEnemyKilled(int index)
+	{
+		if (index >= 0 && index < _revealedEnemies.Count && IsInstanceValid(_revealedEnemies[index]))
+		{
+			EnemyKilled?.Invoke(index, _revealedEnemies[index].GlobalPosition);
+		}
 	}
 
 	private void OnEnemyDied()
