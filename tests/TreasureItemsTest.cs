@@ -110,14 +110,12 @@ public partial class TreasureItemsTest : Node
 		await Frames(3);
 		Require(spawner.OffersFor(TreasureCell)[0].Collected && Pickups(level).Length == 0, "Contacto consume y registra la oferta");
 		Require(player.GetNode<PlayerItems>("Items").CollectedItems.Count == 1, "Inventario registra la recompensa");
-		Require(level.GetNode<Label>("ItemsHud/Label").Text.Contains(spawner.OffersFor(TreasureCell)[0].Item.DisplayName),
-			"HUD refleja la recogida real en el tesoro");
+		Require(HudShows(level, spawner.OffersFor(TreasureCell)[0].Item), "HUD refleja la recogida real en el tesoro (las curaciones no quedan en la lista)");
 		await Cross(level, DoorSide.East, new Vector2I(2, 0));
 		await Cross(level, DoorSide.West, TreasureCell);
 		Require(Pickups(level).Length == 0 && player.GetNode<PlayerItems>("Items").CollectedItems.Count == 1,
 			"Recogida no reaparece y el inventario persiste al cambiar de habitación");
-		Require(level.GetNode<Label>("ItemsHud/Label").Text.Contains(spawner.OffersFor(TreasureCell)[0].Item.DisplayName),
-			"HUD conserva el objeto entre habitaciones");
+		Require(HudShows(level, spawner.OffersFor(TreasureCell)[0].Item), "HUD conserva el objeto entre habitaciones");
 		Require(DungeonGenerator.Describe(map) == original, "Las recompensas no cambian RoomData");
 		level.Free();
 		level = Open(42, Fixture());
@@ -241,28 +239,36 @@ public partial class TreasureItemsTest : Node
 		GD.Print("200 semillas: determinismo, RNG global y nivel elegido independientes: OK");
 	}
 
+	private static bool HudShows(Node level, ItemDefinition item)
+	{
+		ItemsHud hud = level.GetNode<ItemsHud>("ItemsHud");
+		return item.Effect == ItemEffect.Heal ? hud.CountOf(item.Id) == 0 : hud.TextOf(item.Id)?.Contains(item.DisplayName) == true;
+	}
+
 	private async Task CheckHud()
 	{
 		Node level = Open(42, Fixture());
 		PlayerItems inventory = level.GetNode<PlayerItems>("Player/Items");
+		ItemsHud hud = level.GetNode<ItemsHud>("ItemsHud");
 		Label label = level.GetNode<Label>("ItemsHud/Label");
-		Require(label.Text == "Objetos: —", "HUD empieza vacío");
+		Require(label.Text == "Objetos: —" && hud.RowCount == 0, "HUD empieza vacío");
 		ItemCatalog catalog = GD.Load<ItemCatalog>("res://resources/items/Catalog.tres");
 		Require(inventory.TryCollect(catalog.Find("fotografia_rota")), "Mejora para el HUD");
-		Require(label.Text.Contains("Fotografía rota") && !label.Text.Contains("usado"), "HUD muestra la mejora");
-		string previous = label.Text;
-		Require(!inventory.TryCollect(catalog.Find("fotografia_rota")) && label.Text == previous, "HUD no duplica mejoras");
+		Require(hud.TextOf("fotografia_rota") == "Fotografía rota" && hud.HasIcon("fotografia_rota") && hud.CountOf("fotografia_rota") == 1, "HUD muestra la mejora con su ícono");
+		Require(!inventory.TryCollect(catalog.Find("fotografia_rota")) && hud.RowCount == 1 && hud.CountOf("fotografia_rota") == 1, "HUD no duplica mejoras");
 		HealthComponent health = HealthComponent.FindIn(level.GetNode("Player"));
 		health.TakeDamage(2.0f);
-		Require(inventory.TryCollect(catalog.Find("biberon")) && label.Text.Contains("Biberón (usado)"), "Curación marcada como usada");
+		Require(inventory.TryCollect(catalog.Find("biberon")) && hud.RowCount == 1 && hud.CountOf("biberon") == 0, "La curación se consume y no queda en la lista");
 		health.TakeDamage(2.0f);
-		Require(inventory.TryCollect(catalog.Find("biberon")) && label.Text.Contains("Biberón (usado) ×2"), "HUD agrupa consumibles usados");
+		Require(inventory.TryCollect(catalog.Find("biberon")) && hud.RowCount == 1, "Otra curación tampoco queda en la lista");
 		foreach (ItemDefinition item in catalog.Items.Where(item => item.Effect != ItemEffect.Heal)) inventory.TryCollect(item);
 		await Frames(2);
-		Require(label.GetMinimumSize().X <= label.Size.X && label.GetMinimumSize().Y <= label.Size.Y,
-			$"El listado completo cabe en su espacio de HUD: mínimo={label.GetMinimumSize()}, espacio={label.Size}");
+		Rect2 rows = hud.Rows.GetGlobalRect();
+		Require(hud.RowCount == 4 && hud.Rows.GetCombinedMinimumSize().Y + hud.Rows.Position.Y <= level.GetViewport().GetVisibleRect().Size.Y,
+			$"El listado completo cabe en pantalla: filas={hud.RowCount}, alto={hud.Rows.GetCombinedMinimumSize().Y}");
+		Require(rows.Position.Y >= label.GetGlobalRect().End.Y, "Las filas van debajo del título");
 		inventory.ResetForNewRun();
-		Require(label.Text == "Objetos: —", "HUD se limpia al reiniciar");
+		Require(label.Text == "Objetos: —" && hud.RowCount == 0, "HUD se limpia al reiniciar");
 		level.Free();
 		GD.Print("HUD: mejoras, consumibles, duplicados y reinicio: OK");
 	}
