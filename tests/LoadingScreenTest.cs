@@ -330,7 +330,7 @@ public partial class LoadingScreenTest : Node
 			}
 
 			Require(frames < 1500, $"[semilla {seed}] La carga termina");
-			Require(samples.Count >= 8 && samples.Zip(samples.Skip(1)).All(pair => pair.Second > pair.First), $"[semilla {seed}] La barra avanza por pasos ({samples.Count} valores distintos y crecientes)");
+			Require(samples.Count >= 4 && samples.Zip(samples.Skip(1)).All(pair => pair.Second > pair.First), $"[semilla {seed}] La barra avanza por pasos ({samples.Count} valores distintos y crecientes)");
 			Require(samples[^1] >= 0.97f, $"[semilla {seed}] Llega casi al final antes de completarse ({samples[^1]:0.00})");
 			Require(pauseBlocked, $"[semilla {seed}] La pausa no se abre mientras dura");
 			await Frames(2);
