@@ -52,3 +52,22 @@ En el silencio sofocante de The Cradle, las sombras cobran vida entre juguetes r
 - _"Nadie cuidará de ti como yo..."_ (Ataque)
 - _"¿Por qué te resistes a mi abrazo?"_ (Ataque)
 - _"Cierra los ojos... para siempre."_ (Ataque cargado)
+
+## 7. Consejos del diario (pantalla de carga)
+
+Se ven bajo el título fijo «Consejo del diario», en voz de diario y SIN ese prefijo, de 90 caracteres como máximo. La lista que lee el juego es `resources/text/consejos_diario.json` (se puede ampliar sin tocar código; si falta o queda vacío, el juego usa 6 de respaldo). Aquí se copia para que el equipo la revise; los efectos de objetos y enemigos deben coincidir con el juego real.
+
+1. Me muevo con W, A, S y D para escapar antes de que me alcancen.
+2. Mis lágrimas salen con las flechas del teclado, en cuatro direcciones.
+3. Si el miedo me gana, pulso Esc o P y la pesadilla espera un momento.
+4. Mantengo Tab para ver el minimapa y saber por dónde voy.
+5. Las puertas se cierran solas al entrar. Solo se abren si venzo a todos.
+6. Si un monstruo parpadea sin parar, va a explotar. Corro lejos de él.
+7. El tirador brilla antes de disparar. Me aparto de lado y su bola falla.
+8. Los voladores se mecen en zigzag y pasan a través de los otros monstruos.
+9. El excavador es intocable bajo tierra. Espero a que salga de su montículo.
+10. El biberón me cura 2 puntos. Con la vida llena se queda en el suelo.
+11. El chupete me deja llorar un 20 % más rápido.
+12. La fotografía rota hace que mis lágrimas peguen un 25 % más fuerte.
+13. La manta vieja me arropa: recibo la mitad del daño.
+14. El oso de peluche me da un corazón más y lo llena.
