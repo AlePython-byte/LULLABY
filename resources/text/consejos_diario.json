@@ -1,0 +1,19 @@
+{
+	"nota": "Consejos de la pantalla de carga, en voz de diario (primera persona). Una frase por línea, de 90 caracteres como máximo y SIN el prefijo «Consejo del diario» (el título va fijo). Se pueden añadir o quitar sin tocar el código; si este archivo falta o queda vacío, el juego usa seis consejos de respaldo.",
+	"consejos": [
+		"Me muevo con W, A, S y D para escapar antes de que me alcancen.",
+		"Mis lágrimas salen con las flechas del teclado, en cuatro direcciones.",
+		"Si el miedo me gana, pulso Esc o P y la pesadilla espera un momento.",
+		"Mantengo Tab para ver el minimapa y saber por dónde voy.",
+		"Las puertas se cierran solas al entrar. Solo se abren si venzo a todos.",
+		"Si un monstruo parpadea sin parar, va a explotar. Corro lejos de él.",
+		"El tirador brilla antes de disparar. Me aparto de lado y su bola falla.",
+		"Los voladores se mecen en zigzag y pasan a través de los otros monstruos.",
+		"El excavador es intocable bajo tierra. Espero a que salga de su montículo.",
+		"El biberón me cura 2 puntos. Con la vida llena se queda en el suelo.",
+		"El chupete me deja llorar un 20 % más rápido.",
+		"La fotografía rota hace que mis lágrimas peguen un 25 % más fuerte.",
+		"La manta vieja me arropa: recibo la mitad del daño.",
+		"El oso de peluche me da un corazón más y lo llena."
+	]
+}
