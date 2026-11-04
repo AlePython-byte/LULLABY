@@ -695,7 +695,7 @@ Al empezar una partida y al reiniciar (tras morir, desde la victoria o desde la 
 | Después: primera sala lista | 1.260-1.300 ms | 625-635 ms | 150-170 ms |
 | Después: la pantalla desaparece | ~1,6 s | ~1,58 s | ~1,15-1,2 s (el mínimo de 1 s + el desvanecimiento) |
 
-Lo que queda del fotograma más largo es instanciar la escena del nivel, que ocurre antes de que exista la pantalla de carga; los pasos pesados que vienen después (los 30 candidatos y la sala, ~50-60 ms cada uno en las semillas calientes) quedan detrás de la pantalla. En frío la primera sala tarda más en estar lista que antes (~1,3 s frente a ~0,7 s) porque la carga termina de precalentar toda la ambientación (el menú normalmente ya lo hizo); con el menú precalentado la diferencia es de ~0,1 s.
+Lo que queda del fotograma más largo es instanciar la escena del nivel, que ocurre antes de que exista la pantalla de carga; los pasos pesados que vienen después (los 30 candidatos y la construcción de la sala) ocurren ya detrás de la pantalla. En frío la primera sala tarda más en estar lista que antes (~1,3 s frente a ~0,7 s) porque la carga termina de precalentar toda la ambientación (el menú normalmente ya lo hizo); con el menú precalentado la diferencia es de ~0,1 s.
 
 Pruebas: `godot --headless --fixed-fps 60 --path . res://tests/LoadingScreenTest.tscn` (consejos del archivo y del respaldo, longitud y prefijo, pantalla, poses, mínimo visible, imágenes ausentes, nivel real idéntico al de golpe, pausa bloqueada, guardia del recolector). La sonda `LoadTimingProbe` queda fuera de la suite.
 
