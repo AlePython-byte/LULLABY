@@ -562,9 +562,20 @@ public partial class AudioManager : Node
 		}
 	}
 
+	/// <summary>
+	/// Rutas de archivo que se tratan como ausentes aunque existan (solo pruebas: simulan «sin archivo» sin depender de qué haya en el disco,
+	/// que va cambiando según llegan los sonidos). Se consulta antes del caché, así que se puede ocultar y mostrar un archivo ya cargado.
+	/// </summary>
+	public HashSet<string> HiddenFiles { get; } = new();
+
 	// Carga con caché; null si el archivo no existe o no es un audio (sin errores en el log; una advertencia por ruta como mucho).
 	private AudioStream Load(string path)
 	{
+		if (HiddenFiles.Contains(path))
+		{
+			return null;
+		}
+
 		if (_streams.TryGetValue(path, out AudioStream cached))
 		{
 			return cached;
