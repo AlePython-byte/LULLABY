@@ -675,6 +675,30 @@ La carpeta `ai-training` será utilizada para los experimentos de aprendizaje au
 # 11. Plan de desarrollo
 
 
+## 8.5b. Pantalla de carga
+
+Al empezar una partida y al reiniciar (tras morir, desde la victoria o desde la pausa) se ve una **página de diario** (la hoja de la pausa) con el título fijo **«Consejo del diario»**, un consejo al azar debajo, la barra de progreso (`assets/ui/barra_marco.png` sobre `barra_relleno.png`, que el motor recorta según el progreso) y a **Noah gateando** (`noah_gateo_1.png` y `noah_gateo_2.png`, que alterna cada ~0,45 s y que avanza a lo largo de la barra). Letra Patrick Hand. La crea `RunManager` (`LoadingScreen`, por código; no hay escena) al construir la partida y la pausa no se abre mientras se ve.
+
+- **Por pasos:** `RunManager._Ready` ya no construye la partida de golpe cuando hay ventana. Tras dos fotogramas (la pantalla se pinta antes de la parte pesada) hace, con la barra avanzando entre cada paso: recolección de basura (`SceneChangeGuard`) → precarga de las 6 escenas de enemigo (`EnemyScenePreloader`) → lo que falte del precalentamiento de la ambientación (`DecorWarmup`, que casi siempre ya hizo el menú) → modelo y director → los 30 candidatos y la elección del nivel (un solo paso: no se toca la generación ni el modelo de IA) → primera sala. Hace las mismas llamadas, con los mismos argumentos y en el mismo orden que el camino de golpe, así que la misma semilla da el mismo nivel y el mismo HUD (lo comprueba `LoadingScreenTest`). Cada fotograma hace varios pasos pequeños dentro de un presupuesto de 20 ms: esperar un fotograma entre cada uno alargaba la carga real. Noah queda congelado hasta que la pantalla se desvanece.
+- **Duración:** se ve al menos **1 s** (`MinVisibleSeconds`) para que no parpadee, y la barra llega al 100 % antes de desvanecerse (0,25 s). No añade trabajo: solo completa la espera hasta ese mínimo.
+- **Headless:** no se muestra (como la intro) salvo `LoadingScreen.ForceInHeadless` (solo pruebas); el bot, el simulador y las demás pruebas construyen la partida de golpe como siempre.
+- **Respaldos:** sin la hoja queda fondo liso con el texto en crema; sin las poses no se dibuja a Noah; sin marco o relleno la barra es lisa. Sin errores. Las texturas se guardan en campos estáticos (como `DecorWarmup.Held`).
+- **Consejos:** salen de `resources/text/consejos_diario.json` (`{"consejos": [...]}`, un JSON que el motor importa como recurso, como los modelos de dificultad; se amplía sin tocar código). Frases en voz de diario, de 90 caracteres como máximo y SIN el prefijo «Consejo del diario». Si el archivo falta, no es válido o queda vacío, `LoadingTips.Fallback` (6 consejos en el código); las entradas que no son texto se ignoran. Texto de referencia para el equipo en `docs/equipo/textos.md`, sección 7. Cada consejo está comprobado contra el código: se dispara con las **flechas** (no con el ratón); el chupete da **+20 % de cadencia**; la fotografía rota **+25 % de daño**; la manta **−50 % de daño**; el oso **+1 de vida máxima y actual**; el biberón **+2 puntos** y, con la vida llena, **se queda en el suelo** (no se guarda); el volador **no atraviesa paredes** (su máscara es mundo y jugador) pero sí a los otros enemigos; el excavador **no hace temblar el piso**: deja un montículo y es invulnerable bajo tierra. No hay consejo del chasquido porque `enemigo_aparece` no suena.
+- **Carrera con el recolector de basura:** `SceneChangeGuard.Collect()` (`GC.Collect()` y `GC.WaitForPendingFinalizers()`) se ejecuta antes de cada cambio de escena entre menú y partida (`MainMenu.StartGame`, `RunManager.StartNewRun`, `RunManager.ReturnToMenu` y el reinicio de depuración) y como primer paso de la carga. Tarda **7-9 ms en headless y 10-18 ms con ventana** (mediciones en `LoadingScreenTest` y `LoadTimingProbe`).
+
+**Medidas** (`tests/LoadTimingProbe.tscn`, con ventana de 1152×648; milisegundos de reloj de pared desde que se instancia el nivel; dos corridas por caso):
+
+| | 1.ª partida, fría (semilla 12345) | Con el menú ya precalentado (12345) | Semillas 3 y 77 (ya calientes) |
+|---|---|---|---|
+| Antes: fotograma único (la imagen del menú se congela) | 657-732 ms | 516-544 ms | 113-170 ms |
+| Después: fotograma más largo | 336-361 ms | 307-325 ms | 54-63 ms |
+| Después: primera sala lista | 1.260-1.300 ms | 625-635 ms | 150-170 ms |
+| Después: la pantalla desaparece | ~1,6 s | ~1,58 s | ~1,15-1,2 s (el mínimo de 1 s + el desvanecimiento) |
+
+Lo que queda del fotograma más largo es instanciar la escena del nivel, que ocurre antes de que exista la pantalla de carga; los pasos pesados que vienen después (los 30 candidatos y la sala, ~50-60 ms cada uno en las semillas calientes) quedan detrás de la pantalla. En frío la primera sala tarda más en estar lista que antes (~1,3 s frente a ~0,7 s) porque la carga termina de precalentar toda la ambientación (el menú normalmente ya lo hizo); con el menú precalentado la diferencia es de ~0,1 s.
+
+Pruebas: `godot --headless --fixed-fps 60 --path . res://tests/LoadingScreenTest.tscn` (consejos del archivo y del respaldo, longitud y prefijo, pantalla, poses, mínimo visible, imágenes ausentes, nivel real idéntico al de golpe, pausa bloqueada, guardia del recolector). La sonda `LoadTimingProbe` queda fuera de la suite.
+
 ## 8.6. Intro
 
 Escena principal del proyecto (`IntroScene`, `scripts/ui/`): ocho cuadros estilo libro de cuentos con subtítulo en Patrick Hand, la voz de la narración y el canto de la madre de fondo. Se reproduce **una vez** al abrir el juego y pasa a `MainMenu`.
