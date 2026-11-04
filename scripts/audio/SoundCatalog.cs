@@ -83,9 +83,10 @@ public static class SoundCatalog
 		[ShooterShot] = new Sound(ShooterShot, Positional: true, MaxVoices: 3, MinInterval: 0.05f),
 		[FlyerWings] = new Sound(FlyerWings, Positional: true, VolumeDb: -6.0f, MaxVoices: 1),
 		// Aparición de un enemigo: suena una vez por enemigo, en su punto (3D), cuando sale de su marcador. Una sala tiene hasta 5 enemigos y sus
-		// sonidos salen escalonados (RoomController) y suaves (-9 dB), con un ligero cambio de tono; hasta 5 voces para que ninguno se descarte.
+		// sonidos salen escalonados (RoomController) y suaves (-9 dB), con un ligero cambio de tono; hasta 5 voces para que ninguno se descarte. Sin intervalo mínimo: el escalonado ya los
+		// separa, y un intervalo en tiempo real descartaría sonidos cuando el juego va más rápido que el reloj (pruebas con --fixed-fps).
 		// Sin su archivo no suena y no da error: no tiene sonido de respaldo (un golpe de enemigo sin golpe confundiría).
-		[EnemySpawns] = new Sound(EnemySpawns, Positional: true, VolumeDb: -9.0f, PitchVariation: RepeatedPitchVariation, MaxVoices: 5, MinInterval: 0.02f),
+		[EnemySpawns] = new Sound(EnemySpawns, Positional: true, VolumeDb: -9.0f, PitchVariation: RepeatedPitchVariation, MaxVoices: 5),
 		// Pasar la página del diario: al aparecer la pantalla de carga y la de muerte (no en la intro, que ya tiene voz y canto). Discreto, bus SFX.
 		[PageTurn] = new Sound(PageTurn, VolumeDb: -8.0f, PitchVariation: RepeatedPitchVariation, MaxVoices: 1, MinInterval: 0.3f),
 		[ItemPickedUp] = new Sound(ItemPickedUp, MaxVoices: 2),
