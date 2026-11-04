@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using Godot;
 
@@ -266,6 +267,10 @@ public partial class RunManager : Node
 		Rooms.Begin(result.Map);
 	}
 
+	// Milisegundos de trabajo por fotograma mientras se ve la pantalla de carga: el fotograma se pinta (la barra y Noah se mueven) y no se
+	// pierde tiempo esperando entre pasos pequeños.
+	private const double LoadingStepBudgetMs = 20.0;
+
 	// Un fotograma sin hacer nada (para que se pinte la pantalla de carga). Falso si el nodo se liberó mientras tanto.
 	private async System.Threading.Tasks.Task<bool> NextFrame()
 	{
@@ -296,11 +301,18 @@ public partial class RunManager : Node
 			if (!await NextFrame()) return;
 
 			int kinds = EnemyKinds.List.Count;
+			Stopwatch clock = Stopwatch.StartNew();
 			for (int i = 0; i < kinds; i++)
 			{
 				EnemyScenePreloader.Preload(EnemyKinds.List[i].Kind);
 				loading.SetProgress(0.05f + 0.20f * (i + 1) / kinds);
-				if (!await NextFrame()) return;
+
+				// Varias escenas por fotograma mientras quepan en el presupuesto: esperar un fotograma entre cada una alargaría la carga real.
+				if (clock.Elapsed.TotalMilliseconds >= LoadingStepBudgetMs)
+				{
+					if (!await NextFrame()) return;
+					clock.Restart();
+				}
 			}
 
 			if (DecorWarmup.Enabled && !DecorWarmup.Done)
@@ -309,7 +321,7 @@ public partial class RunManager : Node
 				int total = Math.Max(1, DecorWarmup.Remaining);
 				while (DecorWarmup.Remaining > 0)
 				{
-					DecorWarmup.Step();
+					DecorWarmup.Step(LoadingStepBudgetMs);
 					loading.SetProgress(0.25f + 0.30f * (1.0f - DecorWarmup.Remaining / (float)total));
 					if (!await NextFrame()) return;
 				}
