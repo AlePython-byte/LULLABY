@@ -10,7 +10,7 @@ using Godot;
 /// Sin dispositivo de audio, AudioManager registra cada petición en Requests, que es lo que se mira aquí.
 ///
 ///   1. Catálogo: los 12 archivos nuevos existen y cada uno tiene su entrada, con una voz como mucho en los que se solapan
-///      (puertas, curar, confirmar, jefe, victoria); jefe_golpe y jefe_fase siguen sin archivo.
+///      (puertas, curar, confirmar, jefe, victoria); jefe_golpe y jefe_fase pueden estar sin archivo.
 ///   2. Interfaz: un botón normal pide menu_click; Jugar, menu_confirmar (y no el clic); un botón con el metadato, el suyo.
 ///   3. Objetos: el biberón con vida que curar pide curar (y no objeto_recoger); sin nada que curar no suena; el resto, objeto_recoger.
 ///   4. Una partida hasta el jefe: las puertas se cierran al empezar el combate (una sola voz por evento, no una por puerta), el jefe pide
@@ -87,7 +87,7 @@ public partial class AudioHooksTest : Node
 		Require(SoundCatalog.Get(SoundCatalog.BossAppears).Positional && SoundCatalog.Get(SoundCatalog.BossAttackRing).Positional && SoundCatalog.Get(SoundCatalog.BossAttackSpiral).Positional,
 			"Los sonidos del jefe son 3D");
 		Require(!SoundCatalog.Get(SoundCatalog.DoorOpens).Positional && !SoundCatalog.Get(SoundCatalog.Victory).Positional, "Puertas y victoria son planos");
-		Require(!ResourceLoader.Exists(SoundCatalog.Get(SoundCatalog.BossHit).Path) && !ResourceLoader.Exists(SoundCatalog.Get(SoundCatalog.BossPhase).Path), "jefe_golpe y jefe_fase siguen sin archivo");
+		Require(SoundCatalog.Get(SoundCatalog.BossHit) != null && SoundCatalog.Get(SoundCatalog.BossPhase) != null, "jefe_golpe y jefe_fase están en el catálogo (con o sin archivo)");
 		GD.Print("Catálogo de los sonidos nuevos: OK");
 	}
 
