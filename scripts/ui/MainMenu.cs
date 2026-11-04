@@ -135,6 +135,7 @@ public partial class MainMenu : Control
 		GameSettings.PlaytestLogEnabled = GameSettings.CanRecordPlaytest;
 		RunManager.DiscardPending();
 		GetTree().Paused = false;
+		SceneChangeGuard.Collect();
 		GetTree().ChangeSceneToFile(GameSettings.LevelScene);
 	}
 
