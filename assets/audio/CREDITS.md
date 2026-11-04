@@ -14,6 +14,7 @@ Todos los efectos de sonido y pistas musicales utilizados en el proyecto cuentan
 | mecha_explosivo.ogg | Chisporroteo de mecha previo a explosión   | Alex_hears_things | https://freesound.org/people/Alex_hears_things/sounds/316682/ | CC0      |
 | volador_aleteo.ogg  | Aleteo continuo o vuelo de enemigo volador | Scottrex05        | https://freesound.org/people/Scottrex05/sounds/593487/        | CC0      |
 | enemigo_muere.ogg   | Derrota o muerte de un enemigo             | K27K_Mike         | https://freesound.org/people/K27K_Mike/sounds/853659/         | CC0      |
+| enemigo_aparece.ogg | Aparición o spawn de un enemigo            | AuDRoger          | https://freesound.org/people/AuDRoger/sounds/471204/          | CC0      |
 
 ## Música
 
@@ -27,8 +28,8 @@ Todos los efectos de sonido y pistas musicales utilizados en el proyecto cuentan
 
 Los recursos de la intro (`assets/intro/`) son generados:
 
-| Archivo                       | Descripción                                        | Origen                               |
-| ----------------------------- | -------------------------------------------------- | ------------------------------------ |
-| escena_01.png a escena_08.png | Ilustraciones de los ocho cuadros (1920×1080)      | Generadas con IA (Gemini)            |
-| voz_01.mp3 a voz_08.mp3       | Narración de cada cuadro                           | Generadas con IA (ElevenLabs)        |
-| canto_mama.mp3                | Canto de la madre, de fondo en bucle (25 s)        | Generado con IA (ElevenLabs)         |
+| Archivo                       | Descripción                                   | Origen                        |
+| ----------------------------- | --------------------------------------------- | ----------------------------- |
+| escena_01.png a escena_08.png | Ilustraciones de los ocho cuadros (1920×1080) | Generadas con IA (Gemini)     |
+| voz_01.mp3 a voz_08.mp3       | Narración de cada cuadro                      | Generadas con IA (ElevenLabs) |
+| canto_mama.mp3                | Canto de la madre, de fondo en bucle (25 s)   | Generado con IA (ElevenLabs)  |
