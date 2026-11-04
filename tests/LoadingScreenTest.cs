@@ -11,9 +11,13 @@ using Godot;
 ///   1. Los consejos: se leen del archivo (resources/text/consejos_diario.json), ninguno pasa de 90 caracteres, ninguno lleva el prefijo
 ///      «Consejo del diario» ni está vacío o repetido; y el respaldo (seis consejos propios) se usa si el archivo falta, está vacío o no
 ///      es válido, y se ignoran las entradas que no son texto.
-///   2. La pantalla se instancia con hoja, Noah y barra; el título es fijo y el consejo sale de la lista; la barra sigue al progreso y
+///   2a. Diseño de tiza (el de siempre ahora): pantalla completa con el fondo del color exacto de las imágenes, biberón a 16:9 centrado y sin
+///      deformar en ventanas de cualquier proporción, el recorte del biberón lleno sigue el progreso de 0 a 100 % sin saltos, el consejo
+///      va debajo del biberón, centrado respecto a él, en una línea y de 90 caracteres como máximo, sin título, Noah ni barra del diario,
+///      y solo se cargan las dos imágenes del biberón.
+///   2b. Diseño del diario (respaldo): la pantalla se instancia con hoja, Noah y barra; el título es fijo y el consejo sale de la lista; la barra sigue al progreso y
 ///      llega al 100 %; las dos poses de Noah se alternan; Noah avanza con la barra; no desaparece antes del mínimo visible (1 s).
-///   3. Respaldo: sin las imágenes (hoja, poses, marco o relleno) funciona con fondo liso, texto y barra lisa, sin errores.
+///   3. Respaldo: sin carga_vacio o carga_lleno se usa el diario; y en el diario, sin las imágenes (hoja, poses, marco o relleno) funciona con fondo liso, texto y barra lisa, sin errores.
 ///   4. Con el nivel real (forzando la pantalla en headless): se ve al empezar, Noah queda congelado y la pausa bloqueada mientras dura,
 ///      la barra avanza por pasos hasta el 100 %, y el resultado es el mismo que de golpe: misma semilla, mismo nivel y mismo HUD.
 ///   5. SceneChangeGuard recolecta, mide y se puede apagar.
@@ -33,6 +37,7 @@ public partial class LoadingScreenTest : Node
 			GD.Print($"=== LoadingScreenTest ({(OS.IsDebugBuild() ? "Debug" : "Release")}) ===");
 			CheckShippedTips();
 			CheckTipsFallbacks();
+			await CheckChalkScreen();
 			await CheckScreen();
 			await CheckMissingArt();
 			CheckGuard();
@@ -55,6 +60,9 @@ public partial class LoadingScreenTest : Node
 			LoadingScreen.NoahTwoPath = LoadingScreen.DefaultNoahTwo;
 			LoadingScreen.FramePath = LoadingScreen.DefaultFrame;
 			LoadingScreen.FillPath = LoadingScreen.DefaultFill;
+			LoadingScreen.ChalkEmptyPath = LoadingScreen.DefaultChalkEmpty;
+			LoadingScreen.ChalkFullPath = LoadingScreen.DefaultChalkFull;
+			GetWindow().Size = new Vector2I(1152, 648);
 			LoadingScreen.SheetPath = PaperSheet.Path;
 			LoadingTips.Path = LoadingTips.DefaultPath;
 			LoadingTips.Reload();
@@ -146,10 +154,104 @@ public partial class LoadingScreenTest : Node
 		GD.Print("Consejos: archivo propio, vacío, con entradas raras, mal formado y ausente (respaldo de seis): OK");
 	}
 
-	// --- 2 ------------------------------------------------------------------------------------------------------------
+	// --- 2a -----------------------------------------------------------------------------------------------------------
+
+	private async Task CheckChalkScreen()
+	{
+		LoadingScreen.ResetHeld();
+		LoadingScreen screen = new() { MinVisibleSeconds = 100.0f };
+		AddChild(screen);
+		await Frames(3);
+		Require(screen.HasChalkArt && !screen.HasSheet && !screen.HasNoah && !screen.HasBarArt, "Diseño de tiza: sin hoja, sin Noah gateando y sin barra de crayón");
+		Require(screen.TitleText == "" && GetTree().Root.FindChild("Title", true, false) == null, "Sin el título «Consejo del diario»");
+		Require(LoadingScreen.Held.Count == 2 && LoadingScreen.Held.Contains(LoadingScreen.LoadHeld(LoadingScreen.DefaultChalkEmpty)) && LoadingScreen.Held.Contains(LoadingScreen.LoadHeld(LoadingScreen.DefaultChalkFull)),
+			$"Solo carga y retiene las dos imágenes del biberón ({LoadingScreen.Held.Count})");
+
+		// El fondo es del color exacto de la esquina de la imagen y cubre toda la ventana.
+		Image source = Image.LoadFromFile(ProjectSettings.GlobalizePath(LoadingScreen.DefaultChalkEmpty));
+		Color corner = source.GetPixel(0, 0);
+		ColorRect background = (ColorRect)GetTree().Root.FindChild("Background", true, false);
+		Require(source.GetSize() == new Vector2I(1920, 1080) && Mathf.Abs(corner.R - background.Color.R) < 0.003f && Mathf.Abs(corner.G - background.Color.G) < 0.003f && Mathf.Abs(corner.B - background.Color.B) < 0.003f,
+			$"El fondo es del color de la esquina de la imagen ({corner} frente a {background.Color})");
+		Vector2 view = screen.GetViewport().GetVisibleRect().Size;
+		Require(background.GetGlobalRect().Size.IsEqualApprox(view) && background.GetGlobalRect().Position.IsZeroApprox(), "El fondo cubre toda la ventana");
+
+		// Imagen a 16:9, centrada y sin deformar, en ventanas de varias proporciones.
+		foreach (Vector2I size in new[] { new Vector2I(1152, 648), new Vector2I(1000, 700), new Vector2I(1600, 600), new Vector2I(1920, 1080) })
+		{
+			GetWindow().Size = size;
+			await Frames(4);
+			view = screen.GetViewport().GetVisibleRect().Size;
+			Rect2 stage = screen.Stage.GetGlobalRect();
+			Require(Mathf.Abs(stage.Size.X / stage.Size.Y - 16.0f / 9.0f) < 0.01f, $"{size}: la imagen mantiene 16:9 sin deformarse ({stage.Size})");
+			Require(stage.GetCenter().DistanceTo(view / 2.0f) < 1.5f, $"{size}: y está centrada");
+			Require(stage.Position.X >= -0.5f && stage.Position.Y >= -0.5f && stage.End.X <= view.X + 0.5f && stage.End.Y <= view.Y + 0.5f
+				&& (Mathf.IsEqualApprox(stage.Size.X, view.X, 0.01f) || Mathf.IsEqualApprox(stage.Size.Y, view.Y, 0.01f)), $"{size}: cabe entera y toca los bordes por un lado ({stage} en {view})");
+
+			// El consejo, debajo del biberón y centrado respecto a él, en una línea, a escala de la imagen.
+			float scale = stage.Size.X / LoadingScreen.ChalkWidth;
+			Rect2 bottle = new(stage.Position + LoadingScreen.BottleFill.Position * scale, LoadingScreen.BottleFill.Size * scale);
+			Rect2 tip = screen.TipLabel.GetGlobalRect();
+			Require(tip.Position.Y >= bottle.End.Y && tip.End.Y <= stage.End.Y + 0.5f, $"{size}: el consejo está debajo del biberón y dentro de la imagen");
+			float bottleCenter = stage.Position.X + 938.0f * scale;
+			Require(Mathf.Abs(tip.GetCenter().X - bottleCenter) < 1.5f, $"{size}: centrado respecto al biberón ({tip.GetCenter().X:0.0} y {bottleCenter:0.0})");
+			Font font = screen.TipLabel.GetThemeFont("font");
+			int fontSize = screen.TipLabel.GetThemeFontSize("font_size");
+			Require(screen.Tip.Length <= LoadingTips.MaxLength && !screen.Tip.Contains('\n') && screen.TipLabel.GetLineCount() == 1
+				&& font.GetStringSize(screen.Tip, HorizontalAlignment.Left, -1, fontSize).X <= tip.Size.X, $"{size}: en una sola línea de {screen.Tip.Length} caracteres, que cabe en su caja");
+			Require(fontSize <= Mathf.RoundToInt(LoadingScreen.TipFontSize * scale) + 1 && fontSize >= 8, $"{size}: el texto escala con la imagen (letra {fontSize})");
+		}
+
+		GetWindow().Size = new Vector2I(1152, 648);
+		await Frames(4);
+
+		// El recorte: de 0 al 100 % del interior del biberón, de izquierda a derecha, y suave.
+		Control clip = screen.FillClip;
+		Rect2 stageRect = screen.Stage.GetGlobalRect();
+		float s = stageRect.Size.X / LoadingScreen.ChalkWidth;
+		Require(clip.ClipContents && clip.Size.X == 0.0f && screen.ShownProgress == 0.0f, "Al 0 % no se ve nada del biberón lleno");
+		Require(clip.GetGlobalRect().Position.IsEqualApprox(stageRect.Position + LoadingScreen.BottleFill.Position * s) && Mathf.IsEqualApprox(clip.Size.Y, LoadingScreen.BottleFill.Size.Y * s, 0.01f),
+			"El recorte arranca en el borde izquierdo del interior del biberón y cubre su altura");
+		TextureRect full = (TextureRect)clip.GetChild(0);
+		Require(full.GetGlobalRect().Position.IsEqualApprox(stageRect.Position) && full.GetGlobalRect().Size.IsEqualApprox(stageRect.Size), "La imagen llena queda alineada exactamente con la vacía");
+		float maxWidth = LoadingScreen.BottleFill.Size.X * s;
+		screen.SetProgress(0.5f);
+		float previous = 0.0f;
+		float biggestStep = 0.0f;
+		for (int i = 0; i < 200 && screen.ShownProgress < 0.5f; i++)
+		{
+			await Frames(1);
+			biggestStep = Mathf.Max(biggestStep, clip.Size.X - previous);
+			Require(clip.Size.X >= previous - 0.001f, "El recorte nunca retrocede");
+			previous = clip.Size.X;
+		}
+
+		Require(Mathf.IsEqualApprox(clip.Size.X, maxWidth * 0.5f, 0.01f), $"Al 50 % el recorte mide la mitad ({clip.Size.X / maxWidth:0.000})");
+		Require(biggestStep <= maxWidth * (screen.BarSpeed / 60.0f) * 1.5f, $"Avanza suave, sin saltos (paso máximo {biggestStep / maxWidth * 100.0f:0.0} % del biberón por fotograma)");
+		screen.SetProgress(1.0f);
+		for (int i = 0; i < 200 && screen.ShownProgress < 1.0f; i++) await Frames(1);
+		await Frames(2);
+		Require(Mathf.IsEqualApprox(clip.Size.X, maxWidth, 0.01f), "Al 100 % se ve todo el interior lleno");
+
+		LoadingScreen quick = new() { MinVisibleSeconds = 1.0f, FadeSeconds = 0.1f };
+		screen.QueueFree();
+		await ToSignal(screen, Node.SignalName.TreeExited);
+		AddChild(quick);
+		quick.SetProgress(1.0f);
+		await quick.Complete();
+		Require(quick.Finished && quick.Elapsed >= 1.0f && quick.Elapsed < 2.5f, $"Mantiene el mínimo visible de 1 s y se desvanece ({quick.Elapsed:0.00} s)");
+		await Frames(2);
+		Require(!LoadingScreen.Busy && LoadingScreen.Held.Count == 2, "Se libera y las dos texturas siguen retenidas");
+		GD.Print("Pantalla de tiza: fondo exacto, 16:9 centrada, recorte de 0 a 100 % suave, consejo debajo y centrado en una línea, solo dos imágenes: OK");
+	}
+
+	// --- 2b -----------------------------------------------------------------------------------------------------------
+
+	private const string Missing = "res://assets/ui/no_existe.png";
 
 	private async Task CheckScreen()
 	{
+		LoadingScreen.ChalkEmptyPath = Missing; // diseño del diario
 		LoadingScreen screen = new();
 		AddChild(screen);
 		await Frames(2);
@@ -210,13 +312,39 @@ public partial class LoadingScreenTest : Node
 		Require(Mathf.IsEqualApprox(quick.ShownProgress, 1.0f, 0.01f) && Mathf.IsEqualApprox(quick.Progress, 1.0f), "La barra llega al 100 %");
 		await Frames(2);
 		Require(!IsInstanceValid(quick) && !LoadingScreen.Busy, "Y se libera");
-		GD.Print($"Pantalla: hoja, Noah, barra, título fijo, consejo de la lista, dos poses cada {perPose:0.00} s, mínimo visible 1 s y 100 %: OK");
+		LoadingScreen.ChalkEmptyPath = LoadingScreen.DefaultChalkEmpty;
+		GD.Print($"Pantalla del diario: hoja, Noah, barra, título fijo, consejo de la lista, dos poses cada {perPose:0.00} s, mínimo visible 1 s y 100 %: OK");
 	}
 
 	// --- 3 ------------------------------------------------------------------------------------------------------------
 
 	private async Task CheckMissingArt()
 	{
+		// Sin una de las dos imágenes del biberón (o sin ambas) se usa el diario completo, sin errores.
+		foreach ((string label, string empty, string full) in new[]
+		{
+			("sin carga_vacio", Missing, LoadingScreen.DefaultChalkFull),
+			("sin carga_lleno", LoadingScreen.DefaultChalkEmpty, Missing),
+			("sin ninguna de las dos", Missing, Missing),
+		})
+		{
+			LoadingScreen.ChalkEmptyPath = empty;
+			LoadingScreen.ChalkFullPath = full;
+			LoadingScreen chalkless = new() { MinVisibleSeconds = 0.1f, FadeSeconds = 0.05f };
+			AddChild(chalkless);
+			await Frames(3);
+			Require(!chalkless.HasChalkArt && chalkless.FillClip == null && chalkless.HasSheet && chalkless.HasNoah && chalkless.HasBarArt, $"{label}: usa el diseño del diario");
+			Require(chalkless.TitleText == LoadingTips.Title && LoadingTips.All.Contains(chalkless.Tip), $"{label}: con su título y su consejo");
+			chalkless.SetProgress(0.5f);
+			await Frames(30);
+			Require(chalkless.ShownProgress > 0.1f, $"{label}: la barra avanza");
+			await chalkless.Complete();
+			await Frames(2);
+			Require(!LoadingScreen.Busy, $"{label}: termina y libera");
+		}
+
+		LoadingScreen.ChalkEmptyPath = Missing;
+		LoadingScreen.ChalkFullPath = LoadingScreen.DefaultChalkFull;
 		foreach ((string label, Action<string> set) in new (string, Action<string>)[]
 		{
 			("sin la hoja de papel", path => LoadingScreen.SheetPath = path),
@@ -265,6 +393,8 @@ public partial class LoadingScreenTest : Node
 		LoadingScreen.NoahTwoPath = LoadingScreen.DefaultNoahTwo;
 		LoadingScreen.FramePath = LoadingScreen.DefaultFrame;
 		LoadingScreen.FillPath = LoadingScreen.DefaultFill;
+		LoadingScreen.ChalkEmptyPath = LoadingScreen.DefaultChalkEmpty;
+		LoadingScreen.ChalkFullPath = LoadingScreen.DefaultChalkFull;
 		GD.Print("Respaldo: sin hoja, sin poses, sin barra y sin nada, funciona con fondo liso y texto: OK");
 	}
 
