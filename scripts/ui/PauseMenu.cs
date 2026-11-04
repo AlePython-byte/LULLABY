@@ -127,7 +127,7 @@ public partial class PauseMenu : CanvasLayer
 	}
 
 	public bool CanPause =>
-		!IsOpen && !GetTree().Paused
+		!IsOpen && !GetTree().Paused && !LoadingScreen.Busy
 		&& (Run == null || !Run.RunEnded)
 		&& (Rooms == null || (!Rooms.IsTransitioning && !Rooms.RunEnded && Rooms.CurrentRoom != null));
 
