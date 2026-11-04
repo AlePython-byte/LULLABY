@@ -41,6 +41,7 @@ public static class SoundCatalog
 	public const string UiClick = "menu_click";
 	public const string MenuConfirm = "menu_confirmar";
 	public const string UiHover = "menu_hover";
+	public const string PageTurn = "pagina_pasa";
 
 	// Puertas de las salas (al cerrarse al empezar el combate y al abrirse al despejarla).
 	public const string DoorOpens = "puerta_abre";
@@ -81,9 +82,12 @@ public static class SoundCatalog
 		[Explosion] = new Sound(Explosion, Positional: true, MaxVoices: 3, Priority: true),
 		[ShooterShot] = new Sound(ShooterShot, Positional: true, MaxVoices: 3, MinInterval: 0.05f),
 		[FlyerWings] = new Sound(FlyerWings, Positional: true, VolumeDb: -6.0f, MaxVoices: 1),
-		// Aparición de los enemigos de una sala: una sola petición por oleada (no una por enemigo), con un ligero cambio de tono y como
-		// mucho 2 voces a la vez. Sin su archivo no suena y no da error: no tiene sonido de respaldo (un golpe de enemigo sin golpe confundiría).
-		[EnemySpawns] = new Sound(EnemySpawns, VolumeDb: -4.0f, PitchVariation: RepeatedPitchVariation, MaxVoices: 2, MinInterval: 0.1f),
+		// Aparición de un enemigo: suena una vez por enemigo, en su punto (3D), cuando sale de su marcador. Una sala tiene hasta 5 enemigos y sus
+		// sonidos salen escalonados (RoomController) y suaves (-9 dB), con un ligero cambio de tono; hasta 5 voces para que ninguno se descarte.
+		// Sin su archivo no suena y no da error: no tiene sonido de respaldo (un golpe de enemigo sin golpe confundiría).
+		[EnemySpawns] = new Sound(EnemySpawns, Positional: true, VolumeDb: -9.0f, PitchVariation: RepeatedPitchVariation, MaxVoices: 5, MinInterval: 0.02f),
+		// Pasar la página del diario: al aparecer la pantalla de carga y la de muerte (no en la intro, que ya tiene voz y canto). Discreto, bus SFX.
+		[PageTurn] = new Sound(PageTurn, VolumeDb: -8.0f, PitchVariation: RepeatedPitchVariation, MaxVoices: 1, MinInterval: 0.3f),
 		[ItemPickedUp] = new Sound(ItemPickedUp, MaxVoices: 2),
 		[Heal] = new Sound(Heal, MaxVoices: 1),
 		[UiClick] = new Sound(UiClick, MaxVoices: 2, MinInterval: 0.05f),
