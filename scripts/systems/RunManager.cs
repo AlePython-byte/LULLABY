@@ -187,16 +187,37 @@ public partial class RunManager : Node
 			return;
 		}
 
-		DifficultyModel model;
+		// Con ventana, la partida se construye por pasos detrás de la pantalla de carga; en headless (pruebas, bot, simulador), de golpe.
+		if (LoadingScreen.ShouldShow(DisplayServer.GetName() == "headless", LoadingScreen.ForceInHeadless))
+		{
+			BeginWithLoadingScreen();
+			return;
+		}
+
+		if (TryCreateDirector(out AIDungeonDirector director, out DifficultyModel model))
+		{
+			AIDungeonDirector.Result result = SelectLevel(director);
+			if (result != null)
+			{
+				BeginLevel(result, model);
+			}
+		}
+	}
+
+	// El modelo de dificultad y el director, con los parámetros de la partida. Falso (y el HUD avisa) si el modelo no es válido.
+	private bool TryCreateDirector(out AIDungeonDirector director, out DifficultyModel model)
+	{
+		director = null;
 		try
 		{
 			model = LoadModel(_generatorVersion);
 		}
 		catch (Exception exception) when (exception is InvalidDataException or FileNotFoundException)
 		{
+			model = null;
 			GD.PushError(exception.Message);
 			SeedHud?.ShowError(_seed, "modelo de dificultad no válido (ver la salida)", _generatorVersion);
-			return;
+			return false;
 		}
 
 		DungeonGenerator.Settings settings = new()
@@ -208,21 +229,32 @@ public partial class RunManager : Node
 			MinBossDistance = MinBossDistance,
 			MaxAttempts = MaxAttempts,
 		};
-		AIDungeonDirector director = new(new DungeonGenerator(Catalog), model, settings)
+		director = new AIDungeonDirector(new DungeonGenerator(Catalog), model, settings)
 		{
 			CandidateCount = Candidates,
 			TopCount = TopCount,
 			PreferEnemyVariety = _generatorVersion == 2,
 		};
+		return true;
+	}
 
+	// Los 30 candidatos y la elección del director: es el trabajo pesado. Null (y el HUD avisa) si no encuentra ningún nivel.
+	private AIDungeonDirector.Result SelectLevel(AIDungeonDirector director)
+	{
 		AIDungeonDirector.Result result = director.Select(_seed, _difficulty);
 		if (!result.Success)
 		{
 			GD.PushError($"RunManager: el director no encontró ningún nivel para la semilla {_seed}.");
 			SeedHud?.ShowError(_seed, "sin nivel válido", _generatorVersion);
-			return;
+			return null;
 		}
 
+		return result;
+	}
+
+	// Muestra el nivel elegido y construye la primera sala.
+	private void BeginLevel(AIDungeonDirector.Result result, DifficultyModel model)
+	{
 		SeedHud?.ShowRun(_seed, result.Chosen.EffectiveSeed, _difficulty, result.TargetValue, result.Chosen.Predicted,
 			_generatorVersion, model.GeneratorVersion);
 		GD.Print($"Generador v{_generatorVersion}, modelo de dificultad {_modelSource} con {model.FeatureNames.Count} " +
@@ -232,6 +264,83 @@ public partial class RunManager : Node
 		GD.Print($"Nivel elegido: salas {result.Map.Rooms.Count}, jefe a {LevelValidator.BossDistance(result.Map)} pasos.");
 		TreasureItems?.BeginRun(_seed, result.Map);
 		Rooms.Begin(result.Map);
+	}
+
+	// Un fotograma sin hacer nada (para que se pinte la pantalla de carga). Falso si el nodo se liberó mientras tanto.
+	private async System.Threading.Tasks.Task<bool> NextFrame()
+	{
+		await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+		return IsInstanceValid(this) && IsInsideTree();
+	}
+
+	/// <summary>
+	/// Construye la partida por pasos, un fotograma entre cada uno, mientras LoadingScreen se ve y su barra avanza de verdad: recolección de
+	/// basura (SceneChangeGuard), precarga de las escenas de enemigo, carga del precalentamiento de la ambientación que falte, modelo y
+	/// director, elección del nivel (los 30 candidatos, un solo paso: no se toca la generación) y primera sala. Hace exactamente las mismas
+	/// llamadas, con los mismos argumentos y en el mismo orden que el camino de golpe, así que la misma semilla da el mismo nivel.
+	/// Noah queda congelado hasta que la pantalla se desvanece.
+	/// </summary>
+	private async void BeginWithLoadingScreen()
+	{
+		LoadingScreen loading = new() { Name = "LoadingScreen" };
+		AddChild(loading);
+		Rooms.SetPlayerFrozen(true);
+
+		try
+		{
+			// Dos fotogramas: la pantalla se pinta antes de la parte pesada.
+			if (!await NextFrame() || !await NextFrame()) return;
+
+			SceneChangeGuard.Collect();
+			loading.SetProgress(0.05f);
+			if (!await NextFrame()) return;
+
+			int kinds = EnemyKinds.List.Count;
+			for (int i = 0; i < kinds; i++)
+			{
+				EnemyScenePreloader.Preload(EnemyKinds.List[i].Kind);
+				loading.SetProgress(0.05f + 0.20f * (i + 1) / kinds);
+				if (!await NextFrame()) return;
+			}
+
+			if (DecorWarmup.Enabled && !DecorWarmup.Done)
+			{
+				DecorWarmup.Request();
+				int total = Math.Max(1, DecorWarmup.Remaining);
+				while (DecorWarmup.Remaining > 0)
+				{
+					DecorWarmup.Step();
+					loading.SetProgress(0.25f + 0.30f * (1.0f - DecorWarmup.Remaining / (float)total));
+					if (!await NextFrame()) return;
+				}
+			}
+
+			loading.SetProgress(0.55f);
+			if (TryCreateDirector(out AIDungeonDirector director, out DifficultyModel model))
+			{
+				loading.SetProgress(0.60f);
+				if (!await NextFrame()) return;
+
+				AIDungeonDirector.Result result = SelectLevel(director);
+				loading.SetProgress(0.88f);
+				if (!await NextFrame()) return;
+
+				if (result != null)
+				{
+					BeginLevel(result, model);
+				}
+			}
+
+			loading.SetProgress(0.97f);
+			await loading.Complete();
+		}
+		finally
+		{
+			if (IsInstanceValid(Rooms) && IsInstanceValid(Rooms.Player))
+			{
+				Rooms.SetPlayerFrozen(false);
+			}
+		}
 	}
 
 	public override void _ExitTree()
