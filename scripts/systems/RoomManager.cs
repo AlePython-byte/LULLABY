@@ -332,7 +332,8 @@ public partial class RoomManager : Node3D
 		Player.FaceDirection(direction);
 	}
 
-	private void SetPlayerFrozen(bool frozen)
+	/// <summary>Congela o libera a Noah (movimiento y disparo). La pantalla de carga la congela mientras se construye la partida.</summary>
+	public void SetPlayerFrozen(bool frozen)
 	{
 		Player.SetPhysicsProcess(!frozen);
 		Player.GetNode<PlayerShooter>("Shooter").SetPhysicsProcess(!frozen);
