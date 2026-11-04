@@ -136,6 +136,7 @@ public partial class LoadingScreen : CanvasLayer
 		Busy = true;
 		Build();
 		SetProgress(0.0f);
+		AudioManager.Play(SoundCatalog.PageTurn);
 	}
 
 	public override void _ExitTree()
