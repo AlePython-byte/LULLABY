@@ -437,11 +437,33 @@ public partial class RoomController : Node3D
 		_staged.Clear();
 		_staging.QueueFree();
 
-		// Una sola petición por oleada, no una por enemigo.
-		if (_spawnPoints.Count > 0)
+		// El sonido de aparición de cada enemigo, en su punto y escalonado: con hasta 5 a la vez, sonando todos en el mismo instante se
+		// apilarían y saturarían. Solo es sonido: no toca los tiempos de aparición.
+		for (int i = 0; i < _spawnPoints.Count; i++)
 		{
-			AudioManager.Play(SoundCatalog.EnemySpawns);
+			PlaySpawnSound(_spawnPoints[i].GlobalPosition, i * SpawnSoundStagger);
 		}
+	}
+
+	// Segundos entre el sonido de un enemigo y el del siguiente de la misma oleada.
+	private const float SpawnSoundStagger = 0.04f;
+
+	private void PlaySpawnSound(Vector3 position, float delay)
+	{
+		if (delay <= 0.0f)
+		{
+			AudioManager.PlayAt(SoundCatalog.EnemySpawns, position);
+			return;
+		}
+
+		// processAlways = false: la pausa también detiene el escalonado.
+		GetTree().CreateTimer(delay, false).Timeout += () =>
+		{
+			if (IsInstanceValid(this))
+			{
+				AudioManager.PlayAt(SoundCatalog.EnemySpawns, position);
+			}
+		};
 	}
 
 	private void SpawnBoss()
