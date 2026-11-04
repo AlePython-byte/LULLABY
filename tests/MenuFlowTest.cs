@@ -34,6 +34,7 @@ public partial class MenuFlowTest : Node
 			await CheckControlsText();
 			await CheckPlayWithEachDifficulty();
 			GD.Print($"MenuFlowTest: {_checks} comprobaciones. RESULTADO: OK");
+			await BossTestHarness.CollectWrappers(GetTree());
 			GetTree().Quit();
 		}
 		catch (Exception exception)
@@ -237,6 +238,9 @@ public partial class MenuFlowTest : Node
 			MainMenu menu = await OpenMenu();
 			menu.Select(target);
 			tree.Paused = true;
+			// Cambiar de escena con envoltorios de C# ya liberados pendientes de recolectar dejaba que el recolector actuara en mitad del
+			// cambio («Handle is not initialized», a veces con cierre del proceso): se recolectan antes (ver BossTestHarness.CollectWrappers).
+			await BossTestHarness.CollectWrappers(tree);
 			menu.StartGame();
 			Require(!tree.Paused, "Jugar despausa antes de cambiar de escena");
 
