@@ -42,6 +42,7 @@ public partial class AudioHooksTest : Node
 			await CheckBossFlow();
 			await CheckBossAttacks();
 			await CheckVictoryScreen();
+			await CheckPageTurn();
 			GD.Print($"AudioHooksTest: {_checks} comprobaciones. RESULTADO: OK");
 			await BossTestHarness.CollectWrappers(GetTree());
 			GetTree().Quit();
@@ -240,5 +241,55 @@ public partial class AudioHooksTest : Node
 		screen.QueueFree();
 		await ToSignal(screen, Node.SignalName.TreeExited);
 		GD.Print("Victoria al mostrar la pantalla: OK");
+	}
+
+	// --- 7 ------------------------------------------------------------------------------------------------------------
+
+	// pagina_pasa suena al aparecer la pantalla de carga y la de muerte (el diario), una vez cada una, y no en la intro.
+	private async Task CheckPageTurn()
+	{
+		GD.Print("\n--- Pasar la página ---");
+		SceneTree tree = GetTree();
+		SoundCatalog.Sound page = SoundCatalog.Get(SoundCatalog.PageTurn);
+		Require(page != null && ResourceLoader.Exists(page.Path) && !page.Positional && page.Bus == SoundCatalog.BusSfx && page.VolumeDb <= -6.0f, "pagina_pasa tiene archivo y es plana, discreta y del bus SFX");
+
+		LoadingScreen loading = new() { MinVisibleSeconds = 0.1f, FadeSeconds = 0.05f };
+		_audio.ClearRequests();
+		AddChild(loading);
+		await BossTestHarness.Frames(tree, 2);
+		Require(Count("pagina_pasa") == 1 && Single("pagina_pasa").Result != AudioManager.Outcome.Missing && !Single("pagina_pasa").Positional, "Al aparecer la pantalla de carga suena pagina_pasa una vez");
+		await loading.Complete();
+		await BossTestHarness.Frames(tree, 2);
+		Require(Count("pagina_pasa") == 1, "Y no vuelve a sonar al desvanecerse");
+
+		OS.DelayMsec(400); // pasa el intervalo mínimo (reloj real) para que el limitador no descarte la siguiente
+		DefeatScreen defeat = GD.Load<PackedScene>("res://scenes/ui/DefeatScreen.tscn").Instantiate<DefeatScreen>();
+		AddChild(defeat);
+		await BossTestHarness.Frames(tree, 2);
+		_audio.ClearRequests();
+		defeat.Present("Frase", DeathCause.Chaser);
+		defeat.Present("Otra", DeathCause.Chaser);
+		Require(Count("pagina_pasa") == 1 && Single("pagina_pasa").Result != AudioManager.Outcome.Missing && Count("derrota") == 1,
+			"Al aparecer la pantalla de muerte suena pagina_pasa una vez, junto a derrota");
+		defeat.QueueFree();
+		await ToSignal(defeat, Node.SignalName.TreeExited);
+
+		// La intro ya tiene su voz y su canto: no pasa páginas.
+		IntroScene.Shown = false;
+		IntroScene.ForcePlay = true;
+		IntroScene.TimeScale = 0.05f;
+		IntroScene intro = GD.Load<PackedScene>("res://scenes/ui/IntroScene.tscn").Instantiate<IntroScene>();
+		intro.NextScene = null;
+		_audio.ClearRequests();
+		AddChild(intro);
+		await BossTestHarness.Frames(tree, 20);
+		bool played = intro.Playing;
+		Require(Count("pagina_pasa") == 0, "La intro no usa pagina_pasa");
+		intro.QueueFree();
+		await ToSignal(intro, Node.SignalName.TreeExited);
+		IntroScene.ForcePlay = false;
+		IntroScene.TimeScale = 1.0f;
+		IntroScene.Shown = false;
+		GD.Print($"pagina_pasa: carga, muerte y no en la intro (la intro sonaba: {played}): OK");
 	}
 }
