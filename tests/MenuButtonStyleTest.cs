@@ -13,7 +13,8 @@ using Godot;
 ///   2. Los menús (principal, pausa, controles, victoria y derrota) se instancian y sus botones normales llevan los tres estados: normal,
 ///      hover, pressed; el foco se ve igual que el hover; la letra es Patrick Hand y el texto es legible sobre el arte oscuro. Los botones con
 ///      su propio aspecto (CheckButton y las notas de la derrota) no se tocan.
-///   3. El sonido: el hover pide menu_hover (sin archivo, queda como faltante sin error), una sola vez por botón aunque se conecte dos veces
+///   3. El sonido: el hover pide menu_hover (con su archivo se carga y suena; sin él, simulado con AudioManager.HiddenFiles, queda como
+///      faltante sin error), una sola vez por botón aunque se conecte dos veces
 ///      (el panel de controles dentro de la pausa); el clic conserva el suyo (menu_click o menu_confirmar) y un botón desactivado no suena.
 ///   4. El comportamiento no cambia: textos, selector de dificultad y deslizadores de volumen, y el menú principal sigue cabiendo en pantalla.
 ///   5. Respaldo: sin cualquiera de las imágenes (o sin la carpeta) los botones quedan con el estilo de siempre, siguen funcionando y no hay
@@ -210,15 +211,33 @@ public partial class MenuButtonStyleTest : Node
 		Button resume = pause.ResumeButton;
 		Button back = PlainButtons(pause.Controls).First();
 
+		// Con el archivo presente: se carga y suena (en headless, «Silent»: lleva la cuenta de la voz sin dispositivo). Se espera entre una pasada
+		// y otra a que pase el intervalo mínimo y termine la voz (reloj real), si no el limitador descartaría la segunda.
+		string hoverPath = SoundCatalog.Get(SoundCatalog.UiHover).Path;
+		audio.HiddenFiles.Remove(hoverPath);
+		Require(ResourceLoader.Exists(hoverPath), "menu_hover.ogg está en assets/audio/sfx");
 		foreach (Button button in new[] { resume, back })
 		{
+			OS.DelayMsec(500);
 			audio.ClearRequests();
 			button.EmitSignal(BaseButton.SignalName.MouseEntered);
 			AudioManager.Request[] hovered = audio.Requests.Where(request => request.Id == SoundCatalog.UiHover).ToArray();
 			Require(hovered.Length == 1, $"«{button.Text}»: el hover pide menu_hover una sola vez ({hovered.Length})");
-			Require(hovered[0].Result is AudioManager.Outcome.Missing or AudioManager.Outcome.Played or AudioManager.Outcome.Silent, "Sin archivo queda como faltante, sin error");
+			Require(hovered[0].Result is AudioManager.Outcome.Played or AudioManager.Outcome.Silent, $"Con el archivo, menu_hover se carga y suena ({hovered[0].Result})");
+			Require(hovered[0].PitchScale is > 0.94f and < 1.06f && !hovered[0].Positional, "Plano y con una variación de tono de ±5 %");
 			Require(audio.Requests.Count == 1, "Y no pide nada más");
 		}
+
+		// Sin archivo (simulado: se oculta la ruta, así la prueba no depende de lo que haya en el disco): faltante, sin error y sin voces.
+		audio.HiddenFiles.Add(hoverPath);
+		OS.DelayMsec(500);
+		audio.ClearRequests();
+		int voices = audio.ActiveVoiceCount;
+		resume.EmitSignal(BaseButton.SignalName.MouseEntered);
+		Require(audio.Requests.Count == 1 && audio.Requests[0].Id == SoundCatalog.UiHover && audio.Requests[0].Result == AudioManager.Outcome.Missing,
+			"Sin archivo, menu_hover queda como faltante");
+		Require(audio.ActiveVoiceCount == voices, "Y no deja ninguna voz sonando");
+		audio.HiddenFiles.Remove(hoverPath);
 
 		audio.ClearRequests();
 		resume.EmitSignal(BaseButton.SignalName.Pressed);
